@@ -11,12 +11,13 @@ CREATE TABLE users (
 -- Authentication providers
 CREATE TABLE authentication (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    provider VARCHAR(50) NOT NULL,   -- 'local', 'google', 'facebook'
-    provider_id VARCHAR(255),        -- oauth subject/id, null for local
-    password_hash VARCHAR(255),      -- only for local
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider VARCHAR(50) NOT NULL,         -- 'local', 'google', 'facebook'
+    provider_id VARCHAR(255),              -- external ID for OAuth, NULL for local
+    password_hash VARCHAR(255),            -- only for local
     created_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE (provider, provider_id)
+    UNIQUE (provider, user_id),            -- each user can have 1 record per provider
+    UNIQUE (provider, provider_id)         -- ensures OAuth IDs are unique
 );
 
 -- Authorization (roles)
