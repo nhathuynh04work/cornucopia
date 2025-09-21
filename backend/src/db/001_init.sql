@@ -29,7 +29,7 @@ CREATE TABLE user_roles (
 );
 
 -- Email confirmations
-CREATE TABLE email_confirmations (
+CREATE TABLE email_verification_tokens (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     token VARCHAR(255) UNIQUE NOT NULL,
