@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { api } from "../apis/axios";
+import { useAuth } from "../contexts/AuthContext";
 
 function Confirm() {
 	const location = useLocation();
@@ -11,50 +12,50 @@ function Confirm() {
 	const [error, setError] = useState(null);
 	const [message, setMessage] = useState(null);
 
-	// Confirm email using token
-	useEffect(() => {
-		if (!token) return;
+	const { login } = useAuth();
+	const navigate = useNavigate();
 
-		// Make API call to confirm the token
-		api.get("/auth/confirm", { params: { token } })
-			.then((res) => {
-				setMessage(res.data.message);
+	// Confirm email on mount
+	useEffect(() => {
+		// If no token in query params, don’t even try request
+		if (!token) {
+			setError("Invalid confirmation link");
+			setLoading(false);
+			return;
+		}
+
+		const confirmEmail = async () => {
+			try {
+				const res = await api.get("/auth/confirm", {
+					params: { token },
+				});
+
+				const { token: jwt } = res.data;
+				login(jwt);
+
+				setMessage("Email confirmed successfully");
 				setError(null);
-			})
-			.catch((err) => {
+
+				navigate("/", { replace: true });
+			} catch (err) {
 				setError(err.response?.data?.error || "An error occurred");
 				setMessage(null);
-			})
-			.finally(() => {
+			} finally {
 				setLoading(false);
-			});
-	}, [token]);
+			}
+		};
 
-	// Redirect after successful confirmation
-	useEffect(() => {
-		if (!message) return;
+		confirmEmail();
+	}, [token, login, navigate]);
 
-		const timer = setTimeout(() => {
-			window.location.href = "/";
-		}, 2000);
+	if (loading) return <p>Confirming your email...</p>;
 
-		return () => clearTimeout(timer);
-	}, [message]);
-
-	if (!token) {
-		return <p style={{ color: "red" }}>Invalid confirmation link</p>;
-	}
+	if (error) return <p style={{ color: "red" }}>{error}</p>;
 
 	return (
-		<div>
-			{loading && <p>Confirming your email...</p>}
-			{error && <p style={{ color: "red" }}>{error}</p>}
-			{message && (
-				<p style={{ color: "green" }}>
-					{message}. Redirecting you to main page...
-				</p>
-			)}
-		</div>
+		<p style={{ color: "green" }}>
+			{message}. Redirecting you to main page...
+		</p>
 	);
 }
 

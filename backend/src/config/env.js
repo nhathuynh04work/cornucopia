@@ -10,4 +10,5 @@ export const env = {
 	SMTP_PASS: process.env.SMTP_PASS,
 	FROM_EMAIL: process.env.FROM_EMAIL,
 	APP_BASE_URL: process.env.APP_BASE_URL,
+	JWT_SECRET: process.env.JWT_SECRET,
 };

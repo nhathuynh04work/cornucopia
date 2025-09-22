@@ -2,6 +2,7 @@ import db from "../config/db.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { sendConfirmationEmail } from "../services/email.js";
+import { createJWT } from "../services/jwt.js";
 
 // Local Signup
 export const localSignup = async (req, res) => {
@@ -75,50 +76,151 @@ export const localSignup = async (req, res) => {
 	}
 };
 
-// Email confirmation
+// Email Confirmation
 export const confirmEmail = async (req, res) => {
 	const { token } = req.query;
+	if (!token) return res.status(400).json({ error: "Missing token" });
 
-	if (!token) {
-		return res.status(400).json({ error: "Missing token" });
-	}
-
+	const client = await db.connect();
 	try {
-		// Find the token
-		const tokenResult = await db.query(
+		await client.query("BEGIN");
+
+		// Retrieve token info
+		const tokenResult = await client.query(
 			"SELECT user_id, expires_at FROM email_verification_tokens WHERE token = $1",
 			[token]
 		);
 
+		// Invalid token
 		if (tokenResult.rows.length === 0) {
-			return res.status(400).json({ error: "Invalid token" });
+			await client.query("ROLLBACK");
+			return res.status(400).json({ error: "Not found token" });
 		}
 
 		const { user_id, expires_at } = tokenResult.rows[0];
 
-		// Check if token is expired
+		// Expired token, remove it
 		if (new Date() > expires_at) {
+			await client.query(
+				"DELETE FROM email_verification_tokens WHERE token = $1",
+				[token]
+			);
+			await client.query("ROLLBACK");
 			return res.status(400).json({ error: "Token has expired" });
 		}
 
-		// Update user's is_active status
-		await db.query("UPDATE users SET is_active = TRUE WHERE id = $1", [
+		// Activate user and remove token
+		await client.query("UPDATE users SET is_active = TRUE WHERE id = $1", [
 			user_id,
 		]);
-
-		// Delete the token
-		await db.query(
+		await client.query(
 			"DELETE FROM email_verification_tokens WHERE token = $1",
 			[token]
 		);
 
-		res.json({ message: "Email confirmed successfully" });
+		await client.query("COMMIT");
+
+		// Create JWT for immediate login
+		const jwtToken = createJWT({ userId: user_id });
+		res.json({ message: "Email confirmed successfully", token: jwtToken });
 	} catch (err) {
+		await client.query("ROLLBACK");
 		console.error(err);
-		return res.status(500).json({ error: "Internal server error" });
+		res.status(500).json({ error: "Internal server error" });
+	} finally {
+		client.release();
 	}
 };
 
-export const localLogin = (req, res) => {
-	res.send("Login endpoint");
+// Get Current User
+export const getCurrentUser = async (req, res) => {
+	const userId = req.user.userId;
+
+	try {
+		// Fetch user details
+		const userResult = await db.query(
+			"SELECT id, name, email, is_active, created_at FROM users WHERE id = $1",
+			[userId]
+		);
+
+		if (userResult.rows.length === 0) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		// Get user roles
+		const rolesResult = await db.query(
+			"SELECT role FROM user_roles WHERE user_id = $1",
+			[userId]
+		);
+
+		const user = {
+			...userResult.rows[0],
+			roles: rolesResult.rows.map((r) => r.role),
+		};
+
+		res.json({ user });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+// Local Login
+export const localLogin = async (req, res) => {
+	const { email, password } = req.body;
+
+	// Validate input
+	if (!email || !password) {
+		return res.status(400).json({ error: "Missing email or password" });
+	}
+
+	try {
+		// Find user
+		const userResult = await db.query(
+			"SELECT id, email, name, is_active FROM users WHERE email = $1",
+			[email]
+		);
+
+		if (userResult.rows.length === 0) {
+			return res.status(400).json({ error: "Invalid email or password" });
+		}
+
+		const user = userResult.rows[0];
+
+		// Check if active (email confirmed)
+		if (!user.is_active) {
+			return res
+				.status(403)
+				.json({ error: "Please confirm your email before logging in" });
+		}
+
+		// Get password hash from authentication table
+		const authResult = await db.query(
+			"SELECT password_hash FROM authentication WHERE user_id = $1 AND provider = $2",
+			[user.id, "local"]
+		);
+
+		if (authResult.rows.length === 0) {
+			return res.status(400).json({ error: "Invalid email or password" });
+		}
+
+		const { password_hash } = authResult.rows[0];
+
+		// Compare password
+		const isMatch = await bcrypt.compare(password, password_hash);
+		if (!isMatch) {
+			return res.status(400).json({ error: "Invalid email or password" });
+		}
+
+		// ✅ Just return the JWT (frontend will decode or call /me endpoint later)
+		const jwtToken = createJWT({ userId: user.id });
+
+		res.json({
+			message: "Login successful",
+			token: jwtToken,
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: "Internal server error" });
+	}
 };

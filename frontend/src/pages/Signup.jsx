@@ -1,12 +1,15 @@
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
 import { api } from "../apis/axios";
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 const nameRegex = /^[A-Za-z\s]{2,}$/;
 
 function Signup() {
+	const { user } = useAuth();
+
 	const [formData, setFormData] = useState({
 		name: "",
 		email: "",
@@ -54,64 +57,118 @@ function Signup() {
 		}
 	}
 
+	if (user) {
+		return <Navigate to="/" replace />;
+	}
+
 	return (
-		<div>
-			Signup
-			<Link to="/login">Login</Link>
-			<Link to="/">Home</Link>
-			{message && <div>{message}</div>}
+		<div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
+			<h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+				Create an account
+			</h2>
+
+			{message && (
+				<div className="mb-4 text-sm text-center text-blue-600">
+					{message}
+				</div>
+			)}
+
 			<form
-				className="flex flex-col gap-2 w-xl"
+				className="flex flex-col gap-4"
 				onSubmit={(e) => {
 					e.preventDefault();
 					handleLocalSignup();
 				}}>
-				<label htmlFor="email">Email</label>
-				<input
-					name="email"
-					type="text"
-					value={formData.email}
-					onChange={(e) => handleChange(e)}
-					placeholder="Email"
-					className="border border-black"
-				/>
-				{errors.email && (
-					<span className="text-red-500">{errors.email}</span>
-				)}
+				{/* Name */}
+				<div>
+					<label
+						htmlFor="name"
+						className="block text-sm font-medium text-gray-700">
+						Name
+					</label>
+					<input
+						name="name"
+						type="text"
+						value={formData.name}
+						onChange={handleChange}
+						placeholder="Your name"
+						className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200"
+						required
+					/>
+					{errors.name && (
+						<p className="text-xs text-red-500 mt-1">
+							{errors.name}
+						</p>
+					)}
+				</div>
 
-				<label htmlFor="password">Password</label>
-				<input
-					name="password"
-					type="password"
-					value={formData.password}
-					onChange={(e) => handleChange(e)}
-					placeholder="Password"
-					className="border border-black"
-				/>
-				{errors.password && (
-					<span className="text-red-500">{errors.password}</span>
-				)}
+				{/* Email */}
+				<div>
+					<label
+						htmlFor="email"
+						className="block text-sm font-medium text-gray-700">
+						Email
+					</label>
+					<input
+						name="email"
+						type="email"
+						value={formData.email}
+						onChange={handleChange}
+						placeholder="you@example.com"
+						className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200"
+						required
+					/>
+					{errors.email && (
+						<p className="text-xs text-red-500 mt-1">
+							{errors.email}
+						</p>
+					)}
+				</div>
 
-				<label htmlFor="name">Name</label>
-				<input
-					name="name"
-					type="text"
-					value={formData.name}
-					onChange={(e) => handleChange(e)}
-					placeholder="Name"
-					className="border border-black"
-				/>
-				{errors.name && (
-					<span className="text-red-500">{errors.name}</span>
-				)}
+				{/* Password */}
+				<div>
+					<label
+						htmlFor="password"
+						className="block text-sm font-medium text-gray-700">
+						Password
+					</label>
+					<input
+						name="password"
+						type="password"
+						value={formData.password}
+						onChange={handleChange}
+						placeholder="At least 8 characters"
+						className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200"
+						required
+					/>
+					{errors.password && (
+						<p className="text-xs text-red-500 mt-1">
+							{errors.password}
+						</p>
+					)}
+				</div>
 
+				{/* Submit button */}
 				<button
 					type="submit"
 					disabled={loading}
-					className="border border-black">
+					className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-200 transition">
 					{loading ? "Signing up..." : "Sign Up"}
 				</button>
 			</form>
+
+			{/* Footer links */}
+			<p className="mt-4 text-sm text-center text-gray-600">
+				Already have an account?{" "}
+				<Link to="/login" className="text-blue-600 hover:underline">
+					Log in
+				</Link>
+			</p>
+			<p className="mt-2 text-sm text-center">
+				<Link to="/" className="text-gray-500 hover:underline">
+					Back to Home
+				</Link>
+			</p>
 		</div>
 	);
 }
