@@ -35,7 +35,7 @@ function UserDropdown({ user }) {
 					<div className="font-semibold group-hover:text-indigo-600 line-clamp-2">
 						{user.name}
 					</div>
-					<div className="text-xs font-light text-gray-500 line-clamp-1">
+					<div className="text-xs font-light text-gray-500 truncate">
 						{user.email}
 					</div>
 				</div>

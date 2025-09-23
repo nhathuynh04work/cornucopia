@@ -1,12 +1,17 @@
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 
 const baseClasses = "cursor-pointer";
 
-function NavButton({ to, children, className }) {
+function NavButton({ to, children, className, activeClassName }) {
 	return (
-		<Link to={to} className={`${baseClasses} ${className}`}>
+		<NavLink
+			to={to}
+            end
+			className={({ isActive }) =>
+				`${baseClasses} ${className} ${isActive ? activeClassName : ""}`
+			}>
 			{children}
-		</Link>
+		</NavLink>
 	);
 }
 
