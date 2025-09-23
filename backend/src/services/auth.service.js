@@ -1,12 +1,25 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { withTransaction } from "../db/transaction.js";
-import { getUserByEmail, createUser, activateUser } from "../repositories/user.repository.js";
+import {
+	getUserByEmail,
+	createUser,
+	activateUser,
+	getUserById,
+} from "../repositories/user.repository.js";
 import { createLocalAuth } from "../repositories/auth.repository.js";
-import { assignRoleToUser } from "../repositories/role.repository.js";
-import { createToken, deleteToken, getTokenInfo } from "../repositories/token.repository.js";
+import {
+	assignRoleToUser,
+	getRoleByUserId,
+} from "../repositories/role.repository.js";
+import {
+	createToken,
+	deleteToken,
+	getTokenInfo,
+} from "../repositories/token.repository.js";
 import { sendConfirmationEmail } from "../utils/email.js";
 import { createJWT } from "../utils/jwt.js";
+import { getLocalAuthByUserId } from "../repositories/auth.repository.js";
 
 export async function localSignup({ email, name, password }) {
 	const existingUser = await getUserByEmail(email);
@@ -60,4 +73,53 @@ export async function confirmEmail({ token }) {
 			token: jwtToken,
 		};
 	});
+}
+
+export async function getCurrentUser({ userId }) {
+	const user = await getUserById(userId);
+
+	if (!user) {
+		throw { status: 404, error: "User not found" };
+	}
+
+	const role = await getRoleByUserId(userId);
+
+	return {
+		status: 200,
+		message: "Retrieved user successfully",
+		user: {
+			...user,
+			role,
+		},
+	};
+}
+
+export async function localLogin({ email, password }) {
+	const user = await getUserByEmail(email);
+
+	if (!user) {
+		throw { status: 400, error: "Invalid email or password" };
+	}
+
+	if (!user.is_active) {
+		throw {
+			status: 403,
+			error: "Please verify your email to activate your account",
+		};
+	}
+
+	const auth = await getLocalAuthByUserId(user.id);
+
+	if (!auth) {
+		throw { status: 400, error: "Invalid email or password" };
+	}
+
+	const isMatch = await bcrypt.compare(password, auth.password_hash);
+
+	if (!isMatch) {
+		throw { status: 400, error: "Invalid email or password" };
+	}
+
+	const jwtToken = createJWT({ userId: user.id });
+	return { status: 200, message: "Login successful", token: jwtToken };
 }

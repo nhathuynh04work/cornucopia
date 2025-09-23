@@ -2,7 +2,7 @@ import db from "../db/db.js";
 
 export async function getUserByEmail(email) {
 	const result = await db.query(
-		`SELECT * FROM users WHERE email = $1 LIMIT 1`,
+		"SELECT * FROM users WHERE email = $1 LIMIT 1",
 		[email]
 	);
 	return result.rows[0] || null;
@@ -10,7 +10,7 @@ export async function getUserByEmail(email) {
 
 export async function getUserById(id) {
 	const result = await db.query(
-		`SELECT id, name, email, is_active, created_at FROM users WHERE id = $1`,
+		"SELECT id, name, email, is_active, created_at FROM users WHERE id = $1",
 		[id]
 	);
 	return result.rows[0] || null;

@@ -2,6 +2,7 @@ import { Link, Navigate, useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
 import { api } from "../apis/axios";
+import { toast } from "react-hot-toast";
 
 function Login() {
 	const { user, login } = useAuth();
@@ -31,6 +32,9 @@ function Login() {
 
 			// Save token in AuthContext
 			login(token);
+
+			// Show success message
+			toast.success("Logged in successfully");
 
 			// Redirect to home
 			navigate("/", { replace: true });
