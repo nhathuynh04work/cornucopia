@@ -1,9 +1,11 @@
+import { env } from "../config/env.js";
 import {
 	confirmEmail,
 	getCurrentUser,
 	localLogin,
 	localSignup,
 } from "../services/auth.service.js";
+import { createJWT } from "../utils/jwt.js";
 
 // Local Signup
 export async function signupController(req, res) {
@@ -97,4 +99,14 @@ export async function localLoginController(req, res) {
 
 		res.status(status).json({ error: message });
 	}
+}
+
+// Google callback
+export async function googleCallbackController(req, res) {
+	const user = req.user;
+	const jwtToken = createJWT({ userId: user.id });
+
+	res.redirect(
+		`${env.FRONTEND_URL}/auth/callback?token=${jwtToken}&provider=google`
+	);
 }
