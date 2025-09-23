@@ -14,6 +14,7 @@ import Courses from "./pages/Courses";
 import { Toaster } from "react-hot-toast";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import ProfileStats from "./pages/ProfileStats";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
 	return (
@@ -35,6 +36,7 @@ function App() {
 					<Route path="courses" element={<Courses />} />
 				</Route>
 				<Route path="confirm" element={<Confirm />} />
+				<Route path="auth/callback" element={<AuthCallback />} />
 			</Routes>
 
 			<Toaster position="bottom-left" />
