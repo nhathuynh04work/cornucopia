@@ -37,3 +37,13 @@ CREATE TABLE email_verification_tokens (
     used BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Media (images, videos, audios)
+CREATE TABLE media (
+    id SERIAL PRIMARY KEY,
+    s3_key TEXT NOT NULL,          -- uploads/1758700155421-vite.svg
+    file_type TEXT NOT NULL,       -- image/png
+    status VARCHAR(20) NOT NULL DEFAULT 'temporary', -- for deleting orphans
+    user_id INT REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT now()
+);
