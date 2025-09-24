@@ -1,10 +1,10 @@
-export async function uploadMedia(client, { userId, fileUrl, fileType }) {
-	console.log("media.repo.js, uploadMedia");
-	console.log(userId, fileUrl, fileType);
+export async function uploadMedia(client, { userId, s3Key, fileType }) {
+	// console.log("media.repo.js, uploadMedia");
+	// console.log(userId, s3Key, fileType);
 
-	const result = client.query(
-		"INSERT INTO media (user_id, file_url, file_type) VALUES ($1, $2, $3) RETURNING *",
-		[userId, fileUrl, fileType]
+	const result = await client.query(
+		"INSERT INTO media (user_id, s3_key, file_type) VALUES ($1, $2, $3) RETURNING *",
+		[userId, s3Key, fileType]
 	);
 
 	return result.rows[0] || null;

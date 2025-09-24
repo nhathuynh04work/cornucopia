@@ -1,12 +1,12 @@
 import {
 	confirmUpload,
 	generateUploadParams,
-} from "../services/upload.service";
+} from "../services/upload.service.js";
 
 export async function getUploadURLController(req, res) {
 	const { fileName, fileType } = req.body;
 	if (!fileName || !fileType) {
-		return res.status(400).json({ error: "Missing params" });
+		return res.status(400).json({ error: "Missing body" });
 	}
 
 	try {
@@ -37,7 +37,7 @@ export async function confirmUploadController(req, res) {
 
 		res.status(result.status).json({
 			message: result.message,
-			fileUrl: result.fileUrl,
+			s3Key: result.s3Key,
 		});
 	} catch (err) {
 		console.error(err);
