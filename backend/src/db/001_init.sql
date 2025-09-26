@@ -37,3 +37,24 @@ CREATE TABLE email_verification_tokens (
     used BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Flashcards lists
+CREATE TABLE flashcard_lists (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    CONSTRAINT uq_user_title UNIQUE (user_id, title)
+);
+
+-- Flashcards
+CREATE TABLE flashcards (
+    id SERIAL PRIMARY KEY,
+    list_id INTEGER NOT NULL REFERENCES flashcard_lists(id) ON DELETE CASCADE,
+    term TEXT NOT NULL,
+    definition TEXT NOT NULL,
+    example TEXT,
+    image_url TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
