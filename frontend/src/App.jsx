@@ -15,6 +15,8 @@ import { Toaster } from "react-hot-toast";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
+import TestEdit from "./pages/TestEdit";
+import TestInfo from "./pages/TestInfo";
 
 function App() {
 	return (
@@ -32,6 +34,8 @@ function App() {
 					</Route>
 					<Route path="blog" element={<Blog />} />
 					<Route path="tests" element={<Tests />} />
+					<Route path="tests/:id" element={<TestInfo />} />
+					<Route path="tests/:id/edit" element={<TestEdit />} />
 					<Route path="flashcards" element={<Flashcards />} />
 					<Route path="courses" element={<Courses />} />
 				</Route>

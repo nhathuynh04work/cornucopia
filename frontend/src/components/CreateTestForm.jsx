@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 function CreateTestForm({
-	initialTitle = "Test Title",
+	initialTitle = "Default",
 	initialDescription = "Test Description",
 	onSubmit,
 	onCancel,

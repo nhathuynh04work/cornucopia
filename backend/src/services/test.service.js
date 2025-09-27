@@ -1,6 +1,14 @@
 import prisma from "../prisma.js";
-import { addNewTest } from "../repositories/test.repository.js";
+import {
+	addNewTest,
+	getAllTests,
+	getTestByIdLite,
+} from "../repositories/test.repository.js";
 import { addNewSection } from "../repositories/section.repository.js";
+
+export async function getTests() {
+	return await getAllTests();
+}
 
 export async function createTest({ title, description }) {
 	return await prisma.$transaction(async (tx) => {
@@ -33,3 +41,9 @@ export async function createTest({ title, description }) {
 		};
 	});
 }
+
+export async function getTestLite({ id }) {
+	return await getTestByIdLite(id);
+}
+
+export async function getTestDetails({ id }) {}
