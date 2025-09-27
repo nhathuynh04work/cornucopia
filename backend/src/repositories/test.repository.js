@@ -1,19 +1,15 @@
-import { Test } from "../models/index.js";
+import prisma from "../prisma.js";
 
 export async function getTestById(testId) {}
 
 export async function listTests() {
-	return await Test.findAll({ raw: true });
+	return await prisma.test.findMany();
 }
 
-export async function addNewTest(transaction, { testTitle, testDesc }) {
-	const newTest = await Test.create(
-		{
-			title: testTitle,
-			description: testDesc,
-		},
-		{ transaction }
-	);
+export async function addNewTest(client, { title, description }) {
+	const newTest = await client.test.create({
+		data: { title, description },
+	});
 
-	return newTest.toJSON();
+	return newTest;
 }

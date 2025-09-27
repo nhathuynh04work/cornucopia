@@ -14,8 +14,8 @@ model User {
     name                   String?                 @db.VarChar(255)
     avatarUrl              String?                 @map("avatar_url") @db.VarChar(255)
     isActive               Boolean?                @default(false) @map("is_active")
-    createdAt              DateTime                @map("created_at") @db.Timestamptz(6)
-    updatedAt              DateTime                @map("updated_at") @db.Timestamptz(6)
+    createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt              DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
     authentication         Authentication[]
     emailVerificationToken EmailVerificationToken?
     media                  Media[]
@@ -28,8 +28,8 @@ model UserRole {
     id        Int      @id @default(autoincrement())
     userId    Int      @unique @map("user_id")
     role      String   @db.VarChar(50)
-    createdAt DateTime @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@map("user_roles")
@@ -41,8 +41,8 @@ model Authentication {
     provider     String   @db.VarChar(50)
     providerId   String?  @map("provider_id") @db.VarChar(255)
     passwordHash String?  @map("password_hash") @db.VarChar(255)
-    createdAt    DateTime @map("created_at") @db.Timestamptz(6)
-    updatedAt    DateTime @map("updated_at") @db.Timestamptz(6)
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerId], map: "authentication_provider_provider_id")
@@ -56,8 +56,8 @@ model EmailVerificationToken {
     token     String   @unique @db.VarChar(255)
     expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
     used      Boolean? @default(false)
-    createdAt DateTime @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@map("email_verification_tokens")
@@ -69,8 +69,8 @@ model Media {
     fileType  String   @map("file_type")
     status    String   @default("temporary") @db.VarChar(20)
     userId    Int?     @map("user_id")
-    createdAt DateTime @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
     user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@map("media")
@@ -81,8 +81,8 @@ model Test {
     title        String
     description  String?
     timeLimit    Int?          @map("time_limit")
-    createdAt    DateTime      @map("created_at") @db.Timestamptz(6)
-    updatedAt    DateTime      @map("updated_at") @db.Timestamptz(6)
+    createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
     testSections TestSection[]
 
     @@map("tests")
@@ -93,8 +93,8 @@ model TestSection {
     testId         Int             @map("test_id")
     title          String
     sortOrder      Int             @map("sort_order")
-    createdAt      DateTime        @map("created_at") @db.Timestamptz(6)
-    updatedAt      DateTime        @map("updated_at") @db.Timestamptz(6)
+    createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt      DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
     questionGroups QuestionGroup[]
     test           Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
 
@@ -107,8 +107,8 @@ model QuestionGroup {
     title     String?
     mediaUrl  String?     @map("media_url")
     sortOrder Int         @map("sort_order")
-    createdAt DateTime    @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime    @map("updated_at") @db.Timestamptz(6)
+    createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime    @default(now()) @map("updated_at") @db.Timestamptz(6)
     section   TestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
     questions Question[]
 
@@ -124,8 +124,8 @@ model Question {
     points        Decimal?       @default(1) @db.Decimal(5, 2)
     sortOrder     Int            @map("sort_order")
     correctAnswer String?        @map("correct_answer")
-    createdAt     DateTime       @map("created_at") @db.Timestamptz(6)
-    updatedAt     DateTime       @map("updated_at") @db.Timestamptz(6)
+    createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt     DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
     answerOptions AnswerOption[]
     group         QuestionGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
@@ -138,8 +138,8 @@ model AnswerOption {
     text       String
     isCorrect  Boolean? @default(false) @map("is_correct")
     sortOrder  Int      @map("sort_order")
-    createdAt  DateTime @map("created_at") @db.Timestamptz(6)
-    updatedAt  DateTime @map("updated_at") @db.Timestamptz(6)
+    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
     question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
     @@map("answer_options")

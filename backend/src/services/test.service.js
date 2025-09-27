@@ -1,30 +1,33 @@
-import { withTransactionSequelize } from "../db/transaction.js";
-import { addNewSection } from "../repositories/section.repository.js";
+import prisma from "../prisma.js";
 import { addNewTest } from "../repositories/test.repository.js";
+import { addNewSection } from "../repositories/section.repository.js";
 
-export async function createTest({ testTitle, testDesc }) {
-	return withTransactionSequelize(async (transaction) => {
-		const newTest = await addNewTest(transaction, {
-			testTitle,
-			testDesc,
+export async function createTest({ title, description }) {
+	return await prisma.$transaction(async (tx) => {
+		// 1. Create test
+		const newTest = await addNewTest(tx, {
+			title,
+			description,
 		});
 
-		const newSection = await addNewSection(transaction, {
+		// 2. Create default section
+		const newSection = await addNewSection(tx, {
 			testId: newTest.id,
-			sectionTitle: "Default",
-			sectionOrder: 1,
+			title: "Default",
+			sortOrder: 1,
 		});
 
+		// 3. Return combined result
 		return {
 			id: newTest.id,
 			title: newTest.title,
 			description: newTest.description,
-			timeLimit: newTest.time_limit,
+			timeLimit: newTest.timeLimit,
 			sections: [
 				{
 					id: newSection.id,
 					title: newSection.title,
-					sortOrder: newSection.sort_order,
+					sortOrder: newSection.sortOrder,
 				},
 			],
 		};

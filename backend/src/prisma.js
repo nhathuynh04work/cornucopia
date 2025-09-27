@@ -1,6 +1,12 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/prisma/index.js";
 
-const prisma = new PrismaClient();
+let prisma;
+if (!global.prisma) {
+	prisma = new PrismaClient();
+	global.prisma = prisma;
+} else {
+	prisma = global.prisma;
+}
 
 async function shutdownPrisma(signal) {
 	try {
@@ -16,6 +22,18 @@ async function shutdownPrisma(signal) {
 
 ["SIGINT", "SIGTERM", "SIGQUIT"].forEach((signal) => {
 	process.on(signal, () => shutdownPrisma(signal));
+});
+
+process.on("uncaughtException", async (err) => {
+	console.error("Uncaught Exception:", err);
+	await prisma.$disconnect();
+	process.exit(1);
+});
+
+process.on("unhandledRejection", async (reason) => {
+	console.error("Unhandled Rejection:", reason);
+	await prisma.$disconnect();
+	process.exit(1);
 });
 
 export default prisma;

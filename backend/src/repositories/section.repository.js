@@ -1,17 +1,11 @@
-import { TestSection } from "../models/index.js";
-
-export async function addNewSection(
-	transaction,
-	{ testId, sectionTitle, sectionOrder }
-) {
-	const newSection = await TestSection.create(
-		{
-			test_id: testId,
-			title: sectionTitle,
-			sort_order: sectionOrder,
+export async function addNewSection(client, { testId, title, sortOrder }) {
+	const newSection = await client.testSection.create({
+		data: {
+			testId,
+			title,
+			sortOrder,
 		},
-		{ transaction }
-	);
+	});
 
-	return newSection.toJSON();
+	return newSection;
 }

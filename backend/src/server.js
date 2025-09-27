@@ -3,12 +3,8 @@ import cors from "cors";
 import { env } from "./config/env.js";
 import { authRouter, testRouter, uploadRouter } from "./routes/index.js";
 import passport from "./config/passport.js";
-import initDB from "./db/initDB.js";
 
 const app = express();
-
-// init database connection
-await initDB();
 
 // Middlewares
 app.use(cors()); // To be configured later
