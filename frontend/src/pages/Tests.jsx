@@ -29,25 +29,25 @@ function Tests() {
 		return <p>Loading...</p>;
 	}
 
-	if (tests.length === 0) {
-		return <p>No test</p>;
-	}
-
 	return (
 		<>
 			<div className="flex">
 				<div className="w-5/6">
 					<h1>Tests</h1>
 					<div className="grid grid-cols-5 gap-4">
-						{tests.map((test) => (
-							<NavButton
-								to={`/tests/${test.id}`}
-								key={test.id}
-								className="bg-red-100">
-								<p>{test.title}</p>
-								<p>{test.description}</p>
-							</NavButton>
-						))}
+						{tests.length === 0 ? (
+							<p>No test</p>
+						) : (
+							tests.map((test) => (
+								<NavButton
+									to={`/tests/${test.id}`}
+									key={test.id}
+									className="bg-red-100">
+									<p>{test.title}</p>
+									<p>{test.description}</p>
+								</NavButton>
+							))
+						)}
 					</div>
 				</div>
 
