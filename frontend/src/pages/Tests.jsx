@@ -50,7 +50,7 @@ function Tests() {
 					</div>
 				</div>
 
-				<div>
+				<div className="w-1/6">
 					<button
 						onClick={() => setShowModal(true)}
 						className="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 transition">

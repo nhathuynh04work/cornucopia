@@ -20,4 +20,28 @@ export async function getTestByIdLite(id) {
 	});
 }
 
-export async function getTestByIdWithDetails(id) {}
+export async function getTestByIdWithDetails(id) {
+	return await prisma.test.findUnique({
+		where: { id },
+		include: {
+			testSections: {
+				orderBy: { sortOrder: "asc" },
+				include: {
+					questionGroups: {
+						orderBy: { sortOrder: "asc" },
+						include: {
+							questions: {
+								orderBy: { sortOrder: "asc" },
+								include: {
+									answerOptions: {
+										orderBy: { sortOrder: "asc" },
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	});
+}

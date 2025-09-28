@@ -3,6 +3,7 @@ import {
 	addNewTest,
 	getAllTests,
 	getTestByIdLite,
+	getTestByIdWithDetails,
 } from "../repositories/test.repository.js";
 import { addNewSection } from "../repositories/section.repository.js";
 
@@ -46,4 +47,6 @@ export async function getTestLite({ id }) {
 	return await getTestByIdLite(id);
 }
 
-export async function getTestDetails({ id }) {}
+export async function getTestDetails({ id }) {
+	return await getTestByIdWithDetails(id);
+}

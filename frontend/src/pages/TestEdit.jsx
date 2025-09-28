@@ -1,45 +1,32 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { api } from "../apis/axios";
+import { useTestEditorQuery } from "../hooks/useTestEditorQuery";
+import { useEffect } from "react";
+import { useTestEditorStore } from "../store/testEditorStore";
+import TestEditor from "../components/TestEditor";
 
 function TestEdit() {
 	const { id } = useParams();
-	const [test, setTest] = useState(null);
-	const [error, setError] = useState(null);
-	const [loading, setLoading] = useState(true);
+	const { data, isLoading, error } = useTestEditorQuery(id);
+
+	const loadTest = useTestEditorStore((s) => s.loadTest);
+	const test = useTestEditorStore((s) => s.getEntity("tests", id));
 
 	useEffect(() => {
-		async function getTestInfo(testId) {
-			try {
-				const res = await api.get(`/tests/${testId}`);
-				console.log(res.data.test);
-				setTest(res.data.test);
-			} catch (err) {
-				setError(err.message);
-			} finally {
-				setLoading(false);
-			}
-		}
+		if (!data?.entities) return;
+		loadTest(data);
+	}, [data, loadTest]);
 
-		getTestInfo(id);
-	}, [id]);
+	if (isLoading) return <p>Loading…</p>;
+	if (error) return <p>{error.message ?? "Something went wrong"}</p>;
 
-	if (loading) {
-		return <p>Loading…</p>;
-	}
-
-	if (error) {
-		return (
-			<div>
-				<p>{error}</p>
-			</div>
-		);
-	}
+	if (!test) return <p>No test found</p>;
 
 	return (
-		<div>
-			<h1>{test.title}</h1>
-			<p>{test.description}</p>
+		<div className="flex">
+			<div className="w-5/6">
+				<TestEditor id={id} />
+			</div>
+			<div className="w-1/6">Left side</div>
 		</div>
 	);
 }

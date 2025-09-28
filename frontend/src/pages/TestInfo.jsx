@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { fetchTestBasicInfo } from "../apis/testApi";
+import NavButton from "../components/NavButton";
 
 function TestInfo() {
 	const { id } = useParams();
@@ -14,10 +15,14 @@ function TestInfo() {
 	}
 
 	return (
-		<div>
-			test info
-			<p>{test.id}</p>
-			<p>{test.title}</p>
+		<div className="flex">
+			<div className="w-5/6">
+				test info
+				<p>{test.id}</p>
+				<p>{test.title}</p>
+				<NavButton to={`/tests/${id}/edit`}>Edit</NavButton>
+			</div>
+			<div className="w-1/6">Left side</div>
 		</div>
 	);
 }

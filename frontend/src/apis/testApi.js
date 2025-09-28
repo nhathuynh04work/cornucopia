@@ -19,3 +19,13 @@ export async function fetchTestBasicInfo(id) {
 		throw err;
 	}
 }
+
+export async function fetchTestDetails(id) {
+	try {
+		const { data } = await api.get(`/tests/${id}/details`);
+		return data.test;
+	} catch (err) {
+		console.log(err.message);
+		throw err;
+	}
+}

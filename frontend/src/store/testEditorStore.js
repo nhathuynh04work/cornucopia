@@ -1,17 +1,13 @@
-import { normalize } from "normalizr";
 import { create } from "zustand";
-import { test as TestSchema } from "../normalizr/testSchemas.js";
 
-export const useTestEditorStore = create((set) => ({
+export const useTestEditorStore = create((set, get) => ({
 	entities: {},
 	result: null,
 
 	loadTest: (data) => {
-		const normalized = normalize(data, TestSchema);
-
 		set({
-			entities: normalized.entities,
-			result: normalized.result,
+			entities: data.entities,
+			result: data.result,
 		});
 	},
 
@@ -35,4 +31,9 @@ export const useTestEditorStore = create((set) => ({
 			entities: {},
 			result: null,
 		}),
+
+	getEntity: (type, id) => {
+		const { entities } = get();
+		return entities?.[type]?.[id] ?? null;
+	},
 }));

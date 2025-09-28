@@ -3,19 +3,19 @@ import { schema } from "normalizr";
 const answerOption = new schema.Entity("answerOptions");
 
 const question = new schema.Entity("questions", {
-	options: [answerOption],
+	answerOptions: [answerOption],
 });
 
 const questionGroup = new schema.Entity("questionGroups", {
 	questions: [question],
 });
 
-const section = new schema.Entity("sections", {
-	groups: [questionGroup],
+const testSection = new schema.Entity("testSections", {
+	questionGroups: [questionGroup],
 });
 
 const test = new schema.Entity("tests", {
-	sections: [section],
+	testSections: [testSection],
 });
 
 export { test };
