@@ -44,7 +44,8 @@ function Tests() {
 								to={`/tests/${test.id}`}
 								key={test.id}
 								className="bg-red-100">
-								{test.title}
+								<p>{test.title}</p>
+								<p>{test.description}</p>
 							</NavButton>
 						))}
 					</div>

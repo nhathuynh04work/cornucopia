@@ -16,14 +16,35 @@ export const useTestEditorStore = create((set, get) => ({
 			entities: {
 				...state.entities,
 				[type]: {
-					...state.entities[type],
+					...(state.entities[type] ?? {}),
 					[id]: {
-						...state.entities[type]?.[id],
+						...(state.entities[type]?.[id] ?? {}),
 						...changes,
 					},
 				},
 			},
 		}));
+	},
+
+	appendChildToParent: (parentType, parentId, relationKey, childId) => {
+		set((state) => {
+			const parent = state.entities[parentType][parentId];
+			return {
+				entities: {
+					...state.entities,
+					[parentType]: {
+						...state.entities[parentType],
+						[parentId]: {
+							...parent,
+							[relationKey]: [
+								...(parent[relationKey] || []),
+								childId,
+							],
+						},
+					},
+				},
+			};
+		});
 	},
 
 	reset: () =>

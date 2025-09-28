@@ -1,4 +1,22 @@
-export async function addNewSection(client, { testId, title, sortOrder }) {
+import prisma from "../prisma.js";
+
+export async function getLastSectionOfATest(testId) {
+	const lastSection = await prisma.testSection.findFirst({
+		where: {
+			testId,
+		},
+		orderBy: {
+			sortOrder: "desc",
+		},
+	});
+
+	return lastSection;
+}
+
+export async function addNewSection(
+	client = prisma,
+	{ testId, title, sortOrder }
+) {
 	const newSection = await client.testSection.create({
 		data: {
 			testId,
