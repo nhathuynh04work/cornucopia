@@ -1,6 +1,6 @@
 import prisma from "../prisma.js";
 
-export async function getLastSectionOfATest(testId) {
+export async function getLastSectionOfTest(testId) {
 	const lastSection = await prisma.testSection.findFirst({
 		where: {
 			testId,

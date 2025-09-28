@@ -102,13 +102,15 @@ model TestSection {
 }
 
 model QuestionGroup {
-    id        Int         @id @default(autoincrement())
-    sectionId Int         @map("section_id")
-    title     String?
-    mediaUrl  String?     @map("media_url")
-    sortOrder Int         @map("sort_order")
-    createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime    @default(now()) @map("updated_at") @db.Timestamptz(6)
+    id            Int      @id @default(autoincrement())
+    sectionId     Int      @map("section_id")
+    title         String?
+    mediaUrl      String?  @map("media_url")
+    sortOrder     Int      @map("sort_order")
+    isSingleGroup Boolean  @default(true) @map("is_single_group")
+    createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
     section   TestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
     questions Question[]
 
