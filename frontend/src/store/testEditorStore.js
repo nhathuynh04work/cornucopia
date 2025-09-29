@@ -3,7 +3,7 @@ import { create } from "zustand";
 export const useTestEditorStore = create((set, get) => ({
 	entities: {},
 	result: null,
-	_flatQuestionsCache: null,
+	questionsOrdered: null,
 
 	// Load test and precompute flat questions
 	loadTest: (data) => {
@@ -11,7 +11,7 @@ export const useTestEditorStore = create((set, get) => ({
 		set({
 			entities: data.entities,
 			result: data.result,
-			_flatQuestionsCache: flat,
+			questionsOrdered: flat,
 		});
 	},
 
@@ -30,7 +30,7 @@ export const useTestEditorStore = create((set, get) => ({
 			};
 			return {
 				entities: newEntities,
-				_flatQuestionsCache: computeFlatQuestions(
+				questionsOrdered: computeFlatQuestions(
 					newEntities,
 					state.result
 				),
@@ -57,7 +57,7 @@ export const useTestEditorStore = create((set, get) => ({
 			};
 			return {
 				entities: newEntities,
-				_flatQuestionsCache: computeFlatQuestions(
+				questionsOrdered: computeFlatQuestions(
 					newEntities,
 					state.result
 				),
@@ -70,7 +70,7 @@ export const useTestEditorStore = create((set, get) => ({
 		set({
 			entities: {},
 			result: null,
-			_flatQuestionsCache: null,
+			questionsOrdered: null,
 		}),
 
 	// Get entity by type and ID
@@ -81,9 +81,15 @@ export const useTestEditorStore = create((set, get) => ({
 
 	// Get the sequential question number in the whole test
 	getQuestionNumber: (questionId) => {
-		const flatQuestions = get()._flatQuestionsCache ?? [];
-		const index = flatQuestions.findIndex((q) => q.id === questionId);
+		const ordered = get().questionsOrdered ?? [];
+		const index = ordered.findIndex((q) => q.id === questionId);
 		return index === -1 ? null : index + 1;
+	},
+
+	// Get only the
+	getAllQuestionNumbers: () => {
+		const ordered = get().questionsOrdered ?? [];
+		return ordered.map((q, index) => index + 1);
 	},
 }));
 

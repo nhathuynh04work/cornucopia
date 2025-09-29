@@ -8,7 +8,7 @@ function QuestionEditor({ id }) {
 	const { mutate: addOptionToQuestion } = useAddOptionToQuestionMutation(id);
 
 	return (
-		<div className="bg-orange-100">
+		<div className="bg-orange-100" id={`question-${id}`}>
 			<QuestionHeader question={question} />
 
 			{/* Multi choice */}

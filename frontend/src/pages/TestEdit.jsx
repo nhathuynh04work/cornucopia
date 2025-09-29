@@ -3,6 +3,7 @@ import { useTestEditorQuery } from "../hooks/useTestEditorQuery";
 import { useEffect } from "react";
 import { useTestEditorStore } from "../store/testEditorStore";
 import TestEditor from "../components/TestEditor";
+import QuestionListNav from "../components/QuestionListNav";
 
 function TestEdit() {
 	const { id } = useParams();
@@ -26,7 +27,9 @@ function TestEdit() {
 			<div className="w-5/6">
 				<TestEditor id={id} />
 			</div>
-			<div className="w-1/6">Left side</div>
+			<div className="w-1/6 sticky top-0 h-screen overflow-y-auto">
+				<QuestionListNav />
+			</div>
 		</div>
 	);
 }
