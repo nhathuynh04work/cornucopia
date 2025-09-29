@@ -14,7 +14,7 @@ function QuestionEditor({ id }) {
 			{/* Multi choice */}
 			{question.questionType === "multiple_choice" && (
 				<div>
-					{question?.answerOptions.map((optionId) => (
+					{question?.answerOptions?.map((optionId) => (
 						<AnswerOptionEditor key={optionId} id={optionId} />
 					))}
 					<button onClick={addOptionToQuestion} className="border">
