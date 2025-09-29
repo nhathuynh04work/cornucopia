@@ -1,3 +1,4 @@
+import { useAddNormalQuestionGroupMutation } from "../hooks/useAddGroup";
 import { useAddSingleQuestionMutation } from "../hooks/useAddQuestion";
 import { useTestEditorStore } from "../store/testEditorStore";
 import QuestionGroupEditor from "./QuestionGroupEditor";
@@ -12,6 +13,7 @@ function SectionEditor({ id }) {
 		id,
 		"short_answer"
 	);
+	const { mutate: addNormalGroup } = useAddNormalQuestionGroupMutation(id);
 
 	return (
 		<div className="bg-yellow-100">
@@ -31,7 +33,9 @@ function SectionEditor({ id }) {
 						onClick={addSingleSAQuestion}>
 						Add SA question
 					</button>
-					<button className="mr-4 border">Add group</button>
+					<button className="mr-4 border" onClick={addNormalGroup}>
+						Add group
+					</button>
 				</div>
 			</div>
 			{section.questionGroups?.map((groupId) => (

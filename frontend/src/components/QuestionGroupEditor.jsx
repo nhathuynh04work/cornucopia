@@ -9,7 +9,7 @@ function QuestionGroupEditor({ id }) {
 		<div className={isSingleGroup ? "bg-orange-100" : "bg-blue-100"}>
 			{!isSingleGroup && group.sortOrder}
 
-			{group?.questions.map((questionId) => (
+			{group?.questions?.map((questionId) => (
 				<QuestionEditor key={questionId} id={questionId} />
 			))}
 		</div>

@@ -10,7 +10,7 @@ export async function addSingleQuestionController(req, res) {
 
 	const parsedSectionId = Number(sectionId);
 	if (Number.isNaN(parsedSectionId)) {
-		return res.status(400).json({ error: "Invalid test id" });
+		return res.status(400).json({ error: "Invalid section id" });
 	}
 
 	try {
