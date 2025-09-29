@@ -1,5 +1,5 @@
-import { useAddNormalQuestionGroupMutation } from "../hooks/useAddGroup";
-import { useAddSingleQuestionMutation } from "../hooks/useAddQuestion";
+import { useAddNormalQuestionGroupMutation } from "../hooks/useGroupMutation";
+import { useAddSingleQuestionMutation } from "../hooks/useQuestionMutation";
 import { useTestEditorStore } from "../store/testEditorStore";
 import QuestionGroupEditor from "./QuestionGroupEditor";
 

@@ -5,7 +5,7 @@ function QuestionEditor({ id }) {
 	const number = useTestEditorStore((s) => s.getQuestionNumber(id));
 
 	return (
-		<div>
+		<div className="bg-orange-100">
 			<b>{number}</b>
 			{question.text}
 		</div>

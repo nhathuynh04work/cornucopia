@@ -1,4 +1,7 @@
-import { createNormalGroupService } from "../services/group.service.js";
+import {
+	addQuestionToGroupService,
+	createNormalGroupService,
+} from "../services/group.service.js";
 
 export async function createNormalGroupController(req, res) {
 	const { sectionId } = req.body;
@@ -17,6 +20,31 @@ export async function createNormalGroupController(req, res) {
 		});
 
 		res.status(201).json({ group: newGroup });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ error: err.error });
+	}
+}
+
+export async function addQuestionToGroupController(req, res) {
+	const groupId = Number(req.params.id);
+	const { questionType } = req.body;
+
+	if (Number.isNaN(groupId)) {
+		return res.status(404).json({ error: "Invalid group id" });
+	}
+
+	if (!questionType) {
+		return res.status(404).json({ error: "Missing question type" });
+	}
+
+	try {
+		const newQuestion = await addQuestionToGroupService({
+			groupId,
+			questionType,
+		});
+        
+		res.status(201).json({ question: newQuestion });
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({ error: err.error });

@@ -1,4 +1,4 @@
-import { useAddSectionMutation } from "../hooks/useAddSection";
+import { useAddSectionMutation } from "../hooks/useSectionMutation";
 import { useTestEditorStore } from "../store/testEditorStore";
 import SectionEditor from "./SectionEditor";
 

@@ -7,7 +7,7 @@ export async function addSection(testId) {
 		});
 		return data.section;
 	} catch (err) {
-		console.log(err);
+		console.log(err.message);
 		throw err;
 	}
 }

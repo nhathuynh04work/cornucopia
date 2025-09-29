@@ -7,7 +7,19 @@ export async function addNormalGroup(sectionId) {
 		});
 		return data.group;
 	} catch (err) {
-		console.log(err);
+		console.log(err.message);
+		throw err;
+	}
+}
+
+export async function addQuestionToGroup(groupId, questionType) {
+	try {
+		const { data } = await api.post(`/groups/${groupId}/questions`, {
+			questionType,
+		});
+		return data.question;
+	} catch (err) {
+		console.log(err.message);
 		throw err;
 	}
 }

@@ -13,3 +13,14 @@ export async function createQuestion(
 		},
 	});
 }
+
+export async function getLastQuestionOfGroup(groupId) {
+	return await prisma.question.findFirst({
+		where: {
+			groupId,
+		},
+		orderBy: {
+			sortOrder: "desc",
+		},
+	});
+}

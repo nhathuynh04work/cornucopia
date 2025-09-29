@@ -8,7 +8,7 @@ export async function addSingleQuestion(sectionId, questionType) {
 		});
 		return data;
 	} catch (err) {
-		console.log(err);
+		console.log(err.message);
 		throw err;
 	}
 }
