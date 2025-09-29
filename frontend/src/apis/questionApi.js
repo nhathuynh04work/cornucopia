@@ -12,3 +12,13 @@ export async function addSingleQuestion(sectionId, questionType) {
 		throw err;
 	}
 }
+
+export async function addOptionToQuestion(questionId) {
+	try {
+		const { data } = await api.post(`/questions/${questionId}/options`);
+		return data.option;
+	} catch (err) {
+		console.log(err.message);
+		throw err;
+	}
+}

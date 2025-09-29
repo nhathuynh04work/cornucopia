@@ -1,4 +1,7 @@
-import { addSingleQuestionService } from "../services/question.service.js";
+import {
+	addOptionToQuestionService,
+	addSingleQuestionService,
+} from "../services/question.service.js";
 
 export async function addSingleQuestionController(req, res) {
 	const { sectionId, questionType } = req.body;
@@ -20,6 +23,22 @@ export async function addSingleQuestionController(req, res) {
 		});
 
 		res.status(201).json({ group: newGroup, question: newQuestion });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ error: err.error });
+	}
+}
+
+export async function addOptionToQuestionController(req, res) {
+	const questionId = Number(req.params.id);
+
+	if (Number.isNaN(questionId)) {
+		return res.status(404).json({ error: "Invalid question id" });
+	}
+
+	try {
+		const newOption = await addOptionToQuestionService({ questionId });
+		res.status(201).json({ option: newOption });
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({ error: err.error });

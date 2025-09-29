@@ -24,3 +24,11 @@ export async function getLastQuestionOfGroup(groupId) {
 		},
 	});
 }
+
+export async function getQuestionById(id) {
+	return await prisma.question.findUnique({
+		where: {
+			id,
+		},
+	});
+}

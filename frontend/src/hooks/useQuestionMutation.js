@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useTestEditorStore } from "../store/testEditorStore";
-import { addSingleQuestion } from "../apis/questionApi";
+import { addOptionToQuestion, addSingleQuestion } from "../apis/questionApi";
 
 export function useAddSingleQuestionMutation(sectionId, questionType) {
 	const updateEntities = useTestEditorStore((s) => s.updateEntities);
@@ -29,6 +29,26 @@ export function useAddSingleQuestionMutation(sectionId, questionType) {
 				group.id,
 				"questions",
 				question.id
+			);
+		},
+	});
+}
+
+export function useAddOptionToQuestionMutation(questionId) {
+	const updateEntities = useTestEditorStore((s) => s.updateEntities);
+	const appendChildToParent = useTestEditorStore(
+		(s) => s.appendChildToParent
+	);
+
+	return useMutation({
+		mutationFn: () => addOptionToQuestion(questionId),
+		onSuccess: (newOption) => {
+			updateEntities("answerOptions", newOption.id, newOption);
+			appendChildToParent(
+				"questions",
+				questionId,
+				"answerOptions",
+				newOption.id
 			);
 		},
 	});
