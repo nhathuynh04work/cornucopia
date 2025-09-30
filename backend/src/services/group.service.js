@@ -12,7 +12,7 @@ import {
 export async function createNormalGroupService({ sectionId }) {
 	return await prisma.$transaction(async (tx) => {
 		// Step 1: Find the last question group of the section
-		const lastGroup = await getLastGroupOfSection(sectionId);
+		const lastGroup = await getLastGroupOfSection(sectionId, tx);
 
 		// Step 2: Calculate the order of the next group
 		const nextGroupOrder = lastGroup ? lastGroup.sortOrder + 1 : 1;
@@ -31,7 +31,7 @@ export async function createNormalGroupService({ sectionId }) {
 export async function addQuestionToGroupService({ groupId, questionType }) {
 	return await prisma.$transaction(async (tx) => {
 		// Step 1: Get the last question of the group
-		const lastQuestion = await getLastQuestionOfGroup(groupId);
+		const lastQuestion = await getLastQuestionOfGroup(groupId, tx);
 
 		// Step 2: Calculate the order of the added question
 		const newOrder = lastQuestion ? lastQuestion.sortOrder + 1 : 1;

@@ -5,5 +5,6 @@ const router = Router();
 
 router.post("/single", questionController.addSingleQuestionController);
 router.post("/:id/options", questionController.addOptionToQuestionController);
+router.delete("/:id", questionController.deleteQuestionController);
 
 export default router;

@@ -1,5 +1,32 @@
 import { create } from "zustand";
 
+const parentConfig = {
+	// parentType: the entity’s parent table.
+	// relationKey: the array field on the parent that holds children.
+	// parentIdKey: the attribute on the child that points back to its parent.
+
+	testSections: {
+		parentType: "tests",
+		relationKey: "testSections",
+		parentIdKey: "testId",
+	},
+	questionGroups: {
+		parentType: "testSections",
+		relationKey: "questionGroups",
+		parentIdKey: "sectionId",
+	},
+	questions: {
+		parentType: "questionGroups",
+		relationKey: "questions",
+		parentIdKey: "groupId",
+	},
+	answerOptions: {
+		parentType: "questions",
+		relationKey: "answerOptions",
+		parentIdKey: "questionId",
+	},
+};
+
 export const useTestEditorStore = create((set, get) => ({
 	entities: {},
 	result: null,
@@ -90,6 +117,50 @@ export const useTestEditorStore = create((set, get) => ({
 	getAllQuestionNumbers: () => {
 		const ordered = get().questionsOrdered ?? [];
 		return ordered.map((q, index) => index + 1);
+	},
+
+	// Delete an entity from store
+	deleteEntity: (type, id) => {
+		const { parentType, relationKey, parentIdKey } = parentConfig[type];
+
+		set((state) => {
+			const newEntities = { ...state.entities };
+
+			// Step 1: Remove from parent directly
+			const entity = newEntities[type]?.[id];
+			const parentId = entity[parentIdKey];
+			const parent = newEntities[parentType]?.[parentId];
+
+			newEntities[parentType] = {
+				...newEntities[parentType],
+				[parentId]: {
+					...parent,
+					[relationKey]: parent[relationKey].filter(
+						(childId) => childId !== id
+					),
+				},
+			};
+
+			// Step 2: Cascade delete if question → remove its options
+			if (type === "questions") {
+				const question = newEntities.questions?.[id];
+				question?.answerOptions.forEach((optionId) => {
+					delete newEntities.answerOptions?.[optionId];
+				});
+			}
+
+			// Step 3: Delete the entity itself
+			newEntities[type] = { ...newEntities[type] };
+			delete newEntities[type][id];
+
+			return {
+				entities: newEntities,
+				questionsOrdered: computeFlatQuestions(
+					newEntities,
+					state.result
+				),
+			};
+		});
 	},
 }));
 

@@ -22,3 +22,12 @@ export async function addOptionToQuestion(questionId) {
 		throw err;
 	}
 }
+
+export async function deleteQuestion(questionId) {
+	try {
+		await api.delete(`/questions/${questionId}`);
+	} catch (err) {
+		console.log(err.message);
+		throw err;
+	}
+}
