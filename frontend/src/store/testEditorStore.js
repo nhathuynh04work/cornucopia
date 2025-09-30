@@ -144,7 +144,7 @@ export const useTestEditorStore = create((set, get) => ({
 			// Step 2: Cascade delete if question → remove its options
 			if (type === "questions") {
 				const question = newEntities.questions?.[id];
-				question?.answerOptions.forEach((optionId) => {
+				question?.answerOptions?.forEach((optionId) => {
 					delete newEntities.answerOptions?.[optionId];
 				});
 			}

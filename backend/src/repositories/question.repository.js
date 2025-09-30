@@ -40,3 +40,11 @@ export async function deleteQuestion(client = prisma, { id }) {
 		},
 	});
 }
+
+export async function countQuestionsOfGroup(groupId, client = prisma) {
+	return client.question.count({
+		where: {
+			groupId,
+		},
+	});
+}

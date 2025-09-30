@@ -1,9 +1,11 @@
 import prisma from "../prisma.js";
 import {
 	createNormalGroup,
+	deleteGroup,
 	getLastGroupOfSection,
 } from "../repositories/group.repository.js";
 import {
+	countQuestionsOfGroup,
 	createQuestion,
 	getLastQuestionOfGroup,
 } from "../repositories/question.repository.js";
@@ -46,4 +48,19 @@ export async function addQuestionToGroupService({ groupId, questionType }) {
 
 		return newQuestion;
 	});
+}
+
+// Delete a group
+export async function deleteGroupService({ groupId }) {
+	await prisma.$transaction(async (tx) => {
+		const count = await countQuestionsOfGroup(groupId, tx);
+
+		if (count > 0) {
+			throw new Error("Cannot delete a group that still has questions");
+		}
+
+		await deleteGroup(tx, { id: groupId });
+	});
+
+	return true;
 }

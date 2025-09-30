@@ -5,6 +5,7 @@ import {
 	addSingleQuestion,
 	deleteQuestion,
 } from "../apis/questionApi";
+import { toast } from "react-hot-toast";
 
 export function useAddSingleQuestionMutation(sectionId, questionType) {
 	const updateEntities = useTestEditorStore((s) => s.updateEntities);
@@ -76,6 +77,8 @@ export function useDeleteQuestionMutation(questionId) {
 			if (group.isSingleGroup) {
 				deleteEntity("questionGroups", group.id);
 			}
+
+			toast.success("Question deleted");
 		},
 	});
 }
