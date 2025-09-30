@@ -1,3 +1,4 @@
+import { useDeleteOptionMutation } from "../hooks/useOptionMutation";
 import { useTestEditorStore } from "../store/testEditorStore";
 
 function sortOrderToLetter(order) {
@@ -18,10 +19,17 @@ function sortOrderToLetter(order) {
 
 function AnswerOptionEditor({ id }) {
 	const option = useTestEditorStore((s) => s.getEntity("answerOptions", id));
+	const { mutate: deleteOption } = useDeleteOptionMutation(id);
 
 	return (
-		<div>
-			{sortOrderToLetter(option.sortOrder)}. {option.text}
+		<div className="flex justify-between">
+			<p>
+				{sortOrderToLetter(option.sortOrder)}. {option.text}
+			</p>
+
+			<button className="border" onClick={deleteOption}>
+				Delete
+			</button>
 		</div>
 	);
 }

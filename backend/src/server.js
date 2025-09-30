@@ -8,6 +8,7 @@ import {
 	uploadRouter,
 	questionRouter,
 	groupRouter,
+	optionRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 
@@ -25,6 +26,7 @@ app.use("/tests", testRouter);
 app.use("/sections", sectionRouter);
 app.use("/groups", groupRouter);
 app.use("/questions", questionRouter);
+app.use("/options", optionRouter);
 
 app.listen(env.PORT, () => {
 	console.log(`Server running on port ${env.PORT}`);

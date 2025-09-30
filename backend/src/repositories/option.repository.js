@@ -24,3 +24,11 @@ export async function createOption(
 		},
 	});
 }
+
+export async function deleteOption(client = prisma, { id }) {
+	return await client.answerOption.delete({
+		where: {
+			id,
+		},
+	});
+}

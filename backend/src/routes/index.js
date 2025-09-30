@@ -4,6 +4,7 @@ import testRouter from "./test.routes.js";
 import sectionRouter from "./section.routes.js";
 import questionRouter from "./question.routes.js";
 import groupRouter from "./group.routes.js";
+import optionRouter from "./option.routes.js";
 
 export {
 	authRouter,
@@ -12,4 +13,5 @@ export {
 	sectionRouter,
 	questionRouter,
 	groupRouter,
+	optionRouter,
 };
