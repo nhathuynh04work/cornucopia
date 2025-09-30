@@ -1,4 +1,7 @@
-import { useAddQuestionToGroupMutation } from "../hooks/useGroupMutation";
+import {
+	useAddQuestionToGroupMutation,
+	useDeleteGroupMutation,
+} from "../hooks/useGroupMutation";
 import { useTestEditorStore } from "../store/testEditorStore";
 
 function QuestionGroupHeader({ group }) {
@@ -17,6 +20,7 @@ function QuestionGroupHeader({ group }) {
 		group.id,
 		"short_answer"
 	);
+	const { mutate: deleteGroup } = useDeleteGroupMutation(group.id);
 
 	return (
 		<div className="flex justify-between">
@@ -24,6 +28,11 @@ function QuestionGroupHeader({ group }) {
 				Question {firstNumber} - {lastNumber}
 			</p>
 			<div>
+				{(!group?.questions || group.questions?.length === 0) && (
+					<button className="mr-4 border" onClick={deleteGroup}>
+						Delete group
+					</button>
+				)}
 				<button className="mr-4 border" onClick={addMCQuestionToGroup}>
 					Add MC question
 				</button>

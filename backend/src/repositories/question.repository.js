@@ -14,8 +14,8 @@ export async function createQuestion(
 	});
 }
 
-export async function getLastQuestionOfGroup(groupId) {
-	return await prisma.question.findFirst({
+export async function getLastQuestionOfGroup(groupId, client = prisma) {
+	return await client.question.findFirst({
 		where: {
 			groupId,
 		},
@@ -25,10 +25,26 @@ export async function getLastQuestionOfGroup(groupId) {
 	});
 }
 
-export async function getQuestionById(id) {
-	return await prisma.question.findUnique({
+export async function getQuestionById(id, client = prisma) {
+	return await client.question.findUnique({
 		where: {
 			id,
+		},
+	});
+}
+
+export async function deleteQuestion(client = prisma, { id }) {
+	return await client.question.delete({
+		where: {
+			id,
+		},
+	});
+}
+
+export async function countQuestionsOfGroup(groupId, client = prisma) {
+	return client.question.count({
+		where: {
+			groupId,
 		},
 	});
 }

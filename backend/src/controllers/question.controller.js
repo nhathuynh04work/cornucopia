@@ -1,6 +1,7 @@
 import {
 	addOptionToQuestionService,
 	addSingleQuestionService,
+	deleteQuestionService,
 } from "../services/question.service.js";
 
 export async function addSingleQuestionController(req, res) {
@@ -42,5 +43,26 @@ export async function addOptionToQuestionController(req, res) {
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({ error: err.error });
+	}
+}
+
+export async function deleteQuestionController(req, res) {
+	const id = Number(req.params.id);
+
+	if (Number.isNaN(id)) {
+		return res.status(400).json({ error: "Invalid question id" });
+	}
+
+	try {
+		const success = await deleteQuestionService({ id });
+
+		if (success) {
+			return res.status(204).end();
+		} else {
+			return res.status(404).json({ error: "Question not found" });
+		}
+	} catch (err) {
+		console.error(err);
+		return res.status(500).json({ error: "Internal server error" });
 	}
 }

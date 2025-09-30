@@ -23,3 +23,12 @@ export async function addQuestionToGroup(groupId, questionType) {
 		throw err;
 	}
 }
+
+export async function deleteGroup(groupId) {
+	try {
+		await api.delete(`/groups/${groupId}`);
+	} catch (err) {
+		console.log(err.message);
+		throw err;
+	}
+}

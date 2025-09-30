@@ -1,9 +1,11 @@
 import prisma from "../prisma.js";
 import {
 	createNormalGroup,
+	deleteGroup,
 	getLastGroupOfSection,
 } from "../repositories/group.repository.js";
 import {
+	countQuestionsOfGroup,
 	createQuestion,
 	getLastQuestionOfGroup,
 } from "../repositories/question.repository.js";
@@ -12,7 +14,7 @@ import {
 export async function createNormalGroupService({ sectionId }) {
 	return await prisma.$transaction(async (tx) => {
 		// Step 1: Find the last question group of the section
-		const lastGroup = await getLastGroupOfSection(sectionId);
+		const lastGroup = await getLastGroupOfSection(sectionId, tx);
 
 		// Step 2: Calculate the order of the next group
 		const nextGroupOrder = lastGroup ? lastGroup.sortOrder + 1 : 1;
@@ -31,7 +33,7 @@ export async function createNormalGroupService({ sectionId }) {
 export async function addQuestionToGroupService({ groupId, questionType }) {
 	return await prisma.$transaction(async (tx) => {
 		// Step 1: Get the last question of the group
-		const lastQuestion = await getLastQuestionOfGroup(groupId);
+		const lastQuestion = await getLastQuestionOfGroup(groupId, tx);
 
 		// Step 2: Calculate the order of the added question
 		const newOrder = lastQuestion ? lastQuestion.sortOrder + 1 : 1;
@@ -46,4 +48,19 @@ export async function addQuestionToGroupService({ groupId, questionType }) {
 
 		return newQuestion;
 	});
+}
+
+// Delete a group
+export async function deleteGroupService({ groupId }) {
+	await prisma.$transaction(async (tx) => {
+		const count = await countQuestionsOfGroup(groupId, tx);
+
+		if (count > 0) {
+			throw new Error("Cannot delete a group that still has questions");
+		}
+
+		await deleteGroup(tx, { id: groupId });
+	});
+
+	return true;
 }

@@ -1,6 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import { useTestEditorStore } from "../store/testEditorStore";
-import { addOptionToQuestion, addSingleQuestion } from "../apis/questionApi";
+import {
+	addOptionToQuestion,
+	addSingleQuestion,
+	deleteQuestion,
+} from "../apis/questionApi";
+import { toast } from "react-hot-toast";
 
 export function useAddSingleQuestionMutation(sectionId, questionType) {
 	const updateEntities = useTestEditorStore((s) => s.updateEntities);
@@ -50,6 +55,30 @@ export function useAddOptionToQuestionMutation(questionId) {
 				"answerOptions",
 				newOption.id
 			);
+		},
+	});
+}
+
+export function useDeleteQuestionMutation(questionId) {
+	const getEntity = useTestEditorStore((s) => s.getEntity);
+	const deleteEntity = useTestEditorStore((s) => s.deleteEntity);
+
+	return useMutation({
+		mutationFn: () => deleteQuestion(questionId),
+		onSuccess: () => {
+			// Step 1: Get the group of the question
+			const question = getEntity("questions", questionId);
+			const group = getEntity("questionGroups", question.groupId);
+
+			// Step 2: Delete the question
+			deleteEntity("questions", questionId);
+
+			// Step 3: Delete the group from section if it's a single group
+			if (group.isSingleGroup) {
+				deleteEntity("questionGroups", group.id);
+			}
+
+			toast.success("Question deleted");
 		},
 	});
 }

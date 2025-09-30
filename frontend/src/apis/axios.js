@@ -8,7 +8,7 @@ export const api = axios.create({
 
 // response interceptor
 api.interceptors.response.use(
-	(response) => response, 
+	(response) => response,
 	(error) => {
 		const normalizedError = new Error(
 			error.response?.data?.error || error.message || "Unknown error"

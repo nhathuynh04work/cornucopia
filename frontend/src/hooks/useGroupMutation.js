@@ -1,6 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import { addNormalGroup, addQuestionToGroup } from "../apis/questionGroupApi";
+import {
+	addNormalGroup,
+	addQuestionToGroup,
+	deleteGroup,
+} from "../apis/questionGroupApi";
 import { useTestEditorStore } from "../store/testEditorStore";
+import toast from "react-hot-toast";
 
 export function useAddNormalQuestionGroupMutation(sectionId) {
 	const updateEntities = useTestEditorStore((s) => s.updateEntities);
@@ -38,6 +43,19 @@ export function useAddQuestionToGroupMutation(groupId, questionType) {
 				"questions",
 				newQuestion.id
 			);
+		},
+	});
+}
+
+export function useDeleteGroupMutation(groupId) {
+	const deleteEntity = useTestEditorStore((s) => s.deleteEntity);
+
+	return useMutation({
+		mutationFn: () => deleteGroup(groupId),
+		onSuccess: () => {
+			deleteEntity("questionGroups", groupId);
+
+			toast.success("Group deleted");
 		},
 	});
 }

@@ -1,6 +1,8 @@
 import prisma from "../prisma.js";
 import {
 	createSingleGroup,
+	deleteGroup,
+	getGroupById,
 	getLastGroupOfSection,
 } from "../repositories/group.repository.js";
 import {
@@ -9,13 +11,14 @@ import {
 } from "../repositories/option.repository.js";
 import {
 	createQuestion,
+	deleteQuestion,
 	getQuestionById,
 } from "../repositories/question.repository.js";
 
 export async function addSingleQuestionService({ sectionId, questionType }) {
 	return await prisma.$transaction(async (tx) => {
 		// Step 1: Find the last question group of the section
-		const lastGroup = await getLastGroupOfSection(sectionId);
+		const lastGroup = await getLastGroupOfSection(sectionId, tx);
 
 		// Step 2: Calculate the order of the next group
 		const nextGroupOrder = lastGroup ? lastGroup.sortOrder + 1 : 1;
@@ -52,7 +55,7 @@ export async function addOptionToQuestionService({ questionId }) {
 
 	return await prisma.$transaction(async (tx) => {
 		// Step 1: Get the last option of the question
-		const lastOption = await getLastOptionOfQuestion(questionId);
+		const lastOption = await getLastOptionOfQuestion(questionId, tx);
 
 		// Step 2: Calculate the order of the new option
 		const newOrder = lastOption ? lastOption.sortOrder + 1 : 1;
@@ -67,5 +70,30 @@ export async function addOptionToQuestionService({ questionId }) {
 		});
 
 		return newOption;
+	});
+}
+
+export async function deleteQuestionService({ id }) {
+	// Return the deleted item, controller will check if deleted successfully
+
+	return prisma.$transaction(async (tx) => {
+		// Step 1: Get the question
+		const question = await getQuestionById(id, tx);
+		if (!question) return false;
+
+		// Step 2: Get the group that wraps the deleted question
+		const group = await getGroupById(question.groupId, tx);
+		if (!group) return false;
+
+		// Step 3: Delete that group if it is a single group
+		// This will cascade delete the question
+		// If not, just delete the question
+		if (group.isSingleGroup) {
+			await deleteGroup(tx, { id: group.id });
+		} else {
+			await deleteQuestion(tx, { id });
+		}
+
+		return true;
 	});
 }
