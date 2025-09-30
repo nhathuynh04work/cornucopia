@@ -1,0 +1,155 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DB_URL")
+}
+
+model User {
+    id                     Int                     @id @default(autoincrement())
+    email                  String                  @unique @db.VarChar(255)
+    name                   String?                 @db.VarChar(255)
+    avatarUrl              String?                 @map("avatar_url") @db.VarChar(255)
+    isActive               Boolean?                @default(false) @map("is_active")
+    createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt              DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
+    authentication         Authentication[]
+    emailVerificationToken EmailVerificationToken?
+    media                  Media[]
+    userRole               UserRole?
+
+    @@map("users")
+}
+
+model UserRole {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @unique @map("user_id")
+    role      String   @db.VarChar(50)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("user_roles")
+}
+
+model Authentication {
+    id           Int      @id @default(autoincrement())
+    userId       Int      @map("user_id")
+    provider     String   @db.VarChar(50)
+    providerId   String?  @map("provider_id") @db.VarChar(255)
+    passwordHash String?  @map("password_hash") @db.VarChar(255)
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerId], map: "authentication_provider_provider_id")
+    @@unique([provider, userId], map: "authentication_provider_user_id")
+    @@map("authentication")
+}
+
+model EmailVerificationToken {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @unique @map("user_id")
+    token     String   @unique @db.VarChar(255)
+    expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+    used      Boolean? @default(false)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("email_verification_tokens")
+}
+
+model Media {
+    id        Int      @id @default(autoincrement())
+    s3Key     String   @map("s3_key")
+    fileType  String   @map("file_type")
+    status    String   @default("temporary") @db.VarChar(20)
+    userId    Int?     @map("user_id")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("media")
+}
+
+model Test {
+    id           Int           @id @default(autoincrement())
+    title        String
+    description  String?
+    timeLimit    Int?          @map("time_limit")
+    createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+    testSections TestSection[]
+
+    @@map("tests")
+}
+
+model TestSection {
+    id             Int             @id @default(autoincrement())
+    testId         Int             @map("test_id")
+    title          String
+    sortOrder      Int             @map("sort_order")
+    createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt      DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
+    questionGroups QuestionGroup[]
+    test           Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+    @@map("test_sections")
+}
+
+model QuestionGroup {
+    id            Int      @id @default(autoincrement())
+    sectionId     Int      @map("section_id")
+    title         String?
+    mediaUrl      String?  @map("media_url")
+    sortOrder     Int      @map("sort_order")
+    isSingleGroup Boolean  @default(true) @map("is_single_group")
+    createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+    section   TestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    questions Question[]
+
+    @@map("question_groups")
+}
+
+model Question {
+    id            Int            @id @default(autoincrement())
+    groupId       Int            @map("group_id")
+    text          String
+    mediaUrl      String?        @map("media_url")
+    questionType  QuestionType   @map("question_type")
+    points        Decimal?       @default(1) @db.Decimal(5, 2)
+    sortOrder     Int            @map("sort_order")
+    correctAnswer String?        @map("correct_answer")
+    createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt     DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+    answerOptions AnswerOption[]
+    group         QuestionGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+    @@map("questions")
+}
+
+model AnswerOption {
+    id         Int      @id @default(autoincrement())
+    questionId Int      @map("question_id")
+    text       String
+    isCorrect  Boolean? @default(false) @map("is_correct")
+    sortOrder  Int      @map("sort_order")
+    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+    @@map("answer_options")
+}
+
+enum QuestionType {
+    multiple_choice
+    short_answer
+
+    @@map("enum_questions_question_type")
+}
