@@ -1,7 +1,9 @@
 import {
 	addNewSection,
+	deleteSection,
 	getLastSectionOfTest,
 } from "../repositories/section.repository.js";
+import { countGroupsOfSection } from "../repositories/group.repository.js";
 
 export async function addNewSectionService({ testId }) {
 	// Step 1: Get the last section of the test
@@ -18,4 +20,18 @@ export async function addNewSectionService({ testId }) {
 	});
 
 	return newSection;
+}
+
+export async function deleteSectionService({ sectionId }) {
+	await prisma.$transaction(async (tx) => {
+		const count = await countGroupsOfSection(sectionId, tx);
+
+		if (count > 0) {
+			throw new Error("Cannot delete a group that still has questions");
+		}
+
+		await deleteSection(tx, { id: sectionId });
+	});
+
+	return true;
 }

@@ -27,3 +27,11 @@ export async function addNewSection(
 
 	return newSection;
 }
+
+export async function deleteSection(client = prisma, { id }) {
+	return await client.testSection.delete({
+		where: {
+			id,
+		},
+	});
+}

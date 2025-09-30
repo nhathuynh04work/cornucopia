@@ -11,3 +11,12 @@ export async function addSection(testId) {
 		throw err;
 	}
 }
+
+export async function deleteSection(sectionId) {
+	try {
+		await api.delete(`/sections/${sectionId}`);
+	} catch (err) {
+		console.log(err);
+		throw err;
+	}
+}

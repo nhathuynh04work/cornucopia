@@ -51,3 +51,11 @@ export async function deleteGroup(client = prisma, { id }) {
 		},
 	});
 }
+
+export async function countGroupsOfSection(sectionId, client = prisma) {
+	return client.questionGroup.count({
+		where: {
+			sectionId,
+		},
+	});
+}
