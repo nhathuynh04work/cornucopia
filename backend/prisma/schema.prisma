@@ -89,67 +89,69 @@ model Test {
 }
 
 model TestSection {
-    id             Int             @id @default(autoincrement())
-    testId         Int             @map("test_id")
-    title          String
-    sortOrder      Int             @map("sort_order")
-    createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt      DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
-    questionGroups QuestionGroup[]
-    test           Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+    id        Int      @id @default(autoincrement())
+    testId    Int      @map("test_id")
+    title     String
+    sortOrder Int      @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+    test  Test       @relation(fields: [testId], references: [id], onDelete: Cascade)
+    items TestItem[]
 
     @@map("test_sections")
 }
 
-model QuestionGroup {
-    id            Int      @id @default(autoincrement())
-    sectionId     Int      @map("section_id")
-    title         String?
-    mediaUrl      String?  @map("media_url")
-    sortOrder     Int      @map("sort_order")
-    isSingleGroup Boolean  @default(true) @map("is_single_group")
-    createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+model TestItem {
+    id           Int           @id @default(autoincrement())
+    sectionId    Int           @map("section_id")
+    parentItemId Int?          @map("parent_item_id")
+    type         TestItemType
+    title        String?
+    text         String?
+    mediaUrl     String?       @map("media_url")
+    questionType QuestionType? @map("question_type") // only set when type = question
+    points       Decimal?      @default(1) @db.Decimal(5, 2)
+    sortOrder    Int           @map("sort_order")
+    createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-    section   TestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-    questions Question[]
-
-    @@map("question_groups")
-}
-
-model Question {
-    id            Int            @id @default(autoincrement())
-    groupId       Int            @map("group_id")
-    text          String
-    mediaUrl      String?        @map("media_url")
-    questionType  QuestionType   @map("question_type")
-    points        Decimal?       @default(1) @db.Decimal(5, 2)
-    sortOrder     Int            @map("sort_order")
-    correctAnswer String?        @map("correct_answer")
-    createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt     DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+    section       TestSection    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    parent        TestItem?      @relation("ItemToChildren", fields: [parentItemId], references: [id])
+    children      TestItem[]     @relation("ItemToChildren")
     answerOptions AnswerOption[]
-    group         QuestionGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
-    @@map("questions")
+    @@map("test_items")
 }
 
 model AnswerOption {
-    id         Int      @id @default(autoincrement())
-    questionId Int      @map("question_id")
-    text       String
-    isCorrect  Boolean? @default(false) @map("is_correct")
-    sortOrder  Int      @map("sort_order")
-    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    id        Int      @id @default(autoincrement())
+    itemId    Int      @map("item_id") // must reference a TestItem of type 'question'
+    text      String
+    isCorrect Boolean? @default(false) @map("is_correct")
+    sortOrder Int      @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+    item TestItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
     @@map("answer_options")
+}
+
+enum TestItemType {
+    group
+    question
+    instruction
+    media
+
+    @@map("enum_test_items_type")
 }
 
 enum QuestionType {
     multiple_choice
     short_answer
+    true_false
+    matching
 
-    @@map("enum_questions_question_type")
+    @@map("enum_test_items_question_type")
 }
