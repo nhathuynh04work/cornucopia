@@ -13,7 +13,7 @@ export async function getLastSectionOfTest(testId) {
 	return lastSection;
 }
 
-export async function addNewSection(
+export async function createSection(
 	client = prisma,
 	{ testId, title, sortOrder }
 ) {

@@ -1,9 +1,8 @@
 import {
-	addNewSection,
+	createSection,
 	deleteSection,
 	getLastSectionOfTest,
 } from "../repositories/section.repository.js";
-import { countGroupsOfSection } from "../repositories/group.repository.js";
 
 export async function addNewSectionService({ testId }) {
 	// Step 1: Get the last section of the test
@@ -13,7 +12,7 @@ export async function addNewSectionService({ testId }) {
 	const nextOrder = lastSection ? lastSection.sortOrder + 1 : 1;
 
 	// Step 3: Create new section
-	const newSection = await addNewSection(undefined, {
+	const newSection = await createSection(undefined, {
 		testId,
 		title: "Default",
 		sortOrder: nextOrder,

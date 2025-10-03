@@ -4,7 +4,7 @@ export async function getAllTests() {
 	return await prisma.test.findMany();
 }
 
-export async function addNewTest(client, { title, description }) {
+export async function createTest(client, { title, description }) {
 	const newTest = await client.test.create({
 		data: { title, description },
 	});

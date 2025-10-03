@@ -2,20 +2,24 @@ import { schema } from "normalizr";
 
 const answerOption = new schema.Entity("answerOptions");
 
-const question = new schema.Entity("questions", {
+// Cannot write like this because item has not been initialized => cannot use it inside the definition block
+// const item = new schema.Entity("items", {
+// 	answerOptions: [answerOption],
+// 	children: [item],
+// });
+
+const item = new schema.Entity("items");
+item.define({
 	answerOptions: [answerOption],
+	children: [item],
 });
 
-const questionGroup = new schema.Entity("questionGroups", {
-	questions: [question],
-});
-
-const testSection = new schema.Entity("testSections", {
-	questionGroups: [questionGroup],
+const section = new schema.Entity("sections", {
+	items: [item],
 });
 
 const test = new schema.Entity("tests", {
-	testSections: [testSection],
+	sections: [section],
 });
 
 export { test };

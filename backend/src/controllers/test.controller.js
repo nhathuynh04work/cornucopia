@@ -1,5 +1,5 @@
 import {
-	createTest,
+	createTestService,
 	getTestDetails,
 	getTestLite,
 	getTests,
@@ -18,11 +18,11 @@ export async function getTestsController(req, res) {
 export async function createTestController(req, res) {
 	const { title, description } = req.body;
 	if (!title) {
-		return res.status(404).json({ message: "Missing test title" });
+		return res.status(404).json({ error: "Missing test title" });
 	}
 
 	try {
-		const newTest = await createTest({ title, description });
+		const newTest = await createTestService({ title, description });
 		res.status(201).json({ message: "New test created", test: newTest });
 	} catch (err) {
 		console.log(err);

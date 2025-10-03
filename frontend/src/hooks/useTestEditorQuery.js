@@ -5,7 +5,7 @@ import { test as TestSchema } from "../normalizr/testSchemas.js";
 
 export function useTestEditorQuery(id) {
 	return useQuery({
-		queryKey: ["tests", id, "details"],
+		queryKey: ["tests", id, "full"],
 		queryFn: async () => {
 			const test = await fetchTestDetails(id);
 			const normalized = normalize(test, TestSchema);

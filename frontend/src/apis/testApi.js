@@ -29,3 +29,8 @@ export async function fetchTestDetails(id) {
 		throw err;
 	}
 }
+
+export async function createTest({ title, description }) {
+	const { data } = await api.post("/tests", { title, description });
+	return data.test;
+}

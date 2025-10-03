@@ -1,42 +1,47 @@
 import prisma from "../prisma.js";
 import {
-	addNewTest,
+	createTest,
 	getAllTests,
 	getTestByIdLite,
 	getTestByIdWithDetails,
 } from "../repositories/test.repository.js";
-import { addNewSection } from "../repositories/section.repository.js";
+import { createSection } from "../repositories/section.repository.js";
+import { createQuestion } from "../repositories/item.repository.js";
 
 export async function getTests() {
 	return await getAllTests();
 }
 
-export async function createTest({ title, description }) {
+export async function createTestService({ title, description }) {
 	return await prisma.$transaction(async (tx) => {
 		// 1. Create test
-		const newTest = await addNewTest(tx, {
+		const test = await createTest(tx, {
 			title,
 			description,
 		});
 
 		// 2. Create default section
-		const newSection = await addNewSection(tx, {
-			testId: newTest.id,
+		const section = await createSection(tx, {
+			testId: test.id,
 			title: "Default",
 			sortOrder: 1,
 		});
 
-		// 3. Return combined result
+		// 3. Create a multiple question inside the section
+		const question = await createQuestion(tx, {
+			sectionId: section.id,
+			text: "",
+			questionType: "multiple_choice",
+			sortOrder: 1,
+		});
+
+		// 4. Return combined result
 		return {
-			id: newTest.id,
-			title: newTest.title,
-			description: newTest.description,
-			timeLimit: newTest.timeLimit,
+			...test,
 			sections: [
 				{
-					id: newSection.id,
-					title: newSection.title,
-					sortOrder: newSection.sortOrder,
+					...section,
+					items: [{ ...question }],
 				},
 			],
 		};
