@@ -14,12 +14,12 @@ item.define({
 	children: [item],
 });
 
-const section = new schema.Entity("sections", {
+const testSection = new schema.Entity("testSections", {
 	items: [item],
 });
 
 const test = new schema.Entity("tests", {
-	sections: [section],
+	testSections: [testSection],
 });
 
 export { test };

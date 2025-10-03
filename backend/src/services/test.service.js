@@ -38,7 +38,7 @@ export async function createTestService({ title, description }) {
 		// 4. Return combined result
 		return {
 			...test,
-			sections: [
+			testSections: [
 				{
 					...section,
 					items: [{ ...question }],

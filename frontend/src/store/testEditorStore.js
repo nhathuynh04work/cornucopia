@@ -1,38 +1,11 @@
 import { create } from "zustand";
 
-const parentConfig = {
-	// parentType: the entity’s parent table.
-	// relationKey: the array field on the parent that holds children.
-	// parentIdKey: the attribute on the child that points back to its parent.
-
-	testSections: {
-		parentType: "tests",
-		relationKey: "testSections",
-		parentIdKey: "testId",
-	},
-	questionGroups: {
-		parentType: "testSections",
-		relationKey: "questionGroups",
-		parentIdKey: "sectionId",
-	},
-	questions: {
-		parentType: "questionGroups",
-		relationKey: "questions",
-		parentIdKey: "groupId",
-	},
-	answerOptions: {
-		parentType: "questions",
-		relationKey: "answerOptions",
-		parentIdKey: "questionId",
-	},
-};
-
 export const useTestEditorStore = create((set, get) => ({
 	entities: {},
 	result: null,
 	questionsOrdered: null,
 
-	// Load test and precompute flat questions
+	// Load normalized test
 	loadTest: (data) => {
 		const flat = computeFlatQuestions(data.entities, data.result);
 		set({
@@ -42,7 +15,7 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	// Update an entity and invalidate cache
+	// Update an entity and re-flatten
 	updateEntities: (type, id, changes) => {
 		set((state) => {
 			const newEntities = {
@@ -55,6 +28,7 @@ export const useTestEditorStore = create((set, get) => ({
 					},
 				},
 			};
+
 			return {
 				entities: newEntities,
 				questionsOrdered: computeFlatQuestions(
@@ -65,7 +39,7 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	// Append a child to parent and invalidate cache
+	// Append child (item to section, item to item, answerOption to question, etc.)
 	appendChildToParent: (parentType, parentId, relationKey, childId) => {
 		set((state) => {
 			const parent = state.entities[parentType]?.[parentId] ?? {};
@@ -92,7 +66,7 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	// Reset the store
+	// Reset
 	reset: () =>
 		set({
 			entities: {},
@@ -100,56 +74,57 @@ export const useTestEditorStore = create((set, get) => ({
 			questionsOrdered: null,
 		}),
 
-	// Get entity by type and ID
+	// Get entity
 	getEntity: (type, id) => {
 		const { entities } = get();
 		return entities?.[type]?.[id] ?? null;
 	},
 
-	// Get the sequential question number in the whole test
+	// Get question number
 	getQuestionNumber: (questionId) => {
 		const ordered = get().questionsOrdered ?? [];
 		const index = ordered.findIndex((q) => q.id === questionId);
 		return index === -1 ? null : index + 1;
 	},
 
-	// Get only the
+	// Get all question numbers
 	getAllQuestionNumbers: () => {
 		const ordered = get().questionsOrdered ?? [];
 		return ordered.map((q, index) => index + 1);
 	},
 
-	// Delete an entity from store
+	// Delete entity (with cascade)
 	deleteEntity: (type, id) => {
-		const { parentType, relationKey, parentIdKey } = parentConfig[type];
-
 		set((state) => {
 			const newEntities = { ...state.entities };
 
-			// Step 1: Remove from parent directly
-			const entity = newEntities[type]?.[id];
-			const parentId = entity[parentIdKey];
-			const parent = newEntities[parentType]?.[parentId];
+			// --- Step 1: find and unlink from parent ---
+			Object.values(newEntities).forEach((table) => {
+				Object.values(table ?? {}).forEach((entity) => {
+					for (const key in entity) {
+						if (Array.isArray(entity[key])) {
+							entity[key] = entity[key].filter(
+								(childId) => childId !== id
+							);
+						}
+					}
+				});
+			});
 
-			newEntities[parentType] = {
-				...newEntities[parentType],
-				[parentId]: {
-					...parent,
-					[relationKey]: parent[relationKey].filter(
-						(childId) => childId !== id
-					),
-				},
-			};
-
-			// Step 2: Cascade delete if question → remove its options
-			if (type === "questions") {
-				const question = newEntities.questions?.[id];
-				question?.answerOptions?.forEach((optionId) => {
-					delete newEntities.answerOptions?.[optionId];
+			// --- Step 2: cascade deletes ---
+			if (type === "items") {
+				const item = newEntities.items?.[id];
+				// If question → delete answerOptions
+				item?.answerOptions?.forEach((optId) => {
+					delete newEntities.answerOptions?.[optId];
+				});
+				// If group → delete children recursively
+				item?.children?.forEach((childId) => {
+					get().deleteEntity("items", childId);
 				});
 			}
 
-			// Step 3: Delete the entity itself
+			// --- Step 3: delete itself ---
 			newEntities[type] = { ...newEntities[type] };
 			delete newEntities[type][id];
 
@@ -164,7 +139,7 @@ export const useTestEditorStore = create((set, get) => ({
 	},
 }));
 
-// Helper to compute flat questions from normalized entities
+// Recursively flatten all questions
 function computeFlatQuestions(entities, result) {
 	if (!result) return [];
 	const test = entities.tests?.[result];
@@ -177,18 +152,27 @@ function computeFlatQuestions(entities, result) {
 		.filter(Boolean)
 		.sort((a, b) => a.sortOrder - b.sortOrder)
 		.forEach((section) => {
-			(section.questionGroups ?? [])
-				.map((groupId) => entities.questionGroups[groupId])
+			(section.items ?? [])
+				.map((itemId) => entities.items[itemId])
 				.filter(Boolean)
 				.sort((a, b) => a.sortOrder - b.sortOrder)
-				.forEach((group) => {
-					(group.questions ?? [])
-						.map((qId) => entities.questions[qId])
-						.filter(Boolean)
-						.sort((a, b) => a.sortOrder - b.sortOrder)
-						.forEach((question) => flat.push(question));
-				});
+				.forEach((item) => traverseItems(item, entities, flat));
 		});
 
 	return flat;
+}
+
+// Helper: recursively add questions
+function traverseItems(item, entities, flat) {
+	if (!item) return;
+	if (item.type === "question") {
+		flat.push(item);
+	}
+	if (item.children?.length) {
+		item.children
+			.map((childId) => entities.items[childId])
+			.filter(Boolean)
+			.sort((a, b) => a.sortOrder - b.sortOrder)
+			.forEach((child) => traverseItems(child, entities, flat));
+	}
 }

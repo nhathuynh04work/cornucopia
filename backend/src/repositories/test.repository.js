@@ -27,10 +27,14 @@ export async function getTestByIdWithDetails(id) {
 			testSections: {
 				orderBy: { sortOrder: "asc" },
 				include: {
-					questionGroups: {
+					items: {
+						where: { parentItemId: null }, // only top-level items
 						orderBy: { sortOrder: "asc" },
 						include: {
-							questions: {
+							answerOptions: {
+								orderBy: { sortOrder: "asc" },
+							},
+							children: {
 								orderBy: { sortOrder: "asc" },
 								include: {
 									answerOptions: {
