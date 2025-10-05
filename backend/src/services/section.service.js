@@ -1,3 +1,11 @@
+import prisma from "../prisma.js";
+import {
+	createGroup,
+	createQuestion,
+	getItemById,
+	getLastItemOfSection,
+	getLastQuestionOfGroup,
+} from "../repositories/item.repository.js";
 import {
 	createSection,
 	deleteSection,
@@ -32,4 +40,54 @@ export async function deleteSectionService({ sectionId }) {
 	});
 
 	return true;
+}
+
+export async function addItemService({
+	sectionId,
+	type,
+	questionType,
+	parentItemId,
+}) {
+	// For adding question to group
+	if (type === "question" && parentItemId) {
+		// If we're adding an item to a group, check if parent item exists and is of type group
+		const group = await getItemById(parentItemId);
+		if (!group) {
+			throw new Error("Group does not exists");
+		}
+
+		if (group.type !== "group") {
+			throw new Error("Item with id = parentItemId is not of type group");
+		}
+
+		const lastQuestion = await getLastQuestionOfGroup(parentItemId);
+
+		return await prisma.$transaction(async (tx) => {
+			return await createQuestion(tx, {
+				sectionId,
+				questionType,
+				sortOrder: lastQuestion ? lastQuestion.sortOrder + 1 : 1,
+				parentItemId,
+			});
+		});
+	}
+
+	const lastItem = await getLastItemOfSection(sectionId);
+	const nextOrder = lastItem ? lastItem.sortOrder + 1 : 1;
+
+	// For adding question to section
+	if (type === "question" && !parentItemId) {
+		return await prisma.$transaction(async (tx) => {
+			return await createQuestion(tx, {
+				sectionId,
+				questionType,
+				sortOrder: nextOrder,
+			});
+		});
+	}
+
+	// For group
+	return await prisma.$transaction(async (tx) => {
+		return await createGroup(tx, { sectionId, sortOrder: nextOrder });
+	});
 }

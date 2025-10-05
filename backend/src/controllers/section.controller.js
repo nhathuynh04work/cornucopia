@@ -1,4 +1,6 @@
+import { itemTypes, questionTypes } from "../config/testItemTypes.js";
 import {
+	addItemService,
 	addNewSectionService,
 	deleteSectionService,
 } from "../services/section.service.js";
@@ -40,6 +42,43 @@ export async function deleteSectionController(req, res) {
 		} else {
 			return res.status(404).json({ error: "Section not found" });
 		}
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ error: err.error });
+	}
+}
+
+export async function addItemController(req, res) {
+	const sectionId = Number(req.params.sectionId);
+	const { type, questionType, parentItemId } = req.body;
+
+	if (Number.isNaN(sectionId)) {
+		return res.status(400).json({ error: "Section ID must be a number" });
+	}
+
+	if (!itemTypes.includes(type)) {
+		return res.status(400).json({ error: "Invalid type" });
+	}
+
+	if (type === "question" && !questionTypes.includes(questionType)) {
+		return res.status(400).json({ error: "Invalid question type" });
+	}
+
+	if (type === "group" && questionType) {
+		return res
+			.status(400)
+			.json({ error: "Cannot have question type of item of type group" });
+	}
+
+	try {
+		const item = await addItemService({
+			sectionId,
+			type,
+			questionType,
+			parentItemId,
+		});
+
+		res.status(201).json({ item });
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({ error: err.error });

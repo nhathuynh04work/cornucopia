@@ -1,16 +1,67 @@
+import prisma from "../prisma.js";
+
 export async function createQuestion(
 	client,
-	{ sectionId, text, questionType, sortOrder }
+	{ sectionId, questionType, sortOrder, parentItemId = null }
 ) {
-	const question = await client.testItem.create({
+	return await client.testItem.create({
 		data: {
 			sectionId,
 			type: "question",
 			questionType,
-			text,
 			sortOrder,
+			parentItemId,
 		},
 	});
+}
+export async function createGroup(client, { sectionId, sortOrder }) {
+	return await client.testItem.create({
+		data: {
+			sectionId,
+			type: "group",
+			sortOrder,
+			children: {
+				create: {
+					sectionId,
+					type: "question",
+					questionType: "multiple_choice",
+					sortOrder: 1,
+				},
+			},
+		},
+		include: {
+			children: true,
+		},
+	});
+}
 
-	return question;
+export async function getItemById(id) {
+	return await prisma.testItem.findUnique({
+		where: {
+			id,
+		},
+	});
+}
+
+export async function getLastQuestionOfGroup(groupId) {
+	return await prisma.testItem.findFirst({
+		where: {
+			parentItemId: groupId,
+		},
+		orderBy: {
+			sortOrder: "desc",
+		},
+	});
+}
+
+export async function getLastItemOfSection(sectionId) {
+	return await prisma.testItem.findFirst({
+		where: {
+			parentItemId: null,
+			sectionId,
+		},
+		orderBy: {
+			sortOrder: "desc",
+		},
+	});
 }
