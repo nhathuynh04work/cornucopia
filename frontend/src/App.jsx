@@ -35,10 +35,10 @@ function App() {
 					<Route path="blog" element={<Blog />} />
 					<Route path="tests" element={<Tests />} />
 					<Route path="tests/:id" element={<TestInfo />} />
-					<Route path="tests/:id/edit" element={<TestEdit />} />
 					<Route path="flashcards" element={<Flashcards />} />
 					<Route path="courses" element={<Courses />} />
 				</Route>
+				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
 			</Routes>

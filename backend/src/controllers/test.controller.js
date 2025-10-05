@@ -1,8 +1,10 @@
+import { updateTestSchema } from "../schemas/test.schema.js";
 import {
-	createTest,
+	createTestService,
 	getTestDetails,
 	getTestLite,
 	getTests,
+	updateTestService,
 } from "../services/test.service.js";
 
 export async function getTestsController(req, res) {
@@ -18,11 +20,11 @@ export async function getTestsController(req, res) {
 export async function createTestController(req, res) {
 	const { title, description } = req.body;
 	if (!title) {
-		return res.status(404).json({ message: "Missing test title" });
+		return res.status(404).json({ error: "Missing test title" });
 	}
 
 	try {
-		const newTest = await createTest({ title, description });
+		const newTest = await createTestService({ title, description });
 		res.status(201).json({ message: "New test created", test: newTest });
 	} catch (err) {
 		console.log(err);
@@ -66,6 +68,31 @@ export async function getTestDetailsController(req, res) {
 		}
 
 		res.status(200).json({ test });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ error: err.message });
+	}
+}
+
+export async function updateTestController(req, res) {
+	const id = Number(req.params.id);
+
+	if (Number.isNaN(id)) {
+		return res.status(400).json({ error: "Test ID must be a number" });
+	}
+
+	const parsed = updateTestSchema.safeParse(req.body);
+
+	if (!parsed.success) {
+		return res.status(400).json({
+			error: "Invalid input",
+			details: parsed.error,
+		});
+	}
+
+	try {
+		const updated = await updateTestService(id, parsed.data);
+		res.status(200).json({ test: updated });
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({ error: err.message });

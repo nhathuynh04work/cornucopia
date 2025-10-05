@@ -4,6 +4,7 @@ import * as sectionController from "../controllers/section.controller.js";
 const router = Router();
 
 router.post("/", sectionController.addNewSectionController);
+router.post("/:sectionId/items", sectionController.addItemController);
 router.delete("/:id", sectionController.deleteSectionController);
 
 export default router;

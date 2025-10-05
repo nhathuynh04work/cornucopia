@@ -91,7 +91,7 @@ model Test {
 model TestSection {
     id        Int      @id @default(autoincrement())
     testId    Int      @map("test_id")
-    title     String
+    title     String?
     sortOrder Int      @map("sort_order")
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
@@ -127,7 +127,7 @@ model TestItem {
 model AnswerOption {
     id        Int      @id @default(autoincrement())
     itemId    Int      @map("item_id") // must reference a TestItem of type 'question'
-    text      String
+    text      String?
     isCorrect Boolean? @default(false) @map("is_correct")
     sortOrder Int      @map("sort_order")
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)

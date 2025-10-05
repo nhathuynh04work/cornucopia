@@ -1,28 +1,26 @@
 import { useState } from "react";
 import Modal from "../components/Modal";
 import CreateTestForm from "../components/CreateTestForm";
-import { api } from "../apis/axios.js";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTests } from "../apis/testApi.js";
 import NavButton from "../components/NavButton.jsx";
+import { useCreateTestMutation } from "../hooks/useTestMutation.js";
+import { toast } from "react-hot-toast";
 
 function Tests() {
 	const { data: tests, isLoading } = useQuery({
 		queryKey: ["tests"],
 		queryFn: fetchTests,
 	});
+	const createTest = useCreateTestMutation();
 	const [showModal, setShowModal] = useState(false);
 	const navigate = useNavigate();
 
 	async function handleCreateTest({ title, description }) {
-		const res = await api.post("/tests", {
-			title,
-			description,
-		});
-
-		const id = res.data.test.id;
-		navigate(`/tests/${id}/edit`);
+		const newTest = await createTest.mutateAsync({ title, description });
+		toast.success("Test created successfully");
+		navigate(`/tests/${newTest.id}/edit`);
 	}
 
 	if (isLoading) {

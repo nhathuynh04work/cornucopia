@@ -4,7 +4,7 @@ export async function getAllTests() {
 	return await prisma.test.findMany();
 }
 
-export async function addNewTest(client, { title, description }) {
+export async function createTest(client, { title, description }) {
 	const newTest = await client.test.create({
 		data: { title, description },
 	});
@@ -27,10 +27,14 @@ export async function getTestByIdWithDetails(id) {
 			testSections: {
 				orderBy: { sortOrder: "asc" },
 				include: {
-					questionGroups: {
+					items: {
+						where: { parentItemId: null }, // only top-level items
 						orderBy: { sortOrder: "asc" },
 						include: {
-							questions: {
+							answerOptions: {
+								orderBy: { sortOrder: "asc" },
+							},
+							children: {
 								orderBy: { sortOrder: "asc" },
 								include: {
 									answerOptions: {
@@ -42,6 +46,17 @@ export async function getTestByIdWithDetails(id) {
 					},
 				},
 			},
+		},
+	});
+}
+
+export async function updateTest(client, { id, data }) {
+	return await client.test.update({
+		where: {
+			id,
+		},
+		data: {
+			...data,
 		},
 	});
 }

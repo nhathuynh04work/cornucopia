@@ -1,22 +1,25 @@
 import { api } from "./axios.js";
 
 export async function addSection(testId) {
-	try {
-		const { data } = await api.post("/sections", {
-			testId,
-		});
-		return data.section;
-	} catch (err) {
-		console.log(err.message);
-		throw err;
-	}
+	const { data } = await api.post("/sections", {
+		testId,
+	});
+	return data.section;
 }
 
 export async function deleteSection(sectionId) {
-	try {
-		await api.delete(`/sections/${sectionId}`);
-	} catch (err) {
-		console.log(err);
-		throw err;
-	}
+	await api.delete(`/sections/${sectionId}`);
+}
+
+export async function addItem(
+	sectionId,
+	{ type, questionType = null, parentItemId = null }
+) {
+	const { data } = await api.post(`/sections/${sectionId}/items`, {
+		type,
+		questionType,
+		parentItemId,
+	});
+
+	return data.item;
 }
