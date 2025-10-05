@@ -14,7 +14,6 @@ export async function addNewSectionService({ testId }) {
 	// Step 3: Create new section
 	const newSection = await createSection(undefined, {
 		testId,
-		title: "Default",
 		sortOrder: nextOrder,
 	});
 

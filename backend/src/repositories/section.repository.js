@@ -13,14 +13,10 @@ export async function getLastSectionOfTest(testId) {
 	return lastSection;
 }
 
-export async function createSection(
-	client = prisma,
-	{ testId, title, sortOrder }
-) {
+export async function createSection(client = prisma, { testId, sortOrder }) {
 	const newSection = await client.testSection.create({
 		data: {
 			testId,
-			title,
 			sortOrder,
 		},
 	});
