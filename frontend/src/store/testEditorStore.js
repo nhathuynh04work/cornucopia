@@ -93,6 +93,18 @@ export const useTestEditorStore = create((set, get) => ({
 		return ordered.map((q, index) => index + 1);
 	},
 
+	// Get questions count
+	getQuestionsCount: () => {
+		const ordered = get().questionsOrdered ?? [];
+		return ordered.length;
+	},
+
+	// Get sections count
+	getSectionsCount: () => {
+		const sections = get().entities?.testSections ?? {};
+		return Object.keys(sections).length;
+	},
+
 	// Delete entity (with cascade)
 	deleteEntity: (type, id) => {
 		set((state) => {

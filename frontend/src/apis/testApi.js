@@ -22,7 +22,7 @@ export async function fetchTestBasicInfo(id) {
 
 export async function fetchTestDetails(id) {
 	try {
-		const { data } = await api.get(`/tests/${id}/details`);
+		const { data } = await api.get(`/tests/${id}/full`);
 		return data.test;
 	} catch (err) {
 		console.log(err.message);

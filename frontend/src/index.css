@@ -3,3 +3,24 @@
 html {
 	scroll-behavior: smooth;
 }
+
+/* For Chrome, Edge, Safari */
+::-webkit-scrollbar {
+	width: 6px; /* thinner */
+	height: 6px; /* for horizontal scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+	background: #9ca3af; /* gray-400 */
+	border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent; /* remove background */
+}
+
+/* For Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #9ca3af transparent;
+}
