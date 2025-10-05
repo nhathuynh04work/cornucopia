@@ -16,6 +16,7 @@ function TestEdit() {
 				Loading editor...
 			</div>
 		);
+        
 	if (isError)
 		return (
 			<p className="text-center text-red-500 mt-8">
@@ -26,17 +27,17 @@ function TestEdit() {
 	return (
 		<div className="grid grid-cols-12 h-screen bg-gray-50">
 			{/* Left navigation */}
-			<aside className="col-span-3 border-r bg-white shadow-sm">
+			<aside className="col-span-2 border-r bg-white shadow-sm">
 				<TestEditorNav testId={test?.id} />
 			</aside>
 
 			{/* Main editor */}
-			<main className="col-span-6 bg-white p-6 overflow-y-auto shadow-inner">
+			<main className="col-span-8 bg-white p-6 overflow-y-auto shadow-inner">
 				<TestEditor />
 			</main>
 
 			{/* Settings panel */}
-			<aside className="col-span-3 border-l bg-white shadow-sm p-6">
+			<aside className="col-span-2 border-l bg-white shadow-sm p-6">
 				<TestItemSettings />
 			</aside>
 		</div>

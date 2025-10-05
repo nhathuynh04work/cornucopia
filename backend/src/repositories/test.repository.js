@@ -49,3 +49,14 @@ export async function getTestByIdWithDetails(id) {
 		},
 	});
 }
+
+export async function updateTest(client, { id, data }) {
+	return await client.test.update({
+		where: {
+			id,
+		},
+		data: {
+			...data,
+		},
+	});
+}

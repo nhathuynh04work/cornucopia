@@ -34,3 +34,8 @@ export async function createTest({ title, description }) {
 	const { data } = await api.post("/tests", { title, description });
 	return data.test;
 }
+
+export async function updateTest(id, changes) {
+	const { data } = await api.patch(`/tests/${id}`, changes);
+	return data.test;
+}

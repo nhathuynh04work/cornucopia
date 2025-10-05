@@ -26,3 +26,44 @@ html {
 
 	border-color: rgb(229, 231, 235); /* Tailwind's gray-200 */
 }
+
+/* Base scrollbar style (hidden look) */
+.scroll-container::-webkit-scrollbar {
+	width: 6px;
+}
+
+/* Track (invisible by default) */
+.scroll-container::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* Thumb (hidden when not hovered) */
+.scroll-container::-webkit-scrollbar-thumb {
+	background-color: transparent;
+	border-radius: 9999px;
+	transition: background-color 0.2s ease;
+}
+
+/* When hovered, thumb becomes visible */
+.scroll-container:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(156, 163, 175, 0.6); /* gray-400 w/ opacity */
+}
+
+/* Firefox equivalent */
+.scroll-container {
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+	transition: scrollbar-color 0.2s ease;
+}
+
+.scroll-container:hover {
+	scrollbar-color: rgba(156, 163, 175, 0.6) transparent;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}

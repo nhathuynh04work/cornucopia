@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTest } from "../apis/testApi";
+import { createTest, updateTest } from "../apis/testApi";
 import toast from "react-hot-toast";
+import { useTestEditorStore } from "../store/testEditorStore";
 
 export function useCreateTestMutation() {
 	const queryClient = useQueryClient();
@@ -16,6 +17,17 @@ export function useCreateTestMutation() {
 		},
 		onError: (err) => {
 			toast.error(err.message || "Failed to create test");
+		},
+	});
+}
+
+export function useUpdateTestMutation(id) {
+	const updateEntities = useTestEditorStore((s) => s.updateEntities);
+
+	return useMutation({
+		mutationFn: (changes) => updateTest(id, changes),
+		onSuccess: (updated) => {
+			updateEntities("tests", updated.id, updated);
 		},
 	});
 }

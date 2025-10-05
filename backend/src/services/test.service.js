@@ -4,6 +4,7 @@ import {
 	getAllTests,
 	getTestByIdLite,
 	getTestByIdWithDetails,
+	updateTest,
 } from "../repositories/test.repository.js";
 import { createSection } from "../repositories/section.repository.js";
 import { createQuestion } from "../repositories/item.repository.js";
@@ -54,4 +55,10 @@ export async function getTestLite({ id }) {
 
 export async function getTestDetails({ id }) {
 	return await getTestByIdWithDetails(id);
+}
+
+export async function updateTestService(id, data) {
+	return prisma.$transaction(async (tx) => {
+		return await updateTest(tx, { id, data });
+	});
 }
