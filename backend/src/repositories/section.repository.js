@@ -14,14 +14,22 @@ export async function getLastSectionOfTest(testId) {
 }
 
 export async function createSection(client = prisma, { testId, sortOrder }) {
-	const newSection = await client.testSection.create({
+	return await client.testSection.create({
 		data: {
 			testId,
 			sortOrder,
+			items: {
+				create: {
+					type: "question",
+					questionType: "multiple_choice",
+					sortOrder: 1,
+				},
+			},
+		},
+		include: {
+			items: true, // return the created question too
 		},
 	});
-
-	return newSection;
 }
 
 export async function deleteSection(client = prisma, { id }) {

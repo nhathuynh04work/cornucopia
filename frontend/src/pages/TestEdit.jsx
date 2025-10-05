@@ -16,7 +16,7 @@ function TestEdit() {
 	return (
 		<div className="grid grid-cols-10 grid-rows-1 h-screen">
 			<div className="col-span-2 bg-red-100">
-				<TestEditorNav test={test} />
+				<TestEditorNav testId={test?.id} />
 			</div>
 
 			<div className="col-span-6 col-start-3 bg-green-100">

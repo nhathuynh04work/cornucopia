@@ -4,14 +4,19 @@ export const useTestEditorStore = create((set, get) => ({
 	entities: {},
 	result: null,
 	questionsOrdered: null,
+	currentSection: null,
 
 	// Load normalized test
 	loadTest: (data) => {
 		const flat = computeFlatQuestions(data.entities, data.result);
+		const test = data.entities.tests[data.result];
+		const firstSection = data.entities.testSections[test.testSections[0]];
+
 		set({
 			entities: data.entities,
 			result: data.result,
 			questionsOrdered: flat,
+			currentSection: firstSection,
 		});
 	},
 
@@ -149,6 +154,10 @@ export const useTestEditorStore = create((set, get) => ({
 			};
 		});
 	},
+
+	// Set current section
+	changeCurrentSection: (id) =>
+		set({ currentSection: get().entities.testSections[id] }),
 }));
 
 // Recursively flatten all questions
