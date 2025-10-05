@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import { useTestEditorQuery } from "../hooks/useTestEditorQuery";
 import { useTestEditorStore } from "../store/testEditorStore";
-import TestEditorNav from "../components/TestEditorNav";
+import TestEditorNav from "../components/TestNav/TestEditorNav";
 import TestEditor from "../components/TestEditor";
 import TestItemSettings from "../components/TestItemSettings";
 
@@ -10,21 +10,35 @@ function TestEdit() {
 	const { isLoading, isError } = useTestEditorQuery(id);
 	const test = useTestEditorStore((s) => s.getEntity("tests", id));
 
-	if (isLoading) return <p>Loading...</p>;
-	if (isError) return <p>Something went wrong</p>;
+	if (isLoading)
+		return (
+			<div className="flex justify-center items-center h-screen text-gray-500 animate-pulse">
+				Loading editor...
+			</div>
+		);
+	if (isError)
+		return (
+			<p className="text-center text-red-500 mt-8">
+				Something went wrong
+			</p>
+		);
 
 	return (
-		<div className="grid grid-cols-10 grid-rows-1 h-screen">
-			<div className="col-span-2 bg-red-100">
+		<div className="grid grid-cols-12 h-screen bg-gray-50">
+			{/* Left navigation */}
+			<aside className="col-span-3 border-r bg-white shadow-sm">
 				<TestEditorNav testId={test?.id} />
-			</div>
+			</aside>
 
-			<div className="col-span-6 col-start-3 bg-green-100">
+			{/* Main editor */}
+			<main className="col-span-6 bg-white p-6 overflow-y-auto shadow-inner">
 				<TestEditor />
-			</div>
-			<div className="col-span-2 col-start-9 bg-yellow-100">
+			</main>
+
+			{/* Settings panel */}
+			<aside className="col-span-3 border-l bg-white shadow-sm p-6">
 				<TestItemSettings />
-			</div>
+			</aside>
 		</div>
 	);
 }
