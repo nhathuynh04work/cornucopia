@@ -2,7 +2,7 @@ import Item from "./Item";
 
 function ItemListContent({ currentSection }) {
 	return (
-		<div className="scroll-container flex-1 overflow-y-auto p-4 space-y-1">
+		<div className="hide-scrollbar flex-1 overflow-y-auto p-4 space-y-1">
 			{currentSection?.items?.length ? (
 				currentSection.items.map((itemId) => (
 					<Item key={itemId} id={itemId} />

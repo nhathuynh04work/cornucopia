@@ -117,7 +117,7 @@ model TestItem {
     updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
 
     section       TestSection    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-    parent        TestItem?      @relation("ItemToChildren", fields: [parentItemId], references: [id])
+    parent        TestItem?      @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
     children      TestItem[]     @relation("ItemToChildren")
     answerOptions AnswerOption[]
 
