@@ -5,8 +5,29 @@ export const useTestEditorStore = create((set, get) => ({
 	result: null,
 	questionsOrdered: null,
 	currentSection: null,
+	groupOpenState: {},
 
-	// Load normalized test
+	toggleGroupOpen: (id) => {
+		set((state) => ({
+			groupOpenState: {
+				...state.groupOpenState,
+				[id]: !state.groupOpenState[id],
+			},
+		}));
+	},
+
+	setGroupOpen: (id, isOpen) =>
+		set((state) => ({
+			groupOpenState: {
+				...state.groupOpenState,
+				[id]: isOpen,
+			},
+		})),
+
+	isGroupOpen: (id) => {
+		return get().groupOpenState[id] ?? false;
+	},
+
 	loadTest: (data) => {
 		const flat = computeFlatQuestions(data.entities, data.result);
 		const test = data.entities.tests[data.result];
@@ -20,7 +41,6 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	// Update an entity and re-flatten
 	updateEntities: (type, id, changes) => {
 		set((state) => {
 			const newEntities = {
@@ -44,7 +64,6 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	// Append child (item to section, item to item, answerOption to question, etc.)
 	appendChildToParent: (parentType, parentId, relationKey, childId) => {
 		set((state) => {
 			const parent = state.entities[parentType]?.[parentId] ?? {};
@@ -71,51 +90,36 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	// Reset
-	reset: () =>
-		set({
-			entities: {},
-			result: null,
-			questionsOrdered: null,
-		}),
-
-	// Get entity
 	getEntity: (type, id) => {
 		const { entities } = get();
 		return entities?.[type]?.[id] ?? null;
 	},
 
-	// Get question number
 	getQuestionNumber: (questionId) => {
 		const ordered = get().questionsOrdered ?? [];
 		const index = ordered.findIndex((q) => q.id === questionId);
 		return index === -1 ? null : index + 1;
 	},
 
-	// Get all question numbers
 	getAllQuestionNumbers: () => {
 		const ordered = get().questionsOrdered ?? [];
 		return ordered.map((q, index) => index + 1);
 	},
 
-	// Get questions count
 	getQuestionsCount: () => {
 		const ordered = get().questionsOrdered ?? [];
 		return ordered.length;
 	},
 
-	// Get sections count
 	getSectionsCount: () => {
 		const sections = get().entities?.testSections ?? {};
 		return Object.keys(sections).length;
 	},
 
-	// Delete entity (with cascade)
 	deleteEntity: (type, id) => {
 		set((state) => {
 			const newEntities = { ...state.entities };
 
-			// --- Step 1: find and unlink from parent ---
 			Object.values(newEntities).forEach((table) => {
 				Object.values(table ?? {}).forEach((entity) => {
 					for (const key in entity) {
@@ -128,20 +132,16 @@ export const useTestEditorStore = create((set, get) => ({
 				});
 			});
 
-			// --- Step 2: cascade deletes ---
 			if (type === "items") {
 				const item = newEntities.items?.[id];
-				// If question → delete answerOptions
 				item?.answerOptions?.forEach((optId) => {
 					delete newEntities.answerOptions?.[optId];
 				});
-				// If group → delete children recursively
 				item?.children?.forEach((childId) => {
 					get().deleteEntity("items", childId);
 				});
 			}
 
-			// --- Step 3: delete itself ---
 			newEntities[type] = { ...newEntities[type] };
 			delete newEntities[type][id];
 
@@ -155,7 +155,6 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	// Set current section
 	changeCurrentSection: (id) =>
 		set({ currentSection: get().entities.testSections[id] }),
 }));
@@ -183,7 +182,6 @@ function computeFlatQuestions(entities, result) {
 	return flat;
 }
 
-// Helper: recursively add questions
 function traverseItems(item, entities, flat) {
 	if (!item) return;
 	if (item.type === "question") {

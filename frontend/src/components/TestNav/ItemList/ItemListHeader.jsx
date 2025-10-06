@@ -1,9 +1,11 @@
 import { Plus } from "lucide-react";
 import AddItemDropdown from "./AddItemDropdown";
 import { useState } from "react";
+import { useItemList } from "../../../contexts/ItemListContext";
 
-function ItemListHeader({ currentSection, onAddItem }) {
+function ItemListHeader({ currentSection }) {
 	const [showDropdown, setShowDropdown] = useState(false);
+	const { onAddItem } = useItemList();
 
 	return (
 		<div className="sticky top-0 z-10 px-4 py-2 border-b flex justify-between items-center">

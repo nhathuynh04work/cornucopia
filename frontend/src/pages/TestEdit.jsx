@@ -27,7 +27,7 @@ function TestEdit() {
 	return (
 		<div className="grid grid-cols-12 h-screen bg-gray-50">
 			{/* Left navigation */}
-			<aside className="col-span-2 border-r bg-white shadow-sm">
+			<aside className="col-span-2 border-r bg-white shadow-sm overflow-hidden">
 				<TestEditorNav testId={test?.id} />
 			</aside>
 
