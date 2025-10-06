@@ -19,9 +19,20 @@ const menuItems = [
 	},
 ];
 
-function ActionDropdown({ show, onDuplicate, onDelete, size = "normal" }) {
+function ActionDropdown({
+	show,
+	onDuplicate,
+	onDelete,
+	size = "normal",
+	isChild = false,
+}) {
 	const isSmall = size === "small";
 	const handlers = { onDuplicate, onDelete };
+
+	// For child items, position centered vertically relative to the button
+	const positionClasses = isChild
+		? "top-1/2 -translate-y-1/2 right-full mr-1" // center vertically, aligned left of button
+		: "top-full mt-1 right-0"; // default for normal items
 
 	return (
 		<AnimatePresence>
@@ -31,7 +42,7 @@ function ActionDropdown({ show, onDuplicate, onDelete, size = "normal" }) {
 					animate={{ opacity: 1, y: 0 }}
 					exit={{ opacity: 0, y: -5 }}
 					transition={{ duration: 0.15 }}
-					className={`absolute right-0 mt-1 ${
+					className={`absolute ${positionClasses} ${
 						isSmall ? "w-36" : "w-44"
 					} bg-white shadow-lg border border-gray-100 rounded-lg p-1 flex flex-col z-20`}>
 					{menuItems.map((item) => (

@@ -19,6 +19,7 @@ function Item({ id }) {
 
 	return (
 		<div className={`${baseClasses} ${isGroup ? "border" : ""} min-w-0`}>
+			{/* Header */}
 			<div
 				className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-100 transition"
 				onClick={isGroup ? () => toggleGroupOpen(id) : undefined}>

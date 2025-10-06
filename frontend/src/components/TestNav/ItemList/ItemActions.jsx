@@ -38,6 +38,7 @@ function ItemActions({ item, hoveredMenu, setHoveredMenu }) {
 					show={hoveredMenu === "action"}
 					size="small"
 					onDelete={deleteItem}
+					isChild={!!item?.parentItemId}
 				/>
 			</ActionWrapper>
 		</div>
