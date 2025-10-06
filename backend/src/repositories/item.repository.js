@@ -65,3 +65,11 @@ export async function getLastItemOfSection(sectionId) {
 		},
 	});
 }
+
+export async function deleteItem(client, { id }) {
+	return await client.testItem.delete({
+		where: {
+			id,
+		},
+	});
+}
