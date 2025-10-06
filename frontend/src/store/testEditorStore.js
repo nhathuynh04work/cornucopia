@@ -137,9 +137,15 @@ export const useTestEditorStore = create((set, get) => ({
 	deleteEntity: (type, id) => {
 		set((state) => {
 			const newEntities = { ...state.entities };
+			console.log(newEntities[type]);
 
-			Object.values(newEntities).forEach((table) => {
-				Object.values(table ?? {}).forEach((entity) => {
+			// Deep remove references in nested arrays
+			for (const tableKey in newEntities) {
+				const table = newEntities[tableKey];
+				if (!table) continue;
+
+				for (const entityId in table) {
+					const entity = table[entityId];
 					for (const key in entity) {
 						if (Array.isArray(entity[key])) {
 							entity[key] = entity[key].filter(
@@ -147,21 +153,37 @@ export const useTestEditorStore = create((set, get) => ({
 							);
 						}
 					}
-				});
-			});
-
-			if (type === "items") {
-				const item = newEntities.items?.[id];
-				item?.answerOptions?.forEach((optId) => {
-					delete newEntities.answerOptions?.[optId];
-				});
-				item?.children?.forEach((childId) => {
-					get().deleteEntity("items", childId);
-				});
+				}
 			}
 
-			newEntities[type] = { ...newEntities[type] };
-			delete newEntities[type][id];
+			// Delete item and its children recursively
+			if (type === "items") {
+				const item = newEntities.items?.[id];
+				if (item) {
+					// Delete answer options
+					item.answerOptions?.forEach((optId) => {
+						delete newEntities.answerOptions?.[optId];
+					});
+
+					// Recursively delete children
+					item.children?.forEach((childId) => {
+						newEntities.items?.[childId] &&
+							deleteEntityRecursively(
+								newEntities,
+								"items",
+								childId
+							);
+					});
+				}
+			}
+
+			// Delete the item itself
+			if (newEntities[type]?.[id]) {
+				newEntities[type] = { ...newEntities[type] };
+				delete newEntities[type][id];
+			}
+
+			console.log(newEntities[type]);
 
 			return {
 				entities: newEntities,
@@ -173,8 +195,24 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	changeCurrentSection: (id) =>
-		set({ currentSection: get().entities.testSections[id] }),
+	changeCurrentSection: (id) => {
+		set((state) => {
+			const section = state.entities.testSections[id];
+			if (!section) return { currentSection: null };
+
+			const filteredItems =
+				section.items?.filter(
+					(itemId) => state.entities.items[itemId] // only keep existing items
+				) || [];
+
+			return {
+				currentSection: {
+					...section,
+					items: filteredItems,
+				},
+			};
+		});
+	},
 }));
 
 // Recursively flatten all questions
@@ -214,4 +252,19 @@ function computeFlatQuestions(entities, testId) {
 	}
 
 	return flat;
+}
+
+function deleteEntityRecursively(entities, type, id) {
+	const item = entities[type]?.[id];
+	if (!item) return;
+
+	item.answerOptions?.forEach(
+		(optId) => delete entities.answerOptions?.[optId]
+	);
+	item.children?.forEach((childId) =>
+		deleteEntityRecursively(entities, type, childId)
+	);
+
+	entities[type] = { ...entities[type] };
+	delete entities[type][id];
 }

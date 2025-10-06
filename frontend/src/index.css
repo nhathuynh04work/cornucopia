@@ -1,13 +1,48 @@
+/* -------------------------------------------------------------------------- */
+/*                               Tailwind Import                              */
+/* -------------------------------------------------------------------------- */
+
 @import "tailwindcss";
+
+/* -------------------------------------------------------------------------- */
+/*                              Base HTML Styles                              */
+/* -------------------------------------------------------------------------- */
 
 html {
 	scroll-behavior: smooth;
 }
 
-/* For Chrome, Edge, Safari */
+/* -------------------------------------------------------------------------- */
+/*                           Universal Element Styles                         */
+/* -------------------------------------------------------------------------- */
+
+/* Firefox scrollbar behavior and border defaults */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #9ca3af transparent; /* gray-400 thumb, transparent track */
+	border-color: rgb(229, 231, 235); /* Tailwind gray-200 */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Button Defaults                              */
+/* -------------------------------------------------------------------------- */
+
+button {
+	cursor: pointer;
+}
+
+button:disabled {
+	cursor: not-allowed;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                             Scrollbar - Global                             */
+/* -------------------------------------------------------------------------- */
+
+/* Chrome, Edge, Safari scrollbar defaults */
 ::-webkit-scrollbar {
-	width: 6px; /* thinner */
-	height: 6px; /* for horizontal scrollbar */
+	width: 6px;
+	height: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -16,32 +51,29 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-	background: transparent; /* remove background */
+	background: transparent;
 }
 
-/* For Firefox */
-* {
-	scrollbar-width: thin;
-	scrollbar-color: #9ca3af transparent;
+/* -------------------------------------------------------------------------- */
+/*                       Scrollbar - Floating Overlay Style                   */
+/* -------------------------------------------------------------------------- */
 
-	border-color: rgb(229, 231, 235); /* Tailwind's gray-200 */
-}
-
+/* Scroll container that shows scrollbar above content, not beside it */
 .scroll-container {
 	display: block;
-	overflow-y: scroll; /* ensures consistent scrollbar box */
-	scrollbar-gutter: stable; /* one edge is fine; 'both-edges' optional */
+	overflow-y: auto;
+	scrollbar-gutter: stable overlay; /* overlay scrollbar that doesn't shift layout */
 	scrollbar-width: thin;
 	scrollbar-color: transparent transparent;
 	transition: scrollbar-color 0.2s ease;
 }
 
-/* Hover effects (visibility only, no layout change) */
+/* Firefox hover scrollbar visibility */
 .scroll-container:hover {
-	scrollbar-color: rgba(156, 163, 175, 0.6) transparent;
+	scrollbar-color: rgba(156, 163, 175, 0.6) transparent; /* gray-400 w/ opacity */
 }
 
-/* Chrome/Edge scrollbar */
+/* Chrome, Edge, Safari scrollbar overlay styling */
 .scroll-container::-webkit-scrollbar {
 	width: 6px;
 }
@@ -56,25 +88,22 @@ html {
 	transition: background-color 0.2s ease;
 }
 
+/* Thumb becomes visible on hover */
 .scroll-container:hover::-webkit-scrollbar-thumb {
 	background-color: rgba(156, 163, 175, 0.6);
 }
 
-/* Chrome, Safari, Edge */
+/* -------------------------------------------------------------------------- */
+/*                           Scrollbar - Fully Hidden                         */
+/* -------------------------------------------------------------------------- */
+
+/* Utility class to hide scrollbar entirely */
 .hide-scrollbar::-webkit-scrollbar {
 	display: none;
 }
 
-/* Firefox */
+/* Hide scrollbar in Firefox and legacy Edge */
 .hide-scrollbar {
-	scrollbar-width: none; /* hides scrollbar */
-	-ms-overflow-style: none; /* for IE/Edge legacy */
-}
-
-button {
-	cursor: pointer;
-}
-
-button:disabled {
-	cursor: not-allowed;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
 }
