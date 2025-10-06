@@ -2,6 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useTestEditorStore } from "../store/testEditorStore";
 import { addItem, addSection, deleteSection } from "../apis/sectionApi";
 import toast from "react-hot-toast";
+import { item as ItemSchema } from "../normalizr/testSchemas";
+import { normalize } from "normalizr";
 
 export function useAddSectionMutation(testId) {
 	const updateEntities = useTestEditorStore((s) => s.updateEntities);
@@ -16,16 +18,16 @@ export function useAddSectionMutation(testId) {
 		mutationFn: () => addSection(testId),
 
 		onSuccess: (newSection) => {
-			// 1️⃣ Save the section itself
+			// Save the section itself
 			updateEntities("testSections", newSection.id, {
 				...newSection,
 				items: newSection.items?.map((i) => i.id) ?? [],
 			});
 
-			// 2️⃣ Link section to its test
+			// Link section to its test
 			appendChildToParent("tests", testId, "testSections", newSection.id);
 
-			// 3️⃣ Save the question(s) that were auto-created inside this section
+			// Save the question(s) that were auto-created inside this section
 			newSection.items?.forEach((item) => {
 				updateEntities("items", item.id, {
 					...item,
@@ -35,7 +37,7 @@ export function useAddSectionMutation(testId) {
 				});
 			});
 
-			// 4️⃣ Finally, switch current section in editor
+			// Finally, switch current section in editor
 			changeCurrentSection(newSection.id);
 		},
 
@@ -72,49 +74,34 @@ export function useAddItemMutation(sectionId) {
 			addItem(sectionId, { type, questionType, parentItemId }),
 
 		onSuccess: (newItem) => {
-			// Update the item itself
-			updateEntities("items", newItem.id, newItem);
+			const normalized = normalize(newItem, ItemSchema);
+			const { entities, result } = normalized;
 
-			if (newItem.parentItemId) {
-				// CASE: Question added inside a group
+			// Add all items
+			Object.entries(entities.items || {}).forEach(([id, record]) => {
+				updateEntities("items", id, record);
+			});
+
+			// Handle relationships
+			const mainItem = entities.items[result];
+
+			if (mainItem.parentItemId) {
 				appendChildToParent(
 					"items",
-					newItem.parentItemId,
+					mainItem.parentItemId,
 					"children",
-					newItem.id
+					mainItem.id
 				);
-			} else if (newItem.type === "group") {
-				// CASE: New group (with nested question)
-				// Add group to section
-				appendChildToParent(
-					"testSections",
-					sectionId,
-					"items",
-					newItem.id
-				);
-
-				// Also store its children
-				newItem.children?.forEach((child) => {
-					updateEntities("items", child.id, child);
-					appendChildToParent(
-						"items",
-						newItem.id,
-						"children",
-						child.id
-					);
-				});
 			} else {
-				// CASE: Question directly in section
 				appendChildToParent(
 					"testSections",
 					sectionId,
 					"items",
-					newItem.id
+					mainItem.id
 				);
 			}
-
+			// the item list depends on the currentSection. Update it to prevent stale state on the UI
 			changeCurrentSection(sectionId);
-
 			toast.success("Item created successfully!");
 		},
 

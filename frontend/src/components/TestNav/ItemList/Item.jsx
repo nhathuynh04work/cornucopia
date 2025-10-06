@@ -2,17 +2,18 @@ import { useTestEditorStore } from "../../../store/testEditorStore";
 import { useState } from "react";
 import { ItemTypeIcon } from "./ItemTypeIcon";
 import ItemActions from "./ItemActions";
+import ItemIndex from "./ItemIndex";
 
 const baseClasses =
 	"rounded-md text-[12px] text-gray-700 cursor-pointer flex flex-col";
 
 function Item({ id }) {
 	const item = useTestEditorStore((s) => s.getEntity("items", id));
-	const type = item.type === "group" ? "group" : item.questionType;
+	const type = item?.type === "group" ? "group" : item?.questionType;
 	const isGroup = type === "group";
 
-	const isOpen = useTestEditorStore((s) => s.isGroupOpen(id));
 	const toggleGroupOpen = useTestEditorStore((s) => s.toggleGroupOpen);
+	const isOpen = useTestEditorStore((s) => s.isGroupOpen(id));
 
 	const [hoveredMenu, setHoveredMenu] = useState(null);
 
@@ -24,7 +25,7 @@ function Item({ id }) {
 				{/* Left: Icon + Label */}
 				<div className="flex gap-2 items-center">
 					<ItemTypeIcon type={type} groupOpen={isOpen} />
-					<span>{item.id}</span>
+					<ItemIndex id={id} isGroup={isGroup} />
 				</div>
 
 				{/* Right: Actions */}
