@@ -1,141 +1,104 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router";
+import { api } from "../apis/axios";
+import { useAuth } from "../contexts/AuthContext";
 
 function FlashcardsList() {
-  const [flashcardLists, setFlashcardLists] = useState([]);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [lists, setLists] = useState([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [title, setTitle] = useState("");
 
-  // 📥 Lấy danh sách list từ localStorage khi load lần đầu
+  // Tạo list mới và chuyển hướng sang trang edit của nó
+  async function handleCreateList() {
+    const { data } = await api.post("/lists", {
+      userId: user.id,
+    });
+
+    const { list } = data;
+
+    navigate(`/lists/${list.id}/edit`);
+  }
+
+  function openCreateForm() {
+    setShowCreateForm(true);
+  }
+
+  function closeCreateForm() {
+    setShowCreateForm(false);
+  }
+
+  //  Lấy danh sách list từ Database khi load lần đầu
   useEffect(() => {
-    const updateLists = () => {
-      const savedLists = JSON.parse(localStorage.getItem("flashcardLists")) || [];
-      setFlashcardLists(savedLists);
-    };
+    async function getListsOfUser() {
+      // 1. Chuyen sang trang thai loading
+      setLoading(true);
 
-    updateLists();
+      // 2. Lay toan bo list cuar user hien tai
+      const { data } = await api.get(`/lists?userId=${user.id}`);
 
-    // 👇 Lắng nghe thay đổi trong localStorage (khi thêm thẻ ở trang chi tiết)
-    window.addEventListener("storage", updateLists);
-    return () => window.removeEventListener("storage", updateLists);
-  }, []);
-
-
-  // 💾 Hàm tạo list mới và lưu lại vào localStorage
-  const handleCreateList = () => {
-    const name = prompt("📘 Nhập tên list từ mới:");
-    if (name && name.trim() !== "") {
-      const newList = {
-        id: Date.now(),
-        title: name,
-        cards: [],
-      };
-      const updatedLists = [...flashcardLists, newList];
-      setFlashcardLists(updatedLists);
-      localStorage.setItem("flashcardLists", JSON.stringify(updatedLists));
+      // 3. Thoat trang thai loading va luu lists
+      setLoading(false);
+      setLists(data.lists);
     }
-  };
 
-  // 📍 Điều hướng tới trang chi tiết list
-  const handleGoToDetail = (id) => {
-    navigate(`/flashcards/${id}`);
-  };
+    getListsOfUser();
+  }, [user]);
 
-  // 🗑️ Xóa một list
-  const handleDeleteList = (id) => {
-    if (window.confirm("🗑️ Bạn có chắc chắn muốn xóa list này không?")) {
-      const updatedLists = flashcardLists.filter((list) => list.id !== id);
-      setFlashcardLists(updatedLists);
-      localStorage.setItem("flashcardLists", JSON.stringify(updatedLists));
-
-      // ✅ Xóa luôn flashcards liên quan trong localStorage (nếu có)
-      const flashcards = JSON.parse(localStorage.getItem("flashcards") || "{}");
-      if (flashcards[id]) {
-        delete flashcards[id];
-        localStorage.setItem("flashcards", JSON.stringify(flashcards));
-      }
-    }
-  };
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>📚 Danh sách Flashcard</h2>
+      <h2> Danh sách Flashcard</h2>
 
-      {/* 🆕 Nút tạo list mới */}
-      <button
-        onClick={handleCreateList}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          marginBottom: "20px",
-        }}
-      >
-        + Tạo list mới
-      </button>
+      {/*  Nút tạo list mới */}
+      <button onClick={openCreateForm} className="create-list-button">+ Tạo list mới</button>
 
-      {/* 📜 Danh sách các list */}
-      <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
-        {flashcardLists.length === 0 ? (
-          <p>📂 Hiện chưa có list nào. Hãy tạo một list mới!</p>
-        ) : (
-          flashcardLists.map((list) => (
-            <div
-              key={list.id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "20px",
-                borderRadius: "10px",
-                width: "220px",
-                backgroundColor: "#f9f9f9",
-                position: "relative",
-                transition: "0.2s",
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = "#e9f5ff")
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = "#f9f9f9")
-              }
-            >
-              {/* 📘 Nhấn vào tiêu đề để mở list */}
-              <h3
-                onClick={() => handleGoToDetail(list.id)}
-                style={{
-                  cursor: "pointer",
-                  margin: "0 0 8px 0",
-                }}
-              >
-                <b>{list.title}</b>
-              </h3>
+      {showCreateForm && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="close-button" onClick={closeCreateForm}>
+              ✖
+            </button>
+            <h2>Tạo List mới</h2>
 
-              <p>
-                {JSON.parse(localStorage.getItem("flashcards") || "{}")[list.id]?.length || 0} thẻ
-              </p>
-
-              {/* 🗑️ Nút xóa list */}
-              <button
-                onClick={() => handleDeleteList(list.id)}
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  background: "red",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  padding: "5px 8px",
-                  cursor: "pointer",
-                }}
-              >
-                🗑️
-              </button>
+            <div className="form-group">
+              <label>Tiêu đề *</label>
+              <input
+                type="text"
+                placeholder="Nhập tiêu đề list..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
             </div>
-          ))
-        )}
-      </div>
+
+            <button className="save-button" onClick={handleCreateList}>
+              Lưu
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/*  Danh sách các list */}
+      {lists.length === 0 ? (
+        <p>Hien tai chua co list</p>
+      ) : (
+        <div className="flex flex-col gap-4" id="list-name">
+          {lists.map((list) => (
+            <Link
+              to={`/lists/${list.id}/edit`}
+              key={list.id}
+              className="bg-red-100"
+            >
+              <div className="list-box">{list.title ? list.title : "List chưa được đặt tên"}</div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -42,7 +42,7 @@ function App() {
 
 				{/* Route flashcards */}
 				<Route path="flashcards" element={<Flashcards />} />
-				<Route path="flashcards/:listId" element={<FlashcardsDetail />} />
+				<Route path="lists/:listId/edit" element={<FlashcardsDetail />} />
 
 			</Routes>
 
