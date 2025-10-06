@@ -27,43 +27,54 @@ html {
 	border-color: rgb(229, 231, 235); /* Tailwind's gray-200 */
 }
 
-/* Base scrollbar style (hidden look) */
+.scroll-container {
+	display: block;
+	overflow-y: scroll; /* ensures consistent scrollbar box */
+	scrollbar-gutter: stable; /* one edge is fine; 'both-edges' optional */
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+	transition: scrollbar-color 0.2s ease;
+}
+
+/* Hover effects (visibility only, no layout change) */
+.scroll-container:hover {
+	scrollbar-color: rgba(156, 163, 175, 0.6) transparent;
+}
+
+/* Chrome/Edge scrollbar */
 .scroll-container::-webkit-scrollbar {
 	width: 6px;
 }
 
-/* Track (invisible by default) */
 .scroll-container::-webkit-scrollbar-track {
 	background: transparent;
 }
 
-/* Thumb (hidden when not hovered) */
 .scroll-container::-webkit-scrollbar-thumb {
 	background-color: transparent;
 	border-radius: 9999px;
 	transition: background-color 0.2s ease;
 }
 
-/* When hovered, thumb becomes visible */
 .scroll-container:hover::-webkit-scrollbar-thumb {
-	background-color: rgba(156, 163, 175, 0.6); /* gray-400 w/ opacity */
+	background-color: rgba(156, 163, 175, 0.6);
 }
 
-/* Firefox equivalent */
-.scroll-container {
-	scrollbar-width: thin;
-	scrollbar-color: transparent transparent;
-	transition: scrollbar-color 0.2s ease;
+/* Chrome, Safari, Edge */
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
 }
 
-.scroll-container:hover {
-	scrollbar-color: rgba(156, 163, 175, 0.6) transparent;
+/* Firefox */
+.hide-scrollbar {
+	scrollbar-width: none; /* hides scrollbar */
+	-ms-overflow-style: none; /* for IE/Edge legacy */
 }
 
 button {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 button:disabled {
-    cursor: not-allowed;
+	cursor: not-allowed;
 }

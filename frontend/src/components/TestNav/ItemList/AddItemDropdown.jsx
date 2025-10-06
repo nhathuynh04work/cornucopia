@@ -25,9 +25,9 @@ const menuItems = [
 
 function AddItemDropdown({
 	show,
-	onAddItem,
 	size = "normal",
 	isGroup = false,
+	onAddItem,
 }) {
 	const isSmall = size === "small";
 
@@ -57,8 +57,12 @@ function AddItemDropdown({
 								)
 							}
 							className={`flex items-center gap-2 rounded-md text-left transition
-								${isSmall ? "px-2 py-1.5 text-xs" : "px-3 py-2 text-sm"} 
-								text-gray-700 hover:bg-purple-50`}>
+                                    ${
+										isSmall
+											? "px-2 py-1.5 text-xs"
+											: "px-3 py-2 text-sm"
+									} 
+                                    text-gray-700 hover:bg-purple-50`}>
 							<ItemTypeIcon type={type} size={size} />
 							{label}
 						</button>
