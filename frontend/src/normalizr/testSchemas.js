@@ -22,4 +22,4 @@ const test = new schema.Entity("tests", {
 	testSections: [testSection],
 });
 
-export { test };
+export { test, item };

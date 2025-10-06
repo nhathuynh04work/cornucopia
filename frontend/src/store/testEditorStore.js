@@ -101,6 +101,24 @@ export const useTestEditorStore = create((set, get) => ({
 		return index === -1 ? null : index + 1;
 	},
 
+	getGroupNumberRange: (groupId) => {
+		const group = get().entities?.items?.[groupId];
+		const ordered = get().questionsOrdered ?? [];
+
+		if (!group?.children?.length) return [null, null];
+
+		const firstChildId = group.children[0];
+		const lastChildId = group.children[group.children.length - 1];
+
+		const firstIndex = ordered.findIndex((q) => q.id === firstChildId);
+		const lastIndex = ordered.findIndex((q) => q.id === lastChildId);
+
+		return [
+			firstIndex === -1 ? null : firstIndex + 1,
+			lastIndex === -1 ? null : lastIndex + 1,
+		];
+	},
+
 	getAllQuestionNumbers: () => {
 		const ordered = get().questionsOrdered ?? [];
 		return ordered.map((q, index) => index + 1);
@@ -160,38 +178,40 @@ export const useTestEditorStore = create((set, get) => ({
 }));
 
 // Recursively flatten all questions
-function computeFlatQuestions(entities, result) {
-	if (!result) return [];
-	const test = entities.tests?.[result];
-	if (!test?.testSections) return [];
+function computeFlatQuestions(entities, testId) {
+	if (!testId) return [];
+
+	const test = entities.tests?.[testId];
+	if (!test?.testSections?.length) return [];
 
 	const flat = [];
 
-	(test.testSections ?? [])
-		.map((sectionId) => entities.testSections[sectionId])
+	const sections = test.testSections
+		.map((id) => entities.testSections?.[id])
 		.filter(Boolean)
-		.sort((a, b) => a.sortOrder - b.sortOrder)
-		.forEach((section) => {
-			(section.items ?? [])
-				.map((itemId) => entities.items[itemId])
-				.filter(Boolean)
-				.sort((a, b) => a.sortOrder - b.sortOrder)
-				.forEach((item) => traverseItems(item, entities, flat));
-		});
+		.sort((a, b) => a.sortOrder - b.sortOrder);
+
+	for (const section of sections) {
+		const items = (section.items ?? [])
+			.map((id) => entities.items?.[id])
+			.filter(Boolean)
+			.sort((a, b) => a.sortOrder - b.sortOrder);
+
+		for (const item of items) {
+			if (item.type === "question") {
+				// Direct question in section
+				flat.push(item);
+			} else if (item.type === "group" && item.children?.length) {
+				// Add all child questions of group
+				const children = item.children
+					.map((id) => entities.items?.[id])
+					.filter(Boolean)
+					.sort((a, b) => a.sortOrder - b.sortOrder);
+
+				flat.push(...children);
+			}
+		}
+	}
 
 	return flat;
-}
-
-function traverseItems(item, entities, flat) {
-	if (!item) return;
-	if (item.type === "question") {
-		flat.push(item);
-	}
-	if (item.children?.length) {
-		item.children
-			.map((childId) => entities.items[childId])
-			.filter(Boolean)
-			.sort((a, b) => a.sortOrder - b.sortOrder)
-			.forEach((child) => traverseItems(child, entities, flat));
-	}
 }
