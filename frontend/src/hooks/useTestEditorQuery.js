@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchTestDetails } from "../apis/testApi";
-import { normalize } from "normalizr";
-import { test as TestSchema } from "../normalizr/testSchemas.js";
 import { useTestEditorStore } from "../store/testEditorStore.js";
 import { useEffect } from "react";
 
@@ -10,10 +8,7 @@ export function useTestEditorQuery(id) {
 
 	const query = useQuery({
 		queryKey: ["tests", id, "full"],
-		queryFn: async () => {
-			const test = await fetchTestDetails(id);
-			return normalize(test, TestSchema);
-		},
+		queryFn: () => fetchTestDetails(id),
 	});
 
 	// Hydrate store when query resolves

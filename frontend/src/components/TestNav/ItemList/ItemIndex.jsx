@@ -1,22 +1,25 @@
 import { useTestEditorStore } from "../../../store/testEditorStore";
 
-function ItemIndex({ id, isGroup }) {
+function ItemIndex({ item }) {
 	const getQuestionNumber = useTestEditorStore((s) => s.getQuestionNumber);
 	const getGroupNumberRange = useTestEditorStore(
 		(s) => s.getGroupNumberRange
 	);
 
-	if (!id) return null;
+	if (!item) return null;
 
 	// Get the number or range depending on type
-	const value = isGroup ? getGroupNumberRange(id) : getQuestionNumber(id);
+	const isGroup = item.type === "group";
+	const value = isGroup
+		? getGroupNumberRange(item.sectionId, item.id)
+		: getQuestionNumber(item.id);
 
 	let displayValue = "";
 
 	if (isGroup) {
 		const [start, end] = value;
 		if (start && end && start !== end) {
-			displayValue = `${start} – ${end}`; // e.g. 3–6
+			displayValue = `${start} – ${end}`;
 		} else if (start === end) {
 			displayValue = start;
 		} else {

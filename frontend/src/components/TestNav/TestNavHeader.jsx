@@ -2,10 +2,12 @@ import { Settings, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import SettingsModal from "./SettingsModal/SettingsModal";
+import { useTestEditorStore } from "../../store/testEditorStore";
 
-function TestNavHeader({ test }) {
+function TestNavHeader() {
 	const navigate = useNavigate();
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+	const title = useTestEditorStore((s) => s.test?.title);
 
 	return (
 		<>
@@ -28,12 +30,11 @@ function TestNavHeader({ test }) {
 				</div>
 
 				<h2 className="font-medium text-sm text-gray-800 truncate leading-tight">
-					{test?.title || "Untitled Test"}
+					{title || "Untitled Test"}
 				</h2>
 			</header>
 
 			<SettingsModal
-				test={test}
 				isOpen={isSettingsOpen}
 				onClose={() => setIsSettingsOpen(false)}
 			/>

@@ -9,25 +9,32 @@ export function useCreateTestMutation() {
 	return useMutation({
 		mutationFn: ({ title, description }) =>
 			createTest({ title, description }),
+
 		onSuccess: (newTest) => {
 			queryClient.setQueryData(["tests"], (old = []) => [
 				...old,
 				newTest,
 			]);
 		},
+
 		onError: (err) => {
 			toast.error(err.message || "Failed to create test");
 		},
 	});
 }
 
-export function useUpdateTestMutation(id) {
-	const updateEntities = useTestEditorStore((s) => s.updateEntities);
+export function useUpdateTestMutation(testId) {
+	const updateTestSettings = useTestEditorStore((s) => s.updateTestSettings);
 
 	return useMutation({
-		mutationFn: (changes) => updateTest(id, changes),
-		onSuccess: (updated) => {
-			updateEntities("tests", updated.id, updated);
+		mutationFn: (changes) => updateTest(testId, changes),
+
+		onSuccess: (updatedTest) => {
+			updateTestSettings(updatedTest);
+		},
+
+		onError: (err) => {
+			toast.error(err.message || "Failed to update test");
 		},
 	});
 }

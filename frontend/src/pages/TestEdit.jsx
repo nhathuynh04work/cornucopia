@@ -1,22 +1,22 @@
 import { useParams } from "react-router";
 import { useTestEditorQuery } from "../hooks/useTestEditorQuery";
-import { useTestEditorStore } from "../store/testEditorStore";
 import TestEditorNav from "../components/TestNav/TestEditorNav";
 import TestEditor from "../components/TestEditor";
 import TestItemSettings from "../components/TestItemSettings";
+import { useTestEditorStore } from "../store/testEditorStore";
 
 function TestEdit() {
 	const { id } = useParams();
 	const { isLoading, isError } = useTestEditorQuery(id);
-	const test = useTestEditorStore((s) => s.getEntity("tests", id));
+	const test = useTestEditorStore((s) => s.test);
 
-	if (isLoading)
+	if (isLoading || !test)
 		return (
 			<div className="flex justify-center items-center h-screen text-gray-500 animate-pulse">
 				Loading editor...
 			</div>
 		);
-        
+
 	if (isError)
 		return (
 			<p className="text-center text-red-500 mt-8">
@@ -28,7 +28,7 @@ function TestEdit() {
 		<div className="grid grid-cols-12 h-screen bg-gray-50">
 			{/* Left navigation */}
 			<aside className="col-span-2 border-r bg-white shadow-sm overflow-hidden">
-				<TestEditorNav testId={test?.id} />
+				<TestEditorNav />
 			</aside>
 
 			{/* Main editor */}

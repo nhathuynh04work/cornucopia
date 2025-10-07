@@ -6,18 +6,22 @@ import ModalSidebar from "./ModalSidebar";
 import ModalContentGeneral from "./ModalContentGeneral";
 import ModalFooter from "./ModalFooter";
 import { useUpdateTestMutation } from "../../../hooks/useTestMutation";
+import { useTestEditorStore } from "../../../store/testEditorStore";
 
-function SettingsModal({ isOpen, onClose, test }) {
-	const [initialData, setInitialData] = useState(test);
-	const [formData, setFormData] = useState(test);
+function SettingsModal({ isOpen, onClose }) {
+	const settings = useTestEditorStore((s) => s.test);
+	const [initialData, setInitialData] = useState(settings);
+	const [formData, setFormData] = useState(settings);
 	const { isPending, mutateAsync: updateTest } = useUpdateTestMutation(
-		test.id
+		settings?.id
 	);
 
 	useEffect(() => {
-		setInitialData(test);
-		setFormData(test);
-	}, [test]);
+		if (settings) {
+			setFormData(settings);
+			setInitialData(settings);
+		}
+	}, [settings]);
 
 	function handleChange(key, value) {
 		setFormData((prev) => ({ ...prev, [key]: value }));

@@ -1,118 +1,163 @@
 import { create } from "zustand";
 
 export const useTestEditorStore = create((set, get) => ({
-	entities: {},
-	result: null,
-	questionsOrdered: null,
-	currentSection: null,
+	// --------------------------
+	// State
+	// --------------------------
+	test: null,
+	sections: [],
+	currentSectionIndex: 0,
 	groupOpenState: {},
 
-	toggleGroupOpen: (id) => {
-		set((state) => ({
-			groupOpenState: {
-				...state.groupOpenState,
-				[id]: !state.groupOpenState[id],
-			},
-		}));
-	},
-
-	setGroupOpen: (id, isOpen) =>
-		set((state) => ({
-			groupOpenState: {
-				...state.groupOpenState,
-				[id]: isOpen,
-			},
-		})),
-
-	isGroupOpen: (id) => {
-		return get().groupOpenState[id] ?? false;
-	},
-
+	// --------------------------
+	// Test helpers
+	// --------------------------
 	loadTest: (data) => {
-		const flat = computeFlatQuestions(data.entities, data.result);
-		const test = data.entities.tests[data.result];
-		const firstSection = data.entities.testSections[test.testSections[0]];
-
+		const { testSections, ...test } = data;
 		set({
-			entities: data.entities,
-			result: data.result,
-			questionsOrdered: flat,
-			currentSection: firstSection,
+			test,
+			sections: testSections || [],
+			currentSectionIndex: 0,
+			groupOpenState: {},
 		});
 	},
 
-	updateEntities: (type, id, changes) => {
+	updateTestSettings: (changes) => {
 		set((state) => {
-			const newEntities = {
-				...state.entities,
-				[type]: {
-					...(state.entities[type] ?? {}),
-					[id]: {
-						...(state.entities[type]?.[id] ?? {}),
-						...changes,
-					},
-				},
-			};
-
+			if (!state.test) return {};
 			return {
-				entities: newEntities,
-				questionsOrdered: computeFlatQuestions(
-					newEntities,
-					state.result
-				),
+				test: { ...state.test, ...changes },
+				sections: state.sections, // preserve sections
 			};
 		});
 	},
 
-	appendChildToParent: (parentType, parentId, relationKey, childId) => {
+	// --------------------------
+	// Section helpers
+	// --------------------------
+	getCurrentSection: () => {
+		const sections = get().sections;
+		if (!sections.length) return null;
+		return sections[get().currentSectionIndex];
+	},
+
+	changeCurrentSection: (index) => {
 		set((state) => {
-			const parent = state.entities[parentType]?.[parentId] ?? {};
-			const newEntities = {
-				...state.entities,
-				[parentType]: {
-					...state.entities[parentType],
-					[parentId]: {
-						...parent,
-						[relationKey]: [
-							...(parent[relationKey] ?? []),
-							childId,
-						],
-					},
-				},
-			};
-			return {
-				entities: newEntities,
-				questionsOrdered: computeFlatQuestions(
-					newEntities,
-					state.result
-				),
-			};
+			if (index < 0 || index >= state.sections.length) return {};
+			return { currentSectionIndex: index };
 		});
 	},
 
-	getEntity: (type, id) => {
-		const { entities } = get();
-		return entities?.[type]?.[id] ?? null;
+	getSectionsCount: () => get().sections.length,
+
+	addSection: (newSection) => {
+		set((state) => {
+			const sections = [...state.sections, newSection].sort(
+				(a, b) => a.sortOrder - b.sortOrder
+			);
+			return { sections };
+		});
+	},
+
+	deleteSection: (sectionId) => {
+		set((state) => {
+			const sections = state.sections.filter((_, i) => i !== sectionId);
+			return { sections };
+		});
+	},
+
+	// --------------------------
+	// Item helpers
+	// --------------------------
+	addItemToSection: (sectionId, newItem) => {
+		set((state) => {
+			const sections = structuredClone(state.sections);
+			const section = sections.find((s) => s.id === sectionId);
+
+			section.items = section.items || [];
+			section.items.push(newItem);
+			section.items.sort((a, b) => a.sortOrder - b.sortOrder);
+
+			return { sections };
+		});
+	},
+
+	addChildToGroup: (sectionId, itemId, newChild) => {
+		set((state) => {
+			const sections = structuredClone(state.sections);
+			const section = sections.find((s) => s.id === sectionId);
+			const group = section.items.find((item) => item.id === itemId);
+
+			if (group.type !== "group") return {};
+			group.children.push(newChild);
+			group.children.sort((a, b) => a.sortOrder - b.sortOrder);
+			return { sections };
+		});
+	},
+
+	deleteItemFromSection: (sectionId, itemId) => {
+		set((state) => {
+			const sections = structuredClone(state.sections);
+			const section = sections.find((s) => s.id === sectionId);
+			if (!section) return {};
+
+			section.items = section.items.filter((item) => item.id !== itemId);
+			return { sections };
+		});
+	},
+
+	deleteChildFromGroup: (sectionId, groupId, childId) => {
+		set((state) => {
+			const sections = structuredClone(state.sections);
+			const section = sections.find((s) => s.id === sectionId);
+			if (!section) return {};
+
+			const group = section.items.find((i) => i.id === groupId);
+			if (!group || group.type !== "group") return {};
+
+			group.children = group.children.filter(
+				(child) => child.id !== childId
+			);
+
+			return { sections };
+		});
+	},
+
+	getQuestionsFlattened: () => {
+		const sections = get().sections;
+		const flat = [];
+		sections
+			.sort((a, b) => a.sortOrder - b.sortOrder)
+			.forEach((section) => {
+				(section.items || [])
+					.sort((a, b) => a.sortOrder - b.sortOrder)
+					.forEach((item) => {
+						if (item.type === "question") flat.push(item);
+						else if (item.type === "group") {
+							(item.children || [])
+								.sort((a, b) => a.sortOrder - b.sortOrder)
+								.forEach((child) => flat.push(child));
+						}
+					});
+			});
+		return flat;
 	},
 
 	getQuestionNumber: (questionId) => {
-		const ordered = get().questionsOrdered ?? [];
+		const ordered = get().getQuestionsFlattened();
 		const index = ordered.findIndex((q) => q.id === questionId);
 		return index === -1 ? null : index + 1;
 	},
 
-	getGroupNumberRange: (groupId) => {
-		const group = get().entities?.items?.[groupId];
-		const ordered = get().questionsOrdered ?? [];
-
+	getGroupNumberRange: (sectionId, groupIndex) => {
+		const section = get().sections.find((s) => s.id === sectionId);
+		const group = section.items.find((item) => item.id === groupIndex);
 		if (!group?.children?.length) return [null, null];
-
-		const firstChildId = group.children[0];
-		const lastChildId = group.children[group.children.length - 1];
-
-		const firstIndex = ordered.findIndex((q) => q.id === firstChildId);
-		const lastIndex = ordered.findIndex((q) => q.id === lastChildId);
-
+		const flat = get().getQuestionsFlattened();
+		const firstIndex = flat.findIndex((q) => q.id === group.children[0].id);
+		const lastIndex = flat.findIndex(
+			(q) => q.id === group.children[group.children.length - 1].id
+		);
 		return [
 			firstIndex === -1 ? null : firstIndex + 1,
 			lastIndex === -1 ? null : lastIndex + 1,
@@ -120,151 +165,34 @@ export const useTestEditorStore = create((set, get) => ({
 	},
 
 	getAllQuestionNumbers: () => {
-		const ordered = get().questionsOrdered ?? [];
-		return ordered.map((q, index) => index + 1);
+		return get()
+			.getQuestionsFlattened()
+			.map((_, i) => i + 1);
 	},
 
 	getQuestionsCount: () => {
-		const ordered = get().questionsOrdered ?? [];
-		return ordered.length;
+		return get().getQuestionsFlattened().length;
 	},
 
-	getSectionsCount: () => {
-		const sections = get().entities?.testSections ?? {};
-		return Object.keys(sections).length;
+	// --------------------------
+	// Group open/close state
+	// --------------------------
+	toggleGroupOpen: (groupId) => {
+		set((state) => ({
+			groupOpenState: {
+				...state.groupOpenState,
+				[groupId]: !state.groupOpenState[groupId],
+			},
+		}));
 	},
 
-	deleteEntity: (type, id) => {
-		set((state) => {
-			const newEntities = { ...state.entities };
-			console.log(newEntities[type]);
-
-			// Deep remove references in nested arrays
-			for (const tableKey in newEntities) {
-				const table = newEntities[tableKey];
-				if (!table) continue;
-
-				for (const entityId in table) {
-					const entity = table[entityId];
-					for (const key in entity) {
-						if (Array.isArray(entity[key])) {
-							entity[key] = entity[key].filter(
-								(childId) => childId !== id
-							);
-						}
-					}
-				}
-			}
-
-			// Delete item and its children recursively
-			if (type === "items") {
-				const item = newEntities.items?.[id];
-				if (item) {
-					// Delete answer options
-					item.answerOptions?.forEach((optId) => {
-						delete newEntities.answerOptions?.[optId];
-					});
-
-					// Recursively delete children
-					item.children?.forEach((childId) => {
-						newEntities.items?.[childId] &&
-							deleteEntityRecursively(
-								newEntities,
-								"items",
-								childId
-							);
-					});
-				}
-			}
-
-			// Delete the item itself
-			if (newEntities[type]?.[id]) {
-				newEntities[type] = { ...newEntities[type] };
-				delete newEntities[type][id];
-			}
-
-			console.log(newEntities[type]);
-
-			return {
-				entities: newEntities,
-				questionsOrdered: computeFlatQuestions(
-					newEntities,
-					state.result
-				),
-			};
-		});
+	setGroupOpen: (groupId, isOpen) => {
+		set((state) => ({
+			groupOpenState: { ...state.groupOpenState, [groupId]: isOpen },
+		}));
 	},
 
-	changeCurrentSection: (id) => {
-		set((state) => {
-			const section = state.entities.testSections[id];
-			if (!section) return { currentSection: null };
-
-			const filteredItems =
-				section.items?.filter(
-					(itemId) => state.entities.items[itemId] // only keep existing items
-				) || [];
-
-			return {
-				currentSection: {
-					...section,
-					items: filteredItems,
-				},
-			};
-		});
+	isGroupOpen: (groupId) => {
+		return get().groupOpenState[groupId] ?? false;
 	},
 }));
-
-// Recursively flatten all questions
-function computeFlatQuestions(entities, testId) {
-	if (!testId) return [];
-
-	const test = entities.tests?.[testId];
-	if (!test?.testSections?.length) return [];
-
-	const flat = [];
-
-	const sections = test.testSections
-		.map((id) => entities.testSections?.[id])
-		.filter(Boolean)
-		.sort((a, b) => a.sortOrder - b.sortOrder);
-
-	for (const section of sections) {
-		const items = (section.items ?? [])
-			.map((id) => entities.items?.[id])
-			.filter(Boolean)
-			.sort((a, b) => a.sortOrder - b.sortOrder);
-
-		for (const item of items) {
-			if (item.type === "question") {
-				// Direct question in section
-				flat.push(item);
-			} else if (item.type === "group" && item.children?.length) {
-				// Add all child questions of group
-				const children = item.children
-					.map((id) => entities.items?.[id])
-					.filter(Boolean)
-					.sort((a, b) => a.sortOrder - b.sortOrder);
-
-				flat.push(...children);
-			}
-		}
-	}
-
-	return flat;
-}
-
-function deleteEntityRecursively(entities, type, id) {
-	const item = entities[type]?.[id];
-	if (!item) return;
-
-	item.answerOptions?.forEach(
-		(optId) => delete entities.answerOptions?.[optId]
-	);
-	item.children?.forEach((childId) =>
-		deleteEntityRecursively(entities, type, childId)
-	);
-
-	entities[type] = { ...entities[type] };
-	delete entities[type][id];
-}

@@ -7,13 +7,12 @@ import ItemIndex from "./ItemIndex";
 const baseClasses =
 	"rounded-md text-[12px] text-gray-700 cursor-pointer flex flex-col";
 
-function Item({ id }) {
-	const item = useTestEditorStore((s) => s.getEntity("items", id));
+function Item({ item }) {
 	const type = item?.type === "group" ? "group" : item?.questionType;
 	const isGroup = type === "group";
 
 	const toggleGroupOpen = useTestEditorStore((s) => s.toggleGroupOpen);
-	const isOpen = useTestEditorStore((s) => s.isGroupOpen(id));
+	const isOpen = useTestEditorStore((s) => s.isGroupOpen(item?.id));
 
 	const [hoveredMenu, setHoveredMenu] = useState(null);
 
@@ -22,11 +21,12 @@ function Item({ id }) {
 			{/* Header */}
 			<div
 				className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-100 transition"
-				onClick={isGroup ? () => toggleGroupOpen(id) : undefined}>
+				onClick={isGroup ? () => toggleGroupOpen(item?.id) : undefined}>
 				{/* Left: Icon + Label */}
 				<div className="flex gap-2 items-center">
 					<ItemTypeIcon type={type} groupOpen={isOpen} />
-					<ItemIndex id={id} isGroup={isGroup} />
+					<ItemIndex item={item} />
+					<span>{item.id}</span>
 				</div>
 
 				{/* Right: Actions */}
@@ -42,8 +42,8 @@ function Item({ id }) {
 				{isGroup &&
 					isOpen &&
 					item?.children?.length > 0 &&
-					item.children.map((childId) => (
-						<Item key={childId} id={childId} />
+					item.children.map((item) => (
+						<Item key={item.id} item={item} />
 					))}
 			</div>
 		</div>
