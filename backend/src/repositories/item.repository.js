@@ -14,6 +14,7 @@ export async function createQuestion(
 		},
 	});
 }
+
 export async function createGroup(client, { sectionId, sortOrder }) {
 	return await client.testItem.create({
 		data: {
@@ -70,6 +71,46 @@ export async function deleteItem(client, { id }) {
 	return await client.testItem.delete({
 		where: {
 			id,
+		},
+	});
+}
+
+export async function copyItem(client, { item, newParentId }) {
+	const { id, createdAt, updatedAt, ...data } = item;
+
+	return client.testItem.create({
+		data: {
+			...data,
+			sortOrder: item.sortOrder + 1,
+			parentItemId: newParentId ?? item.parentItemId,
+		},
+	});
+}
+
+export async function getItemsByParentId(parentItemId, client = prisma) {
+	return client.testItem.findMany({
+		where: {
+			parentItemId,
+		},
+	});
+}
+
+export async function incrementSortOrderAfter(
+	sectionId,
+	sortOrder,
+	client = prisma
+) {
+	await client.testItem.updateMany({
+		where: {
+			sectionId,
+			sortOrder: {
+				gt: sortOrder, // items after the new copy
+			},
+		},
+		data: {
+			sortOrder: {
+				increment: 1,
+			},
 		},
 	});
 }
