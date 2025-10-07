@@ -5,7 +5,7 @@ import ItemListHeader from "./ItemListHeader";
 import { ItemListProvider } from "../../../contexts/ItemListContext";
 
 function ItemList() {
-	const currentSection = useTestEditorStore((s) => s.currentSection);
+	const currentSection = useTestEditorStore((s) => s.getCurrentSection());
 	const { mutate: addItem } = useAddItemMutation(currentSection?.id);
 
 	const handleAddItem = (type, questionType, parentItemId = null) => {

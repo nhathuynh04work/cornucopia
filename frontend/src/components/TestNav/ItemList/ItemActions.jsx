@@ -1,14 +1,13 @@
-import { EllipsisVertical, Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useItemList } from "../../../contexts/ItemListContext";
 import { useTestEditorStore } from "../../../store/testEditorStore";
 import ActionWrapper from "./ActionWrapper";
 import AddItemDropdown from "./AddItemDropdown";
-import ActionDropdown from "./ActionDropdown";
 import { useDeleteItemMutation } from "../../../hooks/useItemMutation";
 
 function ItemActions({ item, hoveredMenu, setHoveredMenu }) {
 	const { onAddItem } = useItemList();
-	const { mutate: deleteItem } = useDeleteItemMutation(item?.id);
+	const { mutate: deleteItem } = useDeleteItemMutation(item);
 	const setGroupOpen = useTestEditorStore((s) => s.setGroupOpen);
 
 	function handleAddItem(type, questionType) {
@@ -31,16 +30,11 @@ function ItemActions({ item, hoveredMenu, setHoveredMenu }) {
 				</ActionWrapper>
 			)}
 
-			{/* Action dropdown: Duplicate / Delete */}
-			<ActionWrapper type="action" setHoveredMenu={setHoveredMenu}>
-				<EllipsisVertical className="w-5 h-5 p-1 rounded-sm hover:bg-gray-200 cursor-pointer" />
-				<ActionDropdown
-					show={hoveredMenu === "action"}
-					size="small"
-					onDelete={deleteItem}
-					isChild={!!item?.parentItemId}
-				/>
-			</ActionWrapper>
+			{/* Delete */}
+			<Trash2
+				className="w-5 h-5 p-1 rounded-sm hover:bg-gray-200 hover:text-red-700 cursor-pointer"
+				onClick={deleteItem}
+			/>
 		</div>
 	);
 }

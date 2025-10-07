@@ -19,6 +19,7 @@ function Tests() {
 
 	async function handleCreateTest({ title, description }) {
 		const newTest = await createTest.mutateAsync({ title, description });
+		console.log(newTest);
 		toast.success("Test created successfully");
 		navigate(`/tests/${newTest.id}/edit`);
 	}

@@ -2,43 +2,27 @@ import { useMutation } from "@tanstack/react-query";
 import { useTestEditorStore } from "../store/testEditorStore";
 import { addItem, addSection, deleteSection } from "../apis/sectionApi";
 import toast from "react-hot-toast";
-import { item as ItemSchema } from "../normalizr/testSchemas";
-import { normalize } from "normalizr";
 
-export function useAddSectionMutation(testId) {
-	const updateEntities = useTestEditorStore((s) => s.updateEntities);
-	const appendChildToParent = useTestEditorStore(
-		(s) => s.appendChildToParent
-	);
+export function useAddSectionMutation() {
+	const addSectionToTest = useTestEditorStore((s) => s.addSection);
 	const changeCurrentSection = useTestEditorStore(
 		(s) => s.changeCurrentSection
 	);
 
 	return useMutation({
-		mutationFn: () => addSection(testId),
+		mutationFn: (testId) => addSection(testId),
 
 		onSuccess: (newSection) => {
-			// Save the section itself
-			updateEntities("testSections", newSection.id, {
-				...newSection,
-				items: newSection.items?.map((i) => i.id) ?? [],
-			});
+			// Add the section to the test in store
+			addSectionToTest(newSection);
 
-			// Link section to its test
-			appendChildToParent("tests", testId, "testSections", newSection.id);
+			// Switch to the new section
+			const index = newSection.sortOrder
+				? newSection.sortOrder - 1
+				: undefined; // fallback
+			if (index !== undefined) changeCurrentSection(index);
 
-			// Save the question(s) that were auto-created inside this section
-			newSection.items?.forEach((item) => {
-				updateEntities("items", item.id, {
-					...item,
-					children: item.children?.map((child) => child.id) ?? [],
-					answerOptions:
-						item.answerOptions?.map((opt) => opt.id) ?? [],
-				});
-			});
-
-			// Finally, switch current section in editor
-			changeCurrentSection(newSection.id);
+			toast.success("Section added successfully!");
 		},
 
 		onError: (err) => {
@@ -48,23 +32,21 @@ export function useAddSectionMutation(testId) {
 	});
 }
 
-export function useDeleteSectionMutation(sectionId) {
-	const deleteEntity = useTestEditorStore((s) => s.deleteEntity);
+export function useDeleteSectionMutation() {
+	const deleteSectionFromTest = useTestEditorStore((s) => s.deleteSection);
 
 	return useMutation({
-		mutationFn: () => deleteSection(sectionId),
-		onSuccess: () => {
-			deleteEntity("testSections", sectionId);
+		mutationFn: (sectionId) => deleteSection(sectionId),
+		onSuccess: (_, sectionId) => {
+			deleteSectionFromTest(sectionId);
 			toast.success("Section deleted");
 		},
 	});
 }
 
 export function useAddItemMutation(sectionId) {
-	const updateEntities = useTestEditorStore((s) => s.updateEntities);
-	const appendChildToParent = useTestEditorStore(
-		(s) => s.appendChildToParent
-	);
+	const addItemToSection = useTestEditorStore((s) => s.addItemToSection);
+	const addChildToGroup = useTestEditorStore((s) => s.addChildToGroup);
 	const changeCurrentSection = useTestEditorStore(
 		(s) => s.changeCurrentSection
 	);
@@ -74,34 +56,21 @@ export function useAddItemMutation(sectionId) {
 			addItem(sectionId, { type, questionType, parentItemId }),
 
 		onSuccess: (newItem) => {
-			const normalized = normalize(newItem, ItemSchema);
-			const { entities, result } = normalized;
-
-			// Add all items
-			Object.entries(entities.items || {}).forEach(([id, record]) => {
-				updateEntities("items", id, record);
-			});
-
-			// Handle relationships
-			const mainItem = entities.items[result];
-
-			if (mainItem.parentItemId) {
-				appendChildToParent(
-					"items",
-					mainItem.parentItemId,
-					"children",
-					mainItem.id
+			console.log(newItem);
+			if (newItem.parentItemId) {
+				// It's a child of a group
+				addChildToGroup(
+					newItem.sectionId,
+					newItem.parentItemId,
+					newItem
 				);
 			} else {
-				appendChildToParent(
-					"testSections",
-					sectionId,
-					"items",
-					mainItem.id
-				);
+				// Regular item in section
+				addItemToSection(newItem.sectionId, newItem);
 			}
-			// the item list depends on the currentSection. Update it to prevent stale state on the UI
-			changeCurrentSection(sectionId);
+
+			// Keep UI in sync
+			changeCurrentSection(newItem.sectionId);
 			toast.success("Item created successfully!");
 		},
 
