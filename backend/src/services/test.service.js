@@ -21,28 +21,19 @@ export async function createTestService({ title, description }) {
 			description,
 		});
 
-		// 2. Create default section
+		// 2. Create a section with a multiple_choice question inside it
 		const section = await createSection(tx, {
 			testId: test.id,
 			title: "Default",
 			sortOrder: 1,
 		});
 
-		// 3. Create a multiple question inside the section
-		const question = await createQuestion(tx, {
-			sectionId: section.id,
-			text: "",
-			questionType: "multiple_choice",
-			sortOrder: 1,
-		});
-
-		// 4. Return combined result
+		// 3. Return combined result
 		return {
 			...test,
 			testSections: [
 				{
 					...section,
-					items: [{ ...question }],
 				},
 			],
 		};
