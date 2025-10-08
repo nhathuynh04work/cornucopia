@@ -19,7 +19,7 @@ export async function createListController(req, res) {
   }
 
   try {
-    const list = await createListService({ userId });
+    const list = await createListService({ userId, title });
 
     res.status(201).json({ list });
   } catch (err) {
@@ -66,6 +66,9 @@ export async function getListsOfUserController(req, res) {
 
 export async function createCardController(req, res) {
   const { listId } = req.params;
+  const { term, definition } = req.body;
+
+  console.log("📥 Dữ liệu nhận từ frontend:", { listId, term, definition });
 
   if (!listId) {
     return res.status(400).json({ error: "Khong co listId" });
@@ -76,7 +79,7 @@ export async function createCardController(req, res) {
   }
 
   try {
-    const card = await createCardService({ listId });
+    const card = await createCardService({ listId, term, definition });
 
     res.status(201).json({ card });
   } catch (err) {

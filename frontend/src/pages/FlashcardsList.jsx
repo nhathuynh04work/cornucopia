@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
 import { api } from "../apis/axios";
 import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-hot-toast";
 
 function FlashcardsList() {
   const navigate = useNavigate();
@@ -15,10 +16,11 @@ function FlashcardsList() {
   async function handleCreateList() {
     const { data } = await api.post("/lists", {
       userId: user.id,
+      // title: title,
+      title: `${title} (${Date.now()})`,
     });
 
     const { list } = data;
-
     navigate(`/lists/${list.id}/edit`);
   }
 
@@ -28,6 +30,23 @@ function FlashcardsList() {
 
   function closeCreateForm() {
     setShowCreateForm(false);
+  }
+
+  async function handleDeleteList(listId) {
+    const confirmed = window.confirm(
+      "Bạn có chắc chắn muốn xóa list này không?"
+    );
+    if (!confirmed) return;
+
+    try {
+      await api.delete(`/lists/${listId}`);
+      setLists((prev) => prev.filter((list) => list.id !== listId));
+      toast.success("Đã xoá list thành công");
+      navigate("/flashcards");
+    } catch (err) {
+      console.error("Lỗi khi xoá list:", err);
+      alert("Không thể xoá list. Vui lòng thử lại!");
+    }
   }
 
   //  Lấy danh sách list từ Database khi load lần đầu
@@ -43,7 +62,6 @@ function FlashcardsList() {
       setLoading(false);
       setLists(data.lists);
     }
-
     getListsOfUser();
   }, [user]);
 
@@ -56,7 +74,9 @@ function FlashcardsList() {
       <h2> Danh sách Flashcard</h2>
 
       {/*  Nút tạo list mới */}
-      <button onClick={openCreateForm} className="create-list-button">+ Tạo list mới</button>
+      <button onClick={openCreateForm} className="create-list-button">
+        Tạo list mới
+      </button>
 
       {showCreateForm && (
         <div className="modal-overlay">
@@ -85,17 +105,26 @@ function FlashcardsList() {
 
       {/*  Danh sách các list */}
       {lists.length === 0 ? (
-        <p>Hien tai chua co list</p>
+        <p>Hiện tại chưa có list</p>
       ) : (
         <div className="flex flex-col gap-4" id="list-name">
           {lists.map((list) => (
-            <Link
-              to={`/lists/${list.id}/edit`}
-              key={list.id}
-              className="bg-red-100"
-            >
-              <div className="list-box">{list.title ? list.title : "List chưa được đặt tên"}</div>
-            </Link>
+            <div key={list.id} className="list-item flex items-center gap-2">
+              <Link to={`/lists/${list.id}/edit`} className="bg-red-100">
+                <div className="list-box">
+                  {list.title
+                    ? list.title.split(" (")[0]
+                    : "List chưa được đặt tên"}
+
+                  <button
+                    className="delete-list-button"
+                    onClick={() => handleDeleteList(list.id)}
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       )}

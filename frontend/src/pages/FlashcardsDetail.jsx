@@ -14,6 +14,8 @@ function FlashcardsDetail() {
 
   async function handleCreateCard() {
   try {
+    console.log("📤 term gửi lên:", term);
+    console.log("📤 definition gửi lên:", definition);
     const { data } = await api.post(`/lists/${listId}/cards`, {
       term: term || null,          
       definition: definition || null 
@@ -77,8 +79,8 @@ async function handleDeleteCard(cardId) {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>📘 Thẻ trong List ID: {listId}</h1>
-      <h2>{title}</h2>
+      {/* <h1>📘 Thẻ trong List ID: {listId}</h1> */}
+      <h2 className="title-display">{title}</h2>
       <p>{description}</p>
 
       <button className="create-card-button" onClick={openCreateForm}>+ Tạo Flashcard</button>

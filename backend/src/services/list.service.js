@@ -10,10 +10,9 @@ export async function createListService({ userId, title }) {
   });
 }
 
-export async function createCardService({ listId }) {
+export async function createCardService({ listId, term, definition }) {
   return withTransaction(async (client) => {
-    const card = await createCard(client, { listId });
-
+    const card = await createCard(client, { listId, term, definition });
     return card;
   });
 }

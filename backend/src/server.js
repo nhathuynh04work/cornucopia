@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
-import { authRouter, listRouter } from "./routes/index.js";
+import { authRouter, cardRouter, listRouter } from "./routes/index.js";
 import passport from "./config/passport.js";
 
 const app = express();
@@ -14,6 +14,7 @@ app.use(passport.initialize());
 // Routes
 app.use("/auth", authRouter);
 app.use("/lists", listRouter)
+app.use("/cards", cardRouter);
 
 app.listen(env.PORT, () => {
 	console.log(`Server running on port ${env.PORT}`);

@@ -180,34 +180,63 @@ textarea {
 
 /* LIST */
 .list-box {
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #ccc;
   border-radius: 12px;
-  padding: 14px 18px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  color: #333;
-  font-size: 1rem;
-  font-weight: 500;
+  padding: 20px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: background-color 0.2s;
   cursor: pointer;
-  transition: all 0.25s ease;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  min-width: 250px;
+  height: 60px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  text-align: center; 
 }
 
-/* Hiệu ứng khi hover */
 .list-box:hover {
+  background-color: #e9f5ff;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
 /* Nếu bạn muốn các list có khoảng cách nhau */
 #list-name {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
   margin-top: 20px;
 }
 
 
+/* NÚT XÓA LIST */
+.delete-list-button {
+  background: red;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
 
+.delete-list-button:hover {
+  background: darkred;
+}
+
+/* DẤU CHẤM TRƯỚC Ô */
+.list-item {
+  list-style: none;
+}
+
+/* TÊN TITLE */
+.title-display {
+  display: none;
+}
