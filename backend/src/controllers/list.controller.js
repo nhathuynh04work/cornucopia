@@ -7,7 +7,6 @@ import {
 } from "../services/list.service.js";
 
 export async function createListController(req, res) {
-
   const { userId, title } = req.body;
 
   if (!userId) {
@@ -29,9 +28,9 @@ export async function createListController(req, res) {
 }
 
 export async function getListInfoController(req, res) {
-  const { listId } = req.params;
+  const listId = Number(req.params.listId);
 
-  if (Number.isNaN(Number(listId))) {
+  if (Number.isNaN(listId)) {
     return res.status(400).json({ error: "List Id khong phai la so" });
   }
 
@@ -45,13 +44,13 @@ export async function getListInfoController(req, res) {
 }
 
 export async function getListsOfUserController(req, res) {
-  const { userId } = req.query;
+  const userId = Number(req.query.userId);
 
   if (!userId) {
     return res.status(400).json({ error: "Khong co userId" });
   }
 
-  if (Number.isNaN(Number(userId))) {
+  if (Number.isNaN(userId)) {
     return res.status(400).json({ error: "Id khong phai la so" });
   }
 
@@ -65,7 +64,7 @@ export async function getListsOfUserController(req, res) {
 }
 
 export async function createCardController(req, res) {
-  const { listId } = req.params;
+  const listId = Number(req.params.listId);
   const { term, definition } = req.body;
 
   console.log("📥 Dữ liệu nhận từ frontend:", { listId, term, definition });
@@ -74,7 +73,7 @@ export async function createCardController(req, res) {
     return res.status(400).json({ error: "Khong co listId" });
   }
 
-  if (Number.isNaN(Number(listId))) {
+  if (Number.isNaN(listId)) {
     return res.status(400).json({ error: "Id khong phai la so" });
   }
 
@@ -89,18 +88,17 @@ export async function createCardController(req, res) {
 }
 
 export async function deleteListController(req, res) {
-  const {listId} = req.params;
+  const { listId } = req.params;
 
-  if(Number.isNaN(Number(listId))) {
-    return res.status(400).json({ error: "Id khong phai la so"});
+  if (Number.isNaN(Number(listId))) {
+    return res.status(400).json({ error: "Id khong phai la so" });
   }
 
   try {
-    const list = await deleteListService({listId});
-    res.status(200).json({list});
+    const list = await deleteListService({ listId });
+    res.status(200).json({ list });
   } catch (err) {
     console.error(err);
-    res.status(500).json({error: err.error});
+    res.status(500).json({ error: err.error });
   }
 }
-
