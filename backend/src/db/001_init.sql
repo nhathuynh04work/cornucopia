@@ -50,7 +50,6 @@ CREATE TABLE topics (
 -- POSTS table
 CREATE TABLE posts (
   id           SERIAL PRIMARY KEY,
-  topic_id     INT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
   author_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   title        VARCHAR(255) NOT NULL,
   slug         VARCHAR(255) NOT NULL UNIQUE,
@@ -58,5 +57,7 @@ CREATE TABLE posts (
   status       VARCHAR(20) NOT NULL DEFAULT 'draft'
                  CHECK (status IN ('draft','published','archived')),
   published_at TIMESTAMPTZ,
-  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  cover_url    TEXT,                                         -- NEW
+  topic_id     INT REFERENCES topics(id) ON DELETE SET NULL  -- NEW
 );

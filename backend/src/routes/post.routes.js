@@ -1,12 +1,17 @@
 import { Router } from "express";
 import {
-  listPostsController,
-  getPostDetailController,
+  getPostController,
+  createDefaultPostController,
+  getPostsController,
+  deletePostController,
+  updatePostController,
 } from "../controllers/post.controller.js";
 
 const router = Router();
 
-router.get("/", listPostsController); // GET /api/posts
-router.get("/:slug", getPostDetailController); // GET /api/posts/:slug
-
+router.get("/:id", getPostController);
+router.post("/", createDefaultPostController);
+router.get("/", getPostsController);
+router.delete("/:id", deletePostController);
+router.put("/:id", updatePostController);
 export default router;

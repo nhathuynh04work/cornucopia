@@ -8,6 +8,9 @@ import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import ProfileInfo from "./pages/ProfileInfo";
 import Blog from "./pages/Blog";
+import BlogEditor from "./pages/BlogEditor";
+import BlogDetail from "./pages/BlogDetail";
+import TopicPage from "./pages/TopicPage";
 import Tests from "./pages/Tests";
 import Flashcards from "./pages/Flashcards";
 import Courses from "./pages/Courses";
@@ -17,31 +20,35 @@ import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
 
 function App() {
-	return (
-		<>
-			<Routes>
-				<Route element={<Layout />}>
-					<Route index element={<Home />} />
-					<Route path="signup" element={<Signup />} />
-					<Route path="login" element={<Login />} />
-					<Route path="profile" element={<Profile />}>
-						<Route index element={<ProfileInfo />} />
-						<Route path="edit" element={<ProfileEdit />} />
-						<Route path="security" element={<ProfileSecurity />} />
-						<Route path="stats" element={<ProfileStats />} />
-					</Route>
-					<Route path="blog" element={<Blog />} />
-					<Route path="tests" element={<Tests />} />
-					<Route path="flashcards" element={<Flashcards />} />
-					<Route path="courses" element={<Courses />} />
-				</Route>
-				<Route path="confirm" element={<Confirm />} />
-				<Route path="auth/callback" element={<AuthCallback />} />
-			</Routes>
+  return (
+    <>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="login" element={<Login />} />
+          <Route path="profile" element={<Profile />}>
+            <Route index element={<ProfileInfo />} />
+            <Route path="edit" element={<ProfileEdit />} />
+            <Route path="security" element={<ProfileSecurity />} />
+            <Route path="stats" element={<ProfileStats />} />
+          </Route>
+          <Route path="blog" element={<Blog />} />
+          <Route path="blog/:id" element={<BlogDetail />} />
+          <Route path="blog/:id/:slug" element={<BlogDetail />} />
+          <Route path="blog/:id/edit" element={<BlogEditor />} />
+          <Route path="topics/:slug" element={<TopicPage />} />
+          <Route path="tests" element={<Tests />} />
+          <Route path="flashcards" element={<Flashcards />} />
+          <Route path="courses" element={<Courses />} />
+        </Route>
+        <Route path="confirm" element={<Confirm />} />
+        <Route path="auth/callback" element={<AuthCallback />} />
+      </Routes>
 
-			<Toaster position="bottom-left" />
-		</>
-	);
+      <Toaster position="bottom-left" />
+    </>
+  );
 }
 
 export default App;
