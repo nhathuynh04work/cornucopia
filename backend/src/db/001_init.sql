@@ -38,6 +38,29 @@ CREATE TABLE email_verification_tokens (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- TOPICS table
+CREATE TABLE topics (
+  id          SERIAL PRIMARY KEY,
+  name        VARCHAR(255) NOT NULL UNIQUE,
+  slug        VARCHAR(255) NOT NULL UNIQUE,
+  description TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- POSTS table
+CREATE TABLE posts (
+  id           SERIAL PRIMARY KEY,
+  author_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title        VARCHAR(255) NOT NULL,
+  slug         VARCHAR(255) NOT NULL UNIQUE,
+  content      TEXT NOT NULL,
+  status       VARCHAR(20) NOT NULL DEFAULT 'draft'
+                 CHECK (status IN ('draft','published','archived')),
+  published_at TIMESTAMPTZ,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  cover_url    TEXT,                                         -- NEW
+  topic_id     INT REFERENCES topics(id) ON DELETE SET NULL  -- NEW
+);
 -- Media (images, videos, audios)
 CREATE TABLE media (
     id SERIAL PRIMARY KEY,

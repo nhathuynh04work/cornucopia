@@ -1,4 +1,6 @@
 import authRouter from "./auth.routes.js";
+import postRouter from "./post.routes.js";
+import topicRouter from "./topic.routes.js";
 import uploadRouter from "./upload.routes.js";
 import testRouter from "./test.routes.js";
 import sectionRouter from "./section.routes.js";
@@ -12,4 +14,6 @@ export {
 	sectionRouter,
 	itemRouter,
 	optionRouter,
+  postRouter, 
+  topicRouter
 };

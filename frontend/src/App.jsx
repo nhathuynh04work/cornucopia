@@ -8,6 +8,9 @@ import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import ProfileInfo from "./pages/ProfileInfo";
 import Blog from "./pages/Blog";
+import BlogEditor from "./pages/BlogEditor";
+import BlogDetail from "./pages/BlogDetail";
+import TopicPage from "./pages/TopicPage";
 import Tests from "./pages/Tests";
 import Flashcards from "./pages/Flashcards";
 import Courses from "./pages/Courses";
@@ -33,6 +36,10 @@ function App() {
 						<Route path="stats" element={<ProfileStats />} />
 					</Route>
 					<Route path="blog" element={<Blog />} />
+          <Route path="blog/:id" element={<BlogDetail />} />
+          <Route path="blog/:id/:slug" element={<BlogDetail />} />
+          <Route path="blog/:id/edit" element={<BlogEditor />} />
+          <Route path="topics/:slug" element={<TopicPage />} />
 					<Route path="tests" element={<Tests />} />
 					<Route path="tests/:id" element={<TestInfo />} />
 					<Route path="flashcards" element={<Flashcards />} />
@@ -43,9 +50,9 @@ function App() {
 				<Route path="auth/callback" element={<AuthCallback />} />
 			</Routes>
 
-			<Toaster position="bottom-left" />
-		</>
-	);
+      <Toaster position="bottom-left" />
+    </>
+  );
 }
 
 export default App;
