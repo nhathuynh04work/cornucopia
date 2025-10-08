@@ -4,6 +4,7 @@ import {
   getListsOfUserService,
   deleteListService,
   createCardService,
+  updateListService,
 } from "../services/list.service.js";
 
 export async function createListController(req, res) {
@@ -96,6 +97,27 @@ export async function deleteListController(req, res) {
 
   try {
     const list = await deleteListService({ listId });
+    res.status(200).json({ list });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.error });
+  }
+}
+
+export async function updateListController(req, res) {
+  const listId = Number(req.params.listId);
+  const { title } = req.body;
+
+  if (!listId) {
+    return res.status(400).json({ error: "Khong co listId" });
+  }
+
+  if (Number.isNaN(listId)) {
+    return res.status(400).json({ error: "Id khong phai la so" });
+  }
+
+  try {
+    const list = await updateListService({ listId, title });
     res.status(200).json({ list });
   } catch (err) {
     console.error(err);

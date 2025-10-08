@@ -23,7 +23,7 @@ export async function getListsOfUser(client, { userId }) {
   });
 }
 
-export async function deleteList(client, {listId}) {
+export async function deleteList(client, { listId }) {
   return await client.flashcardList.delete({
     where: {
       id: listId,
@@ -31,3 +31,13 @@ export async function deleteList(client, {listId}) {
   });
 }
 
+export async function updateList(client, { listId, title }) {
+  return await client.flashcardList.update({
+    where: {
+      id: listId,
+    },
+    data: {
+      title,
+    },
+  });
+}
