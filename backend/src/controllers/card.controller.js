@@ -5,9 +5,9 @@ import {
 
 
 export async function deleteCardController(req, res) {
-  const { cardId } = req.params;
+  const cardId = Number(req.params.cardId);
 
-  if(Number.isNaN(Number(cardId))) {
+  if(Number.isNaN(cardId)) {
     return res.status(400).json({ error: "Id khong phai la so"});
   }
 
