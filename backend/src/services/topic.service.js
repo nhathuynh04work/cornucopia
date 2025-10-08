@@ -2,7 +2,7 @@ import {
   listTopicsWithCount,
   findTopicBySlug,
 } from "../repositories/topic.repository.js";
-import { withTransaction } from "../db/transaction.js";
+import prisma from "../prisma.js";
 import { getPostsByTopicSlug } from "../repositories/post.repository.js";
 
 /** Lấy danh sách topics kèm post_count */
@@ -21,7 +21,7 @@ export async function listPostsByTopicSlugService({
   offset = 0,
   limit = 50,
 }) {
-  return withTransaction(async (client) => {
+  return prisma.$transaction(async (client) => {
     return getPostsByTopicSlug(client, { slug, offset, limit });
   });
 }
