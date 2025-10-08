@@ -8,6 +8,9 @@ import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import ProfileInfo from "./pages/ProfileInfo";
 import Blog from "./pages/Blog";
+import BlogEditor from "./pages/BlogEditor";
+import BlogDetail from "./pages/BlogDetail";
+import TopicPage from "./pages/TopicPage";
 import Tests from "./pages/Tests";
 import Flashcards from "./pages/Flashcards";
 import FlashcardsList from "./pages/FlashcardsList";
@@ -17,6 +20,8 @@ import { Toaster } from "react-hot-toast";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
+import TestEdit from "./pages/TestEdit";
+import TestInfo from "./pages/TestInfo";
 
 function App() {
 	return (
@@ -33,10 +38,16 @@ function App() {
 						<Route path="stats" element={<ProfileStats />} />
 					</Route>
 					<Route path="blog" element={<Blog />} />
+          <Route path="blog/:id" element={<BlogDetail />} />
+          <Route path="blog/:id/:slug" element={<BlogDetail />} />
+          <Route path="blog/:id/edit" element={<BlogEditor />} />
+          <Route path="topics/:slug" element={<TopicPage />} />
 					<Route path="tests" element={<Tests />} />
+					<Route path="tests/:id" element={<TestInfo />} />
 					<Route path="flashcards" element={<Flashcards />} />
 					<Route path="courses" element={<Courses />} />
 				</Route>
+				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
 
@@ -46,9 +57,9 @@ function App() {
 
 			</Routes>
 
-			<Toaster position="bottom-left" />
-		</>
-	);
+      <Toaster position="bottom-left" />
+    </>
+  );
 }
 
 export default App;

@@ -1,3 +1,7 @@
+/* -------------------------------------------------------------------------- */
+/*                               Tailwind Import                              */
+/* -------------------------------------------------------------------------- */
+
 @import "tailwindcss";
 
 .create-list-button {
@@ -239,4 +243,107 @@ textarea {
 /* TÊN TITLE */
 .title-display {
   display: none;
+}
+/* -------------------------------------------------------------------------- */
+/*                              Base HTML Styles                              */
+/* -------------------------------------------------------------------------- */
+
+html {
+	scroll-behavior: smooth;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Universal Element Styles                         */
+/* -------------------------------------------------------------------------- */
+
+/* Firefox scrollbar behavior and border defaults */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #9ca3af transparent; /* gray-400 thumb, transparent track */
+	border-color: rgb(229, 231, 235); /* Tailwind gray-200 */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Button Defaults                              */
+/* -------------------------------------------------------------------------- */
+
+button {
+	cursor: pointer;
+}
+
+button:disabled {
+	cursor: not-allowed;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                             Scrollbar - Global                             */
+/* -------------------------------------------------------------------------- */
+
+/* Chrome, Edge, Safari scrollbar defaults */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #9ca3af; /* gray-400 */
+	border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       Scrollbar - Floating Overlay Style                   */
+/* -------------------------------------------------------------------------- */
+
+/* Scroll container that shows scrollbar above content, not beside it */
+.scroll-container {
+	display: block;
+	overflow-y: auto;
+	scrollbar-gutter: stable overlay; /* overlay scrollbar that doesn't shift layout */
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+	transition: scrollbar-color 0.2s ease;
+}
+
+/* Firefox hover scrollbar visibility */
+.scroll-container:hover {
+	scrollbar-color: rgba(156, 163, 175, 0.6) transparent; /* gray-400 w/ opacity */
+}
+
+/* Chrome, Edge, Safari scrollbar overlay styling */
+.scroll-container::-webkit-scrollbar {
+	width: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+	background-color: transparent;
+	border-radius: 9999px;
+	transition: background-color 0.2s ease;
+}
+
+/* Thumb becomes visible on hover */
+.scroll-container:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(156, 163, 175, 0.6);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Scrollbar - Fully Hidden                         */
+/* -------------------------------------------------------------------------- */
+
+/* Utility class to hide scrollbar entirely */
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+/* Hide scrollbar in Firefox and legacy Edge */
+.hide-scrollbar {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
 }
