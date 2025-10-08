@@ -1,134 +1,119 @@
-// export async function createPost(client, { slug, title, content, authorId }) {
-//   const res = await client.query(
-//     `
-//     INSERT INTO posts (author_id, title, slug, content, status, published_at)
-//     VALUES ($1,$2,$3,$4,$5,$6)
-//     RETURNING *
-//   `,
-//     [authorId, title, slug, content, "draft", null]
-//   );
-
-//   return res.rows[0];
-// }
-
-// export async function getPostById(client, { id }) {
-//   const res = await client.query("SELECT * FROM posts WHERE id = $1", [id]);
-//   return res.rows[0];
-// }
-// export async function getAllPosts(client) {
-//   const res = await client.query(
-//     "SELECT * FROM posts ORDER BY created_at DESC"
-//   );
-//   return res.rows;
-// }
+/* Tạo mới một bài viết (Post)
+ * Trả về bài viết kèm thông tin tác giả (author) và chủ đề (topic)*/
 
 export async function createPost(
   client,
   { slug, title, content, authorId, topicId = null, coverUrl = null }
 ) {
-  const res = await client.query(
-    `
-    INSERT INTO posts (author_id, title, slug, content, status, published_at, topic_id, cover_url)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-    RETURNING *
-  `,
-    [authorId, title, slug, content, "draft", null, topicId, coverUrl]
-  );
-  return res.rows[0];
+  return client.post.create({
+    data: {
+      authorId,
+      title,
+      slug,
+      content,
+      status: "draft",
+      publishedAt: null,
+      topicId,
+      coverUrl,
+    },
+    include: {
+      author: { select: { id: true, name: true, email: true } },
+      topic: { select: { id: true, name: true, slug: true } },
+    },
+  });
 }
 
+/* Lấy thông tin một bài viết theo ID
+ * - Include quan hệ author và topic (tương đương LEFT JOIN trong SQL cũ)*/
 export async function getPostById(client, { id }) {
-  const res = await client.query(
-    `
-    SELECT 
-      p.*,
-      u.name AS author_name,
-      t.name AS topic_name, 
-      t.slug AS topic_slug
-    FROM posts p
-    LEFT JOIN users u  ON u.id = p.author_id
-    LEFT JOIN topics t ON t.id = p.topic_id
-    WHERE p.id = $1
-    `,
-    [id]
-  );
-  return res.rows[0];
+  return client.post.findUnique({
+    where: { id },
+    include: {
+      author: { select: { id: true, name: true, email: true } },
+      topic: { select: { id: true, name: true, slug: true } },
+    },
+  });
 }
 
+/* Lấy tất cả các bài viết
+ * - Sắp xếp theo thứ tự giảm dần của ngày public (publishedAt) và ngày tạo (createdAt)*/
 export async function getAllPosts(client) {
-  const res = await client.query(`
-    SELECT 
-      p.id, p.title, p.slug, p.content, p.status, 
-      p.published_at, p.created_at, p.cover_url,
-      u.id   AS author_id,
-      COALESCE(u.name, split_part(u.email,'@',1)) AS author_name,
-      t.id   AS topic_id,
-      t.name AS topic_name,
-      t.slug AS topic_slug
-    FROM posts p
-    LEFT JOIN users  u ON u.id = p.author_id
-    LEFT JOIN topics t ON t.id = p.topic_id
-    ORDER BY COALESCE(p.published_at, p.created_at) DESC
-  `);
-  return res.rows;
+  return client.post.findMany({
+    include: {
+      author: { select: { id: true, name: true, email: true } },
+      topic: { select: { id: true, name: true, slug: true } },
+    },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+  });
 }
 
+/* Xóa bài viết theo ID */
 export async function deletePostById(client, { id }) {
-  const { rows } = await client.query(
-    "DELETE FROM posts WHERE id = $1 RETURNING id",
-    [id]
-  );
-  return rows.length > 0 ? rows[0].id : null;
+  try {
+    const deleted = await client.post.delete({
+      where: { id },
+      select: { id: true },
+    });
+    return deleted.id;
+  } catch {
+    return null;
+  }
 }
 
+/* Cập nhật nội dung bài viết
+ *   + Nếu status = 'published' và chưa có publishedAt → đặt là thời gian hiện tại
+ *   + Nếu status khác 'published' → đặt null
+ *   + Nếu đang 'published' và đã có publishedAt → giữ nguyên */
 export async function updatePostById(
   client,
   { id, title, content, status, coverUrl = null, topicId = null }
 ) {
-  const { rows } = await client.query(
-    `
-    UPDATE posts
-    SET
-      title       = $2,
-      content     = $3,
-      status      = $4::varchar,         -- ép về varchar(20)
-      cover_url   = $5,
-      topic_id    = $6,
-      published_at = CASE
-        WHEN $4::varchar = 'published' AND published_at IS NULL THEN now()
-        WHEN $4::varchar <> 'published' THEN NULL
-        ELSE published_at
-      END
-    WHERE id = $1
-    RETURNING *;
-    `,
-    [id, title, content, status, coverUrl, topicId]
-  );
-  return rows[0] || null;
+  const existing = await client.post.findUnique({
+    where: { id },
+    select: { publishedAt: true },
+  });
+  if (!existing) return null;
+
+  let nextPublishedAt = existing.publishedAt;
+  if (status === "published") {
+    if (!existing.publishedAt) nextPublishedAt = new Date();
+  } else {
+    nextPublishedAt = null;
+  }
+
+  return client.post.update({
+    where: { id },
+    data: {
+      title,
+      content,
+      status,
+      coverUrl,
+      topicId,
+      publishedAt: nextPublishedAt,
+    },
+    include: {
+      author: { select: { id: true, name: true, email: true } },
+      topic: { select: { id: true, name: true, slug: true } },
+    },
+  });
 }
 
+/* Lấy danh sách bài viết theo slug của topic
+ * - Dùng quan hệ lồng: where: { topic: { is: { slug } } }
+ * - Có phân trang: offset → skip, limit → take
+ * - Trả về danh sách bài viết cùng thông tin tác giả & chủ đề */
 export async function getPostsByTopicSlug(
   client,
   { slug, offset = 0, limit = 50 }
 ) {
-  const { rows } = await client.query(
-    `
-    SELECT 
-      p.id, p.title, p.slug, p.content, p.status,
-      p.published_at, p.created_at, p.cover_url,
-      u.id   AS author_id,
-      COALESCE(u.name, split_part(u.email,'@',1)) AS author_name,
-      t.id   AS topic_id,
-      t.name AS topic_name,
-      t.slug AS topic_slug
-    FROM posts p
-    LEFT JOIN users  u ON u.id = p.author_id
-    LEFT JOIN topics t ON t.id = p.topic_id
-    WHERE t.slug = $1
-    ORDER BY COALESCE(p.published_at, p.created_at) DESC
-    OFFSET $2 LIMIT $3
-    `,
-    [slug, offset, limit]
-  );
-  return rows;
+  return client.post.findMany({
+    where: { topic: { is: { slug } } },
+    include: {
+      author: { select: { id: true, name: true, email: true } },
+      topic: { select: { id: true, name: true, slug: true } },
+    },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    skip: offset,
+    take: limit,
+  });
 }

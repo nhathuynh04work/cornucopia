@@ -1,23 +1,38 @@
-// Lấy danh sách topics kèm số bài đã publish
-import db from "../db/db.js";
+import prisma from "../prisma.js";
 
-export async function listTopicsWithCount() {
-  const sql = `
-    SELECT t.id, t.name, t.slug, t.description,
-           COUNT(p.*) FILTER (WHERE p.status = 'published') AS post_count
-    FROM topics t
-    LEFT JOIN posts p ON p.topic_id = t.id
-    GROUP BY t.id
-    ORDER BY t.name ASC;
-  `;
-  const { rows } = await db.query(sql);
-  return rows;
+/* Lấy danh sách tất cả chủ đề (topics) kèm số lượng bài viết đã được publish */
+export async function listTopicsWithCount(client = prisma) {
+  // Lấy danh sách tất cả topic
+  const topics = await client.topic.findMany({
+    include: {
+      posts: {
+        where: { status: "published" },
+        select: { id: true }, // chỉ cần id để đếm
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  // Bổ sung trường postCount cho từng topic
+  return topics.map((t) => ({
+    id: t.id,
+    name: t.name,
+    slug: t.slug,
+    description: t.description,
+    postCount: t.posts.length,
+  }));
 }
 
-export async function findTopicBySlug(slug) {
-  const { rows } = await db.query(
-    `SELECT id, name, slug, description FROM topics WHERE slug = $1 LIMIT 1`,
-    [slug]
-  );
-  return rows[0] || null;
+/* Tìm một topic theo slug */
+export async function findTopicBySlug(client, slug) {
+  const topic = await client.topic.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+    },
+  });
+  return topic || null;
 }

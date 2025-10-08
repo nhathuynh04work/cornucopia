@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { formatVNDate } from "../lib/text";
 
 export default function BlogListItem({ post }) {
+  console.log(post);
   const postHref = post.slug
     ? `/blog/${post.id}/${post.slug}`
     : `/blog/${post.id}`;
@@ -13,9 +14,9 @@ export default function BlogListItem({ post }) {
         to={postHref}
         className="w-[180px] h-[120px] rounded-lg overflow-hidden bg-gray-100 flex-shrink-0"
       >
-        {post.cover_url ? (
+        {post.coverUrl ? (
           <img
-            src={post.cover_url}
+            src={post.coverUrl}
             alt={post.title}
             className="w-full h-full object-cover"
           />
@@ -27,14 +28,14 @@ export default function BlogListItem({ post }) {
       </Link>
 
       <div className="flex-1">
-        {post.topic_name && (
+        {post.topic && (
           <div className="text-xs font-semibold tracking-widest text-gray-500 uppercase">
             {topicHref ? (
               <Link to={topicHref} className="hover:underline">
-                {post.topic_name}
+                {post.topic}
               </Link>
             ) : (
-              post.topic_name
+              post.topic
             )}
           </div>
         )}
@@ -52,11 +53,11 @@ export default function BlogListItem({ post }) {
         )}
 
         <div className="mt-3 text-sm text-gray-500 flex items-center gap-3">
-          {post.published_at && <span>{formatVNDate(post.published_at)}</span>}
-          {post.author_name && (
+          {post.publishedAt && <span>{formatVNDate(post.publishedAt)}</span>}
+          {post.author.name && (
             <>
               <span>•</span>
-              <span>bởi {post.author_name}</span>
+              <span>bởi {post.author.name}</span>
             </>
           )}
           <span className="ml-auto flex items-center gap-3">

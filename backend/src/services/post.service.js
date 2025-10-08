@@ -1,4 +1,3 @@
-import { withTransaction } from "../db/transaction.js";
 import {
   createPost,
   getAllPosts,
@@ -6,13 +5,14 @@ import {
   deletePostById,
   updatePostById,
 } from "../repositories/post.repository.js";
+import prisma from "../prisma.js";
 
 export async function createDefaultPostService({
   authorId,
   topicId = null,
   coverUrl = null,
 }) {
-  return withTransaction(async (client) => {
+  return prisma.$transaction(async (client) => {
     const slug = `default-${Date.now()}`;
     const post = await createPost(client, {
       slug,
@@ -27,28 +27,28 @@ export async function createDefaultPostService({
 }
 
 export async function getPostService({ id }) {
-  return withTransaction(async (client) => {
+  return prisma.$transaction(async (client) => {
     const post = await getPostById(client, { id });
     return post;
   });
 }
 
 export async function getPostsService() {
-  return withTransaction(async (client) => {
+  return prisma.$transaction(async (client) => {
     const posts = await getAllPosts(client);
     return posts;
   });
 }
 
 export async function deletePostService({ id }) {
-  return withTransaction(async (client) => {
+  return prisma.$transaction(async (client) => {
     const deleted = await deletePostById(client, { id });
     return deleted;
   });
 }
 
 export async function updatePostService(payload) {
-  return withTransaction(async (client) => {
+  return prisma.$transaction(async (client) => {
     const updated = await updatePostById(client, payload);
     return updated;
   });
