@@ -9,7 +9,9 @@ import {
 	optionRouter,
 	itemRouter,
   postRouter, 
-  topicRouter
+  topicRouter,
+  cardRouter,
+  listRouter
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 
@@ -32,6 +34,8 @@ app.use(passport.initialize());
 
 // Routes
 app.use("/auth", authRouter);
+app.use("/lists", listRouter)
+app.use("/cards", cardRouter);
 app.use("/posts", postRouter);
 app.use("/topics", topicRouter);
 app.use("/upload", uploadRouter);

@@ -13,6 +13,8 @@ import BlogDetail from "./pages/BlogDetail";
 import TopicPage from "./pages/TopicPage";
 import Tests from "./pages/Tests";
 import Flashcards from "./pages/Flashcards";
+import FlashcardsList from "./pages/FlashcardsList";
+import FlashcardsDetail from "./pages/FlashcardsDetail";
 import Courses from "./pages/Courses";
 import { Toaster } from "react-hot-toast";
 import ProfileSecurity from "./pages/ProfileSecurity";
@@ -48,6 +50,11 @@ function App() {
 				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
+
+				{/* Route flashcards */}
+				<Route path="flashcards" element={<Flashcards />} />
+				<Route path="lists/:listId/edit" element={<FlashcardsDetail />} />
+
 			</Routes>
 
       <Toaster position="bottom-left" />

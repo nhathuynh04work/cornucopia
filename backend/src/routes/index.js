@@ -1,4 +1,6 @@
 import authRouter from "./auth.routes.js";
+import listRouter from "./list.routes.js";
+import cardRouter from "./card.routes.js"
 import postRouter from "./post.routes.js";
 import topicRouter from "./topic.routes.js";
 import uploadRouter from "./upload.routes.js";
@@ -15,5 +17,7 @@ export {
 	itemRouter,
 	optionRouter,
   postRouter, 
-  topicRouter
+  topicRouter, 
+  listRouter, 
+  cardRouter
 };
