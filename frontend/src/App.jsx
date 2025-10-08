@@ -18,33 +18,37 @@ import { Toaster } from "react-hot-toast";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
+import TestEdit from "./pages/TestEdit";
+import TestInfo from "./pages/TestInfo";
 
 function App() {
-  return (
-    <>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="signup" element={<Signup />} />
-          <Route path="login" element={<Login />} />
-          <Route path="profile" element={<Profile />}>
-            <Route index element={<ProfileInfo />} />
-            <Route path="edit" element={<ProfileEdit />} />
-            <Route path="security" element={<ProfileSecurity />} />
-            <Route path="stats" element={<ProfileStats />} />
-          </Route>
-          <Route path="blog" element={<Blog />} />
+	return (
+		<>
+			<Routes>
+				<Route element={<Layout />}>
+					<Route index element={<Home />} />
+					<Route path="signup" element={<Signup />} />
+					<Route path="login" element={<Login />} />
+					<Route path="profile" element={<Profile />}>
+						<Route index element={<ProfileInfo />} />
+						<Route path="edit" element={<ProfileEdit />} />
+						<Route path="security" element={<ProfileSecurity />} />
+						<Route path="stats" element={<ProfileStats />} />
+					</Route>
+					<Route path="blog" element={<Blog />} />
           <Route path="blog/:id" element={<BlogDetail />} />
           <Route path="blog/:id/:slug" element={<BlogDetail />} />
           <Route path="blog/:id/edit" element={<BlogEditor />} />
           <Route path="topics/:slug" element={<TopicPage />} />
-          <Route path="tests" element={<Tests />} />
-          <Route path="flashcards" element={<Flashcards />} />
-          <Route path="courses" element={<Courses />} />
-        </Route>
-        <Route path="confirm" element={<Confirm />} />
-        <Route path="auth/callback" element={<AuthCallback />} />
-      </Routes>
+					<Route path="tests" element={<Tests />} />
+					<Route path="tests/:id" element={<TestInfo />} />
+					<Route path="flashcards" element={<Flashcards />} />
+					<Route path="courses" element={<Courses />} />
+				</Route>
+				<Route path="tests/:id/edit" element={<TestEdit />} />
+				<Route path="confirm" element={<Confirm />} />
+				<Route path="auth/callback" element={<AuthCallback />} />
+			</Routes>
 
       <Toaster position="bottom-left" />
     </>

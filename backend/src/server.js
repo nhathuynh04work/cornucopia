@@ -1,8 +1,17 @@
 import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
+import {
+	authRouter,
+	sectionRouter,
+	testRouter,
+	uploadRouter,
+	optionRouter,
+	itemRouter,
+  postRouter, 
+  topicRouter
+} from "./routes/index.js";
 import passport from "./config/passport.js";
-import { authRouter, postRouter, topicRouter } from "./routes/index.js";
 
 const app = express();
 
@@ -13,19 +22,23 @@ app.use(
     credentials: true,
   })
 );
+
 // tăng giới hạn body cho JSON & form
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 // Passport
 app.use(passport.initialize());
-
-// Health check
-app.get("/health", (req, res) => res.json({ ok: true }));
 
 // Routes
 app.use("/auth", authRouter);
 app.use("/posts", postRouter);
 app.use("/topics", topicRouter);
+app.use("/upload", uploadRouter);
+app.use("/tests", testRouter);
+app.use("/sections", sectionRouter);
+app.use("/items", itemRouter);
+app.use("/options", optionRouter);
 
 // Handler riêng cho payload quá lớn (413)
 app.use((err, req, res, next) => {
@@ -41,6 +54,7 @@ app.use((err, req, res, next) => {
   const status = err.status || 400;
   res.status(status).json({ message: err.message || "Bad Request" });
 });
+
 
 app.listen(env.PORT, () => {
   console.log(`Server running on port ${env.PORT}`);
