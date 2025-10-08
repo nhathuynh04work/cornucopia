@@ -20,6 +20,8 @@ model User {
     emailVerificationToken EmailVerificationToken?
     media                  Media[]
     userRole               UserRole?
+    flashcardLists         FlashcardList[]
+    posts                  Post[]
 
     @@map("users")
 }
@@ -110,7 +112,7 @@ model TestItem {
     title        String?
     text         String?
     mediaUrl     String?       @map("media_url")
-    questionType QuestionType? @map("question_type") // only set when type = question
+    questionType QuestionType? @map("question_type")
     points       Decimal?      @default(1) @db.Decimal(5, 2)
     sortOrder    Int           @map("sort_order")
     createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -126,7 +128,7 @@ model TestItem {
 
 model AnswerOption {
     id        Int      @id @default(autoincrement())
-    itemId    Int      @map("item_id") // must reference a TestItem of type 'question'
+    itemId    Int      @map("item_id")
     text      String?
     isCorrect Boolean? @default(false) @map("is_correct")
     sortOrder Int      @map("sort_order")
@@ -154,4 +156,59 @@ enum QuestionType {
     matching
 
     @@map("enum_test_items_question_type")
+}
+
+model FlashcardList {
+    id          Int         @id @default(autoincrement())
+    userId      Int         @map("user_id")
+    title       String?
+    description String?
+    createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+    user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    flashcards  Flashcard[]
+
+    @@unique([userId, title], map: "uq_user_title")
+    @@map("flashcard_lists")
+}
+
+model Flashcard {
+    id         Int           @id @default(autoincrement())
+    listId     Int           @map("list_id")
+    term       String?
+    definition String?
+    example    String?
+    imageUrl   String?       @map("image_url")
+    createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+    list       FlashcardList @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+    @@map("flashcards")
+}
+
+model Topic {
+    id          Int      @id @default(autoincrement())
+    name        String   @unique
+    slug        String   @unique
+    description String?
+    createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    posts       Post[]
+
+    @@map("topics")
+}
+
+model Post {
+    id          Int       @id @default(autoincrement())
+    authorId    Int       @map("author_id")
+    title       String
+    slug        String    @unique
+    content     String
+    status      String    @default("draft") @db.VarChar(20)
+    publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+    createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+    coverUrl    String?   @map("cover_url")
+    topicId     Int?      @map("topic_id")
+
+    author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    topic  Topic? @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+    @@map("posts")
 }
