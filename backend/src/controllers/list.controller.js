@@ -89,9 +89,9 @@ export async function createCardController(req, res) {
 }
 
 export async function deleteListController(req, res) {
-  const { listId } = req.params;
+  const listId = Number(req.params.listId);
 
-  if (Number.isNaN(Number(listId))) {
+  if (Number.isNaN(listId)) {
     return res.status(400).json({ error: "Id khong phai la so" });
   }
 
