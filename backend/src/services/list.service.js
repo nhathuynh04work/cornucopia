@@ -1,5 +1,5 @@
 import { getCardsOfList, createCard } from "../repositories/card.repository.js";
-import { createList, getList, getListsOfUser, deleteList } from "../repositories/list.repository.js";
+import { createList, getList, getListsOfUser, deleteList, updateList } from "../repositories/list.repository.js";
 
 export async function createListService({ userId, title }) {
   return prisma.$transaction(async (client) => {
@@ -41,5 +41,13 @@ export async function deleteListService({listId}) {
     const deletedList = await deleteList(client, {listId});
 
     return deletedList;
+  });
+}
+
+export async function updateListService({listId, title}) {
+  return prisma.$transaction(async (client) => {
+    const updatedList = await updateList(client, {listId, title});
+
+    return updatedList;
   });
 }

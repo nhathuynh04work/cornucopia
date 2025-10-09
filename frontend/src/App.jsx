@@ -13,7 +13,6 @@ import BlogDetail from "./pages/BlogDetail";
 import TopicPage from "./pages/TopicPage";
 import Tests from "./pages/Tests";
 import Flashcards from "./pages/Flashcards";
-import FlashcardsList from "./pages/FlashcardsList";
 import FlashcardsDetail from "./pages/FlashcardsDetail";
 import Courses from "./pages/Courses";
 import { Toaster } from "react-hot-toast";

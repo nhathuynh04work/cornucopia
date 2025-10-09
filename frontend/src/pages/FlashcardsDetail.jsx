@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom"; // ✅ sửa import
 import { api } from "../apis/axios";
 
 function FlashcardsDetail() {
@@ -12,127 +12,137 @@ function FlashcardsDetail() {
   const [definition, setDefinition] = useState("");
   const [term, setTerm] = useState("");
 
+  // 📌 Tạo flashcard
   async function handleCreateCard() {
-  try {
-    console.log("📤 term gửi lên:", term);
-    console.log("📤 definition gửi lên:", definition);
-    const { data } = await api.post(`/lists/${listId}/cards`, {
-      term: term || null,          
-      definition: definition || null 
-    });
+    try {
+      const { data } = await api.post(`/lists/${listId}/cards`, {
+        term: term || null,
+        definition: definition || null,
+      });
 
-    setCards((prev) => [...prev, data.card]);
-    setTerm("");
-    setDefinition("");
-    setShowCreateForm(false);
-  } catch (err) {
-    console.error(err);
-    alert("Không thể tạo thẻ. Vui lòng thử lại!");
+      setCards((prev) => [...prev, data.card]);
+      setTerm("");
+      setDefinition("");
+      setShowCreateForm(false);
+    } catch (err) {
+      console.error(err);
+      alert("Không thể tạo thẻ. Vui lòng thử lại!");
+    }
   }
 
-}
+  // 📌 Xóa flashcard
+  async function handleDeleteCard(cardId) {
+    try {
+      const confirmed = window.confirm("Bạn có chắc muốn xóa flashcard này không?");
+      if (!confirmed) return;
 
-function openCreateForm() {
-  setShowCreateForm(true);
-}
-
-function closeCreateForm() {
-  setShowCreateForm(false);
-}
-
-async function handleDeleteCard(cardId) {
-  try {
-    const confirmed = window.confirm("Bạn có chắc muốn xóa flashcard này không?");
-    if(!confirmed) return;
-    await api.delete(`/cards/${cardId}`);
-    setCards((prevCards) => prevCards.filter((card) =>  card.id !== cardId));
-  } catch (err) {
-    console.error("Lỗi khi xóa:", err);
-    alert("Không thể xóa thẻ. Vui lòng thử lại!");
+      await api.delete(`/cards/${cardId}`);
+      setCards((prev) => prev.filter((card) => card.id !== cardId));
+    } catch (err) {
+      console.error("Lỗi khi xóa:", err);
+      alert("Không thể xóa thẻ. Vui lòng thử lại!");
+    }
   }
-}
 
-
+  // 📌 Lấy dữ liệu danh sách
   useEffect(() => {
     async function getListInfo() {
-      // 1. Set trạng thái thành đang tải
-      setLoading(true);
-
-      // 2. Lấy thông tin của list từ backend
-      const { data } = await api.get(`/lists/${listId}`);
-      const { list } = data;
-
-      // 3. Sau khi đã lấy data thành công, thoát loading, thay đổi trạng thái các biến
-      setLoading(false);
-      setTitle(list.title);
-      setDescription(list.description);
-      setCards(list.cards);
+      try {
+        setLoading(true);
+        const { data } = await api.get(`/lists/${listId}`);
+        const { list } = data;
+        setTitle(list.title);
+        setDescription(list.description);
+        setCards(list.cards);
+      } catch (err) {
+        console.error("Lỗi khi tải danh sách:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-
     getListInfo();
-  }, []);
+  }, [listId]);
 
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+  if (loading) return <p className="text-center text-gray-500">⏳ Đang tải...</p>;
 
   return (
-    <div style={{ padding: 20 }}>
-      {/* <h1>📘 Thẻ trong List ID: {listId}</h1> */}
-      <h2 className="title-display">{title}</h2>
-      <p>{description}</p>
+    <div className="max-w-3xl mx-auto px-6 py-10">
+      <h2 className="text-3xl font-bold text-blue-600 mb-2">{title}</h2>
+      <p className="text-gray-600 mb-6">{description}</p>
 
-      <button className="create-card-button" onClick={openCreateForm}>+ Tạo Flashcard</button>
+      <button
+        onClick={() => setShowCreateForm(true)}
+        className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mb-6"
+      >
+        + Tạo Flashcard
+      </button>
 
+      {/* 📌 Modal tạo flashcard */}
       {showCreateForm && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-button" onClick={closeCreateForm}>✖</button>
-            <h2>Tạo thẻ mới</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative">
+            <button
+              onClick={() => setShowCreateForm(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
+            >
+              ✖
+            </button>
 
-            <div className="form-group">
-              <label>Thuật ngữ *</label>
+            <h2 className="text-xl font-semibold mb-4">Tạo thẻ mới</h2>
+
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">Thuật ngữ *</label>
               <input
                 type="text"
-                placeholder="Nhập thuật ngữ..."
                 value={term}
                 onChange={(e) => setTerm(e.target.value)}
+                placeholder="Nhập thuật ngữ..."
+                className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
 
-            <div className="form-group">
-              <label>Định nghĩa *</label>
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">Định nghĩa *</label>
               <textarea
-                placeholder="Nhập định nghĩa..."
                 value={definition}
                 onChange={(e) => setDefinition(e.target.value)}
+                placeholder="Nhập định nghĩa..."
+                className="w-full border rounded-md px-3 py-2 h-24 resize-none focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
 
-            <button className="save-button" onClick={handleCreateCard}>
+            <button
+              onClick={handleCreateCard}
+              className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+            >
               Lưu
             </button>
           </div>
         </div>
       )}
 
+      {/* 📚 Danh sách flashcards */}
       {cards.length === 0 ? (
-        <p className="no-cards">📭 Chưa có Flashcard nào. Hãy tạo mới!</p>
+        <p className="text-center text-gray-500 mt-10">📭 Chưa có Flashcard nào. Hãy tạo mới!</p>
       ) : (
-        <div className="cards-container">
-          {cards.map((card) => {
-            return (
-              <div key={card.id} className="card-item">
-                <h3 className="card-term">📄 {card.term}</h3>
-                <p className="card-definition">📘 {card.definition}</p>
-                <button className="delete-card-button" onClick={() => handleDeleteCard(card.id)}>🗑️</button>
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          {cards.map((card) => (
+            <div
+              key={card.id}
+              className="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white relative"
+            >
+              <h3 className="text-lg font-semibold mb-2">📄 {card.term}</h3>
+              <p className="text-gray-700 mb-3">📘 {card.definition}</p>
+              <button
+                onClick={() => handleDeleteCard(card.id)}
+                className="absolute top-3 right-3 text-red-500 hover:text-red-700 text-xl"
+              >
+                🗑️
+              </button>
+            </div>
+          ))}
         </div>
       )}
-
     </div>
   );
 }
