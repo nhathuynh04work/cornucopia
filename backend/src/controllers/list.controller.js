@@ -88,6 +88,27 @@ export async function createCardController(req, res) {
   }
 }
 
+export async function updateCardController(req, res) {
+  const cardId = Number(req.params.cardId);
+  const {term, definition} = req.body;
+
+  if (!cardId) {
+    return res.status(400).json({ error: "Khong co cardId" });
+  }
+
+  if(Number.isNaN(cardId)) {
+    return res.status(400),json({ error: "Id khong phai la so"});
+  }
+
+  try {
+    const card = await updateCardService({ cardId, term, definition});
+    res.status(200).json({card});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({error: err.error});
+  }
+}
+
 export async function deleteListController(req, res) {
   const listId = Number(req.params.listId);
 

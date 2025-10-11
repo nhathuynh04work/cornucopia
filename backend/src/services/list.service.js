@@ -16,6 +16,13 @@ export async function createCardService({ listId, term, definition }) {
   });
 }
 
+export async function updateCardService({cardId, term, definition}) {
+  return prisma.$transaction(async (client) => {
+    const card = await updateCard(client, {cardId, term, definition});
+    return card;
+  });
+}
+
 export async function getListInfoService({ listId }) {
   return prisma.$transaction(async (client) => {
     const listInfo = await getList(client, { listId });
