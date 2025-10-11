@@ -3,6 +3,11 @@ import { useParams } from "react-router";
 import { api } from "../apis/axios";
 import { useNavigate } from "react-router";
 
+import FlashcardCard from "../components/FlashcardCard";
+import CreateCardModal from "../components/CreateCardModal";
+import EditCardModal from "../components/EditCardModal";
+import LoadingMessage from "../components/LoadingMessage";
+
 function FlashcardsDetail() {
   const { listId } = useParams();
   const [cards, setCards] = useState([]);
@@ -74,7 +79,7 @@ function FlashcardsDetail() {
     <div className="max-w-3xl mx-auto px-6 py-10">
       <h2 className="text-3xl font-bold text-blue-600 mb-2">{title}</h2>
       <p className="text-gray-600 mb-6">{description}</p>
-      <button className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mr-3">
+      <button onClick={() => setShowCreateForm(true)} className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mr-3">
         + Tạo Flashcard
       </button>{" "}
       <button
