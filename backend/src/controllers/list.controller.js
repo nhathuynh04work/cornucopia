@@ -5,6 +5,7 @@ import {
   deleteListService,
   createCardService,
   updateListService,
+  updateCardService
 } from "../services/list.service.js";
 
 export async function createListController(req, res) {

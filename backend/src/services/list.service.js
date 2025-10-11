@@ -1,4 +1,4 @@
-import { getCardsOfList, createCard } from "../repositories/card.repository.js";
+import { getCardsOfList, createCard, updateCard } from "../repositories/card.repository.js";
 import { createList, getList, getListsOfUser, deleteList, updateList } from "../repositories/list.repository.js";
 
 export async function createListService({ userId, title }) {
