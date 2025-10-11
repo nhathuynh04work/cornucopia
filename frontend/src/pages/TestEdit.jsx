@@ -25,9 +25,9 @@ function TestEdit() {
 		);
 
 	return (
-		<div className="grid grid-cols-12 h-screen bg-gray-50">
+		<div className="grid grid-cols-12 h-screen bg-gray-50/50">
 			{/* Left navigation */}
-			<aside className="col-span-2 border-r bg-white shadow-sm overflow-hidden">
+			<aside className="col-span-2 border-r shadow-sm overflow-hidden">
 				<TestEditorNav />
 			</aside>
 
@@ -39,7 +39,7 @@ function TestEdit() {
 			</main>
 
 			{/* Settings panel */}
-			<aside className="col-span-2 border-l bg-white shadow-sm p-6">
+			<aside className="col-span-2 border-l p-6">
 				<TestItemSettings />
 			</aside>
 		</div>

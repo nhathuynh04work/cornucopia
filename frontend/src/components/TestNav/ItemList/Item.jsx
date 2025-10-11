@@ -18,7 +18,7 @@ function Item({ item }) {
 	const [hoveredMenu, setHoveredMenu] = useState(null);
 
 	function handleClickItem() {
-		changeCurrentItem(item?.id);
+		changeCurrentItem(item?.id, item?.type);
 		if (isGroup) toggleGroupOpen(item?.id);
 	}
 

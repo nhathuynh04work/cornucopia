@@ -7,7 +7,7 @@ export const useTestEditorStore = create((set, get) => ({
 	test: null,
 	sections: [],
 	currentSectionId: null,
-	currentItemId: null,
+	currentItemInfo: null,
 	groupOpenState: {},
 
 	// --------------------------
@@ -77,16 +77,19 @@ export const useTestEditorStore = create((set, get) => ({
 	// Item helpers
 	// --------------------------
 	getCurrentItem: () => {
-		const flat = get().getQuestionsFlattened();
-		if (flat.length === 0) return null;
+		const items = get().getItemsFlattened();
+		const info = get().currentItemInfo;
 
-		const currentItemId = get().currentItemId;
-		return flat.find((item) => item.id === currentItemId);
+		if (!info) return;
+
+		return items.find(
+			(item) => item.type === info.type && item.id === info.id
+		);
 	},
 
-	changeCurrentItem: (itemId) => {
+	changeCurrentItem: (id, type) => {
 		set(() => {
-			return { currentItemId: itemId };
+			return { currentItemInfo: { id, type } };
 		});
 	},
 
@@ -144,24 +147,43 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	getQuestionsFlattened: () => {
+	getItemsFlattened: () => {
 		const sections = get().sections;
 		const flat = [];
+
 		sections
+			.slice() // avoid mutating the store array
 			.sort((a, b) => a.sortOrder - b.sortOrder)
 			.forEach((section) => {
 				(section.items || [])
+					.slice()
 					.sort((a, b) => a.sortOrder - b.sortOrder)
 					.forEach((item) => {
-						if (item.type === "question") flat.push(item);
-						else if (item.type === "group") {
+						// Always push the item itself (question or group)
+						flat.push(item);
+
+						// If it's a group, also push its children right after
+						if (item.type === "group") {
 							(item.children || [])
+								.slice()
 								.sort((a, b) => a.sortOrder - b.sortOrder)
 								.forEach((child) => flat.push(child));
 						}
 					});
 			});
+
 		return flat;
+	},
+
+	getQuestionsFlattened: () => {
+		const items = get().getItemsFlattened();
+		const questions = [];
+
+		items.forEach((item) => {
+			if (item.type !== "group") questions.push(item);
+		});
+
+		return questions;
 	},
 
 	getQuestionNumber: (questionId) => {
