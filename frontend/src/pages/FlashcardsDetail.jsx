@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom"; // ✅ sửa import
+import { useParams } from "react-router";
 import { api } from "../apis/axios";
+import { useNavigate } from "react-router";
 
 function FlashcardsDetail() {
   const { listId } = useParams();
@@ -11,6 +12,7 @@ function FlashcardsDetail() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [definition, setDefinition] = useState("");
   const [term, setTerm] = useState("");
+  const navigate = useNavigate();
 
   // 📌 Tạo flashcard
   async function handleCreateCard() {
@@ -33,7 +35,9 @@ function FlashcardsDetail() {
   // 📌 Xóa flashcard
   async function handleDeleteCard(cardId) {
     try {
-      const confirmed = window.confirm("Bạn có chắc muốn xóa flashcard này không?");
+      const confirmed = window.confirm(
+        "Bạn có chắc muốn xóa flashcard này không?"
+      );
       if (!confirmed) return;
 
       await api.delete(`/cards/${cardId}`);
@@ -63,20 +67,22 @@ function FlashcardsDetail() {
     getListInfo();
   }, [listId]);
 
-  if (loading) return <p className="text-center text-gray-500">⏳ Đang tải...</p>;
+  if (loading)
+    return <p className="text-center text-gray-500">⏳ Đang tải...</p>;
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
       <h2 className="text-3xl font-bold text-blue-600 mb-2">{title}</h2>
       <p className="text-gray-600 mb-6">{description}</p>
-
-      <button
-        onClick={() => setShowCreateForm(true)}
-        className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mb-6"
-      >
+      <button className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mr-3">
         + Tạo Flashcard
+      </button>{" "}
+      <button
+        onClick={() => navigate(`/lists/${listId}/practice`)}
+        className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+      >
+        🧠 Luyện tập Flashcard
       </button>
-
       {/* 📌 Modal tạo flashcard */}
       {showCreateForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -120,10 +126,11 @@ function FlashcardsDetail() {
           </div>
         </div>
       )}
-
       {/* 📚 Danh sách flashcards */}
       {cards.length === 0 ? (
-        <p className="text-center text-gray-500 mt-10">📭 Chưa có Flashcard nào. Hãy tạo mới!</p>
+        <p className="text-center text-gray-500 mt-10">
+          📭 Chưa có Flashcard nào. Hãy tạo mới!
+        </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           {cards.map((card) => (
