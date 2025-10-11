@@ -13,14 +13,8 @@ export function useAddSectionMutation() {
 		mutationFn: (testId) => addSection(testId),
 
 		onSuccess: (newSection) => {
-			// Add the section to the test in store
 			addSectionToTest(newSection);
-
-			// Switch to the new section
-			const index = newSection.sortOrder
-				? newSection.sortOrder - 1
-				: undefined; // fallback
-			if (index !== undefined) changeCurrentSection(index);
+			changeCurrentSection(newSection.id);
 
 			toast.success("Section added successfully!");
 		},
@@ -56,7 +50,6 @@ export function useAddItemMutation(sectionId) {
 			addItem(sectionId, { type, questionType, parentItemId }),
 
 		onSuccess: (newItem) => {
-			console.log(newItem);
 			if (newItem.parentItemId) {
 				// It's a child of a group
 				addChildToGroup(

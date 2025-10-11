@@ -4,7 +4,7 @@ export const stripHtml = (html = "") =>
 		.replace(/\s+/g, " ")
 		.trim();
 
-export const formatVNDate = (iso?: string | null) => {
+export const formatVNDate = (iso) => {
 	if (!iso) return "";
 	const d = new Date(iso);
 	return d.toLocaleDateString("vi-VN", {

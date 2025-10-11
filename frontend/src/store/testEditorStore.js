@@ -6,8 +6,13 @@ export const useTestEditorStore = create((set, get) => ({
 	// --------------------------
 	test: null,
 	sections: [],
-	currentSectionIndex: 0,
+	currentSectionId: null,
+	currentItemId: null,
 	groupOpenState: {},
+
+	// --------------------------
+	// Editor
+	// --------------------------
 
 	// --------------------------
 	// Test helpers
@@ -17,7 +22,6 @@ export const useTestEditorStore = create((set, get) => ({
 		set({
 			test,
 			sections: testSections || [],
-			currentSectionIndex: 0,
 			groupOpenState: {},
 		});
 	},
@@ -38,13 +42,16 @@ export const useTestEditorStore = create((set, get) => ({
 	getCurrentSection: () => {
 		const sections = get().sections;
 		if (!sections.length) return null;
-		return sections[get().currentSectionIndex];
+
+		const currentSectionId = get().currentSectionId;
+		if (!currentSectionId) return sections[0];
+
+		return sections.find((s) => s.id === get().currentSectionId);
 	},
 
-	changeCurrentSection: (index) => {
-		set((state) => {
-			if (index < 0 || index >= state.sections.length) return {};
-			return { currentSectionIndex: index };
+	changeCurrentSection: (sectionId) => {
+		set(() => {
+			return { currentSectionId: sectionId };
 		});
 	},
 
@@ -69,6 +76,20 @@ export const useTestEditorStore = create((set, get) => ({
 	// --------------------------
 	// Item helpers
 	// --------------------------
+	getCurrentItem: () => {
+		const flat = get().getQuestionsFlattened();
+		if (flat.length === 0) return null;
+
+		const currentItemId = get().currentItemId;
+		return flat.find((item) => item.id === currentItemId);
+	},
+
+	changeCurrentItem: (itemId) => {
+		set(() => {
+			return { currentItemId: itemId };
+		});
+	},
+
 	addItemToSection: (sectionId, newItem) => {
 		set((state) => {
 			const sections = structuredClone(state.sections);

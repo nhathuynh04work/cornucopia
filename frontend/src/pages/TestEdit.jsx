@@ -1,9 +1,9 @@
 import { useParams } from "react-router";
 import { useTestEditorQuery } from "../hooks/useTestEditorQuery";
 import TestEditorNav from "../components/TestNav/TestEditorNav";
-import TestEditor from "../components/TestEditor";
 import TestItemSettings from "../components/TestItemSettings";
 import { useTestEditorStore } from "../store/testEditorStore";
+import TestEditor from "../components/TestEditor/TestEditor";
 
 function TestEdit() {
 	const { id } = useParams();
@@ -33,7 +33,9 @@ function TestEdit() {
 
 			{/* Main editor */}
 			<main className="col-span-8 bg-white p-6 overflow-y-auto shadow-inner">
-				<TestEditor />
+				<div className="h-full flex items-center">
+					<TestEditor />
+				</div>
 			</main>
 
 			{/* Settings panel */}
