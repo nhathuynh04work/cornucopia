@@ -74,3 +74,12 @@ export async function deleteItem(client, { id }) {
 		},
 	});
 }
+
+export async function updateItem(client, { id, data }) {
+	return client.testItem.update({
+		where: {
+			id,
+		},
+		data,
+	});
+}
