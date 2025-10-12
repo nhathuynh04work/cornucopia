@@ -2,13 +2,14 @@ import {
   listTopicsService,
   getTopicBySlugService,
   listPostsByTopicSlugService,
+  createTopicService,
+  deleteTopicByIdService,
 } from "../services/topic.service.js";
 
 // GET /topics
 export async function listTopicsController(req, res, next) {
   try {
     const topics = await listTopicsService();
-    // FE của bạn handle được cả array lẫn { topics }, dùng { topics } cho đồng bộ:
     return res.json({ topics });
   } catch (err) {
     next(err);
@@ -44,6 +45,47 @@ export async function listPostsByTopicSlugController(req, res, next) {
 
     return res.json({ posts });
   } catch (err) {
+    next(err);
+  }
+}
+
+// POST /topics
+export async function createTopicController(req, res, next) {
+  try {
+    const { name, slug, description } = req.body ?? {};
+    if (!name || typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ error: "Field 'name' is required" });
+    }
+
+    const topic = await createTopicService({
+      name: String(name),
+      slug: slug?.toString(),
+      description: description?.toString(),
+    });
+    return res.status(201).json({ topic });
+  } catch (err) {
+    if (err?.code === "P2002") {
+      return res.status(409).json({ error: "Topic name/slug already exists" });
+    }
+    next(err);
+  }
+}
+
+// DELETE /topics/:id
+export async function deleteTopicByIdController(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid topic id" });
+    }
+
+    const deleted = await deleteTopicByIdService({ id });
+    // deleted chứa { id, name, slug }
+    return res.json({ message: "Topic deleted", topic: deleted });
+  } catch (err) {
+    if (err?.code === "P2025") {
+      return res.status(404).json({ error: "Topic not found" });
+    }
     next(err);
   }
 }
