@@ -25,29 +25,36 @@ export default function BlogDetail() {
   if (loading) return <p className="p-4">Loading...</p>;
   if (!post) return <p className="p-4">Không tìm thấy bài viết.</p>;
 
+  // normalize để không phụ thuộc backend định dạng
+  const title = post.title;
+  const coverUrl = post.coverUrl ?? post.cover_url ?? null;
+  const topicName =
+    (typeof post.topic === "string" ? post.topic : post.topic?.name) ??
+    post.topic_name ??
+    null;
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <Link to="/blog" className="text-blue-600 hover:underline">
         ← Quay lại
       </Link>
 
-      {post.topic_name && (
+      {topicName && (
         <div className="mt-4 text-xs font-semibold tracking-widest text-gray-500 uppercase">
-          {post.topic_name}
+          {topicName}
         </div>
       )}
 
-      <h1 className="mt-2 text-3xl font-extrabold">{post.title}</h1>
+      <h1 className="mt-2 text-3xl font-extrabold">{title}</h1>
 
-      {post.cover_url && (
+      {coverUrl && (
         <img
-          src={post.cover_url}
-          alt={post.title}
+          src={coverUrl}
+          alt={title}
           className="mt-4 w-full rounded-lg object-cover"
         />
       )}
 
-      {/* render HTML*/}
       <article
         className="mt-6 leading-7 text-gray-800"
         dangerouslySetInnerHTML={{ __html: post.content || "" }}

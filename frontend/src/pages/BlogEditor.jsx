@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import RichTextEditor from "../components/RichTextEditor";
 import { api } from "../apis/axios";
+import TopicCreateModal from "../components/TopicCreateModal";
 
 export default function BlogEditor() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function BlogEditor() {
   const [coverUrl, setCoverUrl] = useState(""); // URL ảnh bìa
   const [topicId, setTopicId] = useState(""); // (tuỳ chọn) gắn topic
   const [topics, setTopics] = useState([]);
+  const [openCreateTopic, setOpenCreateTopic] = useState(false);
 
   // tải bài viết từ API
   useEffect(() => {
@@ -24,11 +26,11 @@ export default function BlogEditor() {
       try {
         const { data } = await api.get(`/posts/${id}`);
         const p = data.post;
-        setTitle(p?.title || "");
-        setContentHtml(p?.content || "");
-        setStatus(p?.status || "draft");
-        setCoverUrl(p?.cover_url || "");
-        setTopicId(p?.topic_id || "");
+        setTitle(p?.title ?? "");
+        setContentHtml(p?.content ?? "");
+        setStatus(String(p?.status ?? "draft").toLowerCase());
+        setCoverUrl(p?.coverUrl ?? p?.cover_url ?? "");
+        setTopicId(String(p?.topicId ?? p?.topic_id ?? ""));
       } catch (e) {
         console.error(e);
         alert("Không tải được bài viết");
@@ -51,9 +53,61 @@ export default function BlogEditor() {
         console.error("GET /topics failed", e);
       }
     })();
-  }, []);
+  }, []); // eslint-disable-line
 
-  // chọn ảnh bìa (demo: đọc dataURL; nếu có upload server thì thay bằng upload)
+  // Tạo topic thành công: thêm vào list và chọn ngay
+  const handleTopicCreated = (t) => {
+    if (!t?.id) return;
+    setTopics((prev) => {
+      const exists = prev.some((x) => x.id === t.id);
+      return exists ? prev : [t, ...prev];
+    });
+    setTopicId(String(t.id));
+  };
+
+  // Xóa topic đang chọn
+  const handleDeleteTopic = async () => {
+    if (!topicId) return;
+    const topic = topics.find((t) => String(t.id) === String(topicId));
+    const name = topic?.name || `#${topicId}`;
+    if (
+      !confirm(
+        `Xóa chủ đề "${name}"?\nCác bài viết đang gắn chủ đề này sẽ KHÔNG bị xóa, chỉ bị gỡ khỏi chủ đề.`
+      )
+    )
+      return;
+
+    try {
+      await api.delete(`/topics/${topicId}`);
+      // cập nhật danh sách topics
+      setTopics((prev) => prev.filter((t) => String(t.id) !== String(topicId)));
+      // nếu đang chọn topic vừa xóa: chọn topic đầu tiên còn lại, nếu không có thì để rỗng
+      setTopicId((prevId) => {
+        const stillExists = topics.some((t) => String(t.id) === String(prevId));
+        if (!stillExists) {
+          const next = (prevId) => {
+            const afterDelete = topics.filter(
+              (t) => String(t.id) !== String(prevId)
+            );
+            return afterDelete[0]?.id ? String(afterDelete[0].id) : "";
+          };
+          return next(prevId);
+        }
+        return prevId;
+      });
+      alert(`Đã xóa chủ đề "${name}".`);
+    } catch (err) {
+      const msg =
+        err?.response?.data?.error ||
+        (err?.response?.status === 404
+          ? "Chủ đề không tồn tại"
+          : err?.message) ||
+        "Xóa chủ đề thất bại";
+      alert(msg);
+    }
+  };
+
+  // chọn ảnh bìa (demo: đọc dataURL)
   const onPickCover = (file) => {
     if (!file) return;
     const reader = new FileReader();
@@ -69,13 +123,16 @@ export default function BlogEditor() {
       return;
     }
     try {
-      await api.put(`/posts/${id}`, {
+      const payload = {
         title: title.trim(),
         content: contentHtml,
-        status: (status || "draft").toLowerCase(),
-        coverUrl: coverUrl || null,
+        status: String(status || "draft")
+          .trim()
+          .toLowerCase(),
+        coverUrl: coverUrl ?? null,
         topicId: topicId ? Number(topicId) : null,
-      });
+      };
+      await api.put(`/posts/${id}`, payload);
       navigate("/blog");
     } catch (e) {
       console.error(
@@ -160,24 +217,46 @@ export default function BlogEditor() {
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
+              <option value="archived">Archived</option>
             </select>
           </div>
 
-          {/* Topic*/}
+          {/* Topic */}
           <div>
             <label className="block text-sm text-gray-600 mb-1">Chủ đề</label>
-            <select
-              value={topicId}
-              onChange={(e) => setTopicId(e.target.value)}
-              className="w-full border rounded p-2"
-            >
-              {topics.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-              {!topics.length && <option value="">— Chưa có topic —</option>}
-            </select>
+            <div className="flex gap-2">
+              <select
+                value={topicId}
+                onChange={(e) => setTopicId(e.target.value)}
+                className="w-full rounded border p-2"
+              >
+                {topics.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+                {!topics.length && <option value="">— Chưa có topic —</option>}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => setOpenCreateTopic(true)}
+                className="shrink-0 rounded bg-green-600 px-3 py-2 text-white hover:bg-green-700"
+                title="Tạo Topic mới"
+              >
+                + New
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDeleteTopic}
+                disabled={!topicId}
+                className="shrink-0 rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700 disabled:opacity-50"
+                title="Xóa Topic đang chọn"
+              >
+                🗑
+              </button>
+            </div>
           </div>
 
           {/* Actions */}
@@ -197,6 +276,13 @@ export default function BlogEditor() {
           </div>
         </aside>
       </div>
+
+      {/* Modal tạo Topic */}
+      <TopicCreateModal
+        open={openCreateTopic}
+        onClose={() => setOpenCreateTopic(false)}
+        onCreated={handleTopicCreated}
+      />
     </div>
   );
 }

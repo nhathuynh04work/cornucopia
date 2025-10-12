@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import { api } from "../apis/axios";
 import BlogList from "../components/BlogList";
-import { stripHtml } from "../lib/text";
+
+const stripHtml = (html = "") =>
+  String(html)
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
 export default function TopicPage() {
   const { slug } = useParams();
@@ -36,6 +41,8 @@ export default function TopicPage() {
               (p.content ? stripHtml(p.content).slice(0, 160) + "..." : ""),
           }))
         );
+      } catch (e) {
+        console.error("Lỗi tải topic:", e);
       } finally {
         setLoading(false);
       }
