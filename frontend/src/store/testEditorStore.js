@@ -119,6 +119,23 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
+	updateItem: (updated) => {
+		set((state) => {
+			const sections = structuredClone(state.sections);
+			const section = sections.find((s) => s.id === updated.sectionId);
+			if (!section || !section.items) return {};
+
+			const item = section.items.find(
+				(i) => i.id === updated.id && i.type === updated.type
+			);
+			if (!item) return {};
+
+			Object.assign(item, updated);
+
+			return { sections };
+		});
+	},
+
 	deleteItemFromSection: (sectionId, itemId) => {
 		set((state) => {
 			const sections = structuredClone(state.sections);

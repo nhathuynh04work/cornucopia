@@ -12,6 +12,9 @@ export async function createQuestion(
 			sortOrder,
 			parentItemId,
 		},
+		include: {
+			answerOptions,
+		},
 	});
 }
 
@@ -81,5 +84,9 @@ export async function updateItem(client, { id, data }) {
 			id,
 		},
 		data,
+		include: {
+			children: true,
+			answerOptions: true,
+		},
 	});
 }

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { deleteItem } from "../apis/itemApi";
+import { deleteItem, updateItem } from "../apis/itemApi";
 import toast from "react-hot-toast";
 import { useTestEditorStore } from "../store/testEditorStore";
 
@@ -33,6 +33,20 @@ export function useDeleteItemMutation(item) {
 			// Refresh UI
 			changeCurrentSection(item.sectionId);
 			toast.success("Item deleted");
+		},
+	});
+}
+
+export function useUpdateItemMutation(item) {
+	const updateStoreItem = useTestEditorStore((s) => s.updateItem);
+	const changeCurrentItem = useTestEditorStore((s) => s.changeCurrentItem);
+
+	return useMutation({
+		mutationFn: (data) => updateItem(item.id, data),
+		onSuccess: (updated) => {
+			updateStoreItem(updated);
+			changeCurrentItem(item.id, item.type);
+			toast.success("Updated");
 		},
 	});
 }

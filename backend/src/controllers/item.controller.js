@@ -22,7 +22,7 @@ export async function updateItemController(req, res) {
 
 	try {
 		const updated = await updateItemService(id, parsed.data);
-		res.status(200).json({ test: updated });
+		res.status(200).json({ item: updated });
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({ error: err.message });
