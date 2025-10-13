@@ -148,7 +148,7 @@ function FlashcardsDetail() {
               </div>
 
               {/* Mặt sau */}
-              <div className="absolute w-full h-full bg-gray-200 text-gray-900 flex items-center justify-center text-xl font-medium rounded-2xl shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+              <div className="absolute w-full h-full bg-[#2C3250] text-gray-200 flex items-center justify-center text-xl font-medium rounded-2xl shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
                 {card.definition || "(Trống)"}
               </div>
             </div>

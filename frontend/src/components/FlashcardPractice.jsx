@@ -61,7 +61,15 @@ export default function FlashcardPractice() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-[#0e0e2c] text-gray-100">
+    <div className="relative flex flex-col items-center justify-center h-screen bg-[#0e0e2c] text-gray-100">
+      {/* 🔹 Nút Thoát góc trên trái */}
+      <button
+        onClick={() => navigate(`/lists/${listId}/edit`)}
+        className="absolute top-5 left-5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-md"
+      >
+        ⬅ Thoát
+      </button>
+
       {!finished ? (
         <div className="w-[600px] max-w-[90%]">
           {/* Thanh tiến trình */}
