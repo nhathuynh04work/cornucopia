@@ -78,12 +78,10 @@ function FlashcardsDetail() {
 
   // 📌 Xóa thẻ
   async function handleDeleteCard(cardId) {
-    if (!window.confirm("Bạn có chắc muốn xóa flashcard này không?")) return;
     try {
       await api.delete(`/cards/${cardId}`);
       setCards((prev) => prev.filter((c) => c.id !== cardId));
       toast.success("Đã xoá flashcard!");
-      // Nếu xóa thẻ hiện tại, tự động lùi về thẻ trước (nếu có)
       setCurrent((prev) => (prev > 0 ? prev - 1 : 0));
     } catch (error) {
       console.error("Lỗi khi xóa:", error);
@@ -92,21 +90,6 @@ function FlashcardsDetail() {
   }
 
   if (loading) return <LoadingMessage text="⏳ Đang tải..." />;
-
-  if (cards.length === 0)
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
-        <p className="text-lg mb-4">
-          Không có flashcard nào trong danh sách này.
-        </p>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="px-5 py-2 bg-indigo-600 rounded hover:bg-indigo-700 transition"
-        >
-          + Tạo Flashcard
-        </button>
-      </div>
-    );
 
   const card = cards[current];
 
@@ -122,81 +105,106 @@ function FlashcardsDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
+    <div className="relative min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
+      {/* 🔙 Nút quay lại góc trên trái */}
+      <button
+        onClick={() => navigate("/flashcards")}
+        className="absolute top-6 left-6 flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded transition"
+      >
+        ⬅ Quay lại
+      </button>
+
       <h2 className="text-3xl font-bold mb-2 text-indigo-400">{title}</h2>
       <p className="text-gray-400 mb-8">{description}</p>
 
-      {/* Flashcard */}
-      <div
-        className="relative w-96 h-64 cursor-pointer [perspective:1000px]"
-        onClick={() => setFlipped(!flipped)}
-      >
-        <div
-          className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${
-            flipped ? "[transform:rotateY(180deg)]" : ""
-          }`}
-        >
-          {/* Mặt trước */}
-          <div className="absolute w-full h-full bg-indigo-600 flex items-center justify-center text-2xl font-semibold rounded-2xl shadow-xl [backface-visibility:hidden]">
-            {card.term || "(Trống)"}
-          </div>
-
-          {/* Mặt sau */}
-          <div className="absolute w-full h-full bg-gray-700 flex items-center justify-center text-xl font-medium rounded-2xl shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
-            {card.definition || "(Trống)"}
-          </div>
+      {/* Nếu không có thẻ */}
+      {cards.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center">
+          <p className="text-lg mb-4">
+            Không có flashcard nào trong danh sách này.
+          </p>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="px-5 py-2 bg-indigo-600 rounded hover:bg-indigo-700 transition"
+          >
+            + Tạo Flashcard
+          </button>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Flashcard */}
+          <div
+            className="relative w-[700px] h-[400px] cursor-pointer [perspective:1000px]"
+            onClick={() => setFlipped(!flipped)}
+          >
+            <div
+              className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${
+                flipped ? "[transform:rotateY(180deg)]" : ""
+              }`}
+            >
+              {/* Mặt trước */}
+              <div className="absolute w-full h-full bg-indigo-600 flex items-center justify-center text-2xl font-semibold rounded-2xl shadow-xl [backface-visibility:hidden]">
+                {card.term || "(Trống)"}
+              </div>
 
-      {/* Điều hướng */}
-      <div className="mt-8 flex justify-center items-center gap-6">
-        <button
-          onClick={handlePrev}
-          disabled={current === 0}
-          className={`px-5 py-2 rounded-lg font-medium transition ${
-            current === 0
-              ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-              : "bg-indigo-600 hover:bg-indigo-700"
-          }`}
-        >
-          ←
-        </button>
+              {/* Mặt sau */}
+              <div className="absolute w-full h-full bg-gray-200 text-gray-900 flex items-center justify-center text-xl font-medium rounded-2xl shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                {card.definition || "(Trống)"}
+              </div>
+            </div>
+          </div>
 
-        <button
-          onClick={handleNext}
-          className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition"
-        >
-          →
-        </button>
-      </div>
+          {/* Điều hướng */}
+          <div className="mt-8 flex items-center justify-center gap-6">
+            <button
+              onClick={handlePrev}
+              disabled={current === 0}
+              className={`px-5 py-2 rounded-lg font-medium transition ${
+                current === 0
+                  ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+              }`}
+            >
+              ←
+            </button>
 
-      <p className="mt-6 text-gray-400 text-sm">
-        Thẻ {current + 1}/{cards.length}
-      </p>
+            <p className="text-gray-300 text-sm font-medium">
+              {current + 1}/{cards.length}
+            </p>
 
-      {/* Nút thao tác */}
-      <div className="mt-8 flex flex-wrap gap-4 justify-center">
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="px-5 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition"
-        >
-          + Tạo thẻ mới
-        </button>
+            <button
+              onClick={handleNext}
+              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium text-white transition"
+            >
+              →
+            </button>
+          </div>
 
-        <button
-          onClick={() => handleDeleteCard(card.id)}
-          className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition"
-        >
-          🗑 Xóa thẻ này
-        </button>
+          {/* Nút thao tác */}
+          <div className="mt-8 flex flex-wrap gap-4 justify-center">
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="px-5 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition"
+            >
+              + Tạo thẻ mới
+            </button>
 
-        <button
-          onClick={() => navigate(`/flashcards`)}
-          className="px-5 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-medium transition"
-        >
-          ⬅️ Quay lại danh sách
-        </button>
-      </div>
+            <button
+              onClick={() => handleDeleteCard(card.id)}
+              className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition"
+            >
+              🗑 Xóa thẻ này
+            </button>
+
+            <button
+              onClick={() => navigate(`/lists/${listId}/practice`)}
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+            >
+              🚀 Tiến hành học
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Modal tạo & sửa */}
       {showCreateForm && (
