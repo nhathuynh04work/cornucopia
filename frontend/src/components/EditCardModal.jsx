@@ -41,7 +41,7 @@ function EditCardModal({ card, onClose, onSubmit }) {
 
         <button
           onClick={handleSubmit}
-          className="w-full bg-yellow-500 text-white py-2 rounded-md hover:bg-yellow-600 transition"
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
         >
           Cập nhật
         </button>

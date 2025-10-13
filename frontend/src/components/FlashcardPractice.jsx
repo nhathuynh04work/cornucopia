@@ -98,14 +98,14 @@ export default function FlashcardPractice() {
               : "bg-indigo-600 hover:bg-indigo-700"
           }`}
         >
-          ← Trước
+          ←
         </button>
 
         <button
           onClick={handleNext}
           className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition"
         >
-          Tiếp theo →
+          →
         </button>
       </div>
 

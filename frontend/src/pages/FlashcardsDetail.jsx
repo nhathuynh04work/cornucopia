@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { api } from "../apis/axios";
 import { toast } from "react-hot-toast";
-import FlashcardCard from "../components/FlashcardCard";
 import CreateCardModal from "../components/CreateCardModal";
 import EditCardModal from "../components/EditCardModal";
 import LoadingMessage from "../components/LoadingMessage";
@@ -17,6 +16,10 @@ function FlashcardsDetail() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
+
+  const [current, setCurrent] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [setFinished] = useState(false);
 
   const navigate = useNavigate();
 
@@ -63,9 +66,7 @@ function FlashcardsDetail() {
         term,
         definition,
       });
-      setCards((prev) =>
-        prev.map((c) => (c.id === cardId ? data.card : c))
-      );
+      setCards((prev) => prev.map((c) => (c.id === cardId ? data.card : c)));
       setShowEditForm(false);
       setEditingCard(null);
       toast.success("Đã cập nhật flashcard!");
@@ -82,6 +83,8 @@ function FlashcardsDetail() {
       await api.delete(`/cards/${cardId}`);
       setCards((prev) => prev.filter((c) => c.id !== cardId));
       toast.success("Đã xoá flashcard!");
+      // Nếu xóa thẻ hiện tại, tự động lùi về thẻ trước (nếu có)
+      setCurrent((prev) => (prev > 0 ? prev - 1 : 0));
     } catch (error) {
       console.error("Lỗi khi xóa:", error);
       toast.error("Không thể xóa flashcard!");
@@ -90,28 +93,112 @@ function FlashcardsDetail() {
 
   if (loading) return <LoadingMessage text="⏳ Đang tải..." />;
 
-  return (
-    <div className="max-w-3xl mx-auto px-6 py-10">
-      <h2 className="text-3xl font-bold text-blue-600 mb-2">{title}</h2>
-      <p className="text-gray-600 mb-6">{description}</p>
-
-      <div className="flex flex-wrap gap-3 mb-6">
+  if (cards.length === 0)
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
+        <p className="text-lg mb-4">
+          Không có flashcard nào trong danh sách này.
+        </p>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+          className="px-5 py-2 bg-indigo-600 rounded hover:bg-indigo-700 transition"
         >
           + Tạo Flashcard
         </button>
+      </div>
+    );
+
+  const card = cards[current];
+
+  const handleNext = () => {
+    setFlipped(false);
+    if (current + 1 < cards.length) setCurrent((prev) => prev + 1);
+    else setFinished(true);
+  };
+
+  const handlePrev = () => {
+    setFlipped(false);
+    if (current > 0) setCurrent((prev) => prev - 1);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
+      <h2 className="text-3xl font-bold mb-2 text-indigo-400">{title}</h2>
+      <p className="text-gray-400 mb-8">{description}</p>
+
+      {/* Flashcard */}
+      <div
+        className="relative w-96 h-64 cursor-pointer [perspective:1000px]"
+        onClick={() => setFlipped(!flipped)}
+      >
+        <div
+          className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${
+            flipped ? "[transform:rotateY(180deg)]" : ""
+          }`}
+        >
+          {/* Mặt trước */}
+          <div className="absolute w-full h-full bg-indigo-600 flex items-center justify-center text-2xl font-semibold rounded-2xl shadow-xl [backface-visibility:hidden]">
+            {card.term || "(Trống)"}
+          </div>
+
+          {/* Mặt sau */}
+          <div className="absolute w-full h-full bg-gray-700 flex items-center justify-center text-xl font-medium rounded-2xl shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+            {card.definition || "(Trống)"}
+          </div>
+        </div>
+      </div>
+
+      {/* Điều hướng */}
+      <div className="mt-8 flex justify-center items-center gap-6">
+        <button
+          onClick={handlePrev}
+          disabled={current === 0}
+          className={`px-5 py-2 rounded-lg font-medium transition ${
+            current === 0
+              ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
+        >
+          ←
+        </button>
 
         <button
-          onClick={() => navigate(`/lists/${listId}/practice`)}
-          className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+          onClick={handleNext}
+          className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition"
         >
-          🧠 Luyện tập Flashcard
+          →
         </button>
       </div>
 
-      {/* Modal tạo */}
+      <p className="mt-6 text-gray-400 text-sm">
+        Thẻ {current + 1}/{cards.length}
+      </p>
+
+      {/* Nút thao tác */}
+      <div className="mt-8 flex flex-wrap gap-4 justify-center">
+        <button
+          onClick={() => setShowCreateForm(true)}
+          className="px-5 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition"
+        >
+          + Tạo thẻ mới
+        </button>
+
+        <button
+          onClick={() => handleDeleteCard(card.id)}
+          className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition"
+        >
+          🗑 Xóa thẻ này
+        </button>
+
+        <button
+          onClick={() => navigate(`/flashcards`)}
+          className="px-5 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-medium transition"
+        >
+          ⬅️ Quay lại danh sách
+        </button>
+      </div>
+
+      {/* Modal tạo & sửa */}
       {showCreateForm && (
         <CreateCardModal
           onClose={() => setShowCreateForm(false)}
@@ -119,34 +206,12 @@ function FlashcardsDetail() {
         />
       )}
 
-      {/* Modal sửa */}
       {showEditForm && editingCard && (
         <EditCardModal
           card={editingCard}
           onClose={() => setShowEditForm(false)}
           onSubmit={handleUpdateCard}
         />
-      )}
-
-      {/* Danh sách thẻ */}
-      {cards.length === 0 ? (
-        <p className="text-center text-gray-500 mt-10">
-          📭 Chưa có Flashcard nào. Hãy tạo mới!
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          {cards.map((card) => (
-            <FlashcardCard
-              key={card.id}
-              card={card}
-              onEdit={() => {
-                setEditingCard(card);
-                setShowEditForm(true);
-              }}
-              onDelete={() => handleDeleteCard(card.id)}
-            />
-          ))}
-        </div>
       )}
     </div>
   );
