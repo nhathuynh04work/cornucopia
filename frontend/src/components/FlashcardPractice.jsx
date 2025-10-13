@@ -1,21 +1,20 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router"; // 👈 thêm useNavigate
+import { useParams, useNavigate } from "react-router";
 import { api } from "../apis/axios";
 
 export default function FlashcardPractice() {
   const { listId } = useParams();
-  const navigate = useNavigate(); // 👈 khởi tạo navigate
+  const navigate = useNavigate();
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showTerm, setShowTerm] = useState(true);
   const [answer, setAnswer] = useState("");
   const [message, setMessage] = useState("");
-  const [finished, setFinished] = useState(false); // 👈 thêm state kiểm tra hoàn thành
+  const [finished, setFinished] = useState(false);
 
   useEffect(() => {
     const fetchCards = async () => {
       try {
-        // ✅ Lấy cards qua /lists/:id
         const { data } = await api.get(`/lists/${listId}`);
         setCards(data.list.cards || []);
         randomizeSide();
@@ -27,13 +26,11 @@ export default function FlashcardPractice() {
     fetchCards();
   }, [listId]);
 
-  const randomizeSide = () => {
-    setShowTerm(Math.random() < 0.5);
-  };
+  const randomizeSide = () => setShowTerm(Math.random() < 0.5);
 
   if (cards.length === 0)
     return (
-      <div className="flex items-center justify-center h-screen text-gray-700">
+      <div className="flex items-center justify-center h-screen text-gray-200 bg-[#0e0e2c]">
         Không có thẻ nào để học.
       </div>
     );
@@ -54,7 +51,7 @@ export default function FlashcardPractice() {
           setMessage("");
           randomizeSide();
         } else {
-          setFinished(true); // 👈 đánh dấu hoàn thành
+          setFinished(true);
           setMessage("🎉 Bạn đã hoàn thành tất cả các thẻ!");
         }
       }, 800);
@@ -64,47 +61,91 @@ export default function FlashcardPractice() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100 text-gray-900">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-[400px] text-center">
-        {!finished ? (
-          <>
-            <h2 className="text-lg font-semibold mb-4">
-              {showTerm ? currentCard.term : currentCard.definition}
-            </h2>
+    <div className="flex flex-col items-center justify-center h-screen bg-[#0e0e2c] text-gray-100">
+      {!finished ? (
+        <div className="w-[600px] max-w-[90%]">
+          {/* Thanh tiến trình */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-lg font-medium text-gray-300">
+              {currentIndex + 1}
+            </div>
+            <div className="flex-1 mx-3 bg-gray-700 rounded-full h-2">
+              <div
+                className="bg-indigo-500 h-2 rounded-full transition-all"
+                style={{
+                  width: `${((currentIndex + 1) / cards.length) * 100}%`,
+                }}
+              ></div>
+            </div>
+            <div className="text-lg font-medium text-gray-400">
+              {cards.length}
+            </div>
+          </div>
 
-            <form onSubmit={handleSubmit}>
+          {/* Thẻ flashcard */}
+          <div className="bg-[#2c3250] p-8 rounded-2xl shadow-lg text-center">
+            <h3 className="text-sm text-gray-400 mb-2">
+              {showTerm ? "Thuật ngữ" : "Định nghĩa"}
+            </h3>
+            <p className="text-2xl font-semibold mb-6">
+              {showTerm ? currentCard.term : currentCard.definition}
+            </p>
+
+            {/* Form trả lời */}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <label className="text-gray-400 text-sm text-left">
+                Đáp án của bạn
+              </label>
               <input
                 type="text"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
                 placeholder="Nhập câu trả lời..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring focus:ring-indigo-400"
+                className="bg-[#1a1a3a] text-white border border-indigo-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition"
-              >
-                Kiểm tra
-              </button>
+
+              {/* Nút chức năng */}
+              <div className="flex justify-between items-center mt-3">
+                <button
+                  type="button"
+                  className="text-indigo-300 hover:underline text-sm"
+                >
+                  Hiển thị gợi ý
+                </button>
+                <button
+                  type="button"
+                  className="text-indigo-400 hover:underline text-sm"
+                >
+                  Bạn không biết?
+                </button>
+                <button
+                  type="submit"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition"
+                >
+                  Trả lời
+                </button>
+              </div>
             </form>
 
-            {message && <p className="mt-4 text-lg font-medium">{message}</p>}
-            <p className="mt-4 text-sm text-gray-500">
-              Thẻ {currentIndex + 1}/{cards.length}
-            </p>
-          </>
-        ) : (
-          <>
-            <h2 className="text-xl font-bold mb-4">{message}</h2>
-            <button
-              onClick={() => navigate("/flashcards")}
-              className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition"
-            >
-              ⬅ Quay lại danh sách thẻ
-            </button>
-          </>
-        )}
-      </div>
+            {/* Thông báo đúng/sai */}
+            {message && (
+              <p className="mt-4 text-lg font-medium text-indigo-300">
+                {message}
+              </p>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-[#2c3250] rounded-2xl shadow-lg p-10 text-center w-[400px]">
+          <h2 className="text-2xl font-bold mb-4 text-green-400">{message}</h2>
+          <button
+            onClick={() => navigate("/flashcards")}
+            className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition"
+          >
+            ⬅ Quay lại danh sách thẻ
+          </button>
+        </div>
+      )}
     </div>
   );
 }
