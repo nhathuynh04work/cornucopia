@@ -23,7 +23,6 @@ function FlashcardsDetail() {
 
   const navigate = useNavigate();
 
-  // 📌 Lấy dữ liệu danh sách
   useEffect(() => {
     async function getListInfo() {
       try {
@@ -43,7 +42,6 @@ function FlashcardsDetail() {
     getListInfo();
   }, [listId]);
 
-  // 📌 Tạo thẻ mới
   async function handleCreateCard(term, definition) {
     try {
       const { data } = await api.post(`/lists/${listId}/cards`, {
@@ -59,7 +57,6 @@ function FlashcardsDetail() {
     }
   }
 
-  // 📌 Cập nhật thẻ
   async function handleUpdateCard(cardId, term, definition) {
     try {
       const { data } = await api.put(`/lists/${listId}/cards/${cardId}`, {
@@ -76,7 +73,6 @@ function FlashcardsDetail() {
     }
   }
 
-  // 📌 Xóa thẻ
   async function handleDeleteCard(cardId) {
     try {
       await api.delete(`/cards/${cardId}`);
@@ -105,27 +101,30 @@ function FlashcardsDetail() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
-      {/* 🔙 Nút quay lại góc trên trái */}
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
+      {/* 🔙 Nút quay lại */}
       <button
         onClick={() => navigate("/flashcards")}
-        className="absolute top-6 left-6 flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded transition"
+        className="absolute top-6 left-6 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg font-medium transition-all"
       >
         ⬅ Quay lại
       </button>
 
-      <h2 className="text-3xl font-bold mb-2 text-indigo-400">{title}</h2>
-      <p className="text-gray-400 mb-8">{description}</p>
+      {/* Tiêu đề */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-blue-700 mb-2">{title}</h2>
+        <p className="text-gray-500">{description}</p>
+      </div>
 
       {/* Nếu không có thẻ */}
       {cards.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center">
-          <p className="text-lg mb-4">
-            Không có flashcard nào trong danh sách này.
+        <div className="text-center">
+          <p className="text-lg text-gray-600 mb-4">
+            Chưa có flashcard nào trong danh sách này.
           </p>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="px-5 py-2 bg-indigo-600 rounded hover:bg-indigo-700 transition"
+            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow"
           >
             + Tạo Flashcard
           </button>
@@ -134,7 +133,7 @@ function FlashcardsDetail() {
         <>
           {/* Flashcard */}
           <div
-            className="relative w-[700px] h-[400px] cursor-pointer [perspective:1000px]"
+            className="relative w-[600px] h-[350px] cursor-pointer [perspective:1000px]"
             onClick={() => setFlipped(!flipped)}
           >
             <div
@@ -143,38 +142,38 @@ function FlashcardsDetail() {
               }`}
             >
               {/* Mặt trước */}
-              <div className="absolute w-full h-full bg-indigo-600 flex items-center justify-center text-2xl font-semibold rounded-2xl shadow-xl [backface-visibility:hidden]">
+              <div className="absolute w-full h-full bg-blue-500 border-2 border-blue-300 flex items-center justify-center text-2xl text-white font-semibold rounded-2xl shadow-md [backface-visibility:hidden]">
                 {card.term || "(Trống)"}
               </div>
 
               {/* Mặt sau */}
-              <div className="absolute w-full h-full bg-[#2C3250] text-gray-200 flex items-center justify-center text-xl font-medium rounded-2xl shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+              <div className="absolute w-full h-full bg-gray-300 text-blue-500 flex items-center justify-center text-xl font-medium rounded-2xl shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)]">
                 {card.definition || "(Trống)"}
               </div>
             </div>
           </div>
 
           {/* Điều hướng */}
-          <div className="mt-8 flex items-center justify-center gap-6">
+          <div className="mt-6 flex items-center justify-center gap-6">
             <button
               onClick={handlePrev}
               disabled={current === 0}
-              className={`px-5 py-2 rounded-lg font-medium transition ${
+              className={`px-4 py-2 rounded-lg font-medium transition ${
                 current === 0
-                  ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
               ←
             </button>
 
-            <p className="text-gray-300 text-sm font-medium">
+            <p className="text-gray-500 text-sm font-medium">
               {current + 1}/{cards.length}
             </p>
 
             <button
               onClick={handleNext}
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium text-white transition"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
             >
               →
             </button>
@@ -184,14 +183,14 @@ function FlashcardsDetail() {
           <div className="mt-8 flex flex-wrap gap-4 justify-center">
             <button
               onClick={() => setShowCreateForm(true)}
-              className="px-5 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition"
+              className="px-5 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition"
             >
               + Tạo thẻ mới
             </button>
 
             <button
               onClick={() => handleDeleteCard(card.id)}
-              className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition"
+              className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition"
             >
               🗑 Xóa thẻ này
             </button>

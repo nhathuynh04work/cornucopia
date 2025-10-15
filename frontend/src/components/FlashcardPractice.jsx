@@ -7,9 +7,8 @@ export default function FlashcardPractice() {
   const navigate = useNavigate();
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showTerm, setShowTerm] = useState(true);
-  const [answer, setAnswer] = useState("");
-  const [message, setMessage] = useState("");
+  const [known, setKnown] = useState([]); // ✅ các thẻ "Được"
+  const [unknown, setUnknown] = useState([]); // ❌ các thẻ "Không được"
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
@@ -17,7 +16,6 @@ export default function FlashcardPractice() {
       try {
         const { data } = await api.get(`/lists/${listId}`);
         setCards(data.list.cards || []);
-        randomizeSide();
       } catch (error) {
         console.error("Lỗi khi tải flashcards:", error);
         setCards([]);
@@ -26,46 +24,32 @@ export default function FlashcardPractice() {
     fetchCards();
   }, [listId]);
 
-  const randomizeSide = () => setShowTerm(Math.random() < 0.5);
-
   if (cards.length === 0)
     return (
-      <div className="flex items-center justify-center h-screen text-gray-200 bg-[#0e0e2c]">
+      <div className="flex items-center justify-center h-screen text-gray-600 bg-[#f3f6fa]">
         Không có thẻ nào để học.
       </div>
     );
 
   const currentCard = cards[currentIndex];
-  const correctAnswer = showTerm
-    ? currentCard.definition.trim().toLowerCase()
-    : currentCard.term.trim().toLowerCase();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (answer.trim().toLowerCase() === correctAnswer) {
-      setMessage("✅ Chính xác!");
-      setTimeout(() => {
-        if (currentIndex + 1 < cards.length) {
-          setCurrentIndex((prev) => prev + 1);
-          setAnswer("");
-          setMessage("");
-          randomizeSide();
-        } else {
-          setFinished(true);
-          setMessage("🎉 Bạn đã hoàn thành tất cả các thẻ!");
-        }
-      }, 800);
+  const handleAnswer = (isKnown) => {
+    if (isKnown) setKnown((prev) => [...prev, currentCard]);
+    else setUnknown((prev) => [...prev, currentCard]);
+
+    if (currentIndex + 1 < cards.length) {
+      setCurrentIndex((prev) => prev + 1);
     } else {
-      setMessage("❌ Sai rồi, thử lại!");
+      setFinished(true);
     }
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center h-screen bg-[#0e0e2c] text-gray-100">
-      {/* 🔹 Nút Thoát góc trên trái */}
+    <div className="relative flex flex-col items-center justify-center h-screen bg-[#f3f6fa] text-[#2c2c3a]">
+      {/* 🔹 Nút Thoát */}
       <button
         onClick={() => navigate(`/lists/${listId}/edit`)}
-        className="absolute top-5 left-5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-md"
+        className="absolute top-5 left-5 bg-[#4f75ff] hover:bg-[#6e8cff] text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-md"
       >
         ⬅ Thoát
       </button>
@@ -74,81 +58,76 @@ export default function FlashcardPractice() {
         <div className="w-[600px] max-w-[90%]">
           {/* Thanh tiến trình */}
           <div className="flex items-center justify-between mb-3">
-            <div className="text-lg font-medium text-gray-300">
+            <div className="text-lg font-medium text-gray-600">
               {currentIndex + 1}
             </div>
-            <div className="flex-1 mx-3 bg-gray-700 rounded-full h-2">
+            <div className="flex-1 mx-3 bg-[#e0e7ff] rounded-full h-2">
               <div
-                className="bg-indigo-500 h-2 rounded-full transition-all"
+                className="bg-[#4f75ff] h-2 rounded-full transition-all"
                 style={{
                   width: `${((currentIndex + 1) / cards.length) * 100}%`,
                 }}
               ></div>
             </div>
-            <div className="text-lg font-medium text-gray-400">
+            <div className="text-lg font-medium text-gray-600">
               {cards.length}
             </div>
           </div>
 
-          {/* Thẻ flashcard */}
-          <div className="bg-[#2c3250] p-8 rounded-2xl shadow-lg text-center">
-            <h3 className="text-sm text-gray-400 mb-2">
-              {showTerm ? "Thuật ngữ" : "Định nghĩa"}
-            </h3>
-            <p className="text-2xl font-semibold mb-6">
-              {showTerm ? currentCard.term : currentCard.definition}
-            </p>
-
-            {/* Form trả lời */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <label className="text-gray-400 text-sm text-left">
-                Đáp án của bạn
-              </label>
-              <input
-                type="text"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Nhập câu trả lời..."
-                className="bg-[#1a1a3a] text-white border border-indigo-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-
-              {/* Nút chức năng */}
-              <div className="flex justify-between items-center mt-3">
-                <button
-                  type="button"
-                  className="text-indigo-300 hover:underline text-sm"
-                >
-                  Hiển thị gợi ý
-                </button>
-                <button
-                  type="button"
-                  className="text-indigo-400 hover:underline text-sm"
-                >
-                  Bạn không biết?
-                </button>
-                <button
-                  type="submit"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition"
-                >
-                  Trả lời
-                </button>
-              </div>
-            </form>
-
-            {/* Thông báo đúng/sai */}
-            {message && (
-              <p className="mt-4 text-lg font-medium text-indigo-300">
-                {message}
+          {/* Thẻ flashcard hiển thị cả thuật ngữ + định nghĩa */}
+          <div className="bg-[#f0f4ff] p-8 rounded-2xl shadow-md text-center border border-[#d9e4ff]">
+            <div className="mb-6">
+              <h3 className="text-sm text-gray-500">Thuật ngữ</h3>
+              <p className="text-2xl font-semibold text-[#1a237e]">
+                {currentCard.term}
               </p>
-            )}
+            </div>
+            <div className="mb-6">
+              <h3 className="text-sm text-gray-500">Định nghĩa</h3>
+              <p className="text-lg text-gray-700">
+                {currentCard.definition}
+              </p>
+            </div>
+
+            {/* Hai nút đánh giá */}
+            <div className="flex justify-center gap-6 mt-6">
+              <button
+                onClick={() => handleAnswer(false)}
+                className="bg-red-400 hover:bg-red-500 text-white px-6 py-2 rounded-lg shadow-md transition"
+              >
+                ❌ Không được
+              </button>
+              <button
+                onClick={() => handleAnswer(true)}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow-md transition"
+              >
+                ✅ Được
+              </button>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="bg-[#2c3250] rounded-2xl shadow-lg p-10 text-center w-[400px]">
-          <h2 className="text-2xl font-bold mb-4 text-green-400">{message}</h2>
+        // Kết quả sau khi học xong
+        <div className="bg-[#eaf2ff] rounded-2xl shadow-md p-10 text-center w-[400px] border border-[#d9e4ff]">
+          <h2 className="text-2xl font-bold mb-4 text-[#1a237e]">
+            🎉 Hoàn thành!
+          </h2>
+          <p className="text-lg mb-2">
+            ✅ Được:{" "}
+            <span className="font-semibold text-green-600">
+              {known.length}
+            </span>
+          </p>
+          <p className="text-lg mb-6">
+            ❌ Không được:{" "}
+            <span className="font-semibold text-red-500">
+              {unknown.length}
+            </span>
+          </p>
+
           <button
             onClick={() => navigate("/flashcards")}
-            className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition"
+            className="bg-[#4f75ff] hover:bg-[#6e8cff] text-white py-2 px-4 rounded-lg transition"
           >
             ⬅ Quay lại danh sách thẻ
           </button>
