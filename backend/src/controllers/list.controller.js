@@ -5,7 +5,8 @@ import {
   deleteListService,
   createCardService,
   updateListService,
-  updateCardService
+  updateCardService,
+  startSessionService,
 } from "../services/list.service.js";
 
 export async function createListController(req, res) {
@@ -144,5 +145,32 @@ export async function updateListController(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.error });
+  }
+}
+
+export async function startSessionController(req, res) {
+  try {
+    const { listId } = req.params;
+    const { userId } = req.body;
+
+    if (!listId || !userId) {
+      return res.status(400).json({ message: "Thiếu listId hoặc userId" });
+    }
+
+    const session = await startSessionService({
+      listId: Number(listId),
+      userId: Number(userId),
+    });
+
+    res.status(201).json({
+      message: "Đã bắt đầu session học mới",
+      session,
+    });
+  } catch (error) {
+    console.error("Lỗi tạo session:", error);
+    res.status(500).json({
+      message: "Không thể tạo session",
+      error: error.message,
+    });
   }
 }
