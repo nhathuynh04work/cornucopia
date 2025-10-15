@@ -7,8 +7,9 @@ export default function FlashcardPractice() {
   const navigate = useNavigate();
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [known, setKnown] = useState([]); // ✅ các thẻ "Được"
-  const [unknown, setUnknown] = useState([]); // ❌ các thẻ "Không được"
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [known, setKnown] = useState([]);
+  const [unknown, setUnknown] = useState([]);
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function FlashcardPractice() {
 
     if (currentIndex + 1 < cards.length) {
       setCurrentIndex((prev) => prev + 1);
+      setIsFlipped(false);
     } else {
       setFinished(true);
     }
@@ -74,36 +76,44 @@ export default function FlashcardPractice() {
             </div>
           </div>
 
-          {/* Thẻ flashcard hiển thị cả thuật ngữ + định nghĩa */}
-          <div className="bg-[#f0f4ff] p-8 rounded-2xl shadow-md text-center border border-[#d9e4ff]">
-            <div className="mb-6">
-              <h3 className="text-sm text-gray-500">Thuật ngữ</h3>
-              <p className="text-2xl font-semibold text-[#1a237e]">
-                {currentCard.term}
-              </p>
-            </div>
-            <div className="mb-6">
-              <h3 className="text-sm text-gray-500">Định nghĩa</h3>
-              <p className="text-lg text-gray-700">
-                {currentCard.definition}
-              </p>
-            </div>
+          {/* 🔹 Flashcard có hiệu ứng lật thật */}
+          <div
+            className="relative w-full h-64 cursor-pointer [perspective:1000px]"
+            onClick={() => setIsFlipped(!isFlipped)}
+          >
+            <div
+              className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${
+                isFlipped ? "[transform:rotateY(180deg)]" : ""
+              }`}
+            >
+              {/* Mặt trước */}
+              <div className="absolute w-full h-full bg-[#dbeafe] border border-[#c7d2fe] flex flex-col items-center justify-center text-2xl text-[#1e3a8a] font-semibold rounded-2xl shadow-md [backface-visibility:hidden]">
+                <h3 className="text-sm text-gray-500 mb-2">Thuật ngữ</h3>
+                <p className="px-4">{currentCard.term}</p>
+              </div>
 
-            {/* Hai nút đánh giá */}
-            <div className="flex justify-center gap-6 mt-6">
-              <button
-                onClick={() => handleAnswer(false)}
-                className="bg-red-400 hover:bg-red-500 text-white px-6 py-2 rounded-lg shadow-md transition"
-              >
-                ❌ Không được
-              </button>
-              <button
-                onClick={() => handleAnswer(true)}
-                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow-md transition"
-              >
-                ✅ Được
-              </button>
+              {/* Mặt sau */}
+              <div className="absolute w-full h-full bg-[#f3f4f6] text-[#1e40af] flex flex-col items-center justify-center text-lg font-medium rounded-2xl shadow-md border border-[#cbd5e1] [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                <h3 className="text-sm text-gray-500 mb-2">Định nghĩa</h3>
+                <p className="px-4">{currentCard.definition}</p>
+              </div>
             </div>
+          </div>
+
+          {/* Hai nút đánh giá */}
+          <div className="flex justify-center gap-6 mt-10">
+            <button
+              onClick={() => handleAnswer(false)}
+              className="bg-white hover:bg-red-500 text-white px-6 py-2 rounded-lg shadow-md transition"
+            >
+              ❌
+            </button>
+            <button
+              onClick={() => handleAnswer(true)}
+              className="bg-white hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow-md transition"
+            >
+              ✅
+            </button>
           </div>
         </div>
       ) : (
@@ -114,9 +124,7 @@ export default function FlashcardPractice() {
           </h2>
           <p className="text-lg mb-2">
             ✅ Được:{" "}
-            <span className="font-semibold text-green-600">
-              {known.length}
-            </span>
+            <span className="font-semibold text-green-600">{known.length}</span>
           </p>
           <p className="text-lg mb-6">
             ❌ Không được:{" "}
