@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import { api } from "../apis/axios";
+import { toast } from "react-hot-toast"; // ✅ import toast
 
 export default function FlashcardPractice() {
   const { listId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 🟢 Lấy session từ trang trước (bạn navigate từ nút "Bắt đầu học")
+  const session = location.state?.session;
+
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -12,6 +18,7 @@ export default function FlashcardPractice() {
   const [unknown, setUnknown] = useState([]);
   const [finished, setFinished] = useState(false);
 
+  // 🟣 Lấy danh sách flashcards của list
   useEffect(() => {
     const fetchCards = async () => {
       try {
@@ -25,16 +32,38 @@ export default function FlashcardPractice() {
     fetchCards();
   }, [listId]);
 
-  if (cards.length === 0)
-    return (
-      <div className="flex items-center justify-center h-screen text-gray-600 bg-[#f3f6fa]">
-        Không có thẻ nào để học.
-      </div>
-    );
+  // 🟠 Gửi câu trả lời của từng thẻ về backend
+  const submitAnswer = async (flashcardId, needRevise) => {
+    if (!session?.id) {
+      console.warn("Không có sessionId, không thể gửi câu trả lời!");
+      toast.error("Không tìm thấy session học!");
+      return;
+    }
 
-  const currentCard = cards[currentIndex];
+    try {
+      await api.post(`/sessions/${session.id}/answers`, {
+        flashcardId,
+        needRevise,
+        answerTime: new Date().toISOString(),
+      });
 
-  const handleAnswer = (isKnown) => {
+      // ✅ Hiển thị thông báo khi backend nhận được
+      toast.success("Đã ghi nhận câu trả lời!");
+      console.log(`Gửi kết quả flashcard ${flashcardId} thành công`);
+    } catch (error) {
+      console.error("❌ Lỗi khi gửi kết quả:", error);
+      toast.error("Không thể ghi nhận kết quả!");
+    }
+  };
+
+  // 🟡 Khi người dùng chọn ✅ hoặc ❌
+  const handleAnswer = async (isKnown) => {
+    const currentCard = cards[currentIndex];
+    if (!currentCard) return;
+
+    // Gửi dữ liệu về backend
+    await submitAnswer(currentCard.id, !isKnown);
+
     if (isKnown) setKnown((prev) => [...prev, currentCard]);
     else setUnknown((prev) => [...prev, currentCard]);
 
@@ -43,8 +72,18 @@ export default function FlashcardPractice() {
       setIsFlipped(false);
     } else {
       setFinished(true);
+      toast("🎉 Bạn đã hoàn thành buổi học!");
     }
   };
+
+  if (cards.length === 0)
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-600 bg-[#f3f6fa]">
+        Không có thẻ nào để học.
+      </div>
+    );
+
+  const currentCard = cards[currentIndex];
 
   return (
     <div className="relative flex flex-col items-center justify-center h-screen bg-[#f3f6fa] text-[#2c2c3a]">
@@ -76,7 +115,7 @@ export default function FlashcardPractice() {
             </div>
           </div>
 
-          {/* 🔹 Flashcard có hiệu ứng lật thật */}
+          {/* Flashcard */}
           <div
             className="relative w-full h-64 cursor-pointer [perspective:1000px]"
             onClick={() => setIsFlipped(!isFlipped)}
@@ -104,13 +143,13 @@ export default function FlashcardPractice() {
           <div className="flex justify-center gap-6 mt-10">
             <button
               onClick={() => handleAnswer(false)}
-              className="bg-white hover:bg-red-500 text-white px-6 py-2 rounded-lg shadow-md transition"
+              className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg shadow-md transition"
             >
               ❌
             </button>
             <button
               onClick={() => handleAnswer(true)}
-              className="bg-white hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow-md transition"
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow-md transition"
             >
               ✅
             </button>
@@ -119,18 +158,14 @@ export default function FlashcardPractice() {
       ) : (
         // Kết quả sau khi học xong
         <div className="bg-[#eaf2ff] rounded-2xl shadow-md p-10 text-center w-[400px] border border-[#d9e4ff]">
-          <h2 className="text-2xl font-bold mb-4 text-[#1a237e]">
-            🎉 Hoàn thành!
-          </h2>
+          <h2 className="text-2xl font-bold mb-4 text-[#1a237e]">🎉 Hoàn thành!</h2>
           <p className="text-lg mb-2">
             ✅ Được:{" "}
             <span className="font-semibold text-green-600">{known.length}</span>
           </p>
           <p className="text-lg mb-6">
             ❌ Không được:{" "}
-            <span className="font-semibold text-red-500">
-              {unknown.length}
-            </span>
+            <span className="font-semibold text-red-500">{unknown.length}</span>
           </p>
 
           <button

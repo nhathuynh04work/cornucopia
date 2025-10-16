@@ -11,7 +11,8 @@ import {
   postRouter, 
   topicRouter,
   cardRouter,
-  listRouter
+  listRouter,
+  sessionRouter
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 
@@ -43,6 +44,7 @@ app.use("/tests", testRouter);
 app.use("/sections", sectionRouter);
 app.use("/items", itemRouter);
 app.use("/options", optionRouter);
+app.use("/sessions", sessionRouter);
 
 // Handler riêng cho payload quá lớn (413)
 app.use((err, req, res, next) => {
