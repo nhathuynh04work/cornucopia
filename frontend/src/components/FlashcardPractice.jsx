@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
 import { api } from "../apis/axios";
-import { toast } from "react-hot-toast"; // ✅ import toast
+import { toast } from "react-hot-toast";
 
 export default function FlashcardPractice() {
   const { listId } = useParams();
@@ -33,7 +33,7 @@ export default function FlashcardPractice() {
   }, [listId]);
 
   // 🟠 Gửi câu trả lời của từng thẻ về backend
-  const submitAnswer = async (flashcardId, needRevise) => {
+  async function submitAnswer(flashcardId, needRevise) {
     if (!session?.id) {
       console.warn("Không có sessionId, không thể gửi câu trả lời!");
       toast.error("Không tìm thấy session học!");
@@ -54,10 +54,9 @@ export default function FlashcardPractice() {
       console.error("❌ Lỗi khi gửi kết quả:", error);
       toast.error("Không thể ghi nhận kết quả!");
     }
-  };
+  }
 
-  // 🟡 Khi người dùng chọn ✅ hoặc ❌
-  const handleAnswer = async (isKnown) => {
+  async function handleAnswer(isKnown) {
     const currentCard = cards[currentIndex];
     if (!currentCard) return;
 
@@ -74,7 +73,7 @@ export default function FlashcardPractice() {
       setFinished(true);
       toast("🎉 Bạn đã hoàn thành buổi học!");
     }
-  };
+  }
 
   if (cards.length === 0)
     return (
@@ -158,7 +157,9 @@ export default function FlashcardPractice() {
       ) : (
         // Kết quả sau khi học xong
         <div className="bg-[#eaf2ff] rounded-2xl shadow-md p-10 text-center w-[400px] border border-[#d9e4ff]">
-          <h2 className="text-2xl font-bold mb-4 text-[#1a237e]">🎉 Hoàn thành!</h2>
+          <h2 className="text-2xl font-bold mb-4 text-[#1a237e]">
+            🎉 Hoàn thành!
+          </h2>
           <p className="text-lg mb-2">
             ✅ Được:{" "}
             <span className="font-semibold text-green-600">{known.length}</span>
