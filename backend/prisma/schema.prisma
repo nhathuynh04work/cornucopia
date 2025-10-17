@@ -109,7 +109,6 @@ model TestItem {
     sectionId    Int           @map("section_id")
     parentItemId Int?          @map("parent_item_id")
     type         TestItemType
-    title        String?
     text         String?
     mediaUrl     String?       @map("media_url")
     questionType QuestionType? @map("question_type")
