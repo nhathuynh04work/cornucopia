@@ -1,13 +1,9 @@
 import z from "zod";
 
-const TestItemTypeSchema = z.enum(["PASSAGE", "QUESTION", "INSTRUCTION"]);
-const QuestionTypeSchema = z.enum([
-	"MULTIPLE_CHOICE",
-	"SHORT_ANSWER",
-	"TRUE_FALSE",
-]);
+const TestItemTypeSchema = z.enum(["question", "group"]);
+const QuestionTypeSchema = z.enum(["multiple_choice", "short_answer"]);
 
-export const createItemSchema = z.object({
+export const CreateItemSchema = z.object({
 	sectionId: z.number(),
 	type: TestItemTypeSchema,
 
@@ -19,7 +15,7 @@ export const createItemSchema = z.object({
 	points: z.number().nullable().optional(),
 });
 
-export const updateItemSchema = createItemSchema
+export const UpdateItemSchema = CreateItemSchema
 	.partial()
 	.strict()
 	.refine((data) => Object.keys(data).length > 0, {
