@@ -1,242 +1,148 @@
 import { create } from "zustand";
 
 export const useTestEditorStore = create((set, get) => ({
-	// --------------------------
-	// State
-	// --------------------------
-	test: null,
-	sections: [],
+	// CORE STATE
+	test: {
+		testSections: [],
+	},
 	currentSectionId: null,
-	currentItemInfo: null,
+	currentItemId: null,
 	groupOpenState: {},
 
-	// --------------------------
-	// Editor
-	// --------------------------
+	// DERIVED STATE
+	_flatItems: [],
+	_flatQuestions: [],
 
-	// --------------------------
-	// Test helpers
-	// --------------------------
+	// Test
 	loadTest: (data) => {
-		const { testSections, ...test } = data;
+		const { flatItems, flatQuestions } = flattenSections(
+			data?.testSections
+		);
 		set({
-			test,
-			sections: testSections || [],
-			groupOpenState: {},
+			test: data,
+			_flatItems: flatItems,
+			_flatQuestions: flatQuestions,
 		});
 	},
 
-	updateTestSettings: (changes) => {
-		set((state) => {
-			if (!state.test) return {};
-			return {
-				test: { ...state.test, ...changes },
-				sections: state.sections, // preserve sections
-			};
-		});
+	updateTestSettings: (updated) => {
+		set((state) => ({ test: { ...state.test, ...updated } }));
 	},
 
-	// --------------------------
-	// Section helpers
-	// --------------------------
+	// Section
 	getCurrentSection: () => {
-		const sections = get().sections;
+		const sections = get().test.testSections;
 		if (!sections.length) return null;
 
 		const currentSectionId = get().currentSectionId;
 		if (!currentSectionId) return sections[0];
 
-		return sections.find((s) => s.id === get().currentSectionId);
+		return sections.find((s) => s.id === currentSectionId);
 	},
 
 	changeCurrentSection: (sectionId) => {
-		set(() => {
-			return { currentSectionId: sectionId };
-		});
+		set(() => ({ currentSectionId: sectionId }));
 	},
-
-	getSectionsCount: () => get().sections.length,
 
 	addSection: (newSection) => {
 		set((state) => {
-			const sections = [...state.sections, newSection].sort(
-				(a, b) => a.sortOrder - b.sortOrder
-			);
-			return { sections };
+			const newTestSections = [...state.test.testSections, newSection];
+			const { flatItems, flatQuestions } =
+				flattenSections(newTestSections);
+
+			return {
+				test: { ...state.test, testSections: newTestSections },
+				_flatItems: flatItems,
+				_flatQuestions: flatQuestions,
+			};
 		});
 	},
 
 	deleteSection: (sectionId) => {
 		set((state) => {
-			const sections = state.sections.filter((_, i) => i !== sectionId);
-			return { sections };
+			const newTestSections = state.test.testSections.filter(
+				(section) => section.id !== sectionId
+			);
+			const { flatItems, flatQuestions } =
+				flattenSections(newTestSections);
+
+			let newCurrentSectionId = state.currentSectionId;
+			if (state.currentSectionId === sectionId) {
+				newCurrentSectionId = newTestSections[0]?.id || null;
+			}
+
+			return {
+				test: { ...state.test, testSections: newTestSections },
+				currentSectionId: newCurrentSectionId,
+				_flatItems: flatItems,
+				_flatQuestions: flatQuestions,
+			};
 		});
 	},
 
-	// --------------------------
-	// Item helpers
-	// --------------------------
+	updateSection: (updatedSection) => {
+		set((state) => {
+			const newTestSections = state.test.testSections.map((section) =>
+				section.id === updatedSection.id ? updatedSection : section
+			);
+			const { flatItems, flatQuestions } =
+				flattenSections(newTestSections);
+
+			return {
+				test: { ...state.test, testSections: newTestSections },
+				_flatItems: flatItems,
+				_flatQuestions: flatQuestions,
+			};
+		});
+	},
+
+	// Item
+	changeCurrentItem: (itemId) => {
+		set({ currentItemId: itemId });
+	},
+
 	getCurrentItem: () => {
-		const items = get().getItemsFlattened();
-		const info = get().currentItemInfo;
-
-		if (!info) return;
-
-		return items.find(
-			(item) => item.type === info.type && item.id === info.id
-		);
+		const { currentItemId, _flatItems } = get();
+		if (!currentItemId) return undefined;
+		return _flatItems.find((item) => item.id === currentItemId);
 	},
 
-	changeCurrentItem: (id, type) => {
-		set(() => {
-			return { currentItemInfo: { id, type } };
-		});
-	},
+	getItemsFlattened: () => get()._flatItems,
 
-	addItemToSection: (sectionId, newItem) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === sectionId);
-
-			section.items = section.items || [];
-			section.items.push(newItem);
-			section.items.sort((a, b) => a.sortOrder - b.sortOrder);
-
-			return { sections };
-		});
-	},
-
-	addChildToGroup: (sectionId, itemId, newChild) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === sectionId);
-			const group = section.items.find((item) => item.id === itemId);
-
-			if (group.type !== "group") return {};
-			group.children.push(newChild);
-			group.children.sort((a, b) => a.sortOrder - b.sortOrder);
-			return { sections };
-		});
-	},
-
-	updateItem: (updated) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === updated.sectionId);
-			if (!section || !section.items) return {};
-
-			const item = section.items.find(
-				(i) => i.id === updated.id && i.type === updated.type
-			);
-			if (!item) return {};
-
-			Object.assign(item, updated);
-
-			return { sections };
-		});
-	},
-
-	deleteItemFromSection: (sectionId, itemId) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === sectionId);
-			if (!section) return {};
-
-			section.items = section.items.filter((item) => item.id !== itemId);
-			return { sections };
-		});
-	},
-
-	deleteChildFromGroup: (sectionId, groupId, childId) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === sectionId);
-			if (!section) return {};
-
-			const group = section.items.find((i) => i.id === groupId);
-			if (!group || group.type !== "group") return {};
-
-			group.children = group.children.filter(
-				(child) => child.id !== childId
-			);
-
-			return { sections };
-		});
-	},
-
-	getItemsFlattened: () => {
-		const sections = get().sections;
-		const flat = [];
-
-		sections
-			.slice() // avoid mutating the store array
-			.sort((a, b) => a.sortOrder - b.sortOrder)
-			.forEach((section) => {
-				(section.items || [])
-					.slice()
-					.sort((a, b) => a.sortOrder - b.sortOrder)
-					.forEach((item) => {
-						// Always push the item itself (question or group)
-						flat.push(item);
-
-						// If it's a group, also push its children right after
-						if (item.type === "group") {
-							(item.children || [])
-								.slice()
-								.sort((a, b) => a.sortOrder - b.sortOrder)
-								.forEach((child) => flat.push(child));
-						}
-					});
-			});
-
-		return flat;
-	},
-
-	getQuestionsFlattened: () => {
-		const items = get().getItemsFlattened();
-		const questions = [];
-
-		items.forEach((item) => {
-			if (item.type !== "group") questions.push(item);
-		});
-
-		return questions;
-	},
+	getQuestionsFlattened: () => get()._flatQuestions,
 
 	getQuestionNumber: (questionId) => {
-		const ordered = get().getQuestionsFlattened();
-		const index = ordered.findIndex((q) => q.id === questionId);
+		const index = get()._flatQuestions.findIndex(
+			(q) => q.id === questionId
+		);
 		return index === -1 ? null : index + 1;
 	},
 
-	getGroupNumberRange: (sectionId, groupIndex) => {
-		const section = get().sections.find((s) => s.id === sectionId);
-		const group = section.items.find((item) => item.id === groupIndex);
-		if (!group?.children?.length) return [null, null];
-		const flat = get().getQuestionsFlattened();
-		const firstIndex = flat.findIndex((q) => q.id === group.children[0].id);
-		const lastIndex = flat.findIndex(
-			(q) => q.id === group.children[group.children.length - 1].id
+	getQuestionsCount: () => get()._flatQuestions.length,
+
+	getGroupNumberRange: (groupId) => {
+		const { _flatItems, _flatQuestions } = get();
+		const group = _flatItems.find((item) => item.id === groupId);
+
+		if (!group || group.type !== "group" || !group.children?.length) {
+			return [null, null];
+		}
+
+		const firstChildId = group.children[0].id;
+		const lastChildId = group.children[group.children.length - 1].id;
+
+		const firstIndex = _flatQuestions.findIndex(
+			(q) => q.id === firstChildId
 		);
+		const lastIndex = _flatQuestions.findIndex((q) => q.id === lastChildId);
+
 		return [
 			firstIndex === -1 ? null : firstIndex + 1,
 			lastIndex === -1 ? null : lastIndex + 1,
 		];
 	},
 
-	getAllQuestionNumbers: () => {
-		return get()
-			.getQuestionsFlattened()
-			.map((_, i) => i + 1);
-	},
-
-	getQuestionsCount: () => {
-		return get().getQuestionsFlattened().length;
-	},
-
-	// --------------------------
 	// Group open/close state
-	// --------------------------
 	toggleGroupOpen: (groupId) => {
 		set((state) => ({
 			groupOpenState: {
@@ -256,3 +162,28 @@ export const useTestEditorStore = create((set, get) => ({
 		return get().groupOpenState[groupId] ?? false;
 	},
 }));
+
+const flattenSections = (sections = []) => {
+	const flatItems = sections
+		.slice()
+		.sort((a, b) => a.sortOrder - b.sortOrder)
+		.flatMap((section) =>
+			(section.items || [])
+				.slice()
+				.sort((a, b) => a.sortOrder - b.sortOrder)
+				.flatMap((item) =>
+					item.type === "group"
+						? [
+								item,
+								...(item.children || [])
+									.slice()
+									.sort((a, b) => a.sortOrder - b.sortOrder),
+						  ]
+						: [item]
+				)
+		);
+
+	const flatQuestions = flatItems.filter((item) => item.type !== "group");
+
+	return { flatItems, flatQuestions };
+};
