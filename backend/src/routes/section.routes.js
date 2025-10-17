@@ -7,7 +7,6 @@ import * as sectionController from "../controllers/section.controller.js";
 
 const router = Router();
 
-router.post("/", sectionController.addSection);
 router.post(
 	"/:sectionId/items",
 	validateParams(["sectionId"]),

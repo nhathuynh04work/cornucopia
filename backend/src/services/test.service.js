@@ -1,3 +1,4 @@
+import * as sectionRepo from "../repositories/section.repository.js";
 import * as testRepo from "../repositories/test.repository.js";
 
 export async function getTests() {
@@ -18,4 +19,9 @@ export async function getTestDetails(id) {
 
 export async function updateTest(id, data) {
 	return testRepo.update(id, data);
+}
+
+export async function addSection(testId) {
+	const newSection = await sectionRepo.create(testId);
+	return sectionRepo.getById(newSection.id);
 }

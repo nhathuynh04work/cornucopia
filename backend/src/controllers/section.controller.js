@@ -1,11 +1,5 @@
 import * as itemService from "../services/section.service.js";
 
-export async function addSection(req, res) {
-	const { testId } = req.body;
-	const section = await itemService.addSection(testId);
-	res.status(201).json({ section });
-}
-
 export async function deleteSection(req, res) {
 	const id = req.params.id;
 	await itemService.deleteSection(id);

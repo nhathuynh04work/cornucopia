@@ -9,6 +9,7 @@ const router = Router();
 router.get("/", testController.getTests);
 router.post("/", validateSchema(CreateTestSchema), testController.createTest);
 router.get("/:id", validateParams(["id"]), testController.getTestLite);
+router.post(":/id/sections", validateParams(["id"]), testController.addSection);
 router.patch(
 	"/:id",
 	validateParams(["id"]),
