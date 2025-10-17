@@ -1,27 +1,37 @@
 import prisma from "../prisma.js";
 
-export async function getAllTests() {
+export async function getTests() {
 	return await prisma.test.findMany();
 }
 
-export async function createTest(client, { title, description }) {
-	const newTest = await client.test.create({
-		data: { title, description },
+export async function create(data, client = prisma) {
+	return client.test.create({
+		data: {
+			...data,
+			testSections: {
+				create: {
+					items: {
+						create: {
+							type: "question",
+							questionType: "multiple_choice",
+						},
+					},
+				},
+			},
+		},
 	});
-
-	return newTest;
 }
 
-export async function getTestByIdLite(id) {
-	return await prisma.test.findUnique({
+export async function getLite(id, client = prisma) {
+	return client.test.findUnique({
 		where: {
 			id,
 		},
 	});
 }
 
-export async function getTestByIdWithDetails(id) {
-	return await prisma.test.findUnique({
+export async function getDetails(id, client = prisma) {
+	return await client.test.findUnique({
 		where: { id },
 		include: {
 			testSections: {
@@ -50,13 +60,11 @@ export async function getTestByIdWithDetails(id) {
 	});
 }
 
-export async function updateTest(client, { id, data }) {
+export async function update(id, data, client = prisma) {
 	return await client.test.update({
 		where: {
 			id,
 		},
-		data: {
-			...data,
-		},
+		data,
 	});
 }

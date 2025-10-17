@@ -1,14 +1,14 @@
-import prisma from "../prisma.js";
-import { deleteItem, updateItem } from "../repositories/item.repository.js";
+import * as itemRepo from "../repositories/item.repository.js";
+import * as optionRepo from "../repositories/option.repository.js";
 
-export async function deleteItemService({ id }) {
-	return prisma.$transaction(async (tx) => {
-		return await deleteItem(tx, { id });
-	});
+export async function addOption(itemId) {
+	return optionRepo.create({ itemId });
 }
 
-export async function updateItemService(id, data) {
-	return prisma.$transaction(async (tx) => {
-		return await updateItem(tx, { id, data });
-	});
+export async function deleteItem(id) {
+	return itemRepo.remove(id);
+}
+
+export async function updateItem(id, data) {
+	return itemRepo.update(id, data);
 }
