@@ -1,16 +1,18 @@
-import { createItem } from "../repositories/item.repository.js";
 import * as sectionRepo from "../repositories/section.repository.js";
-
-export async function addSection(testId) {
-	const newSection = await sectionRepo.create(testId);
-	return sectionRepo.getById(newSection.id);
-}
+import * as itemRepo from "../repositories/item.repository.js";
+import AppError from "../utils/AppError.js";
 
 export async function deleteSection(id) {
-	await sectionRepo.remove(id);
+	const existing = sectionRepo.getById(id);
+	if (!existing) throw new AppError("Section not found", 404);
+
+	return sectionRepo.remove(id);
 }
 
 export async function addItem(sectionId, data) {
-	await createItem({ sectionId, ...data });
-	return sectionRepo.getById(sectionId);
+	const existing = sectionRepo.getById(sectionId);
+	if (!existing) throw new AppError("Section not found", 404);
+
+	await itemRepo.create({ sectionId, ...data });
+	return sectionRepo.findById(sectionId);
 }

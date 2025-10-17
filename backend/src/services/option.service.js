@@ -1,14 +1,14 @@
-import prisma from "../prisma.js";
-import { deleteOption } from "../repositories/option.repository.js";
+import * as optionRepo from "../repositories/option.repository.js";
+import * as itemRepo from "../repositories/item.repository.js";
+import * as sectionRepo from "../repositories/section.repository.js";
+import AppError from "../utils/AppError.js";
 
-export async function deleteOptionService({ id }) {
-	await prisma.$transaction(async (tx) => {
-		const deleted = await deleteOption(tx, { id });
+export async function deleteOption(id) {
+	const existing = await optionRepo.findById(id);
+	if (!existing) throw new AppError("Option not found", 404);
 
-		if (!deleted) {
-			throw new Error("Option not found");
-		}
-	});
+	await optionRepo.remove(id);
 
-	return true;
+	const item = await itemRepo.findById(existing.itemId);
+	return sectionRepo.findById(item.sectionId);
 }
