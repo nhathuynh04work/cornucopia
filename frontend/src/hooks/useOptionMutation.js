@@ -1,16 +1,29 @@
 import { useTestEditorStore } from "../store/testEditorStore";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
-import { deleteOption } from "../apis/optionApi";
+import { useTestEditorMutation } from "./useTestEditorMutation";
+import * as optionApi from "../apis/optionApi";
+
+export function useUpdateOptionMutation(optionId) {
+	const updateSection = useTestEditorStore((s) => s.updateSection);
+
+	return useTestEditorMutation({
+		mutationFn: (data) => optionApi.update(optionId, data),
+		onSuccess: (section) => {
+			updateSection(section);
+		},
+		successMessage: "Updated",
+		errorMessagePrefix: "Failed to update option",
+	});
+}
 
 export function useDeleteOptionMutation(optionId) {
-	const deleteEntity = useTestEditorStore((s) => s.deleteEntity);
+	const updateSection = useTestEditorStore((s) => s.updateSection);
 
-	return useMutation({
-		mutationFn: () => deleteOption(optionId),
-		onSuccess: () => {
-			deleteEntity("answerOptions", optionId);
-			toast.success("Option deleted");
+	return useTestEditorMutation({
+		mutationFn: () => optionApi.remove(optionId),
+		onSuccess: (section) => {
+			updateSection(section);
 		},
+		successMessage: "Removed",
+		errorMessagePrefix: "Failed to remove option",
 	});
 }

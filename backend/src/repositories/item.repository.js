@@ -1,76 +1,30 @@
 import prisma from "../prisma.js";
 
-export async function createQuestion(
-	client,
-	{ sectionId, questionType, sortOrder, parentItemId = null }
-) {
-	return await client.testItem.create({
-		data: {
-			sectionId,
-			type: "question",
-			questionType,
-			sortOrder,
-			parentItemId,
-		},
-	});
-}
-
-export async function createGroup(client, { sectionId, sortOrder }) {
-	return await client.testItem.create({
-		data: {
-			sectionId,
-			type: "group",
-			sortOrder,
-			children: {
-				create: {
-					sectionId,
-					type: "question",
-					questionType: "multiple_choice",
-					sortOrder: 1,
-				},
-			},
-		},
-		include: {
-			children: true,
-		},
-	});
-}
-
-export async function getItemById(id) {
-	return await prisma.testItem.findUnique({
+export async function findById(id, client = prisma) {
+	return client.testItem.findUnique({
 		where: {
 			id,
 		},
 	});
 }
 
-export async function getLastQuestionOfGroup(groupId) {
-	return await prisma.testItem.findFirst({
-		where: {
-			parentItemId: groupId,
-		},
-		orderBy: {
-			sortOrder: "desc",
-		},
-	});
-}
-
-export async function getLastItemOfSection(sectionId) {
-	return await prisma.testItem.findFirst({
-		where: {
-			parentItemId: null,
-			sectionId,
-		},
-		orderBy: {
-			sortOrder: "desc",
-		},
-	});
-}
-
-export async function deleteItem(client, { id }) {
-	return await client.testItem.delete({
+export async function remove(id, client = prisma) {
+	return client.testItem.delete({
 		where: {
 			id,
 		},
+	});
+}
+
+export async function create(data, client = prisma) {
+	return client.testItem.create({ data });
+}
+
+export async function update(id, data, client = prisma) {
+	return client.testItem.update({
+		where: {
+			id,
+		},
+		data,
 	});
 }

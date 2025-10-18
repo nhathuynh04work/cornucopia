@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-import { AnimatePresence, motion } from "framer-motion";
 import { ItemTypeIcon } from "./ItemTypeIcon";
 
 const menuItems = [
@@ -23,53 +21,28 @@ const menuItems = [
 	},
 ];
 
-function AddItemDropdown({
-	show,
-	size = "normal",
-	isGroup = false,
-	onAddItem,
-}) {
-	const isSmall = size === "small";
-
+function AddItemDropdown({ show, isGroup = false, onAddItem }) {
 	// Filter out "Group" item if inside another group
 	const visibleItems = isGroup
 		? menuItems.filter((item) => item.key !== "group")
 		: menuItems;
 
+	if (!show) return null;
+
 	return (
-		<AnimatePresence>
-			{show && (
-				<motion.div
-					initial={{ opacity: 0, y: -5 }}
-					animate={{ opacity: 1, y: 0 }}
-					exit={{ opacity: 0, y: -5 }}
-					transition={{ duration: 0.15 }}
-					className={`absolute right-0 mt-1 ${
-						isSmall ? "w-36" : "w-44"
-					} bg-white shadow-lg border border-gray-100 rounded-lg p-1 flex flex-col z-20`}>
-					{visibleItems.map(({ key, label, type, action }) => (
-						<button
-							key={key}
-							onClick={() =>
-								onAddItem(
-									action.type,
-									action.questionType ?? null
-								)
-							}
-							className={`flex items-center gap-2 rounded-md text-left transition
-                                    ${
-										isSmall
-											? "px-2 py-1.5 text-xs"
-											: "px-3 py-2 text-sm"
-									} 
-                                    text-gray-700 hover:bg-purple-50`}>
-							<ItemTypeIcon type={type} size={size} />
-							{label}
-						</button>
-					))}
-				</motion.div>
-			)}
-		</AnimatePresence>
+		<div className="absolute right-0 w-40 bg-white shadow-lg border border-gray-100 rounded-lg p-1 flex flex-col z-20">
+			{visibleItems.map(({ key, label, type, action }) => (
+				<button
+					key={key}
+					onClick={() =>
+						onAddItem(action.type, action.questionType ?? null)
+					}
+					className="flex items-center gap-2 rounded-md text-left transition px-2 py-1.5 text-xs text-gray-700 hover:bg-purple-50">
+					<ItemTypeIcon type={type} />
+					{label}
+				</button>
+			))}
+		</div>
 	);
 }
 

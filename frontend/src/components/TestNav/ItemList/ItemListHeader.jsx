@@ -2,15 +2,17 @@ import { Plus } from "lucide-react";
 import AddItemDropdown from "./AddItemDropdown";
 import { useState } from "react";
 import { useItemList } from "../../../contexts/ItemListContext";
+import { useTestEditorStore } from "../../../store/testEditorStore";
 
-function ItemListHeader({ currentSection }) {
+function ItemListHeader() {
+	const currentSection = useTestEditorStore((s) => s.getCurrentSection());
 	const [showDropdown, setShowDropdown] = useState(false);
 	const { onAddItem } = useItemList();
 
 	return (
 		<div className="sticky top-0 z-10 px-4 py-2 border-b flex justify-between items-center">
-			<h3 className="font-medium text-[12px] text-gray-700 uppercase tracking-wide">
-				Items
+			<h3 className="font-medium text-[12px] text-gray-700 tracking-wide">
+				ITEMS
 			</h3>
 
 			<div

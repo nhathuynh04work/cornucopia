@@ -1,34 +1,17 @@
 import prisma from "../prisma.js";
 
-export async function getLastOptionOfQuestion(questionId) {
-	return await prisma.answerOption.findFirst({
-		where: {
-			questionId,
-		},
-		orderBy: {
-			sortOrder: "desc",
-		},
-	});
+export async function create(data, client = prisma) {
+	return client.answerOption.create({ data });
 }
 
-export async function createOption(
-	client = prisma,
-	{ questionId, text, isCorrect = false, sortOrder }
-) {
-	return await client.answerOption.create({
-		data: {
-			questionId,
-			text,
-			isCorrect,
-			sortOrder,
-		},
-	});
+export async function update(id, data, client = prisma) {
+	return client.answerOption.update({ where: { id }, data });
 }
 
-export async function deleteOption(client = prisma, { id }) {
-	return await client.answerOption.delete({
-		where: {
-			id,
-		},
-	});
+export async function remove(id, client = prisma) {
+	return client.answerOption.delete({ where: { id } });
+}
+
+export async function findById(id, client = prisma) {
+	return client.answerOption.findUnique({ where: { id } });
 }

@@ -1,38 +1,57 @@
 import prisma from "../prisma.js";
 
-export async function getLastSectionOfTest(testId) {
-	const lastSection = await prisma.testSection.findFirst({
+export async function findById(id, client = prisma) {
+	return await client.testSection.findUnique({
 		where: {
-			testId,
+			id,
 		},
-		orderBy: {
-			sortOrder: "desc",
+		include: {
+			items: {
+				where: {
+					parentItemId: null,
+				},
+				orderBy: {
+					sortOrder: "asc",
+				},
+				include: {
+					children: {
+						orderBy: {
+							sortOrder: "asc",
+						},
+						include: {
+							answerOptions: {
+								orderBy: {
+									sortOrder: "asc",
+								},
+							},
+						},
+					},
+					answerOptions: {
+						orderBy: {
+							sortOrder: "asc",
+						},
+					},
+				},
+			},
 		},
 	});
-
-	return lastSection;
 }
 
-export async function createSection(client = prisma, { testId, sortOrder }) {
+export async function create(testId, client = prisma) {
 	return await client.testSection.create({
 		data: {
 			testId,
-			sortOrder,
 			items: {
 				create: {
 					type: "question",
 					questionType: "multiple_choice",
-					sortOrder: 1,
 				},
 			},
-		},
-		include: {
-			items: true, // return the created question too
 		},
 	});
 }
 
-export async function deleteSection(client = prisma, { id }) {
+export async function remove(id, client = prisma) {
 	return await client.testSection.delete({
 		where: {
 			id,

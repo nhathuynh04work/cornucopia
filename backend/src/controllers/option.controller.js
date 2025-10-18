@@ -1,22 +1,15 @@
-import { deleteOptionService } from "../services/option.service.js";
+import * as optionService from "../services/option.service.js";
 
-export async function deleteOptionController(req, res) {
-	const id = Number(req.params.id);
+export async function updateOption(req, res) {
+	const id = req.params.id;
 
-	if (Number.isNaN(id)) {
-		return res.status(400).json({ error: "Invalid option id" });
-	}
+	const section = await optionService.updateOption(id, req.body);
+	return res.status(200).json({ section });
+}
 
-	try {
-		const success = await deleteOptionService({ id });
+export async function deleteOption(req, res) {
+	const id = req.params.id;
 
-		if (success) {
-			return res.status(204).end();
-		} else {
-			return res.status(404).json({ error: "Option not found" });
-		}
-	} catch (err) {
-		console.log(err);
-		res.status(500).json({ error: err.error });
-	}
+	const section = await optionService.deleteOption(id);
+	return res.status(200).json({ section });
 }

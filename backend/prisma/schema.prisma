@@ -95,7 +95,7 @@ model TestSection {
     id        Int      @id @default(autoincrement())
     testId    Int      @map("test_id")
     title     String?
-    sortOrder Int      @map("sort_order")
+    sortOrder Int?      @map("sort_order")
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
@@ -110,12 +110,11 @@ model TestItem {
     sectionId    Int           @map("section_id")
     parentItemId Int?          @map("parent_item_id")
     type         TestItemType
-    title        String?
     text         String?
     mediaUrl     String?       @map("media_url")
     questionType QuestionType? @map("question_type")
     points       Decimal?      @default(1) @db.Decimal(5, 2)
-    sortOrder    Int           @map("sort_order")
+    sortOrder    Int?           @map("sort_order")
     createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
 
@@ -132,7 +131,7 @@ model AnswerOption {
     itemId    Int      @map("item_id")
     text      String?
     isCorrect Boolean? @default(false) @map("is_correct")
-    sortOrder Int      @map("sort_order")
+    sortOrder Int?      @map("sort_order")
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
