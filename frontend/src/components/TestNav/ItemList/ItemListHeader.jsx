@@ -2,8 +2,10 @@ import { Plus } from "lucide-react";
 import AddItemDropdown from "./AddItemDropdown";
 import { useState } from "react";
 import { useItemList } from "../../../contexts/ItemListContext";
+import { useTestEditorStore } from "../../../store/testEditorStore";
 
-function ItemListHeader({ currentSection }) {
+function ItemListHeader() {
+	const currentSection = useTestEditorStore((s) => s.getCurrentSection());
 	const [showDropdown, setShowDropdown] = useState(false);
 	const { onAddItem } = useItemList();
 

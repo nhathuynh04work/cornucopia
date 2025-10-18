@@ -23,5 +23,5 @@ export async function updateTest(id, data) {
 
 export async function addSection(testId) {
 	const newSection = await sectionRepo.create(testId);
-	return sectionRepo.getById(newSection.id);
+	return sectionRepo.findById(newSection.id);
 }

@@ -29,12 +29,12 @@ function ItemText() {
 	}, [text]);
 
 	return (
-		<input
-			type="text"
+		<textarea
 			value={value}
 			onChange={handleChange}
-			className="w-full bg-transparent focus:outline-none focus:ring-0"
+			className="flex-1 bg-transparent focus:outline-none focus:ring-0 resize-none"
 			placeholder="..."
+			rows={3}
 		/>
 	);
 }

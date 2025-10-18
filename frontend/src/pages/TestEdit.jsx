@@ -2,15 +2,13 @@ import { useParams } from "react-router";
 import { useTestEditorQuery } from "../hooks/useTestEditorQuery";
 import TestEditorNav from "../components/TestNav/TestEditorNav";
 import TestItemSettings from "../components/TestItemSettings";
-import { useTestEditorStore } from "../store/testEditorStore";
 import TestEditor from "../components/TestEditor/TestEditor";
 
 function TestEdit() {
 	const { id } = useParams();
 	const { isLoading, isError } = useTestEditorQuery(id);
-	const test = useTestEditorStore((s) => s.test);
 
-	if (isLoading || !test)
+	if (isLoading)
 		return (
 			<div className="flex justify-center items-center h-screen text-gray-500 animate-pulse">
 				Loading editor...

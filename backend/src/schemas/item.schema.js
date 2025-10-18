@@ -4,7 +4,6 @@ const TestItemTypeSchema = z.enum(["question", "group"]);
 const QuestionTypeSchema = z.enum(["multiple_choice", "short_answer"]);
 
 export const CreateItemSchema = z.object({
-	sectionId: z.number(),
 	type: TestItemTypeSchema,
 
 	parentItemId: z.number().nullable().optional(),

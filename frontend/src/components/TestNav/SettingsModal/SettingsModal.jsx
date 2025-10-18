@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ModalHeader from "./ModalHeader";
@@ -53,38 +52,33 @@ function SettingsModal({ isOpen, onClose }) {
 	if (!isOpen) return null;
 
 	return (
-		<AnimatePresence>
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				exit={{ opacity: 0 }}
-				className="fixed inset-0 bg-[rgba(20,10,40,0.6)] backdrop-blur-[1px] flex items-center justify-center z-50"
-				onClick={isPending ? null : onClose}>
-				<div
-					className="relative bg-[#e9ebee] rounded-2xl shadow-2xl w-5xl h-[600px] flex flex-col overflow-hidden pt-4 pl-4 transition-opacity"
-					onClick={(e) => e.stopPropagation()}>
-					<ModalHeader />
+		<div
+			className="fixed inset-0 bg-[rgba(20,10,40,0.6)] backdrop-blur-[1px] flex items-center justify-center z-50"
+			onClick={isPending ? null : onClose}>
+			<div
+				className="relative bg-[#e9ebee] rounded-2xl shadow-2xl w-5xl h-[600px] flex flex-col overflow-hidden pt-4 pl-4 transition-opacity"
+				onClick={(e) => e.stopPropagation()}>
+				<ModalHeader />
 
-					<div className="flex flex-1 gap-6 overflow-hidden">
-						<ModalSidebar />
-						<main className="flex-1 flex flex-col">
-							<ModalContentGeneral
-								data={formData}
-								onChange={handleChange}
-							/>
-							<ModalFooter
-								onClose={onClose}
-								onSave={handleSave}
-								isPending={isPending}
-								isUnchanged={
-									Object.keys(getChangedFields()).length === 0
-								}
-							/>
-						</main>
-					</div>
+				<div className="flex flex-1 gap-6 overflow-hidden">
+					<ModalSidebar />
+					<main className="flex-1 flex flex-col">
+						<ModalContentGeneral
+							data={formData}
+							onChange={handleChange}
+						/>
+						<ModalFooter
+							onClose={onClose}
+							onSave={handleSave}
+							isPending={isPending}
+							isUnchanged={
+								Object.keys(getChangedFields()).length === 0
+							}
+						/>
+					</main>
 				</div>
-			</motion.div>
-		</AnimatePresence>
+			</div>
+		</div>
 	);
 }
 

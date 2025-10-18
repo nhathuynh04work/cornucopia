@@ -11,7 +11,7 @@ function ItemIndex({ item }) {
 	// Get the number or range depending on type
 	const isGroup = item.type === "group";
 	const value = isGroup
-		? getGroupNumberRange(item.sectionId, item.id)
+		? getGroupNumberRange(item.id)
 		: getQuestionNumber(item.id);
 
 	let displayValue = "";

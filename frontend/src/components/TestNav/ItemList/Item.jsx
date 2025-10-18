@@ -11,26 +11,24 @@ function Item({ item }) {
 	const type = item?.type === "group" ? "group" : item?.questionType;
 	const isGroup = type === "group";
 
-	const toggleGroupOpen = useTestEditorStore((s) => s.toggleGroupOpen);
 	const isOpen = useTestEditorStore((s) => s.isGroupOpen(item?.id));
 	const changeCurrentItem = useTestEditorStore((s) => s.changeCurrentItem);
 
 	const [hoveredMenu, setHoveredMenu] = useState(null);
-
-	function handleClickItem() {
-		changeCurrentItem(item?.id, item?.type);
-		if (isGroup) toggleGroupOpen(item?.id);
-	}
 
 	return (
 		<div className={`${baseClasses} ${isGroup ? "border" : ""} min-w-0`}>
 			{/* Header */}
 			<div
 				className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-100 transition"
-				onClick={handleClickItem}>
+				onClick={() => changeCurrentItem(item?.id)}>
 				{/* Left: Icon + Label */}
 				<div className="flex gap-2 items-center">
-					<ItemTypeIcon type={type} groupOpen={isOpen} />
+					<ItemTypeIcon
+						type={type}
+						groupOpen={isOpen}
+						itemId={item?.id}
+					/>
 					<ItemIndex item={item} />
 				</div>
 

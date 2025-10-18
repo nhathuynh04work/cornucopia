@@ -2,7 +2,7 @@ import { useTestEditorStore } from "../../../store/testEditorStore";
 import { Group } from "lucide-react";
 
 function SectionListContent() {
-	const sections = useTestEditorStore((s) => s.sections);
+	const sections = useTestEditorStore((s) => s.test.testSections);
 	const changeCurrentSection = useTestEditorStore(
 		(s) => s.changeCurrentSection
 	);

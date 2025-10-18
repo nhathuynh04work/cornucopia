@@ -1,25 +1,15 @@
 import { api } from "./axios.js";
 
-export async function addSection(testId) {
-	const { data } = await api.post("/sections", {
-		testId,
-	});
+export async function create(testId) {
+	const { data } = await api.post(`/tests/${testId}/sections`);
 	return data.section;
 }
 
-export async function deleteSection(sectionId) {
+export async function remove(sectionId) {
 	await api.delete(`/sections/${sectionId}`);
 }
 
-export async function addItem(
-	sectionId,
-	{ type, questionType = null, parentItemId = null }
-) {
-	const { data } = await api.post(`/sections/${sectionId}/items`, {
-		type,
-		questionType,
-		parentItemId,
-	});
-
-	return data.item;
+export async function addItem(sectionId, input) {
+	const { data } = await api.post(`/sections/${sectionId}/items`, input);
+	return data.section;
 }

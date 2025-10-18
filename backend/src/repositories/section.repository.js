@@ -7,6 +7,9 @@ export async function findById(id, client = prisma) {
 		},
 		include: {
 			items: {
+				where: {
+					parentItemId: null,
+				},
 				orderBy: {
 					sortOrder: "asc",
 				},

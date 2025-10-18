@@ -15,8 +15,8 @@ function ItemList() {
 	return (
 		<ItemListProvider onAddItem={handleAddItem}>
 			<section className="flex-1 min-h-0 flex flex-col">
-				<ItemListHeader currentSection={currentSection} />
-				<ItemListContent currentSection={currentSection} />
+				<ItemListHeader />
+				<ItemListContent />
 			</section>
 		</ItemListProvider>
 	);
