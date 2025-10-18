@@ -15,15 +15,26 @@ export async function getList(client, { listId }) {
   });
 }
 
+// export async function getListsOfUser(client, { userId }) {
+//   return await client.flashcardList.findMany({
+//     where: {
+//       userId,
+//     },
+//   });
+// }
+
 export async function getListsOfUser(client, { userId }) {
   return await client.flashcardList.findMany({
-    where: {
-      userId,
+    where: { userId },
+    include: {
+      _count: {
+        select: { flashcards: true },
+      },
     },
   });
 }
 
-export async function deleteList(client, {listId}) {
+export async function deleteList(client, { listId }) {
   return await client.flashcardList.delete({
     where: {
       id: listId,
@@ -31,3 +42,13 @@ export async function deleteList(client, {listId}) {
   });
 }
 
+export async function updateList(client, { listId, title }) {
+  return await client.flashcardList.update({
+    where: {
+      id: listId,
+    },
+    data: {
+      title,
+    },
+  });
+}

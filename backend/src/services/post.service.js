@@ -13,15 +13,33 @@ export async function createDefaultPostService({
   coverUrl = null,
 }) {
   return prisma.$transaction(async (client) => {
+    let resolvedTopicId = null;
+    if (topicId !== null && Number(topicId) > 0) {
+      resolvedTopicId = Number(topicId);
+    } else {
+      const def = await client.topic.upsert({
+        where: { slug: "chung" },
+        update: {},
+        create: {
+          name: "Chung",
+          slug: "chung",
+          description: "Chủ đề mặc định",
+        },
+        select: { id: true },
+      });
+      resolvedTopicId = def.id;
+    }
+
     const slug = `default-${Date.now()}`;
     const post = await createPost(client, {
       slug,
       title: "Bài viết mặc định",
       content: "<p>Nội dung mặc định</p>",
       authorId,
-      topicId, //New
-      coverUrl, //New
+      topicId: resolvedTopicId,
+      coverUrl,
     });
+
     return post;
   });
 }

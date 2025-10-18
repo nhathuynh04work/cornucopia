@@ -22,6 +22,7 @@ model User {
     userRole               UserRole?
     flashcardLists         FlashcardList[]
     posts                  Post[]
+    studySessions          StudySession[]
 
     @@map("users")
 }
@@ -158,27 +159,29 @@ enum QuestionType {
 }
 
 model FlashcardList {
-    id          Int         @id @default(autoincrement())
-    userId      Int         @map("user_id")
-    title       String?
-    description String?
-    createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-    user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-    flashcards  Flashcard[]
+    id            Int            @id @default(autoincrement())
+    userId        Int            @map("user_id")
+    title         String?
+    description   String?
+    createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+    user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    flashcards    Flashcard[]
+    studySessions StudySession[]
 
     @@unique([userId, title], map: "uq_user_title")
     @@map("flashcard_lists")
 }
 
 model Flashcard {
-    id         Int           @id @default(autoincrement())
-    listId     Int           @map("list_id")
-    term       String?
-    definition String?
-    example    String?
-    imageUrl   String?       @map("image_url")
-    createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-    list       FlashcardList @relation(fields: [listId], references: [id], onDelete: Cascade)
+    id             Int             @id @default(autoincrement())
+    listId         Int             @map("list_id")
+    term           String?
+    definition     String?
+    example        String?
+    imageUrl       String?         @map("image_url")
+    createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    list           FlashcardList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+    sessionAnswers SessionAnswer[]
 
     @@map("flashcards")
 }
@@ -210,4 +213,31 @@ model Post {
     topic  Topic? @relation(fields: [topicId], references: [id], onDelete: SetNull)
 
     @@map("posts")
+}
+
+model StudySession {
+    id        Int       @id @default(autoincrement())
+    userId    Int       @map("user_id")
+    listId    Int       @map("list_id")
+    startTime DateTime  @map("start_time") @db.Timestamptz(6)
+    endTime   DateTime? @map("end_time") @db.Timestamptz(6)
+
+    user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    list    FlashcardList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+    answers SessionAnswer[]
+
+    @@map("study_sessions")
+}
+
+model SessionAnswer {
+    id          Int       @id @default(autoincrement())
+    sessionId   Int       @map("session_id")
+    flashcardId Int       @map("flashcard_id")
+    needRevise  Boolean   @map("need_revise")
+    answerTime  DateTime? @map("answer_time") @db.Timestamptz(6)
+
+    session   StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+    flashcard Flashcard    @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+
+    @@map("session_answers")
 }

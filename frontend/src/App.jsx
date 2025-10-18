@@ -13,7 +13,6 @@ import BlogDetail from "./pages/BlogDetail";
 import TopicPage from "./pages/TopicPage";
 import Tests from "./pages/Tests";
 import Flashcards from "./pages/Flashcards";
-import FlashcardsList from "./pages/FlashcardsList";
 import FlashcardsDetail from "./pages/FlashcardsDetail";
 import Courses from "./pages/Courses";
 import { Toaster } from "react-hot-toast";
@@ -22,6 +21,7 @@ import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
 import TestEdit from "./pages/TestEdit";
 import TestInfo from "./pages/TestInfo";
+import FlashcardPractice from "./components/FlashcardPractice";
 
 function App() {
 	return (
@@ -55,6 +55,8 @@ function App() {
 				<Route path="flashcards" element={<Flashcards />} />
 				<Route path="lists/:listId/edit" element={<FlashcardsDetail />} />
 
+				{/* ROUTE LUYENTAP */}
+				<Route path="/lists/:listId/practice" element={<FlashcardPractice />} />
 			</Routes>
 
       <Toaster position="bottom-left" />

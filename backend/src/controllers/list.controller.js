@@ -4,6 +4,8 @@ import {
   getListsOfUserService,
   deleteListService,
   createCardService,
+  updateListService,
+  updateCardService
 } from "../services/list.service.js";
 
 export async function createListController(req, res) {
@@ -87,15 +89,57 @@ export async function createCardController(req, res) {
   }
 }
 
-export async function deleteListController(req, res) {
-  const { listId } = req.params;
+export async function updateCardController(req, res) {
+  const cardId = Number(req.params.cardId);
+  const {term, definition} = req.body;
 
-  if (Number.isNaN(Number(listId))) {
+  if (!cardId) {
+    return res.status(400).json({ error: "Khong co cardId" });
+  }
+
+  if(Number.isNaN(cardId)) {
+    return res.status(400),json({ error: "Id khong phai la so"});
+  }
+
+  try {
+    const card = await updateCardService({ cardId, term, definition});
+    res.status(200).json({card});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({error: err.error});
+  }
+}
+
+export async function deleteListController(req, res) {
+  const listId = Number(req.params.listId);
+
+  if (Number.isNaN(listId)) {
     return res.status(400).json({ error: "Id khong phai la so" });
   }
 
   try {
     const list = await deleteListService({ listId });
+    res.status(200).json({ list });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.error });
+  }
+}
+
+export async function updateListController(req, res) {
+  const listId = Number(req.params.listId);
+  const { title } = req.body;
+
+  if (!listId) {
+    return res.status(400).json({ error: "Khong co listId" });
+  }
+
+  if (Number.isNaN(listId)) {
+    return res.status(400).json({ error: "Id khong phai la so" });
+  }
+
+  try {
+    const list = await updateListService({ listId, title });
     res.status(200).json({ list });
   } catch (err) {
     console.error(err);
