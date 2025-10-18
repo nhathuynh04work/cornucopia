@@ -23,14 +23,7 @@ function Item({ item }) {
 				className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-100 transition"
 				onClick={() => changeCurrentItem(item?.id)}>
 				{/* Left: Icon + Label */}
-				<div className="flex gap-2 items-center">
-					<ItemTypeIcon
-						type={type}
-						groupOpen={isOpen}
-						itemId={item?.id}
-					/>
-					<ItemIndex item={item} />
-				</div>
+				<ItemIndex item={item} />
 
 				{/* Right: Actions */}
 				<ItemActions

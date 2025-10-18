@@ -8,19 +8,15 @@ import {
 } from "lucide-react";
 import { useTestEditorStore } from "../../../store/testEditorStore";
 
-export function ItemTypeIcon({
-	type,
-	size = "normal",
-	groupOpen = false,
-	itemId,
-}) {
+export function ItemTypeIcon({ type, groupOpen = false, itemId, children }) {
 	const toggleGroupOpen = useTestEditorStore((s) => s.toggleGroupOpen);
-	const isSmall = size === "small";
-	const base = isSmall ? "w-3.5 h-3.5" : "w-4 h-4";
 
+	// --- Style definitions ---
+	const iconSizeClass = "w-3.5 h-3.5";
+	const iconColorClass = "text-gray-700";
+	const bgSizeClass = "px-2 py-1";
 	const isGroup = type === "group";
 
-	// Only groups toggle open on click
 	const handleClick = (e) => {
 		if (!isGroup) return;
 		e.stopPropagation();
@@ -28,27 +24,28 @@ export function ItemTypeIcon({
 	};
 
 	let IconComponent;
-	let defaultColor = "";
+	let bgColorClass = "";
+
 	if (isGroup) {
 		IconComponent = groupOpen ? FolderOpen : FolderClosed;
-		defaultColor = "text-gray-700";
+		bgColorClass = "bg-gray-200";
 	} else {
 		switch (type) {
 			case "multiple_choice":
 				IconComponent = ListChecks;
-				defaultColor = "text-purple-600";
+				bgColorClass = "bg-purple-100"; 
 				break;
 			case "short_answer":
 				IconComponent = Type;
-				defaultColor = "text-blue-600";
+				bgColorClass = "bg-blue-100"; 
 				break;
 			case "duplicate":
 				IconComponent = Copy;
-				defaultColor = "text-gray-600";
+				bgColorClass = "bg-gray-200";
 				break;
 			case "delete":
 				IconComponent = Trash2;
-				defaultColor = "text-red-700";
+				bgColorClass = "bg-red-100"; 
 				break;
 			default:
 				return null;
@@ -56,9 +53,12 @@ export function ItemTypeIcon({
 	}
 
 	return (
-		<IconComponent
-			className={`${base} ${defaultColor}`}
-			onClick={handleClick}
-		/>
+		<div
+			className={`flex items-center gap-1.5 rounded-md ${bgColorClass} ${bgSizeClass}`}
+			onClick={isGroup ? handleClick : undefined}
+			style={isGroup ? { cursor: "pointer" } : {}}>
+			<IconComponent className={`${iconSizeClass} ${iconColorClass}`} />
+			{children}
+		</div>
 	);
 }

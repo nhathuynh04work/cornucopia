@@ -21,14 +21,7 @@ const menuItems = [
 	},
 ];
 
-function AddItemDropdown({
-	show,
-	size = "normal",
-	isGroup = false,
-	onAddItem,
-}) {
-	const isSmall = size === "small";
-
+function AddItemDropdown({ show, isGroup = false, onAddItem }) {
 	// Filter out "Group" item if inside another group
 	const visibleItems = isGroup
 		? menuItems.filter((item) => item.key !== "group")
@@ -37,24 +30,15 @@ function AddItemDropdown({
 	if (!show) return null;
 
 	return (
-		<div
-			className={`absolute right-0 ${
-				isSmall ? "w-36" : "w-44"
-			} bg-white shadow-lg border border-gray-100 rounded-lg p-1 flex flex-col z-20`}>
+		<div className="absolute right-0 w-40 bg-white shadow-lg border border-gray-100 rounded-lg p-1 flex flex-col z-20">
 			{visibleItems.map(({ key, label, type, action }) => (
 				<button
 					key={key}
 					onClick={() =>
 						onAddItem(action.type, action.questionType ?? null)
 					}
-					className={`flex items-center gap-2 rounded-md text-left transition
-                                    ${
-										isSmall
-											? "px-2 py-1.5 text-xs"
-											: "px-3 py-2 text-sm"
-									} 
-                                    text-gray-700 hover:bg-purple-50`}>
-					<ItemTypeIcon type={type} size={size} />
+					className="flex items-center gap-2 rounded-md text-left transition px-2 py-1.5 text-xs text-gray-700 hover:bg-purple-50">
+					<ItemTypeIcon type={type} />
 					{label}
 				</button>
 			))}
