@@ -4,6 +4,10 @@ export async function create(data, client = prisma) {
 	return client.answerOption.create({ data });
 }
 
+export async function update(id, data, client = prisma) {
+	return client.answerOption.update({ where: { id }, data });
+}
+
 export async function remove(id, client = prisma) {
 	return client.answerOption.delete({ where: { id } });
 }
