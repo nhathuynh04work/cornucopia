@@ -1,10 +1,6 @@
 import { api } from "./axios";
 
 export async function deleteOption(id) {
-	try {
-		await api.delete(`/options/${id}`);
-	} catch (err) {
-		console.log(err.message);
-		throw err;
-	}
+	const { data } = await api.delete(`/options/${id}`);
+	return data.section;
 }

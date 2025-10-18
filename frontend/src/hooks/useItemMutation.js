@@ -29,3 +29,17 @@ export function useUpdateItemMutation(item) {
 		errorMessagePrefix: "Failed to update item",
 	});
 }
+
+export function useAddOptionMutation(itemId) {
+	const updateSection = useTestEditorStore((s) => s.updateSection);
+
+	return useTestEditorMutation({
+		mutationFn: () => itemApi.addOption(itemId),
+
+		onSuccess: (section) => {
+			updateSection(section);
+		},
+		successMessage: "Option added",
+		errorMessagePrefix: "Failed to add option",
+	});
+}

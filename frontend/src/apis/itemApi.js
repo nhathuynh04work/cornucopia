@@ -9,3 +9,8 @@ export async function update(id, changes) {
 	const { data } = await api.patch(`/items/${id}`, changes);
 	return data.section;
 }
+
+export async function addOption(id) {
+	const { data } = await api.post(`items/${id}/options`);
+	return data.section;
+}

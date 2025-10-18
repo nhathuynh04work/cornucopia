@@ -1,3 +1,4 @@
+import { useAddOptionMutation } from "../../hooks/useItemMutation";
 import { useTestEditorStore } from "../../store/testEditorStore";
 import ItemIndex from "../TestNav/ItemList/ItemIndex";
 import ItemText from "./ItemText";
@@ -5,7 +6,8 @@ import { MoveRight } from "lucide-react";
 
 function TestEditor() {
 	const currentItem = useTestEditorStore((s) => s.getCurrentItem());
-	console.log(currentItem);
+	const { mutate: addOption } = useAddOptionMutation(currentItem?.id);
+
 	if (!currentItem) return null;
 
 	return (
@@ -18,12 +20,16 @@ function TestEditor() {
 				<ItemText />
 			</div>
 
-			<div className="w-full flex flex-col gap-4 items-start">
-				{currentItem.answerOptions.map((o) => (
-					<div>{o.id}</div>
-				))}
-				<button>Add option</button>
-			</div>
+			{currentItem.questionType === "multiple_choice" && (
+				<div className="w-full flex flex-col gap-4 items-start">
+					{currentItem.answerOptions.map((o) => (
+						<div>
+							{o.id}. {o.text ? o.text : "..."}
+						</div>
+					))}
+					<button onClick={addOption}>Add option</button>
+				</div>
+			)}
 		</div>
 	);
 }
