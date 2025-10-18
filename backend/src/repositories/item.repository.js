@@ -1,6 +1,6 @@
 import prisma from "../prisma.js";
 
-export async function getById(id, client = prisma) {
+export async function findById(id, client = prisma) {
 	return client.testItem.findUnique({
 		where: {
 			id,

@@ -4,7 +4,7 @@ import * as sectionRepo from "../repositories/section.repository.js";
 import AppError from "../utils/AppError.js";
 
 export async function addOption(itemId) {
-	const item = await itemRepo.getById(itemId);
+	const item = await itemRepo.findById(itemId);
 	if (!item) throw new AppError("Item not found", 404);
 
 	await optionRepo.create({ itemId });
@@ -12,7 +12,7 @@ export async function addOption(itemId) {
 }
 
 export async function deleteItem(id) {
-	const item = await itemRepo.getById(id);
+	const item = await itemRepo.findById(id);
 	if (!item) throw new AppError("Item not found", 404);
 
 	await itemRepo.remove(id);
@@ -20,7 +20,7 @@ export async function deleteItem(id) {
 }
 
 export async function updateItem(id, data) {
-	const existing = await itemRepo.getById(id);
+	const existing = await itemRepo.findById(id);
 	if (!existing) throw new AppError("Item not found", 404);
 
 	await itemRepo.update(id, data);

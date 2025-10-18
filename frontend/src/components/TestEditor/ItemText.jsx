@@ -30,7 +30,7 @@ function ItemText() {
 
 	return (
 		<textarea
-			value={value}
+			value={value ?? ""}
 			onChange={handleChange}
 			className="flex-1 bg-transparent focus:outline-none focus:ring-0 resize-none"
 			placeholder="..."
