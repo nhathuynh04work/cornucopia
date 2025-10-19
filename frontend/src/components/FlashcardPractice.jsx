@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
 import { api } from "../apis/axios";
 import { toast } from "react-hot-toast";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function FlashcardPractice() {
   const { listId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🟢 Lấy session từ trang trước
   const session = location.state?.session;
 
   const [cards, setCards] = useState([]);
@@ -18,6 +20,7 @@ export default function FlashcardPractice() {
   const [unknown, setUnknown] = useState([]);
   const [finished, setFinished] = useState(false);
   const [studyDuration, setStudyDuration] = useState(null);
+  const [isExitedEarly, setIsExitedEarly] = useState(false);
 
   // 🟣 Lấy danh sách flashcards
   useEffect(() => {
@@ -54,36 +57,47 @@ export default function FlashcardPractice() {
     }
   }
 
-  // 🕒 Hàm cập nhật endTime và tính thời gian học
-async function updateEndtime() {
-  try {
-    // Gọi đúng endpoint đã định nghĩa ở backend
-    const { data } = await api.put("/sessions/updateEndtime", {
-      userId: session.userId, // hoặc user.id nếu bạn có từ useAuth()
-    });
+  // 🕒 Cập nhật thời gian học
+  async function updateEndtime() {
+    try {
+      const { data } = await api.put("/sessions/updateEndtime", {
+        userId: session.userId,
+      });
 
-    if (data.startTime && data.endTime) {
-      const start = new Date(data.startTime);
-      const end = new Date(data.endTime);
-      const diffMs = end - start;
+      if (data.startTime && data.endTime) {
+        const start = new Date(data.startTime);
+        const end = new Date(data.endTime);
+        const diffMs = end - start;
 
-      const totalSeconds = Math.floor(diffMs / 1000);
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = totalSeconds % 60;
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
 
-      const durationText = `${minutes} phút ${seconds} giây`;
-      setStudyDuration(durationText);
-      return durationText;
-    } else {
-      console.warn("Không có startTime hoặc endTime trong response:", data);
+        const durationText = `${minutes} phút ${seconds} giây`;
+        setStudyDuration(durationText);
+        return durationText;
+      } else {
+        console.warn("Không có startTime hoặc endTime trong response:", data);
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi cập nhật endTime:", error);
+      return null;
     }
-  } catch (error) {
-    console.error("❌ Lỗi khi cập nhật endTime:", error);
-    return null;
   }
-}
 
-  // 🧠 Xử lý trả lời
+  // 🚪 Thoát giữa chừng
+  async function handleExit() {
+    setIsExitedEarly(true);
+    setFinished(true);
+    const duration = await updateEndtime();
+    toast(
+      `🚪 Bạn đã thoát giữa chừng ⏱️ Thời gian học: ${
+        duration || "đang tính..."
+      }`
+    );
+  }
+
+  // 🧠 Trả lời thẻ
   async function handleAnswer(isKnown) {
     const currentCard = cards[currentIndex];
     if (!currentCard) return;
@@ -103,14 +117,21 @@ async function updateEndtime() {
     }
   }
 
-  // 🔁 Học lại từ đầu
+  // 🔁 Học lại
   function handleRestart() {
-    setCurrentIndex(0);
     setIsFlipped(false);
     setKnown([]);
     setUnknown([]);
     setFinished(false);
     setStudyDuration(null);
+
+    if (isExitedEarly) {
+      setIsExitedEarly(false);
+      toast("🔁 Tiếp tục học từ vị trí trước khi thoát!");
+    } else {
+      setCurrentIndex(0);
+      toast("🔁 Bắt đầu học lại từ đầu!");
+    }
   }
 
   if (cards.length === 0)
@@ -125,12 +146,14 @@ async function updateEndtime() {
   return (
     <div className="relative flex flex-col items-center justify-center h-screen bg-[#f3f6fa] text-[#2c2c3a]">
       {/* 🔹 Nút Thoát */}
-      <button
-        onClick={() => navigate(`/lists/${listId}/edit`)}
-        className="absolute top-5 left-5 bg-[#4f75ff] hover:bg-[#6e8cff] text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-md"
-      >
-        ⬅ Thoát
-      </button>
+      {!finished && (
+        <button
+          onClick={handleExit}
+          className="absolute top-5 left-5 bg-[#4f75ff] hover:bg-[#6e8cff] text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-md"
+        >
+          ⬅ Thoát
+        </button>
+      )}
 
       {!finished ? (
         <div className="w-[600px] max-w-[90%]">
@@ -193,19 +216,100 @@ async function updateEndtime() {
           </div>
         </div>
       ) : (
-        // ✅ Kết quả sau khi học xong
+        // ✅ Giao diện kết quả
         <div className="bg-[#eaf2ff] rounded-2xl shadow-md p-10 text-center w-[400px] border border-[#d9e4ff]">
           <h2 className="text-2xl font-bold mb-4 text-[#1a237e]">
-            🎉 Hoàn thành!
+            {isExitedEarly ? "🚪 Bạn đã thoát giữa chừng" : "🎉 Hoàn thành!"}
           </h2>
-          <p className="text-lg mb-2">
-            ✅ Được:{" "}
-            <span className="font-semibold text-green-600">{known.length}</span>
-          </p>
-          <p className="text-lg mb-2">
-            ❌ Không được:{" "}
-            <span className="font-semibold text-red-500">{unknown.length}</span>
-          </p>
+
+          {!isExitedEarly ? (
+            <>
+              <p className="text-lg mb-2">
+                ✅ Được:{" "}
+                <span className="font-semibold text-green-600">
+                  {known.length}
+                </span>
+              </p>
+              <p className="text-lg mb-2">
+                ❌ Không được:{" "}
+                <span className="font-semibold text-red-500">
+                  {unknown.length}
+                </span>
+              </p>
+
+              {/* 🟢 Biểu đồ kết quả học tập */}
+              <div className="flex justify-center mt-6">
+                <div className="w-64 h-64">
+                  <Pie
+                    data={{
+                      labels: ["Được", "Không được"],
+                      datasets: [
+                        {
+                          label: "Kết quả học tập",
+                          data: [known.length, unknown.length],
+                          backgroundColor: ["#4CAF50", "#F44336"],
+                          borderColor: ["#388E3C", "#D32F2F"],
+                          borderWidth: 2,
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          position: "bottom",
+                          labels: { font: { size: 14 } },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-lg mb-2">
+                📖 Đã học:{" "}
+                <span className="font-semibold text-blue-600">
+                  {currentIndex}
+                </span>{" "}
+                / {cards.length}
+              </p>
+              <p className="text-lg mb-2">
+                💤 Chưa học:{" "}
+                <span className="font-semibold text-gray-600">
+                  {cards.length - currentIndex}
+                </span>
+              </p>
+
+              {/* 🟡 Biểu đồ tiến độ học */}
+              <div className="flex justify-center mt-6">
+                <div className="w-64 h-64">
+                  <Pie
+                    data={{
+                      labels: ["Đã học", "Chưa học"],
+                      datasets: [
+                        {
+                          label: "Tiến độ học",
+                          data: [currentIndex, cards.length - currentIndex],
+                          backgroundColor: ["#2196F3", "#BDBDBD"],
+                          borderColor: ["#1976D2", "#757575"],
+                          borderWidth: 2,
+                        },
+                      ],
+                    }}
+                    options={{
+                      plugins: {
+                        legend: {
+                          position: "bottom",
+                          labels: { font: { size: 14 } },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           {studyDuration && (
             <p className="text-lg mt-3 text-gray-700">
