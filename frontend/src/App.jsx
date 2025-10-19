@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import { Route, Routes } from "react-router";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
@@ -15,7 +16,6 @@ import Tests from "./pages/Tests";
 import Flashcards from "./pages/Flashcards";
 import FlashcardsDetail from "./pages/FlashcardsDetail";
 import Courses from "./pages/Courses";
-import { Toaster } from "react-hot-toast";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
@@ -38,10 +38,10 @@ function App() {
 						<Route path="stats" element={<ProfileStats />} />
 					</Route>
 					<Route path="blog" element={<Blog />} />
-          <Route path="blog/:id" element={<BlogDetail />} />
-          <Route path="blog/:id/:slug" element={<BlogDetail />} />
-          <Route path="blog/:id/edit" element={<BlogEditor />} />
-          <Route path="topics/:slug" element={<TopicPage />} />
+					<Route path="blog/:id" element={<BlogDetail />} />
+					<Route path="blog/:id/:slug" element={<BlogDetail />} />
+					<Route path="blog/:id/edit" element={<BlogEditor />} />
+					<Route path="topics/:slug" element={<TopicPage />} />
 					<Route path="tests" element={<Tests />} />
 					<Route path="tests/:id" element={<TestInfo />} />
 					<Route path="flashcards" element={<Flashcards />} />
@@ -53,15 +53,21 @@ function App() {
 
 				{/* Route flashcards */}
 				<Route path="flashcards" element={<Flashcards />} />
-				<Route path="lists/:listId/edit" element={<FlashcardsDetail />} />
+				<Route
+					path="lists/:listId/edit"
+					element={<FlashcardsDetail />}
+				/>
 
 				{/* ROUTE LUYENTAP */}
-				<Route path="/lists/:listId/practice" element={<FlashcardPractice />} />
+				<Route
+					path="/lists/:listId/practice"
+					element={<FlashcardPractice />}
+				/>
 			</Routes>
 
-      <Toaster position="bottom-left" />
-    </>
-  );
+			<Toaster position="bottom-center" />
+		</>
+	);
 }
 
 export default App;

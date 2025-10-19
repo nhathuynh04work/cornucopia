@@ -1,6 +1,5 @@
 import { useTestEditorStore } from "../../../store/testEditorStore";
 import { useState } from "react";
-import { ItemTypeIcon } from "./ItemTypeIcon";
 import ItemActions from "./ItemActions";
 import ItemIndex from "./ItemIndex";
 
@@ -18,7 +17,6 @@ function Item({ item }) {
 
 	return (
 		<div className={`${baseClasses} ${isGroup ? "border" : ""} min-w-0`}>
-			{/* Header */}
 			<div
 				className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-100 transition"
 				onClick={() => changeCurrentItem(item?.id)}>

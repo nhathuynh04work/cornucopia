@@ -1,3 +1,6 @@
+import { BadRequestError } from "../utils/AppError.js";
+import { errorMessage } from "../utils/constants.js";
+
 export function validateSchema(schema) {
 	return (req, res, next) => {
 		const result = schema.safeParse(req.body);
@@ -7,9 +10,6 @@ export function validateSchema(schema) {
 			return next();
 		}
 
-		return res.status(400).json({
-			message: "Input validation failed",
-			errors: result.error.flatten().fieldErrors,
-		});
+		throw new BadRequestError(errorMessage.INVALID_INPUT);
 	};
 }

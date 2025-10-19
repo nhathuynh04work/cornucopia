@@ -1,112 +1,35 @@
 import { env } from "../config/env.js";
-import {
-	confirmEmail,
-	getCurrentUser,
-	localLogin,
-	localSignup,
-} from "../services/auth.service.js";
+import * as authService from "../services/auth.service.js";
 import { createJWT } from "../utils/jwt.js";
 
 // Local Signup
-export async function signupController(req, res) {
-	const { email, name, password } = req.body;
-
-	if (!email || !name || !password) {
-		return res
-			.status(400)
-			.json({ error: "Name, email, and password required" });
-	}
-
-	try {
-		const result = await localSignup({ email, name, password });
-		res.status(result.status).json({ message: result.message });
-	} catch (err) {
-		console.error("Signup error:", err);
-
-		const status = err.status || 500;
-		const message = err.error || "Internal server error";
-
-		res.status(status).json({ error: message });
-	}
+export async function signup(req, res) {
+	await authService.localSignup(req.body);
+	res.status(201).json({ message: "Confirmation email sent!" });
 }
 
 // Email Confirmation
-export async function confirmEmailController(req, res) {
-	const { token } = req.query;
-
-	if (!token) {
-		return res.status(400).json({ error: "Token is required" });
-	}
-
-	try {
-		const result = await confirmEmail({ token });
-		return res.status(result.status).json({
-			message: result.message,
-			token: result.token,
-		});
-	} catch (err) {
-		console.error("Email confirmation error:", err);
-
-		const status = err.status || 500;
-		const message = err.error || "Internal server error";
-
-		return res.status(status).json({ error: message });
-	}
+export async function confirmEmail(req, res) {
+	const token = await authService.confirmEmail(req.query.token);
+	return res.status(201).json({ token });
 }
 
 // Get Current User
-export async function getCurrentUserController(req, res) {
-	const userId = req.user.userId;
-
-	try {
-		const result = await getCurrentUser({ userId });
-
-		res.status(result.status).json({
-			message: result.message,
-			user: result.user,
-		});
-	} catch (err) {
-		console.error("Get current user error: " + err);
-
-		const status = err.status || 500;
-		const message = err.error || "Internal server error";
-
-		res.status(status).json({ error: message });
-	}
+export async function getCurrentUser(req, res) {
+	const id = req.user.id;
+	const user = await authService.getCurrentUser(id);
+	res.status(200).json({ user });
 }
 
 // Local Login
-export async function localLoginController(req, res) {
-	const { email, password } = req.body;
-
-	// Validate input
-	if (!email || !password) {
-		return res.status(400).json({ error: "Missing email or password" });
-	}
-
-	try {
-		const result = await localLogin({ email, password });
-
-		res.status(result.status).json({
-			message: result.message,
-			token: result.token,
-		});
-	} catch (err) {
-		console.error("Login error:", err);
-
-		const status = err.status || 500;
-		const message = err.error || "Internal server error";
-
-		res.status(status).json({ error: message });
-	}
+export async function localLogin(req, res) {
+	const token = await authService.localLogin(req.body);
+	res.status(201).json({ token });
 }
 
 // Google callback
-export async function googleCallbackController(req, res) {
+export async function googleCallback(req, res) {
 	const user = req.user;
-	const jwtToken = createJWT({ userId: user.id });
-
-	res.redirect(
-		`${env.FRONTEND_URL}/auth/callback?token=${jwtToken}&provider=google`
-	);
+	const token = createJWT({ sub: user.id, email: user.email });
+	res.redirect(`${env.FRONTEND_URL}/auth/callback?token=${token}`);
 }
