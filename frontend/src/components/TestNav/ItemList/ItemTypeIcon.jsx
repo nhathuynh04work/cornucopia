@@ -1,34 +1,36 @@
-import {
-	ListChecks,
-	Type,
-	FolderTree,
-	Copy,
-	Trash2,
-	FolderOpen,
-	FolderClosed,
-} from "lucide-react";
+import { ITEM_CONFIG } from "../../../lib/config";
+import { useTestEditorStore } from "../../../store/testEditorStore";
 
-export function ItemTypeIcon({ type, size = "normal", groupOpen = false }) {
-	const isSmall = size === "small";
-	const base = isSmall ? "w-3.5 h-3.5" : "w-4 h-4";
+export function ItemTypeIcon({ type, groupOpen = false, itemId, children }) {
+	const toggleGroupOpen = useTestEditorStore((s) => s.toggleGroupOpen);
 
-	if (type === "group") {
-		return groupOpen ? (
-			<FolderOpen className={`${base}`} />
-		) : (
-			<FolderClosed className={`${base}`} />
-		);
+	// --- Style definitions ---
+	const iconSizeClass = "w-3.5 h-3.5";
+	const iconColorClass = "text-gray-700";
+	const bgSizeClass = `${children ? "px-2" : "px-1"} py-1`;
+	const isGroup = type === "group";
+
+	const config = ITEM_CONFIG[type];
+	const { bgColor } = config;
+	let IconComponent = config.Icon;
+
+	if (isGroup) {
+		IconComponent = groupOpen ? config.OpenIcon : config.Icon;
 	}
-	switch (type) {
-		case "multiple_choice":
-			return <ListChecks className={`${base} text-purple-600`} />;
-		case "short_answer":
-			return <Type className={`${base} text-blue-600`} />;
-		case "duplicate":
-			return <Copy className={`${base} text-gray-600`} />;
-		case "delete":
-			return <Trash2 className={`${base} text-red-700`} />;
-		default:
-			return null;
+
+	function handleClick(e) {
+		if (!isGroup) return;
+		e.stopPropagation();
+		toggleGroupOpen(itemId);
 	}
+
+	return (
+		<div
+			className={`flex items-center gap-1.5 rounded-md ${bgColor} ${bgSizeClass}`}
+			onClick={isGroup ? handleClick : undefined}
+			style={isGroup ? { cursor: "pointer" } : {}}>
+			<IconComponent className={`${iconSizeClass} ${iconColorClass}`} />
+			{children}
+		</div>
+	);
 }

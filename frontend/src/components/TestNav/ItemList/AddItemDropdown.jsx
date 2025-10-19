@@ -1,75 +1,41 @@
-// eslint-disable-next-line no-unused-vars
-import { AnimatePresence, motion } from "framer-motion";
 import { ItemTypeIcon } from "./ItemTypeIcon";
-
-const menuItems = [
-	{
-		key: "group",
-		label: "Group",
-		type: "group",
-		action: { type: "group" },
-	},
-	{
-		key: "multiple_choice",
-		label: "Multiple Choice",
-		type: "multiple_choice",
-		action: { type: "question", questionType: "multiple_choice" },
-	},
-	{
-		key: "short_answer",
-		label: "Short Answer",
-		type: "short_answer",
-		action: { type: "question", questionType: "short_answer" },
-	},
-];
+import { ITEM_CONFIG, addItemMenu } from "../../../lib/config";
+import { testItemTypes } from "../../../lib/constants";
 
 function AddItemDropdown({
+	parentItemId = null, // This field is for adding item to a group
 	show,
-	size = "normal",
 	isGroup = false,
 	onAddItem,
 }) {
-	const isSmall = size === "small";
+	const visibleKeys = isGroup
+		? addItemMenu.filter((key) => key !== testItemTypes.GROUP)
+		: addItemMenu;
 
-	// Filter out "Group" item if inside another group
-	const visibleItems = isGroup
-		? menuItems.filter((item) => item.key !== "group")
-		: menuItems;
+	if (!show) return null;
 
 	return (
-		<AnimatePresence>
-			{show && (
-				<motion.div
-					initial={{ opacity: 0, y: -5 }}
-					animate={{ opacity: 1, y: 0 }}
-					exit={{ opacity: 0, y: -5 }}
-					transition={{ duration: 0.15 }}
-					className={`absolute right-0 mt-1 ${
-						isSmall ? "w-36" : "w-44"
-					} bg-white shadow-lg border border-gray-100 rounded-lg p-1 flex flex-col z-20`}>
-					{visibleItems.map(({ key, label, type, action }) => (
-						<button
-							key={key}
-							onClick={() =>
-								onAddItem(
-									action.type,
-									action.questionType ?? null
-								)
-							}
-							className={`flex items-center gap-2 rounded-md text-left transition
-                                    ${
-										isSmall
-											? "px-2 py-1.5 text-xs"
-											: "px-3 py-2 text-sm"
-									} 
-                                    text-gray-700 hover:bg-purple-50`}>
-							<ItemTypeIcon type={type} size={size} />
-							{label}
-						</button>
-					))}
-				</motion.div>
-			)}
-		</AnimatePresence>
+		<div className="absolute right-0 w-40 bg-white shadow-lg border border-gray-100 rounded-lg p-1 flex flex-col z-20">
+			{visibleKeys.map((key) => {
+				const config = ITEM_CONFIG[key];
+				return (
+					<button
+						key={key}
+						onClick={() =>
+							onAddItem({
+								type: config.action.type,
+								questionType:
+									config.action.questionType ?? null,
+								parentItemId,
+							})
+						}
+						className="flex items-center gap-2 rounded-md text-left transition px-2 py-1.5 text-xs text-gray-700 hover:bg-purple-50">
+						<ItemTypeIcon type={key} />
+						<span>{config.label}</span>
+					</button>
+				);
+			})}
+		</div>
 	);
 }
 

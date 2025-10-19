@@ -1,49 +1,59 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../apis/axios";
+import { ACCESS_TOKEN_KEY } from "../lib/constants";
+import * as authApi from "../apis/authApi";
+import { useNavigate } from "react-router";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
 	const [user, setUser] = useState(null);
-	const [loading, setLoading] = useState(true);
+	const [isInitialLoading, setIsInitialLoading] = useState(true);
+	const navigate = useNavigate();
 
-	// Fetch current user on mount (only if we don't already have one)
 	useEffect(() => {
-		const token = localStorage.getItem("token");
-		if (!token) return setLoading(false);
-
-		// Only fetch if user is not already set (e.g. from login or confirm)
-		if (!user) {
-			api.get("/auth/me", {
-				headers: { Authorization: `Bearer ${token}` },
+		setIsInitialLoading(true);
+		authApi
+			.getMe()
+			.then((user) => {
+				setUser(user);
 			})
-				.then((res) => setUser(res.data.user))
-				.catch(() => setUser(null))
-				.finally(() => setLoading(false));
-		} else {
-			setLoading(false);
-		}
+			.catch(() => {
+				localStorage.removeItem(ACCESS_TOKEN_KEY);
+				setUser(null);
+			})
+			.finally(() => {
+				setIsInitialLoading(false);
+			});
 	}, []);
 
-	function login(token) {
-		window.localStorage.setItem("token", token);
+	async function setAuthenticatedSession(token) {
+		localStorage.setItem(ACCESS_TOKEN_KEY, token);
+		const user = await authApi.getMe();
+		setUser(user);
+		navigate("/");
+	}
 
-		api.get("/auth/me", {
-			headers: { Authorization: `Bearer ${token}` },
-		})
-			.then((res) => setUser(res.data.user))
-			.catch(() => setUser(null));
+	async function login(credentials) {
+		const token = await authApi.login(credentials);
+		await setAuthenticatedSession(token);
 	}
 
 	function logout() {
-		window.localStorage.removeItem("token");
+		localStorage.removeItem(ACCESS_TOKEN_KEY);
 		setUser(null);
+		navigate("/");
 	}
 
+	const value = {
+		user,
+		isInitialLoading,
+		login,
+		logout,
+		setAuthenticatedSession,
+	};
+
 	return (
-		<AuthContext.Provider value={{ user, loading, login, logout }}>
-			{children}
-		</AuthContext.Provider>
+		<AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 	);
 }
 

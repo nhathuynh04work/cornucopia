@@ -1,24 +1,32 @@
 import { Router } from "express";
 import * as uploadController from "../controllers/upload.controller.js";
-import { getFetchUrl } from "../config/s3.js";
+import { validateSchema } from "../middlewares/validateSchema.js";
+import { validateQueries } from "../middlewares/validateQueries.js";
+import {
+	ConfirmUploadSchema,
+	GetUploadParamsSchema,
+} from "../schemas/upload.schema.js";
+import { authenticateJWT } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.post("/presign", uploadController.getUploadURLController);
-router.post("/confirm", uploadController.confirmUploadController);
-router.get("/fetch-url", async (req, res) => {
-	try {
-		const { key } = req.query;
-		if (!key) {
-			return res.status(400).json({ error: "Missing key" });
-		}
+router.post(
+	"/presign",
+	validateSchema(GetUploadParamsSchema),
+	uploadController.getUploadParams
+);
 
-		const url = await getFetchUrl(key); // e.g. S3 signed URL
-		return res.json({ url });
-	} catch (err) {
-		console.error(err);
-		return res.status(500).json({ error: "Failed to generate URL" });
-	}
-});
+router.post(
+	"/confirm",
+	authenticateJWT,
+	validateSchema(ConfirmUploadSchema),
+	uploadController.confirmUpload
+);
+
+router.get(
+	"/fetch-url",
+	validateQueries(["key"]),
+	uploadController.getFetchUrl
+);
 
 export default router;

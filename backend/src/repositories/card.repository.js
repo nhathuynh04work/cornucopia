@@ -26,3 +26,15 @@ export async function deleteCard(client, { cardId }) {
     },
   });
 }
+
+export async function updateCard(client, {cardId, term, definition}) {
+  return await client.flashcard.update({
+    where: {
+      id: cardId,
+    },
+    data: {
+      term,
+      definition,
+    },
+  });
+}
