@@ -50,19 +50,36 @@ function Blog() {
         const raw = Array.isArray(postRes.data)
           ? postRes.data
           : postRes.data.posts || [];
+
         setPosts(
-          raw.map((p) => ({
-            ...p,
-            excerpt:
-              p.excerpt ??
-              (p.content ? stripHtml(p.content).slice(0, 160) + "..." : ""),
-            topicName:
-              (typeof p.topic === "string" ? p.topic : p.topic?.name) ??
-              p.topic_name ??
-              null,
-            topicSlug: p.topic_slug ?? p.topic?.slug ?? null,
-            onDelete: handleDelete,
-          }))
+          raw.map((p) => {
+            // Chuẩn hoá topics => mảng [{id,name,slug}]
+            const topicsNorm =
+              Array.isArray(p.topics) && p.topics.length && p.topics[0]?.topic
+                ? p.topics.map((pt) => pt.topic)
+                : Array.isArray(p.topics)
+                ? p.topics
+                : p.topic
+                ? [
+                    typeof p.topic === "string"
+                      ? {
+                          id: p.topic_id ?? null,
+                          name: p.topic,
+                          slug: p.topic_slug ?? null,
+                        }
+                      : p.topic,
+                  ]
+                : [];
+
+            return {
+              ...p,
+              topics: topicsNorm,
+              excerpt:
+                p.excerpt ??
+                (p.content ? stripHtml(p.content).slice(0, 160) + "..." : ""),
+              onDelete: handleDelete,
+            };
+          })
         );
 
         const tRaw = Array.isArray(topicRes.data)
@@ -144,7 +161,8 @@ function Blog() {
             </h2>
             <BlogList posts={filteredPosts.slice(0, 4)} title={null} />
           </section>
-          {/* Section: Các nhóm bài theo chủ đề (demo: chỉ 1 nhóm) */}
+
+          {/* Section: Các nhóm bài theo chủ đề */}
           {topics.slice(0, 3).map((topic) => (
             <section key={topic.id}>
               <div className="flex items-center justify-between mb-4">
@@ -160,12 +178,17 @@ function Blog() {
               </div>
               <BlogList
                 posts={filteredPosts
-                  .filter((p) => String(p.topicId) === String(topic.id))
+                  .filter(
+                    (p) =>
+                      Array.isArray(p.topics) &&
+                      p.topics.some((t) => String(t.id) === String(topic.id))
+                  )
                   .slice(0, 4)}
                 title={null}
               />
             </section>
           ))}
+
           {/* Section: Bài viết mới nhất */}
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -174,7 +197,8 @@ function Blog() {
             <BlogList posts={filteredPosts.slice(0, 8)} title={null} />
           </section>
         </main>
-        {/* Sidebar phải: tìm kiếm + mô tả */}
+
+        {/* Sidebar phải */}
         <aside className="md:col-span-1 flex flex-col gap-10">
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-blue-700 mb-4">

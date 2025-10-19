@@ -4,7 +4,10 @@ import prisma from "../prisma.js";
 export async function listTopicsWithCount(client = prisma) {
   const topics = await client.topic.findMany({
     include: {
-      posts: { where: { status: "published" }, select: { id: true } },
+      posts: {
+        where: { post: { status: "published" } },
+        select: { postId: true },
+      },
     },
     orderBy: { name: "asc" },
   });
@@ -50,4 +53,23 @@ export async function deleteTopicById(client = prisma, id) {
     where: { id },
     select: { id: true, name: true, slug: true },
   });
+}
+
+export async function listPostsByTopicSlug(client = prisma, slug) {
+  const topic = await client.topic.findUnique({
+    where: { slug },
+    include: {
+      posts: {
+        include: {
+          post: true, // lấy bản ghi Post thực
+        },
+      },
+    },
+  });
+  if (!topic) return [];
+
+  // Trả ra mảng Post (có thể lọc status ở đây nếu muốn)
+  return topic.posts
+    .map((pt) => pt.post)
+    .filter((p) => p.status === "published");
 }

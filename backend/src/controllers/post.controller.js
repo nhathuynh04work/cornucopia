@@ -6,35 +6,41 @@ import {
   updatePostService,
 } from "../services/post.service.js";
 
-//POST /posts
+// POST /posts
 export async function createDefaultPostController(req, res) {
-  const { userId, topicId = null, coverUrl = null } = req.body || {};
+  const { userId, topicIds, topicId, coverUrl = null } = req.body || {};
 
   // validate
-  if (!userId) {
-    return res.status(400).json({ error: "userId is required" });
+  if (!userId || Number.isNaN(Number(userId))) {
+    return res
+      .status(400)
+      .json({ error: "userId is required and must be a number" });
   }
-  if (Number.isNaN(Number(userId))) {
-    return res.status(400).json({ error: "userId must be a number" });
-  }
-  if (topicId !== null && Number.isNaN(Number(topicId))) {
-    return res.status(400).json({ error: "topicId must be a number" });
+
+  // Hỗ trợ ngược: nếu có topicId đơn -> convert sang mảng
+  let finalTopicIds = Array.isArray(topicIds) ? topicIds : [];
+  if (topicId !== undefined && topicId !== null) {
+    if (Number.isNaN(Number(topicId))) {
+      return res.status(400).json({ error: "topicId must be a number" });
+    }
+    finalTopicIds = [Number(topicId)];
   }
 
   try {
     const post = await createDefaultPostService({
       authorId: Number(userId),
-      topicId: topicId !== null ? Number(topicId) : null,
+      topicIds: finalTopicIds,
       coverUrl: coverUrl ?? null,
     });
-    return res.status(201).json(post);
+    // FE đang navigate(`/blog/${data.id}/edit`) -> nên trả về id
+    return res.status(201).json({ id: post.id, post });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ err: "Internal Server Error" });
   }
 }
 
-//GET /posts/:id
+// GET /posts/:id
 export async function getPostController(req, res) {
   const id = Number(req.params.id);
   if (Number.isNaN(id)) {
@@ -53,7 +59,7 @@ export async function getPostController(req, res) {
   }
 }
 
-//GET /posts
+// GET /posts
 export async function getPostsController(req, res) {
   try {
     const posts = await getPostsService();
@@ -64,7 +70,7 @@ export async function getPostsController(req, res) {
   }
 }
 
-//DELETE /posts/:id
+// DELETE /posts/:id
 export async function deletePostController(req, res) {
   const id = Number(req.params.id);
   if (Number.isNaN(id)) {
@@ -80,7 +86,7 @@ export async function deletePostController(req, res) {
   }
 }
 
-//PUT /posts/:id
+// PUT /posts/:id
 export async function updatePostController(req, res) {
   const id = Number(req.params.id);
   if (Number.isNaN(id))
@@ -91,7 +97,8 @@ export async function updatePostController(req, res) {
     content,
     status,
     coverUrl = null,
-    topicId = null,
+    topicIds,
+    topicId,
   } = req.body || {};
   status = (status || "draft").toLowerCase();
 
@@ -101,6 +108,15 @@ export async function updatePostController(req, res) {
     return res.status(400).json({ error: "Invalid status" });
   }
 
+  // Hỗ trợ ngược topicId -> topicIds[]
+  let finalTopicIds = Array.isArray(topicIds) ? topicIds : undefined;
+  if (topicId !== undefined && topicId !== null) {
+    if (Number.isNaN(Number(topicId))) {
+      return res.status(400).json({ error: "topicId must be a number" });
+    }
+    finalTopicIds = [Number(topicId)];
+  }
+
   try {
     const post = await updatePostService({
       id,
@@ -108,7 +124,7 @@ export async function updatePostController(req, res) {
       content,
       status,
       coverUrl,
-      topicId: topicId !== null ? Number(topicId) : null,
+      topicIds: finalTopicIds,
     });
     if (!post) return res.status(404).json({ error: "Post not found" });
     return res.json({ post });

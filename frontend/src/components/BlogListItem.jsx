@@ -1,5 +1,5 @@
 export default function BlogListItem({ post = {} }) {
-  // ===== Helpers: parse & format date thủ công (không dùng toLocale*) =====
+  // ===== Helpers =====
   const toDate = (value) => {
     if (!value) return null;
     try {
@@ -18,14 +18,6 @@ export default function BlogListItem({ post = {} }) {
 
   const pad2 = (n) => String(n).padStart(2, "0");
 
-  // dd/MM/yyyy
-  // const formatVNDate = (value) => {
-  //   const d = toDate(value);
-  //   if (!d) return "";
-  //   return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
-  // };
-
-  // HH:mm dd/MM/yyyy
   const formatVNDateTime = (value) => {
     const d = toDate(value);
     if (!d) return "";
@@ -42,11 +34,23 @@ export default function BlogListItem({ post = {} }) {
   const publishedAt = post.publishedAt ?? post.published_at ?? null;
   const status = String(post.status ?? "").toLowerCase();
 
-  const topicName =
-    (typeof post.topic === "string" ? post.topic : post.topic?.name) ??
-    post.topic_name ??
-    null;
-  const topicSlug = post.topic_slug ?? post.topic?.slug ?? null;
+  // topics => mảng [{id,name,slug}]
+  const topics =
+    Array.isArray(post.topics) && post.topics.length && post.topics[0]?.topic
+      ? post.topics.map((pt) => pt.topic)
+      : Array.isArray(post.topics)
+      ? post.topics
+      : post.topic
+      ? [
+          typeof post.topic === "string"
+            ? {
+                id: post.topic_id ?? null,
+                name: post.topic,
+                slug: post.topic_slug ?? null,
+              }
+            : post.topic,
+        ]
+      : [];
 
   const authorName =
     (typeof post.author === "string" ? post.author : post.author?.name) ??
@@ -54,7 +58,6 @@ export default function BlogListItem({ post = {} }) {
     null;
 
   const postHref = slug ? `/blog/${id}/${slug}` : `/blog/${id}`;
-  const topicHref = topicSlug ? `/topics/${topicSlug}` : null;
   const isPublished = status === "published";
   const publishedText = isPublished ? formatVNDateTime(publishedAt) : "";
 
@@ -78,15 +81,17 @@ export default function BlogListItem({ post = {} }) {
       </a>
 
       <div className="flex-1">
-        {!!topicName && (
-          <div className="text-xs font-semibold tracking-widest text-gray-500 uppercase">
-            {topicHref ? (
-              <a href={topicHref} className="hover:underline">
-                {topicName}
+        {!!topics.length && (
+          <div className="flex flex-wrap gap-2">
+            {topics.map((t) => (
+              <a
+                key={t.id ?? t.slug ?? t.name}
+                href={t.slug ? `/topics/${t.slug}` : "#"}
+                className="text-xs font-semibold tracking-widest uppercase bg-blue-50 text-blue-700 px-2 py-0.5 rounded"
+              >
+                {t.name}
               </a>
-            ) : (
-              topicName
-            )}
+            ))}
           </div>
         )}
 
