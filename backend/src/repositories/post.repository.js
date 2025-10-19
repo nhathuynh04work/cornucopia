@@ -1,11 +1,23 @@
-/* Tạo mới một bài viết (Post)
- * Trả về bài viết kèm thông tin tác giả (author) và chủ đề (topic)*/
+/* Repository cho Post theo quan hệ M↔N (Post ⟷ Topic qua PostTopic) */
 
+function normalizePostTopics(p) {
+  if (!p) return p;
+  const topics =
+    Array.isArray(p.topics) && p.topics.length && p.topics[0]?.topic
+      ? p.topics.map((pt) => pt.topic)
+      : Array.isArray(p.topics)
+      ? p.topics
+      : [];
+  return { ...p, topics };
+}
+
+/* Tạo mới một bài viết (Post)
+ * Trả về bài viết kèm thông tin tác giả (author) và danh sách chủ đề (topics: Topic[]) */
 export async function createPost(
   client,
-  { slug, title, content, authorId, topicId = null, coverUrl = null }
+  { slug, title, content, authorId, topicIds = [], coverUrl = null }
 ) {
-  return client.post.create({
+  const created = await client.post.create({
     data: {
       authorId,
       title,
@@ -13,38 +25,53 @@ export async function createPost(
       content,
       status: "draft",
       publishedAt: null,
-      topicId,
       coverUrl,
+      ...(Array.isArray(topicIds) && topicIds.length
+        ? {
+            topics: {
+              create: topicIds.map((tid) => ({
+                topic: { connect: { id: Number(tid) } },
+              })),
+            },
+          }
+        : {}),
     },
     include: {
       author: { select: { id: true, name: true, email: true } },
-      topic: { select: { id: true, name: true, slug: true } },
+      topics: {
+        include: { topic: { select: { id: true, name: true, slug: true } } },
+      },
     },
   });
+  return normalizePostTopics(created);
 }
 
-/* Lấy thông tin một bài viết theo ID
- * - Include quan hệ author và topic (tương đương LEFT JOIN trong SQL cũ)*/
+/* Lấy thông tin một bài viết theo ID (include author + topics) */
 export async function getPostById(client, { id }) {
-  return client.post.findUnique({
+  const row = await client.post.findUnique({
     where: { id },
     include: {
       author: { select: { id: true, name: true, email: true } },
-      topic: { select: { id: true, name: true, slug: true } },
+      topics: {
+        include: { topic: { select: { id: true, name: true, slug: true } } },
+      },
     },
   });
+  return normalizePostTopics(row);
 }
 
-/* Lấy tất cả các bài viết
- * - Sắp xếp theo thứ tự giảm dần của ngày public (publishedAt) và ngày tạo (createdAt)*/
+/* Lấy tất cả các bài viết (order by publishedAt desc, createdAt desc) */
 export async function getAllPosts(client) {
-  return client.post.findMany({
+  const rows = await client.post.findMany({
     include: {
       author: { select: { id: true, name: true, email: true } },
-      topic: { select: { id: true, name: true, slug: true } },
+      topics: {
+        include: { topic: { select: { id: true, name: true, slug: true } } },
+      },
     },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
   });
+  return rows.map(normalizePostTopics);
 }
 
 /* Xóa bài viết theo ID */
@@ -60,13 +87,10 @@ export async function deletePostById(client, { id }) {
   }
 }
 
-/* Cập nhật nội dung bài viết
- *   + Nếu status = 'published' và chưa có publishedAt → đặt là thời gian hiện tại
- *   + Nếu status khác 'published' → đặt null
- *   + Nếu đang 'published' và đã có publishedAt → giữ nguyên */
+/* Cập nhật nội dung bài viết */
 export async function updatePostById(
   client,
-  { id, title, content, status, coverUrl = null, topicId = null }
+  { id, title, content, status, coverUrl = null, topicIds }
 ) {
   const existing = await client.post.findUnique({
     where: { id },
@@ -81,39 +105,68 @@ export async function updatePostById(
     nextPublishedAt = null;
   }
 
-  return client.post.update({
+  const data = {
+    title,
+    content,
+    status,
+    coverUrl,
+    publishedAt: nextPublishedAt,
+  };
+
+  if (Array.isArray(topicIds)) {
+    data.topics = {
+      deleteMany: {}, // xoá toàn bộ liên kết cũ
+      create: topicIds.map((tid) => ({
+        topic: { connect: { id: Number(tid) } },
+      })),
+    };
+  }
+
+  const updated = await client.post.update({
     where: { id },
-    data: {
-      title,
-      content,
-      status,
-      coverUrl,
-      topicId,
-      publishedAt: nextPublishedAt,
-    },
+    data,
     include: {
       author: { select: { id: true, name: true, email: true } },
-      topic: { select: { id: true, name: true, slug: true } },
+      topics: {
+        include: { topic: { select: { id: true, name: true, slug: true } } },
+      },
     },
   });
+  return normalizePostTopics(updated);
 }
 
-/* Lấy danh sách bài viết theo slug của topic
- * - Dùng quan hệ lồng: where: { topic: { is: { slug } } }
- * - Có phân trang: offset → skip, limit → take
- * - Trả về danh sách bài viết cùng thông tin tác giả & chủ đề */
+/*Lấy danh sách bài viết theo slug của topic*/
 export async function getPostsByTopicSlug(
   client,
   { slug, offset = 0, limit = 50 }
 ) {
-  return client.post.findMany({
-    where: { topic: { is: { slug } } },
-    include: {
-      author: { select: { id: true, name: true, email: true } },
-      topic: { select: { id: true, name: true, slug: true } },
+  const topic = await client.topic.findUnique({
+    where: { slug: String(slug) },
+    select: { id: true },
+  });
+  if (!topic) return [];
+
+  const rows = await client.postTopic.findMany({
+    where: {
+      topicId: topic.id,
+      post: { status: "published" }, // chỉ lấy bài đã publish
     },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    include: {
+      post: {
+        include: {
+          author: { select: { id: true, name: true, email: true } },
+          topics: {
+            include: {
+              topic: { select: { id: true, name: true, slug: true } },
+            },
+          },
+        },
+      },
+    },
+    orderBy: { post: { publishedAt: "desc" } },
     skip: offset,
     take: limit,
   });
+
+  return rows.map((r) => normalizePostTopics(r.post));
 }

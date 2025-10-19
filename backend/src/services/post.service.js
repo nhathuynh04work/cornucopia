@@ -9,14 +9,16 @@ import prisma from "../prisma.js";
 
 export async function createDefaultPostService({
   authorId,
-  topicId = null,
+  topicIds = [],
   coverUrl = null,
 }) {
   return prisma.$transaction(async (client) => {
-    let resolvedTopicId = null;
-    if (topicId !== null && Number(topicId) > 0) {
-      resolvedTopicId = Number(topicId);
-    } else {
+    let resolvedTopicIds = Array.isArray(topicIds)
+      ? topicIds.map((x) => Number(x)).filter((x) => Number.isFinite(x))
+      : [];
+
+    // Nếu không truyền topicIds -> gán topic mặc định "Chung"
+    if (!resolvedTopicIds.length) {
       const def = await client.topic.upsert({
         where: { slug: "chung" },
         update: {},
@@ -27,7 +29,7 @@ export async function createDefaultPostService({
         },
         select: { id: true },
       });
-      resolvedTopicId = def.id;
+      resolvedTopicIds = [def.id];
     }
 
     const slug = `default-${Date.now()}`;
@@ -36,7 +38,7 @@ export async function createDefaultPostService({
       title: "Bài viết mặc định",
       content: "<p>Nội dung mặc định</p>",
       authorId,
-      topicId: resolvedTopicId,
+      topicIds: resolvedTopicIds,
       coverUrl,
     });
 
@@ -66,8 +68,37 @@ export async function deletePostService({ id }) {
 }
 
 export async function updatePostService(payload) {
+  // payload: { id, title, content, status, coverUrl, topicIds? }
   return prisma.$transaction(async (client) => {
-    const updated = await updatePostById(client, payload);
+    let topicIds = payload.topicIds;
+
+    if (Array.isArray(topicIds)) {
+      // chuẩn hoá mảng id -> number hợp lệ
+      topicIds = topicIds
+        .map((x) => Number(x))
+        .filter((x) => Number.isFinite(x));
+
+      // nếu gửi [] -> gắn topic mặc định "Chung"
+      if (topicIds.length === 0) {
+        const def = await client.topic.upsert({
+          where: { slug: "chung" },
+          update: {},
+          create: {
+            name: "Chung",
+            slug: "chung",
+            description: "Chủ đề mặc định",
+          },
+          select: { id: true },
+        });
+        topicIds = [def.id];
+      }
+    }
+
+    const updated = await updatePostById(client, {
+      ...payload,
+      topicIds,
+    });
+
     return updated;
   });
 }

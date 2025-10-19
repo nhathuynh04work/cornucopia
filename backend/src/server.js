@@ -2,16 +2,16 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
 import {
-	authRouter,
-	sectionRouter,
-	testRouter,
-	uploadRouter,
-	optionRouter,
-	itemRouter,
-  postRouter, 
+  authRouter,
+  sectionRouter,
+  testRouter,
+  uploadRouter,
+  optionRouter,
+  itemRouter,
+  postRouter,
   topicRouter,
   cardRouter,
-  listRouter
+  listRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 
@@ -34,7 +34,7 @@ app.use(passport.initialize());
 
 // Routes
 app.use("/auth", authRouter);
-app.use("/lists", listRouter)
+app.use("/lists", listRouter);
 app.use("/cards", cardRouter);
 app.use("/posts", postRouter);
 app.use("/topics", topicRouter);
@@ -58,7 +58,6 @@ app.use((err, req, res, next) => {
   const status = err.status || 400;
   res.status(status).json({ message: err.message || "Bad Request" });
 });
-
 
 app.listen(env.PORT, () => {
   console.log(`Server running on port ${env.PORT}`);

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import RichTextEditor from "../components/RichTextEditor";
 import { api } from "../apis/axios";
 import TopicCreateModal from "../components/TopicCreateModal";
+import TopicsInput from "../components/TopicsInput";
 import {
   FaSpinner,
   FaTrash,
@@ -23,7 +24,9 @@ export default function BlogEditor() {
   const [contentHtml, setContentHtml] = useState(""); // nội dung richtext
   const [status, setStatus] = useState("draft"); // 'draft' | 'published'
   const [coverUrl, setCoverUrl] = useState(""); // URL ảnh bìa
-  const [topicId, setTopicId] = useState(""); // (tuỳ chọn) gắn topic
+
+  // đổi từ 1 topic -> nhiều topic
+  const [selectedTopicIds, setSelectedTopicIds] = useState([]); // number[]
   const [topics, setTopics] = useState([]);
   const [openCreateTopic, setOpenCreateTopic] = useState(false);
 
@@ -42,19 +45,22 @@ export default function BlogEditor() {
         const payload = {
           title: title.trim(),
           content: contentHtml,
-          // Đảm bảo cập nhật trạng thái nếu nhấn Publish (hoặc Save Draft)
           status: String(currentStatus || "draft")
             .trim()
             .toLowerCase(),
           coverUrl: coverUrl ?? null,
-          topicId: topicId ? Number(topicId) : null,
+          // gửi mảng topicIds
+          topicIds: Array.isArray(selectedTopicIds)
+            ? selectedTopicIds
+                .map((x) => Number(x))
+                .filter((x) => Number.isFinite(x))
+            : [],
         };
         await api.put(`/posts/${id}`, payload);
 
         setStatus(payload.status);
 
         if (!shouldNavigate) console.log("Auto-saved draft.");
-
         if (shouldNavigate) {
           navigate("/blog");
         }
@@ -75,7 +81,7 @@ export default function BlogEditor() {
         if (shouldNavigate) setIsSaving(false);
       }
     },
-    [title, contentHtml, status, coverUrl, topicId, id, navigate]
+    [title, contentHtml, status, coverUrl, selectedTopicIds, id, navigate]
   );
 
   // AUTO-SAVE EFFECT
@@ -83,7 +89,7 @@ export default function BlogEditor() {
     if (loading || isSaving || !id) return;
 
     const timer = setTimeout(() => {
-      // Auto-save luôn ở trạng thái 'draft' hoặc trạng thái hiện tại
+      // Auto-save theo trạng thái hiện tại
       savePost(status, false);
     }, 5000);
 
@@ -93,7 +99,7 @@ export default function BlogEditor() {
     contentHtml,
     status,
     coverUrl,
-    topicId,
+    selectedTopicIds,
     id,
     loading,
     isSaving,
@@ -110,7 +116,31 @@ export default function BlogEditor() {
         setTitle(p?.title ?? "");
         setStatus(String(p?.status ?? "draft").toLowerCase());
         setCoverUrl(p?.coverUrl ?? p?.cover_url ?? "");
-        setTopicId(String(p?.topicId ?? p?.topic_id ?? ""));
+
+        // Chuẩn hoá topics từ post -> mảng id
+        const loadedTopics =
+          Array.isArray(p?.topics) && p.topics.length && p.topics[0]?.topic
+            ? p.topics.map((pt) => pt.topic)
+            : Array.isArray(p?.topics)
+            ? p.topics
+            : p?.topic
+            ? [
+                typeof p.topic === "string"
+                  ? {
+                      id: p.topic_id ?? null,
+                      name: p.topic,
+                      slug: p.topic_slug ?? null,
+                    }
+                  : p.topic,
+              ]
+            : [];
+
+        setSelectedTopicIds(
+          loadedTopics
+            .map((t) => Number(t.id))
+            .filter((x) => Number.isFinite(x))
+        );
+
         setContentHtml(p?.content ?? "");
       } catch (e) {
         console.error(e);
@@ -128,13 +158,20 @@ export default function BlogEditor() {
         const { data } = await api.get("/topics");
         const list = Array.isArray(data) ? data : data.topics || [];
         setTopics(list);
-        // nếu bài chưa có topic, cho mặc định = topic đầu
-        if (!topicId && list[0]?.id) setTopicId(String(list[0].id));
+
+        // nếu chưa chọn topic nào, có thể set mặc định topic đầu
+        if (
+          (!selectedTopicIds || selectedTopicIds.length === 0) &&
+          list[0]?.id
+        ) {
+          setSelectedTopicIds([Number(list[0].id)]);
+        }
       } catch (e) {
         console.error("GET /topics failed", e);
       }
     })();
-  }, []); // eslint-disable-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Tạo topic thành công: thêm vào list và chọn ngay
   const handleTopicCreated = (t) => {
@@ -143,14 +180,29 @@ export default function BlogEditor() {
       const exists = prev.some((x) => x.id === t.id);
       return exists ? prev : [t, ...prev];
     });
-    setTopicId(String(t.id));
+    setSelectedTopicIds((prev) =>
+      prev.includes(Number(t.id)) ? prev : [Number(t.id), ...prev]
+    );
   };
 
-  // Xóa topic đang chọn
+  const createTopicInline = async (name) => {
+    const { data } = await api.post("/topics", { name: String(name) });
+    const t = data?.topic || data;
+    if (t?.id) {
+      setTopics((prev) =>
+        prev.some((x) => x.id === t.id) ? prev : [t, ...prev]
+      );
+      return t; // để TopicsInput add vào selected
+    }
+    throw new Error("Create topic failed");
+  };
+
+  // Xóa topic đang chọn (xóa hẳn entity topic)
   const handleDeleteTopic = async () => {
-    if (!topicId) return;
-    const topic = topics.find((t) => String(t.id) === String(topicId));
-    const name = topic?.name || `#${topicId}`;
+    if (!selectedTopicIds.length) return;
+    const currentId = selectedTopicIds[0];
+    const topic = topics.find((t) => Number(t.id) === Number(currentId));
+    const name = topic?.name || `#${currentId}`;
     if (
       !confirm(
         `Xóa chủ đề "${name}"?\nCác bài viết đang gắn chủ đề này sẽ KHÔNG bị xóa, chỉ bị gỡ khỏi chủ đề.`
@@ -159,16 +211,15 @@ export default function BlogEditor() {
       return;
 
     try {
-      await api.delete(`/topics/${topicId}`);
+      await api.delete(`/topics/${currentId}`);
       // cập nhật danh sách topics
-      setTopics((prev) => prev.filter((t) => String(t.id) !== String(topicId)));
-      // chọn topic đầu tiên còn lại
-      setTopicId((prevId) => {
-        const afterDelete = topics.filter(
-          (t) => String(t.id) !== String(prevId)
-        );
-        return afterDelete[0]?.id ? String(afterDelete[0].id) : "";
-      });
+      setTopics((prev) =>
+        prev.filter((t) => Number(t.id) !== Number(currentId))
+      );
+      // bỏ khỏi selection
+      setSelectedTopicIds((prev) =>
+        prev.filter((id) => Number(id) !== Number(currentId))
+      );
       alert(`Đã xóa chủ đề "${name}".`);
     } catch (err) {
       const msg =
@@ -181,7 +232,7 @@ export default function BlogEditor() {
     }
   };
 
-  // chọn ảnh bìa (có thể xóa/chọn lại)
+  // chọn ảnh bìa
   const onPickCover = (file) => {
     if (!file) return;
     const reader = new FileReader();
@@ -291,7 +342,6 @@ export default function BlogEditor() {
             )}
           </div>
         </div>
-        {/* ------------------------------------------- */}
         {/* Tiêu đề */}
         <div className="mb-8">
           <input
@@ -321,37 +371,29 @@ export default function BlogEditor() {
         <div className="mb-10">
           <RichTextEditor value={contentHtml} onChange={setContentHtml} />
         </div>
-        {/* --- PHẦN TOPIC*/}
+        {/* --- PHẦN TOPIC (nhiều lựa chọn) --- */}
         <div className="bg-white p-4 rounded-lg shadow border border-blue-100 mb-8">
-          <label className="block text-sm text-gray-600 mb-2 font-medium">
-            Chủ đề
-          </label>
-          <div className="flex gap-2 items-center">
-            <select
-              value={topicId}
-              onChange={(e) => setTopicId(e.target.value)}
-              className="w-full rounded border p-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-200"
-            >
-              {topics.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-              {!topics.length && <option value="">— Chưa có topic —</option>}
-            </select>
+          <TopicsInput
+            allTopics={topics}
+            value={selectedTopicIds} // state mảng id bạn đã có
+            onChange={setSelectedTopicIds} // cập nhật state
+            onCreate={createTopicInline} // tạo topic mới khi Enter
+            label="Chủ đề"
+            placeholder="Nhập để tìm, Enter để thêm…"
+          />
+          <div className="mt-3 flex items-center gap-2">
             <button
               type="button"
               onClick={() => setOpenCreateTopic(true)}
               className="shrink-0 rounded bg-green-600 px-3 py-2 text-white hover:bg-green-700 text-sm shadow"
-              title="Tạo Topic mới"
             >
               + New
             </button>
             <button
               type="button"
               onClick={handleDeleteTopic}
-              disabled={!topicId}
-              className="shrink-0 rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700 disabled:opacity-50 text-sm shadow flex items-center"
+              disabled={!selectedTopicIds.length}
+              className="shrink-0 rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700 disabled:opacity-50 text-sm shadow"
               title="Xóa Topic đang chọn"
             >
               <FaTrash />
