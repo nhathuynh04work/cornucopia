@@ -80,45 +80,30 @@ model Media {
 }
 
 model Test {
-    id           Int           @id @default(autoincrement())
-    title        String
-    description  String?
-    timeLimit    Int?          @map("time_limit")
-    createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
-    testSections TestSection[]
+    id          Int        @id @default(autoincrement())
+    title       String
+    description String?
+    timeLimit   Int?       @map("time_limit")
+    createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+    items       TestItem[] 
 
     @@map("tests")
 }
 
-model TestSection {
-    id        Int      @id @default(autoincrement())
-    testId    Int      @map("test_id")
-    title     String?
-    sortOrder Int?      @map("sort_order")
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-    test  Test       @relation(fields: [testId], references: [id], onDelete: Cascade)
-    items TestItem[]
-
-    @@map("test_sections")
-}
-
 model TestItem {
     id           Int           @id @default(autoincrement())
-    sectionId    Int           @map("section_id")
+    testId       Int           @map("test_id")
     parentItemId Int?          @map("parent_item_id")
     type         TestItemType
     text         String?
-    mediaUrl     String?       @map("media_url")
     questionType QuestionType? @map("question_type")
     points       Decimal?      @default(1) @db.Decimal(5, 2)
-    sortOrder    Int?           @map("sort_order")
+    sortOrder    Int?          @map("sort_order")
     createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-    section       TestSection    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    test          Test           @relation(fields: [testId], references: [id], onDelete: Cascade) // Added
     parent        TestItem?      @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
     children      TestItem[]     @relation("ItemToChildren")
     answerOptions AnswerOption[]
@@ -131,7 +116,7 @@ model AnswerOption {
     itemId    Int      @map("item_id")
     text      String?
     isCorrect Boolean? @default(false) @map("is_correct")
-    sortOrder Int?      @map("sort_order")
+    sortOrder Int?     @map("sort_order")
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
@@ -187,42 +172,43 @@ model Flashcard {
 }
 
 model Topic {
-    id          Int      @id @default(autoincrement())
-    name        String   @unique
-    slug        String   @unique
+    id          Int         @id @default(autoincrement())
+    name        String      @unique
+    slug        String      @unique
     description String?
-    createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
     posts       PostTopic[]
+
     @@map("topics")
 }
 
 model Post {
-  id          Int        @id @default(autoincrement())
-  authorId    Int        @map("author_id")
-  title       String
-  slug        String     @unique
-  content     String
-  status      String     @default("draft") @db.VarChar(20)
-  publishedAt DateTime?  @map("published_at") @db.Timestamptz(6)
-  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  coverUrl    String?    @map("cover_url")
+    id          Int       @id @default(autoincrement())
+    authorId    Int       @map("author_id")
+    title       String
+    slug        String    @unique
+    content     String
+    status      String    @default("draft") @db.VarChar(20)
+    publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+    createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+    coverUrl    String?   @map("cover_url")
 
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  topics PostTopic[]
+    author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    topics PostTopic[]
 
-  @@map("posts")
+    @@map("posts")
 }
 
 model PostTopic {
-  postId     Int       @map("post_id")
-  topicId    Int       @map("topic_id")
-  assignedAt DateTime  @default(now()) @map("assigned_at") @db.Timestamptz(6)
+    postId     Int      @map("post_id")
+    topicId    Int      @map("topic_id")
+    assignedAt DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
 
-  post  Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+    post  Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+    topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  @@id([postId, topicId])           
-  @@map("post_topics")
+    @@id([postId, topicId])
+    @@map("post_topics")
 }
 
 model StudySession {
