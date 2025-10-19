@@ -1,4 +1,5 @@
 import prisma from "../prisma.js";
+import { questionTypes, testItemTypes } from "../utils/constants.js";
 
 export async function findById(id, client = prisma) {
 	return await client.testSection.findUnique({
@@ -43,8 +44,8 @@ export async function create(testId, client = prisma) {
 			testId,
 			items: {
 				create: {
-					type: "question",
-					questionType: "multiple_choice",
+					type: testItemTypes.QUESTION,
+					questionType: questionTypes.MULTIPLE_CHOICE,
 				},
 			},
 		},

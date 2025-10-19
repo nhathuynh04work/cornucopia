@@ -1,41 +1,19 @@
-import { useLocation, useNavigate } from "react-router";
+import { useLocation } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { useEffect } from "react";
-import toast from "react-hot-toast";
 
 function AuthCallback() {
-	const navigate = useNavigate();
 	const location = useLocation();
-	const { login } = useAuth();
+	const { setAuthenticatedSession } = useAuth();
+
+	const params = new URLSearchParams(location.search);
+	const token = params.get("token");
 
 	useEffect(() => {
-		const params = new URLSearchParams(location.search);
-		const provider = params.get("provider") || "OAuth";
-		const token = params.get("token");
-		const error = params.get("error");
+		setAuthenticatedSession(token);
+	}, [token, setAuthenticatedSession]);
 
-		if (error) {
-			console.error("OAuth failed:", error);
-			toast.error(`Authentication using ${provider} failed`);
-			navigate("/login");
-			return;
-		}
-
-		if (token) {
-			// Call the login() from AuthContext
-			login(token);
-
-			// Toast
-			toast.success(`Sign in using ${provider} successfully`);
-
-			// Redirect after login
-			navigate("/");
-		} else {
-			navigate("/login");
-		}
-	}, [location.search, navigate, login]);
-
-	return <p>Signing you in...</p>;
+	return null;
 }
 
 export default AuthCallback;

@@ -1,18 +1,10 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { env } from "../config/env.js";
-import {
-	getGoogleOAuthAccount,
-	linkOAuthAccount,
-} from "../repositories/auth.repository.js";
-import {
-	activateUser,
-	createUser,
-	getUserByEmail,
-	getUserById,
-} from "../repositories/user.repository.js";
-import db from "../db/db.js";
-import { assignRoleToUser } from "../repositories/role.repository.js";
+import * as authRepo from "../repositories/auth.repository.js";
+import * as userRepo from "../repositories/user.repository.js";
+import prisma from "../prisma.js";
+import { providers } from "../utils/constants.js";
 
 passport.use(
 	new GoogleStrategy(
@@ -22,47 +14,36 @@ passport.use(
 			callbackURL: `${env.API_URL}/auth/google/callback`,
 		},
 		async (accessToken, refreshToken, profile, done) => {
-			const client = await db.connect();
-			try {
-				await client.query("BEGIN");
+			const googleId = profile.id;
+			const email = profile.emails?.[0]?.value;
+			const name = profile.displayName;
 
-				const googleId = profile.id;
-				const email = profile.emails?.[0]?.value;
-				const name = profile.displayName;
+			const auth = await authRepo.getOAuthInfo(
+				providers.google,
+				googleId
+			);
+			let user = auth?.user;
 
-				let user = await getGoogleOAuthAccount(googleId);
+			if (!user) {
+				user = await userRepo.findByEmail(email);
 
-				if (!user) {
-					user = await getUserByEmail(email);
-
+				await prisma.$transaction(async (tx) => {
 					if (!user) {
-						user = await createUser(client, {
+						user = await userRepo.create({
 							name,
 							email,
-							is_active: true,
-						});
-						await activateUser(client, { userId: user.id });
-						await assignRoleToUser(client, {
-							userId: user.id,
-							role: "user",
+							isActive: true,
 						});
 					}
 
-					await linkOAuthAccount(client, {
-						userId: user.id,
-						provider: "google",
+					await authRepo.linkOAuth(user.id, {
+						provider: providers.google,
 						providerId: googleId,
 					});
-				}
-
-				await client.query("COMMIT");
-				return done(null, user);
-			} catch (err) {
-				await client.query("ROLLBACK");
-				return done(err, null);
-			} finally {
-				client.release();
+				});
 			}
+
+			return done(null, user);
 		}
 	)
 );
@@ -73,7 +54,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-	const user = await getUserById(id);
+	const user = await userRepo.findById(id);
 	done(null, user);
 });
 

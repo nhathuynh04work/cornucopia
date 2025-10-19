@@ -1,44 +1,35 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { api } from "../apis/axios";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import toast from "react-hot-toast";
 import { Globe } from "lucide-react";
 import { env } from "../env";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import ErrorPopover from "./ErrorPopover";
 
 function LoginForm() {
-	const { login } = useAuth();
-	const [formData, setFormData] = useState({ email: "", password: "" });
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState(null);
+	const { user, login } = useAuth();
+	const {
+		register,
+		handleSubmit,
+		formState: { isSubmitting, errors },
+	} = useForm({
+		mode: "onSubmit",
+		reValidateMode: "onSubmit",
+	});
 
-	const navigate = useNavigate();
-
-	function handleChange(e) {
-		setFormData({ ...formData, [e.target.name]: e.target.value });
-	}
-
-	async function handleLocalLogin(e) {
-		e.preventDefault();
-		setLoading(true);
-		setError(null);
-
+	async function onSubmit(credentials) {
 		try {
-			const res = await api.post("/auth/login", formData);
-			const { token } = res.data;
-			login(token);
-			toast.success("Logged in successfully");
-			navigate("/", { replace: true });
+			await login(credentials);
 		} catch (err) {
-			setError(err.response?.data?.error || "Login failed");
-		} finally {
-			setLoading(false);
+			toast.error(err.message);
 		}
 	}
 
 	function handleGoogleLogin() {
 		window.location.href = `${env.API_URL}/auth/google`;
 	}
+
+	if (user) return <Navigate to="/" replace />;
 
 	return (
 		<div className="w-md p-8">
@@ -61,23 +52,31 @@ function LoginForm() {
 				<div className="flex-grow border-t border-gray-300" />
 			</div>
 
-			{error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
-
-			<form className="flex flex-col gap-4" onSubmit={handleLocalLogin}>
+			<form
+				className="flex flex-col gap-6"
+				onSubmit={handleSubmit(onSubmit)}>
 				<div>
 					<label
 						htmlFor="email"
 						className="block text-sm font-medium text-gray-700">
 						Email
 					</label>
-					<input
-						name="email"
-						type="email"
-						value={formData.email}
-						onChange={handleChange}
-						placeholder="Enter your email"
-						className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-					/>
+					<ErrorPopover error={errors.email}>
+						<input
+							{...register("email", {
+								required: "Email is required",
+								pattern: {
+									value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+									message: "Invalid email address",
+								},
+							})}
+							className={`mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-purple-500 ${
+								errors.email
+									? "border-red-500 ring-red-500"
+									: "focus:ring-purple-500"
+							}`}
+						/>
+					</ErrorPopover>
 				</div>
 
 				<div>
@@ -93,21 +92,30 @@ function LoginForm() {
 							Forgot password?
 						</Link>
 					</div>
-					<input
-						name="password"
-						type="password"
-						value={formData.password}
-						onChange={handleChange}
-						placeholder="Enter your password"
-						className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-					/>
+					<ErrorPopover error={errors.password}>
+						<input
+							type="password"
+							{...register("password", {
+								required: "Password is required",
+								minLength: {
+									value: 8,
+									message: "Must be at least 8 characters",
+								},
+							})}
+							className={`mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-purple-500 ${
+								errors.password
+									? "border-red-500 ring-red-500"
+									: "focus:ring-purple-500"
+							}`}
+						/>
+					</ErrorPopover>
 				</div>
 
 				<button
 					type="submit"
-					disabled={loading}
+					disabled={isSubmitting}
 					className="w-full bg-purple-600 text-white font-medium py-2 rounded hover:bg-purple-700 transition">
-					{loading ? "Logging in..." : "Log In"}
+					{isSubmitting ? "Logging in..." : "Log In"}
 				</button>
 			</form>
 

@@ -1,28 +1,19 @@
+import { UnauthorizedError } from "../utils/AppError.js";
+import { errorMessage } from "../utils/constants.js";
 import { verifyJWT } from "../utils/jwt.js";
 
-// Get JWT from header and attach the user info retrieved from that token to the body
-export function authenticateJWT(req, res, next) {
+export async function authenticateJWT(req, res, next) {
 	const authHeader = req.headers.authorization;
-	if (!authHeader) {
-		return res.status(401).json({ error: "Missing auth header" });
-	}
+	if (!authHeader)
+		throw new UnauthorizedError(errorMessage.MISSING_AUTH_HEADER);
 
 	const token = authHeader.split(" ")[1];
-	if (!token) {
-		return res.status(401).json({ error: "Missing token" });
-	}
+	if (!token) throw new UnauthorizedError(errorMessage.MISSING_TOKEN);
 
-	try {
-		const decoded = verifyJWT(token);
-		if (!decoded) {
-			return res
-				.status(401)
-				.json({ error: "Auth Middleware: decoded null" });
-		}
+	const { payload, expired } = verifyJWT(token);
+	if (expired) throw new UnauthorizedError(errorMessage.EXPIRED_TOKEN);
+	if (!payload) throw new UnauthorizedError(errorMessage.INVALID_TOKEN);
 
-		req.user = decoded;
-		next();
-	} catch (err) {
-		return res.status(401).json({ error: "Invalid or expired token" });
-	}
+	req.user = { ...payload, id: payload.sub };
+	next();
 }

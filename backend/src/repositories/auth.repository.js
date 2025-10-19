@@ -1,34 +1,33 @@
-import db from "../db/db.js";
+import prisma from "../prisma.js";
+import { providers } from "../utils/constants.js";
 
-export async function createLocalAuth(client, { userId, passwordHash }) {
-	return client.query(
-		"INSERT INTO authentication (user_id, password_hash, provider, provider_id) VALUES ($1, $2, $3, $4)",
-		[userId, passwordHash, "local", null]
-	);
+export async function create(data, client = prisma) {
+	return client.authentication.create({ data });
 }
 
-export async function getLocalAuthByUserId(userId) {
-	const result = await db.query(
-		"SELECT * FROM authentication WHERE user_id = $1 AND provider = $2",
-		[userId, "local"]
-	);
-	return result.rows[0] || null;
+export async function findLocalAuth(userId, client = prisma) {
+	return client.authentication.findUnique({
+		where: {
+			provider_userId: {
+				provider: providers.local,
+				userId: userId,
+			},
+		},
+	});
 }
 
-export async function getGoogleOAuthAccount(googleId) {
-	const result = await db.query(
-		"SELECT users.* FROM authentication JOIN users ON authentication.user_id = users.id WHERE provider = $1 AND provider_id = $2",
-		["google", googleId]
-	);
-	return result.rows[0] || null;
+export async function getOAuthInfo(provider, providerId, client = prisma) {
+	return client.authentication.findUnique({
+		where: { provider_providerId: { provider, providerId } },
+		include: { user: true },
+	});
 }
 
-export async function linkOAuthAccount(
-	client,
-	{ userId, provider, providerId }
-) {
-	return client.query(
-		"INSERT INTO authentication (user_id, provider, provider_id) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
-		[userId, provider, providerId]
-	);
+export async function linkOAuth(userId, oAuthData, client = prisma) {
+	return client.authentication.create({
+		data: {
+			userId,
+			...oAuthData,
+		},
+	});
 }

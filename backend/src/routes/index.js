@@ -1,23 +1,10 @@
-import authRouter from "./auth.routes.js";
-import listRouter from "./list.routes.js";
-import cardRouter from "./card.routes.js"
-import postRouter from "./post.routes.js";
-import topicRouter from "./topic.routes.js";
-import uploadRouter from "./upload.routes.js";
-import testRouter from "./test.routes.js";
-import sectionRouter from "./section.routes.js";
-import itemRouter from "./item.routes.js";
-import optionRouter from "./option.routes.js";
-
-export {
-	authRouter,
-	uploadRouter,
-	testRouter,
-	sectionRouter,
-	itemRouter,
-	optionRouter,
-  postRouter, 
-  topicRouter, 
-  listRouter, 
-  cardRouter
-};
+export { default as authRouter } from "./auth.routes.js";
+export { default as listRouter } from "./list.routes.js";
+export { default as cardRouter } from "./card.routes.js";
+export { default as postRouter } from "./post.routes.js";
+export { default as topicRouter } from "./topic.routes.js";
+export { default as uploadRouter } from "./upload.routes.js";
+export { default as testRouter } from "./test.routes.js";
+export { default as sectionRouter } from "./section.routes.js";
+export { default as itemRouter } from "./item.routes.js";
+export { default as optionRouter } from "./option.routes.js";
