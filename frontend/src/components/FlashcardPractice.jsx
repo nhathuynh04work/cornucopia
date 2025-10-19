@@ -8,7 +8,7 @@ export default function FlashcardPractice() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🟢 Lấy session từ trang trước (bạn navigate từ nút "Bắt đầu học")
+  // 🟢 Lấy session từ trang trước
   const session = location.state?.session;
 
   const [cards, setCards] = useState([]);
@@ -17,8 +17,9 @@ export default function FlashcardPractice() {
   const [known, setKnown] = useState([]);
   const [unknown, setUnknown] = useState([]);
   const [finished, setFinished] = useState(false);
+  const [studyDuration, setStudyDuration] = useState(null);
 
-  // 🟣 Lấy danh sách flashcards của list
+  // 🟣 Lấy danh sách flashcards
   useEffect(() => {
     const fetchCards = async () => {
       try {
@@ -32,7 +33,7 @@ export default function FlashcardPractice() {
     fetchCards();
   }, [listId]);
 
-  // 🟠 Gửi câu trả lời của từng thẻ về backend
+  // 🟠 Gửi câu trả lời cho backend
   async function submitAnswer(flashcardId, needRevise) {
     if (!session?.id) {
       console.warn("Không có sessionId, không thể gửi câu trả lời!");
@@ -46,21 +47,47 @@ export default function FlashcardPractice() {
         needRevise,
         answerTime: new Date().toISOString(),
       });
-
-      // ✅ Hiển thị thông báo khi backend nhận được
-      toast.success("Đã ghi nhận câu trả lời!");
-      console.log(`Gửi kết quả flashcard ${flashcardId} thành công`);
+      console.log(`✅ Gửi kết quả flashcard ${flashcardId} thành công`);
     } catch (error) {
       console.error("❌ Lỗi khi gửi kết quả:", error);
       toast.error("Không thể ghi nhận kết quả!");
     }
   }
 
+  // 🕒 Hàm cập nhật endTime và tính thời gian học
+async function updateEndtime() {
+  try {
+    // Gọi đúng endpoint đã định nghĩa ở backend
+    const { data } = await api.put("/sessions/updateEndtime", {
+      userId: session.userId, // hoặc user.id nếu bạn có từ useAuth()
+    });
+
+    if (data.startTime && data.endTime) {
+      const start = new Date(data.startTime);
+      const end = new Date(data.endTime);
+      const diffMs = end - start;
+
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+
+      const durationText = `${minutes} phút ${seconds} giây`;
+      setStudyDuration(durationText);
+      return durationText;
+    } else {
+      console.warn("Không có startTime hoặc endTime trong response:", data);
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi cập nhật endTime:", error);
+    return null;
+  }
+}
+
+  // 🧠 Xử lý trả lời
   async function handleAnswer(isKnown) {
     const currentCard = cards[currentIndex];
     if (!currentCard) return;
 
-    // Gửi dữ liệu về backend
     await submitAnswer(currentCard.id, !isKnown);
 
     if (isKnown) setKnown((prev) => [...prev, currentCard]);
@@ -71,8 +98,19 @@ export default function FlashcardPractice() {
       setIsFlipped(false);
     } else {
       setFinished(true);
-      toast("🎉 Bạn đã hoàn thành buổi học!");
+      const duration = await updateEndtime();
+      toast(`🎉 Hoàn thành! ⏱️ Thời gian học: ${duration || "đang tính..."}`);
     }
+  }
+
+  // 🔁 Học lại từ đầu
+  function handleRestart() {
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setKnown([]);
+    setUnknown([]);
+    setFinished(false);
+    setStudyDuration(null);
   }
 
   if (cards.length === 0)
@@ -155,7 +193,7 @@ export default function FlashcardPractice() {
           </div>
         </div>
       ) : (
-        // Kết quả sau khi học xong
+        // ✅ Kết quả sau khi học xong
         <div className="bg-[#eaf2ff] rounded-2xl shadow-md p-10 text-center w-[400px] border border-[#d9e4ff]">
           <h2 className="text-2xl font-bold mb-4 text-[#1a237e]">
             🎉 Hoàn thành!
@@ -164,17 +202,32 @@ export default function FlashcardPractice() {
             ✅ Được:{" "}
             <span className="font-semibold text-green-600">{known.length}</span>
           </p>
-          <p className="text-lg mb-6">
+          <p className="text-lg mb-2">
             ❌ Không được:{" "}
             <span className="font-semibold text-red-500">{unknown.length}</span>
           </p>
 
-          <button
-            onClick={() => navigate("/flashcards")}
-            className="bg-[#4f75ff] hover:bg-[#6e8cff] text-white py-2 px-4 rounded-lg transition"
-          >
-            ⬅ Quay lại danh sách thẻ
-          </button>
+          {studyDuration && (
+            <p className="text-lg mt-3 text-gray-700">
+              🕒 Thời gian học:{" "}
+              <span className="font-semibold">{studyDuration}</span>
+            </p>
+          )}
+
+          <div className="flex flex-row justify-center items-center gap-4 mt-6">
+            <button
+              onClick={handleRestart}
+              className="flex-1 h-16 bg-[#4f75ff] hover:bg-[#6e8cff] text-white py-2 px-4 rounded-lg transition"
+            >
+              🔁 Học lại
+            </button>
+            <button
+              onClick={() => navigate("/flashcards")}
+              className="flex-1 h-16 bg-[#4f75ff] hover:bg-[#6e8cff] text-white py-2 px-4 rounded-lg transition"
+            >
+              ⬅ Quay lại danh sách thẻ
+            </button>
+          </div>
         </div>
       )}
     </div>
