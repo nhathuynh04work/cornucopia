@@ -1,5 +1,5 @@
 import prisma from "../prisma.js";
-import { testItemTypes } from "../utils/constants.js";
+import { itemTypeEnum } from "../utils/constants.js";
 
 export async function getTests(client = prisma) {
 	return client.test.findMany();
@@ -11,7 +11,7 @@ export async function create(data, client = prisma) {
 			...data,
 			items: {
 				create: {
-					type: testItemTypes.MULTIPLE_CHOICE,
+					type: itemTypeEnum.MULTIPLE_CHOICE,
 				},
 			},
 		},

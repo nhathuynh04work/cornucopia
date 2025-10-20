@@ -1,8 +1,7 @@
 export const errorMessage = {
 	// Auth related
 	EXPIRED_TOKEN: "Token expired",
-	UNCONFIRMED_USER:
-		"Account not verified. Check your email for confirmation link",
+	UNCONFIRMED_USER: "Account not verified. Check your email for confirmation link",
 	EMAIL_REGISTERED: "Email already registered",
 
 	// Not found
@@ -22,6 +21,11 @@ export const errorMessage = {
 	MISSING_AUTH_HEADER: "Missing auth header",
 	MISSING_TOKEN: "Missing token",
 
+	// Cannot delete last
+	DELETE_LAST_ITEM: "Cannot delete last item of a test",
+	DELETE_LAST_CHILD: "Cannot delete last item of a group",
+	DELETE_LAST_OPTION: "Cannot delete last option of a multiple choice question",
+
 	// Default internal server error
 	INTERNAL_ERROR: "Internal server error",
 };
@@ -31,7 +35,7 @@ export const providers = {
 	google: "google",
 };
 
-export const testItemTypes = {
+export const itemTypeEnum = {
 	// question types
 	MULTIPLE_CHOICE: "multiple_choice",
 	SHORT_ANSWER: "short_answer",
@@ -40,12 +44,12 @@ export const testItemTypes = {
 	GROUP: "group",
 };
 
-export const questionTypes = [
-	testItemTypes.MULTIPLE_CHOICE,
-	testItemTypes.SHORT_ANSWER,
-];
-
 export const expireTime = {
 	EMAIL_TOKEN: 24 * 60 * 60 * 1000, // 24h
 	JWT_TOKEN: "24h",
+};
+
+export const defaults = {
+	QUESTION_TEXT: "This is a question",
+	OPTION_TEXT: "This is an option",
 };

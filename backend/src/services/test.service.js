@@ -8,6 +8,7 @@ export async function getTests() {
 }
 
 export async function createTest(data) {
+	// data: { title, description }
 	const test = await testRepo.create(data);
 	return testRepo.getDetails(test.id);
 }

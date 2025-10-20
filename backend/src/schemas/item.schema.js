@@ -1,7 +1,7 @@
 import z from "zod";
-import { testItemTypes } from "../utils/constants.js";
+import { itemTypeEnum } from "../utils/constants.js";
 
-const TestItemTypeSchema = z.enum(Object.values(testItemTypes));
+const TestItemTypeSchema = z.enum(Object.values(itemTypeEnum));
 
 export const CreateItemSchema = z.object({
 	type: TestItemTypeSchema,
