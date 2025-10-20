@@ -1,4 +1,4 @@
-import { useTestEditorStore } from "../../../store/testEditorStore";
+import { useTestEditorStore } from "@/store/testEditorStore";
 import { ItemTypeIcon } from "./ItemTypeIcon";
 
 function ItemIndex({ item }) {
@@ -10,8 +10,8 @@ function ItemIndex({ item }) {
 
 	if (!item) return null;
 
-    // -----------------------------------------------------
-    // Getting the display index
+	// -----------------------------------------------------
+	// Getting the display index
 	const isGroup = item.type === "group";
 	const value = isGroup
 		? getGroupNumberRange(item.id)
@@ -30,11 +30,11 @@ function ItemIndex({ item }) {
 	} else {
 		displayValue = value ?? "—";
 	}
-    // -----------------------------------------------------
+	// -----------------------------------------------------
 
 	return (
 		<ItemTypeIcon
-			type={isGroup ? "group" : item.questionType}
+			type={item.type}
 			groupOpen={isGroupOpen}
 			itemId={item.id}
 			size="small">

@@ -1,4 +1,8 @@
-function ModalContentGeneral({ data, onChange }) {
+import { useFormContext } from "react-hook-form";
+
+function ModalContentGeneral() {
+	const { register } = useFormContext();
+
 	return (
 		<div className="flex-1 p-6 bg-[#f7f7f8] rounded-l-2xl overflow-y-auto text-gray-700 text-sm space-y-6">
 			{/* Title field */}
@@ -12,8 +16,7 @@ function ModalContentGeneral({ data, onChange }) {
 					id="test-title"
 					type="text"
 					placeholder="Enter your test title"
-					value={data.title}
-					onChange={(e) => onChange("title", e.target.value)}
+					{...register("title")}
 					className="w-full px-3 py-2 rounded-md border border-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-sm bg-[#f7f7f8]"
 				/>
 			</div>
@@ -29,8 +32,7 @@ function ModalContentGeneral({ data, onChange }) {
 					id="test-description"
 					rows={5}
 					placeholder="Write a brief description of the test..."
-					value={data.description}
-					onChange={(e) => onChange("description", e.target.value)}
+					{...register("description")}
 					className="w-full px-3 py-2 rounded-md border border-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-sm resize-none bg-[#f7f7f8]"
 				/>
 			</div>

@@ -1,5 +1,5 @@
+import { useDebouncedUpdate } from "@/hooks/useDebouncedUpdate";
 import { useCallback } from "react";
-import { useDebouncedUpdate } from "../../hooks/useDebouncedUpdate";
 
 export default function DebouncedTextarea({
 	initialValue,

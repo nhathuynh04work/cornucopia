@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react";
-import { useTestEditorStore } from "../../store/testEditorStore";
-import ItemIndex from "../TestNav/ItemList/ItemIndex";
+import ItemIndex from "../ItemList/ItemIndex";
+import { useTestEditorStore } from "@/store/testEditorStore";
 
 function ChildSummary({ child }) {
 	const { changeCurrentItem } = useTestEditorStore.getState();
@@ -14,7 +14,7 @@ function ChildSummary({ child }) {
 			<div className="flex items-center gap-3 truncate">
 				<ItemIndex item={child} />
 				<span className="text-gray-500 font-light text-small truncate">
-					{child.text || "Untitled Question"}
+					{child.text || "..."}
 				</span>
 			</div>
 			<ChevronRight className="w-4 h-4 text-gray-400" />

@@ -1,8 +1,8 @@
-import { useUpdateItemMutation } from "../../hooks/useItemMutation";
 import DebouncedTextarea from "./DebouncedTextarea";
-import ItemIndex from "../TestNav/ItemList/ItemIndex";
 import { MoveRight } from "lucide-react";
 import ChildSummary from "./ChildSummary";
+import ItemIndex from "../ItemList/ItemIndex";
+import { useUpdateItemMutation } from "@/hooks/useItemMutation";
 
 function GroupEditor({ item }) {
 	const { mutate: updateItem } = useUpdateItemMutation(item);
@@ -20,7 +20,7 @@ function GroupEditor({ item }) {
 					mutationFn={updateItem}
 					mutationKey="text"
 					className="flex-1 bg-transparent focus:outline-none focus:ring-0 resize-none field-sizing-content text-gray-800"
-					placeholder="Enter group instructions or passage..."
+					placeholder="Enter group instructions..."
 				/>
 			</div>
 

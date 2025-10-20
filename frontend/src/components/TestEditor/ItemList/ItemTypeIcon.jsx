@@ -1,5 +1,5 @@
-import { ITEM_CONFIG } from "../../../lib/config";
-import { useTestEditorStore } from "../../../store/testEditorStore";
+import { ITEM_CONFIG } from "@/lib/item.config";
+import { useTestEditorStore } from "@/store/testEditorStore";
 
 export function ItemTypeIcon({ type, groupOpen = false, itemId, children }) {
 	const toggleGroupOpen = useTestEditorStore((s) => s.toggleGroupOpen);
@@ -11,6 +11,9 @@ export function ItemTypeIcon({ type, groupOpen = false, itemId, children }) {
 	const isGroup = type === "group";
 
 	const config = ITEM_CONFIG[type];
+	// Handle case where type might not be in config (e.g., during optimistic update)
+	if (!config) return null;
+
 	const { bgColor } = config;
 	let IconComponent = config.Icon;
 
@@ -26,9 +29,10 @@ export function ItemTypeIcon({ type, groupOpen = false, itemId, children }) {
 
 	return (
 		<div
-			className={`flex items-center gap-1.5 rounded-md ${bgColor} ${bgSizeClass}`}
-			onClick={isGroup ? handleClick : undefined}
-			style={isGroup ? { cursor: "pointer" } : {}}>
+			className={`flex items-center gap-1.5 rounded-md ${bgColor} ${bgSizeClass} ${
+				isGroup ? "cursor-pointer" : ""
+			}`}
+			onClick={isGroup ? handleClick : undefined}>
 			<IconComponent className={`${iconSizeClass} ${iconColorClass}`} />
 			{children}
 		</div>

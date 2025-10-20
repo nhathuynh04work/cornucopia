@@ -1,22 +1,18 @@
-import { useTestEditorStore } from "../../../store/testEditorStore";
-import { useState } from "react";
+import { itemTypeEnum } from "@/lib/item.config";
 import ItemActions from "./ItemActions";
 import ItemIndex from "./ItemIndex";
-
-const baseClasses =
-	"rounded-md text-[12px] text-gray-700 cursor-pointer flex flex-col";
+import { useTestEditorStore } from "@/store/testEditorStore";
 
 function Item({ item }) {
-	const type = item?.type === "group" ? "group" : item?.questionType;
-	const isGroup = type === "group";
+	const isGroup = item.type === itemTypeEnum.GROUP;
 
 	const isOpen = useTestEditorStore((s) => s.isGroupOpen(item?.id));
 	const changeCurrentItem = useTestEditorStore((s) => s.changeCurrentItem);
 
-	const [hoveredMenu, setHoveredMenu] = useState(null);
-
 	return (
-		<div className={`${baseClasses} ${isGroup ? "border" : ""} min-w-0`}>
+		<div
+			className={`rounded-md text-[12px] text-gray-700 cursor-pointer flex flex-col min-w-0 
+                ${isGroup ? "border" : ""} `}>
 			<div
 				className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-100 transition"
 				onClick={() => changeCurrentItem(item?.id)}>
@@ -24,11 +20,7 @@ function Item({ item }) {
 				<ItemIndex item={item} />
 
 				{/* Right: Actions */}
-				<ItemActions
-					item={item}
-					hoveredMenu={hoveredMenu}
-					setHoveredMenu={setHoveredMenu}
-				/>
+				<ItemActions item={item} />
 			</div>
 
 			{/* Children */}

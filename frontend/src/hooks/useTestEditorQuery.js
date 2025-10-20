@@ -4,7 +4,7 @@ import { useTestEditorStore } from "../store/testEditorStore.js";
 import { useEffect } from "react";
 
 export function useTestEditorQuery(id) {
-	const loadTest = useTestEditorStore((s) => s.loadTest);
+	const setTest = useTestEditorStore((s) => s.setTest);
 
 	const query = useQuery({
 		queryKey: ["tests", id, "full"],
@@ -14,9 +14,9 @@ export function useTestEditorQuery(id) {
 	// Hydrate store when query resolves
 	useEffect(() => {
 		if (query.data) {
-			loadTest(query.data);
+			setTest(query.data);
 		}
-	}, [query.data, loadTest]);
+	}, [query.data, setTest]);
 
 	return query;
 }

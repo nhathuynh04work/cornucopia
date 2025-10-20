@@ -1,15 +1,16 @@
 import {
 	useAddOptionMutation,
 	useUpdateItemMutation,
-} from "../../hooks/useItemMutation";
-import ItemIndex from "../TestNav/ItemList/ItemIndex";
+} from "@/hooks/useItemMutation";
 import AnswerOption from "./AnswerOption";
 import DebouncedTextarea from "./DebouncedTextarea";
 import { MoveRight } from "lucide-react";
+import ItemIndex from "../ItemList/ItemIndex";
+import { itemTypeEnum } from "@/lib/item.config";
 
 function ItemEditor({ item }) {
 	const { mutate: addOption } = useAddOptionMutation(item.id);
-	const { mutate: updateItem } = useUpdateItemMutation(item);
+	const { mutate: updateItem } = useUpdateItemMutation(item.id);
 
 	return (
 		<>
@@ -28,7 +29,7 @@ function ItemEditor({ item }) {
 				/>
 			</div>
 
-			{item.questionType === "multiple_choice" && (
+			{item.type === itemTypeEnum.MULTIPLE_CHOICE && (
 				<div className="w-full flex flex-col gap-4 items-start">
 					{item.answerOptions.map((o, i) => (
 						<AnswerOption option={o} key={o.id} order={i} />

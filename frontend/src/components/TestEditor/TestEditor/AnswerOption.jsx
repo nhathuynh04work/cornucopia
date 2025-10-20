@@ -1,9 +1,7 @@
-import {
-	useDeleteOptionMutation,
-	useUpdateOptionMutation,
-} from "../../hooks/useOptionMutation";
+
+import { useDeleteOptionMutation, useUpdateOptionMutation } from "@/hooks/useOptionMutation";
 import DebouncedTextarea from "./DebouncedTextarea";
-import { X } from "lucide-react"; // Import the X icon
+import { X } from "lucide-react";
 
 function AnswerOption({ option, order }) {
 	const { mutate: updateOption } = useUpdateOptionMutation(option.id);

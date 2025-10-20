@@ -1,6 +1,6 @@
-import { useTestEditorStore } from "../../store/testEditorStore";
 import ItemEditor from "./ItemEditor";
 import GroupEditor from "./GroupEditor";
+import { useTestEditorStore } from "@/store/testEditorStore";
 
 function TestEditor() {
 	const currentItem = useTestEditorStore((s) => s.getCurrentItem());
