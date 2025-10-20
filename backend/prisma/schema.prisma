@@ -92,15 +92,17 @@ model Test {
 }
 
 model TestItem {
-    id           Int          @id @default(autoincrement())
-    testId       Int          @map("test_id")
-    parentItemId Int?         @map("parent_item_id")
-    type         TestItemType
-    text         String?
-    points       Decimal?     @default(1) @db.Decimal(5, 2)
-    sortOrder    Int?         @map("sort_order")
-    createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt    DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+    id                   Int          @id @default(autoincrement())
+    testId               Int          @map("test_id")
+    parentItemId         Int?         @map("parent_item_id")
+    type                 TestItemType
+    text                 String?
+    answer               String?
+    points               Decimal?     @default(1) @db.Decimal(5, 2)
+    allowMultipleCorrect Boolean?     @default(false) @map("allow_multiple_correct") 
+    sortOrder            Int?         @map("sort_order")
+    createdAt            DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt            DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
 
     test          Test           @relation(fields: [testId], references: [id], onDelete: Cascade)
     parent        TestItem?      @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
