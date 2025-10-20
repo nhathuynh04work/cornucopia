@@ -25,7 +25,7 @@ function UserDropdown({ user }) {
 	const { logout } = useAuth();
 
 	return (
-		<div className="absolute top-[calc(100%+12px)] right-0 flex flex-col w-64 shadow-xl bg-white border border-gray-200 rounded-lg overflow-hidden">
+		<div className="absolute top-[calc(100%+12px)] right-0 flex flex-col w-64 shadow-xl bg-white border border-gray-200 rounded-lg overflow-hidden z-20">
 			{/* Name & email */}
 			<NavButton
 				to="/profile"

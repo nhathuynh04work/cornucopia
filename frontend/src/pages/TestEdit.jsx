@@ -1,8 +1,8 @@
 import { useParams } from "react-router";
 import TestEditorNav from "../components/TestEditor/TestNav/TestEditorNav";
 import TestEditor from "../components/TestEditor/TestEditor/TestEditor";
-import TestItemSettings from "../components/TestEditor/TestItemSettings/TestItemSettings";
 import { useTestEditorQuery } from "@/hooks/useTestEditorQuery";
+import TestItemSettings from "@/components/TestEditor/TestItemSettings/TestItemSettings";
 
 function TestEdit() {
 	const { id } = useParams();
@@ -37,7 +37,7 @@ function TestEdit() {
 			</main>
 
 			{/* Settings panel */}
-			<aside className="col-span-2 border-l p-6">
+			<aside className="col-span-2 border-l overflow-hidden">
 				<TestItemSettings />
 			</aside>
 		</div>
