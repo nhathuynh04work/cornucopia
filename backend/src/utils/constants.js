@@ -1,0 +1,51 @@
+export const errorMessage = {
+	// Auth related
+	EXPIRED_TOKEN: "Token expired",
+	UNCONFIRMED_USER:
+		"Account not verified. Check your email for confirmation link",
+	EMAIL_REGISTERED: "Email already registered",
+
+	// Not found
+	USER_NOT_FOUND: "User not found",
+	TEST_NOT_FOUND: "Test not found",
+	SECTION_NOT_FOUND: "Section not found",
+	ITEM_NOT_FOUND: "Item not found",
+	OPTION_NOT_FOUND: "Option not found",
+
+	// Invalid
+	INVALID_TOKEN: "Token invalid",
+	INVALID_PASSWORD: "Password invalid",
+	INVALID_PARAMS: "Request params invalid",
+	INVALID_INPUT: "Input failed validation",
+
+	// Missing fields
+	MISSING_AUTH_HEADER: "Missing auth header",
+	MISSING_TOKEN: "Missing token",
+
+	// Default internal server error
+	INTERNAL_ERROR: "Internal server error",
+};
+
+export const providers = {
+	local: "local",
+	google: "google",
+};
+
+export const testItemTypes = {
+	// question types
+	MULTIPLE_CHOICE: "multiple_choice",
+	SHORT_ANSWER: "short_answer",
+
+	// structural types
+	GROUP: "group",
+};
+
+export const questionTypes = [
+	testItemTypes.MULTIPLE_CHOICE,
+	testItemTypes.SHORT_ANSWER,
+];
+
+export const expireTime = {
+	EMAIL_TOKEN: 24 * 60 * 60 * 1000, // 24h
+	JWT_TOKEN: "24h",
+};

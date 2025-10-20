@@ -25,13 +25,26 @@ export default function BlogDetail() {
   if (loading) return <p className="p-4">Loading...</p>;
   if (!post) return <p className="p-4">Không tìm thấy bài viết.</p>;
 
-  // normalize để không phụ thuộc backend định dạng
   const title = post.title;
   const coverUrl = post.coverUrl ?? post.cover_url ?? null;
-  const topicName =
-    (typeof post.topic === "string" ? post.topic : post.topic?.name) ??
-    post.topic_name ??
-    null;
+
+  // Chuẩn hoá topics => mảng [{id,name,slug}]
+  const topics =
+    Array.isArray(post.topics) && post.topics.length && post.topics[0]?.topic
+      ? post.topics.map((pt) => pt.topic)
+      : Array.isArray(post.topics)
+      ? post.topics
+      : post.topic
+      ? [
+          typeof post.topic === "string"
+            ? {
+                id: post.topic_id ?? null,
+                name: post.topic,
+                slug: post.topic_slug ?? null,
+              }
+            : post.topic,
+        ]
+      : [];
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
@@ -39,9 +52,17 @@ export default function BlogDetail() {
         ← Quay lại
       </Link>
 
-      {topicName && (
-        <div className="mt-4 text-xs font-semibold tracking-widest text-gray-500 uppercase">
-          {topicName}
+      {!!topics.length && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {topics.map((t) => (
+            <Link
+              key={t.id ?? t.slug ?? t.name}
+              to={t.slug ? `/topics/${t.slug}` : "#"}
+              className="text-xs font-semibold tracking-widest uppercase bg-blue-50 text-blue-700 px-2 py-1 rounded"
+            >
+              {t.name}
+            </Link>
+          ))}
         </div>
       )}
 

@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
 import { env } from "../config/env.js";
+import crypto from "crypto";
+import { expireTime } from "./constants.js";
 
 const transporter = nodemailer.createTransport({
 	service: "gmail",
@@ -8,6 +10,12 @@ const transporter = nodemailer.createTransport({
 		pass: env.SMTP_PASS,
 	},
 });
+
+export function createEmailToken() {
+	const token = crypto.randomBytes(32).toString("hex");
+	const expiresAt = new Date(Date.now() + expireTime.EMAIL_TOKEN);
+	return { token, expiresAt };
+}
 
 export async function sendConfirmationEmail(to, token) {
 	const url = `${env.APP_BASE_URL}/confirm?token=${token}`;

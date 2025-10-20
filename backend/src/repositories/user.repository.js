@@ -1,31 +1,44 @@
-import db from "../db/db.js";
+import prisma from "../prisma.js";
 
-export async function getUserByEmail(email) {
-	const result = await db.query(
-		"SELECT * FROM users WHERE email = $1 LIMIT 1",
-		[email]
-	);
-	return result.rows[0] || null;
+export async function findByEmail(email, client = prisma) {
+	return client.user.findUnique({
+		where: { email },
+		include: {
+			userRole: {
+				select: { role: true },
+			},
+		},
+	});
 }
 
-export async function getUserById(id) {
-	const result = await db.query(
-		"SELECT id, name, email, is_active, created_at FROM users WHERE id = $1",
-		[id]
-	);
-	return result.rows[0] || null;
+export async function findById(id, client = prisma) {
+	return client.user.findUnique({
+		where: { id },
+		include: {
+			userRole: {
+				select: { role: true },
+			},
+		},
+	});
 }
 
-export async function createUser(client, { name, email }) {
-	const result = await client.query(
-		"INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *",
-		[name, email]
-	);
-	return result.rows[0];
+export async function create(data, authData, client = prisma) {
+	return client.user.create({
+		data: {
+			...data,
+			userRole: {
+				create: { role: "user" },
+			},
+			authentication: {
+				create: authData,
+			},
+		},
+		include: {
+			userRole: { select: { role: true } },
+		},
+	});
 }
 
-export async function activateUser(client, { userId }) {
-	await client.query("UPDATE users SET is_active = TRUE WHERE id = $1", [
-		userId,
-	]);
+export async function activate(id, client = prisma) {
+	return client.user.update({ where: { id }, data: { isActive: true } });
 }

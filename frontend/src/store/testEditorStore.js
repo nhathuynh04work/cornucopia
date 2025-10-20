@@ -1,182 +1,91 @@
+import { itemTypeEnum } from "@/lib/item.config";
 import { create } from "zustand";
 
 export const useTestEditorStore = create((set, get) => ({
-	// --------------------------
-	// State
-	// --------------------------
-	test: null,
-	sections: [],
-	currentSectionIndex: 0,
+	// CORE STATE
+	test: {
+		items: [],
+	},
+	currentItemId: null,
 	groupOpenState: {},
 
-	// --------------------------
-	// Test helpers
-	// --------------------------
-	loadTest: (data) => {
-		const { testSections, ...test } = data;
+	// DERIVED STATE
+	_flatItems: [],
+	_flatQuestions: [],
+
+	// Test
+	setTest: (data) => {
+		const { flatItems, flatQuestions } = flattenTestItems(data?.items);
 		set({
-			test,
-			sections: testSections || [],
-			currentSectionIndex: 0,
-			groupOpenState: {},
+			test: data,
+			_flatItems: flatItems,
+			_flatQuestions: flatQuestions,
+			currentItemId: flatItems.some(
+				(item) => item.id === get().currentItemId
+			)
+				? get().currentItemId
+				: null,
 		});
 	},
 
-	updateTestSettings: (changes) => {
-		set((state) => {
-			if (!state.test) return {};
-			return {
-				test: { ...state.test, ...changes },
-				sections: state.sections, // preserve sections
-			};
-		});
+	updateTestSettings: (updated) => {
+		set((state) => ({ test: { ...state.test, ...updated } }));
 	},
 
-	// --------------------------
-	// Section helpers
-	// --------------------------
-	getCurrentSection: () => {
-		const sections = get().sections;
-		if (!sections.length) return null;
-		return sections[get().currentSectionIndex];
+	// Item
+	changeCurrentItem: (itemId) => {
+		set({ currentItemId: itemId });
 	},
 
-	changeCurrentSection: (index) => {
-		set((state) => {
-			if (index < 0 || index >= state.sections.length) return {};
-			return { currentSectionIndex: index };
-		});
+	getCurrentItem: () => {
+		const { currentItemId, _flatItems } = get();
+		if (!currentItemId) return undefined;
+		return _flatItems.find((item) => item.id === currentItemId);
 	},
 
-	getSectionsCount: () => get().sections.length,
+	getItemsFlattened: () => get()._flatItems,
 
-	addSection: (newSection) => {
-		set((state) => {
-			const sections = [...state.sections, newSection].sort(
-				(a, b) => a.sortOrder - b.sortOrder
-			);
-			return { sections };
-		});
-	},
-
-	deleteSection: (sectionId) => {
-		set((state) => {
-			const sections = state.sections.filter((_, i) => i !== sectionId);
-			return { sections };
-		});
-	},
-
-	// --------------------------
-	// Item helpers
-	// --------------------------
-	addItemToSection: (sectionId, newItem) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === sectionId);
-
-			section.items = section.items || [];
-			section.items.push(newItem);
-			section.items.sort((a, b) => a.sortOrder - b.sortOrder);
-
-			return { sections };
-		});
-	},
-
-	addChildToGroup: (sectionId, itemId, newChild) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === sectionId);
-			const group = section.items.find((item) => item.id === itemId);
-
-			if (group.type !== "group") return {};
-			group.children.push(newChild);
-			group.children.sort((a, b) => a.sortOrder - b.sortOrder);
-			return { sections };
-		});
-	},
-
-	deleteItemFromSection: (sectionId, itemId) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === sectionId);
-			if (!section) return {};
-
-			section.items = section.items.filter((item) => item.id !== itemId);
-			return { sections };
-		});
-	},
-
-	deleteChildFromGroup: (sectionId, groupId, childId) => {
-		set((state) => {
-			const sections = structuredClone(state.sections);
-			const section = sections.find((s) => s.id === sectionId);
-			if (!section) return {};
-
-			const group = section.items.find((i) => i.id === groupId);
-			if (!group || group.type !== "group") return {};
-
-			group.children = group.children.filter(
-				(child) => child.id !== childId
-			);
-
-			return { sections };
-		});
-	},
-
-	getQuestionsFlattened: () => {
-		const sections = get().sections;
-		const flat = [];
-		sections
-			.sort((a, b) => a.sortOrder - b.sortOrder)
-			.forEach((section) => {
-				(section.items || [])
-					.sort((a, b) => a.sortOrder - b.sortOrder)
-					.forEach((item) => {
-						if (item.type === "question") flat.push(item);
-						else if (item.type === "group") {
-							(item.children || [])
-								.sort((a, b) => a.sortOrder - b.sortOrder)
-								.forEach((child) => flat.push(child));
-						}
-					});
-			});
-		return flat;
-	},
+	getQuestionsFlattened: () => get()._flatQuestions,
 
 	getQuestionNumber: (questionId) => {
-		const ordered = get().getQuestionsFlattened();
-		const index = ordered.findIndex((q) => q.id === questionId);
+		const index = get()._flatQuestions.findIndex(
+			(q) => q.id === questionId
+		);
 		return index === -1 ? null : index + 1;
 	},
 
-	getGroupNumberRange: (sectionId, groupIndex) => {
-		const section = get().sections.find((s) => s.id === sectionId);
-		const group = section.items.find((item) => item.id === groupIndex);
-		if (!group?.children?.length) return [null, null];
-		const flat = get().getQuestionsFlattened();
-		const firstIndex = flat.findIndex((q) => q.id === group.children[0].id);
-		const lastIndex = flat.findIndex(
-			(q) => q.id === group.children[group.children.length - 1].id
+	getQuestionsCount: () => get()._flatQuestions.length,
+
+	getGroupNumberRange: (groupId) => {
+		const { _flatItems, _flatQuestions } = get();
+
+		// Find the group from the flattened list
+		const group = _flatItems.find((item) => item.id === groupId);
+
+		// Ensure it's a group and has children
+		if (!group || group.type !== "group" || !group.children?.length) {
+			return [null, null];
+		}
+
+		// Find the first + last child
+		const firstChild = group.children[0];
+		const lastChild = group.children[group.children.length - 1];
+
+		// Find index of first = last
+		const firstIndex = _flatQuestions.findIndex(
+			(q) => q.id === firstChild.id
 		);
+		const lastIndex = _flatQuestions.findIndex(
+			(q) => q.id === lastChild.id
+		);
+
 		return [
 			firstIndex === -1 ? null : firstIndex + 1,
 			lastIndex === -1 ? null : lastIndex + 1,
 		];
 	},
 
-	getAllQuestionNumbers: () => {
-		return get()
-			.getQuestionsFlattened()
-			.map((_, i) => i + 1);
-	},
-
-	getQuestionsCount: () => {
-		return get().getQuestionsFlattened().length;
-	},
-
-	// --------------------------
 	// Group open/close state
-	// --------------------------
 	toggleGroupOpen: (groupId) => {
 		set((state) => ({
 			groupOpenState: {
@@ -196,3 +105,25 @@ export const useTestEditorStore = create((set, get) => ({
 		return get().groupOpenState[groupId] ?? false;
 	},
 }));
+
+function flattenTestItems(items = []) {
+	const flatItems = items
+		.slice()
+		.sort((a, b) => a.sortOrder - b.sortOrder)
+		.flatMap((item) =>
+			item.type === itemTypeEnum.GROUP
+				? [
+						item,
+						...(item.children || [])
+							.slice()
+							.sort((a, b) => a.sortOrder - b.sortOrder),
+				  ]
+				: [item]
+		);
+
+	const flatQuestions = flatItems.filter(
+		(item) => item.type !== itemTypeEnum.GROUP
+	);
+
+	return { flatItems, flatQuestions };
+}

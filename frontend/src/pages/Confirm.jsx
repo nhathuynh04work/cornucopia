@@ -1,62 +1,65 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
-import { api } from "../apis/axios";
+import { Link, useLocation } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
+import { confirmEmail } from "../apis/authApi";
+import { ClipLoader } from "react-spinners";
 
 function Confirm() {
 	const location = useLocation();
 	const params = new URLSearchParams(location.search);
-	const token = params.get("token");
+	const confirmToken = params.get("token");
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
-	const [message, setMessage] = useState(null);
 
-	const { login } = useAuth();
-	const navigate = useNavigate();
+	const { setAuthenticatedSession } = useAuth();
 
-	// Confirm email on mount
-	useEffect(() => {
-		// If no token in query params, don’t even try request
-		if (!token) {
-			setError("Invalid confirmation link");
+	async function confirm() {
+		setLoading(true);
+
+		try {
+			const token = await confirmEmail(confirmToken);
+			await setAuthenticatedSession(token);
+		} catch (err) {
+			setError(err.message);
+		} finally {
 			setLoading(false);
-			return;
 		}
+	}
 
-		const confirmEmail = async () => {
-			try {
-				const res = await api.get("/auth/confirm", {
-					params: { token },
-				});
+	// Confirm on mount
+	useEffect(() => {
+		confirm();
+	}, []);
 
-				const { token: jwt } = res.data;
-				login(jwt);
+	if (loading)
+		return (
+			<div className="flex justify-center items-center h-screen">
+				<p className="text-lg text-gray-700">
+					Confirming your email...
+				</p>
+				<ClipLoader />
+			</div>
+		);
 
-				setMessage("Email confirmed successfully");
-				setError(null);
+	if (error)
+		return (
+			<div className="flex flex-col justify-center items-center h-screen gap-6 p-4 text-center">
+				<div className="max-w-md w-full bg-red-50 border border-red-200 rounded-lg p-6 shadow-sm">
+					<h2 className="text-xl font-semibold text-red-800 mb-3">
+						Confirmation Failed
+					</h2>
+					<p className="text-red-700">{error}</p>
+				</div>
+				<Link
+					to="/"
+					className="px-5 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors duration-150">
+					Back to Home
+				</Link>
+			</div>
+		);
 
-				navigate("/", { replace: true });
-			} catch (err) {
-				setError(err.response?.data?.error || "An error occurred");
-				setMessage(null);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		confirmEmail();
-	}, [token, login, navigate]);
-
-	if (loading) return <p>Confirming your email...</p>;
-
-	if (error) return <p style={{ color: "red" }}>{error}</p>;
-
-	return (
-		<p style={{ color: "green" }}>
-			{message}. Redirecting you to main page...
-		</p>
-	);
+	return null;
 }
 
 export default Confirm;
