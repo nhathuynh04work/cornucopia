@@ -29,13 +29,13 @@ export function TypeDropdown({ currentType, onChange }) {
 			{/* The dropdown button */}
 			<button
 				type="button"
-				onClick={() => setIsOpen(!isOpen)}
+				// onClick={() => setIsOpen(!isOpen)}
 				className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none flex justify-between items-center">
 				<div className="flex items-center gap-2">
 					<ItemTypeIcon type={currentType} small />
 					<span className="text-[12px]">{config.label}</span>
 				</div>
-				<ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+				{/* <ChevronDown className="w-3.5 h-3.5 text-gray-500" /> */}
 			</button>
 
 			{/* The dropdown menu */}

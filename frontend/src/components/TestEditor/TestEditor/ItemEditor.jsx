@@ -23,7 +23,7 @@ function ItemEditor({ item }) {
 					initialValue={item.text}
 					mutationFn={updateItem}
 					mutationKey="text"
-					className="flex-1 bg-transparent focus:outline-none focus:ring-0 resize-none field-sizing-content"
+					className="flex-1 bg-transparent focus:outline-none focus:ring-0 resize-none field-sizing-content text-gray-800 font-medium"
 					placeholder="Enter question text..."
 					rows={3}
 				/>
@@ -32,7 +32,12 @@ function ItemEditor({ item }) {
 			{item.type === itemTypeEnum.MULTIPLE_CHOICE && (
 				<div className="w-full flex flex-col gap-4 items-start">
 					{item.answerOptions.map((o, i) => (
-						<AnswerOption option={o} key={o.id} order={i} />
+						<AnswerOption
+							option={o}
+							key={o.id}
+							order={i}
+							optionCount={item.answerOptions.length}
+						/>
 					))}
 					<button
 						onClick={addOption}

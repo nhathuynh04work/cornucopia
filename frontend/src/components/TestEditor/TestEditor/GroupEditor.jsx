@@ -5,7 +5,7 @@ import ItemIndex from "../ItemList/ItemIndex";
 import { useUpdateItemMutation } from "@/hooks/useItemMutation";
 
 function GroupEditor({ item }) {
-	const { mutate: updateItem } = useUpdateItemMutation(item);
+	const { mutate: updateItem } = useUpdateItemMutation(item.id);
 
 	return (
 		<>
@@ -19,7 +19,7 @@ function GroupEditor({ item }) {
 					initialValue={item.text}
 					mutationFn={updateItem}
 					mutationKey="text"
-					className="flex-1 bg-transparent focus:outline-none focus:ring-0 resize-none field-sizing-content text-gray-800"
+					className="flex-1 bg-transparent focus:outline-none focus:ring-0 resize-none field-sizing-content text-gray-800 font-medium"
 					placeholder="Enter group instructions..."
 				/>
 			</div>

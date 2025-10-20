@@ -2,17 +2,17 @@ import { useTestEditorStore } from "../store/testEditorStore";
 import { useTestEditorMutation } from "./useTestEditorMutation";
 import * as optionApi from "../apis/optionApi";
 
-export function useUpdateOptionMutation(id) {
+export function useUpdateOptionMutation() {
 	const setTest = useTestEditorStore((s) => s.setTest);
 
 	return useTestEditorMutation({
-		mutationFn: (data) => optionApi.update(id, data),
+		mutationFn: ({ id, data }) => optionApi.update(id, data),
 
 		onSuccess: (test) => {
 			setTest(test);
 		},
 
-		successMessage: "Updated",
+		successMessage: "Option updated",
 		errorMessagePrefix: "Failed to update option",
 	});
 }
@@ -26,7 +26,7 @@ export function useDeleteOptionMutation(id) {
 		onSuccess: (test) => {
 			setTest(test);
 		},
-        
+
 		successMessage: "Removed",
 		errorMessagePrefix: "Failed to remove option",
 	});
