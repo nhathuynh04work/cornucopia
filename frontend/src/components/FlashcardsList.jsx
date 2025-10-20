@@ -3,7 +3,6 @@ import { useNavigate } from "react-router";
 import { api } from "../apis/axios";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-hot-toast";
-import ListItem from "../components/ListItem.jsx";
 import CreateListModal from "../components/CreateListModal.jsx";
 import EditListModal from "../components/EditListModal.jsx";
 
@@ -61,7 +60,8 @@ function FlashcardsList() {
     }
   }
 
-  if (loading) return <p className="text-center text-gray-500">Đang tải...</p>;
+  if (loading)
+    return <p className="text-center text-gray-500 mt-20">Đang tải...</p>;
 
   const totalLists = lists.length;
   const totalCards = lists.reduce(
@@ -70,45 +70,45 @@ function FlashcardsList() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 py-10">
+    <div className="min-h-screen bg-[#f5f7fa] text-gray-900 py-12">
       <div className="max-w-6xl mx-auto px-6">
-        {/* 👉 Thống kê tổng quan */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white shadow rounded-xl p-6 text-center">
+        {/* 🔹 Thống kê tổng quan */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-12">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-md transition">
             <p className="text-3xl font-bold text-blue-600">{totalLists}</p>
-            <p className="text-gray-500 mt-2">Danh sách</p>
+            <p className="text-gray-600 mt-1">Danh sách</p>
           </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-md transition">
             <p className="text-3xl font-bold text-green-600">{totalCards}</p>
-            <p className="text-gray-500 mt-2">Tổng số thẻ</p>
+            <p className="text-gray-600 mt-1">Tổng số thẻ</p>
           </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-md transition">
             <p className="text-3xl font-bold text-yellow-500">0</p>
-            <p className="text-gray-500 mt-2">Đã học</p>
+            <p className="text-gray-600 mt-1">Đã học</p>
           </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-md transition">
             <p className="text-3xl font-bold text-red-500">0</p>
-            <p className="text-gray-500 mt-2">Cần ôn tập</p>
+            <p className="text-gray-600 mt-1">Cần ôn tập</p>
           </div>
         </div>
 
-        {/* 👉 Tiêu đề + nút tạo list di chuyển xuống dưới */}
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">
+        {/* 🔹 Tiêu đề + nút tạo list */}
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">
+          <h2 className="text-3xl font-bold text-[#1a237e]">
             Danh sách Flashcard
           </h2>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="px-5 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 transition"
+            className="px-6 py-2 bg-[#4f75ff] hover:bg-[#3b5cff] text-white font-medium rounded-lg shadow transition"
           >
             + Tạo list mới
           </button>
         </div>
 
-        {/* Grid hiển thị danh sách */}
+        {/* 🔹 Danh sách flashcard */}
         {lists.length === 0 ? (
-          <p className="text-gray-600 text-center mt-10 text-lg">
-            Hiện tại bạn chưa có list nào — hãy tạo mới ngay nhé!
+          <p className="text-center text-gray-500 text-lg mt-16">
+            Bạn chưa có danh sách nào — hãy tạo mới ngay nhé!
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -116,49 +116,43 @@ function FlashcardsList() {
               const cleanTitle = list.title
                 ?.replace(/\s*\([^)]*\)\s*/g, "")
                 .trim();
+
               return (
                 <div
                   key={list.id}
-                  className="bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 p-6 flex flex-col justify-between"
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
                     <h4
                       onClick={() => navigate(`/lists/${list.id}/edit`)}
-                      className="text-lg font-semibold text-blue-700 hover:text-blue-800 cursor-pointer truncate"
+                      className="text-lg font-semibold text-[#1e3a8a] hover:text-[#002bff] cursor-pointer truncate"
                     >
-                      {cleanTitle || "List chưa được đặt tên"}
+                      {cleanTitle || "Danh sách chưa đặt tên"}
                     </h4>
                     <p className="text-gray-500 text-sm mt-2">
                       {list._count?.flashcards || 0} thẻ
                     </p>
                   </div>
 
-                  <div className="flex justify-between items-center mt-6">
+                  {/* Chỉ giữ lại 2 nút: sửa & xóa */}
+                  <div className="flex justify-end items-center gap-4 mt-6">
                     <button
-                      onClick={() => navigate(`/lists/${list.id}/practice`)}
-                      className="px-4 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+                      onClick={() => {
+                        setEditingList(list);
+                        setShowEditForm(true);
+                      }}
+                      className="text-gray-500 hover:text-yellow-500 transition"
+                      title="Chỉnh sửa"
                     >
-                      Học ngay
+                      ✏️
                     </button>
-                    <div className="flex gap-3 text-gray-500">
-                      <button
-                        onClick={() => {
-                          setEditingList(list);
-                          setShowEditForm(true);
-                        }}
-                        className="hover:text-yellow-500 transition"
-                        title="Chỉnh sửa"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => handleDeleteList(list.id)}
-                        className="hover:text-red-500 transition"
-                        title="Xoá"
-                      >
-                        🗑️
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleDeleteList(list.id)}
+                      className="text-gray-500 hover:text-red-500 transition"
+                      title="Xóa danh sách"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </div>
               );
@@ -166,7 +160,7 @@ function FlashcardsList() {
           </div>
         )}
 
-        {/* Modals */}
+        {/* 🔹 Modals */}
         {showCreateForm && (
           <CreateListModal
             onClose={() => setShowCreateForm(false)}

@@ -7,10 +7,11 @@ import {
 	uploadRouter,
 	optionRouter,
 	itemRouter,
-	postRouter,
-	topicRouter,
-	cardRouter,
-	listRouter,
+  postRouter, 
+  topicRouter,
+  cardRouter,
+  listRouter,
+  sessionRouter
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -42,6 +43,7 @@ app.use("/upload", uploadRouter);
 app.use("/tests", testRouter);
 app.use("/items", itemRouter);
 app.use("/options", optionRouter);
+app.use("/sessions", sessionRouter);
 
 // Handler riêng cho payload quá lớn (413)
 app.use((err, req, res, next) => {
