@@ -22,6 +22,11 @@ export default function FlashcardPractice() {
   const [studyDuration, setStudyDuration] = useState(null);
   const [isExitedEarly, setIsExitedEarly] = useState(false);
 
+  const [savedKnown, setSavedKnown] = useState([]);
+const [savedUnknown, setSavedUnknown] = useState([]);
+const [savedIndex, setSavedIndex] = useState(0);
+
+
   // 🟣 Lấy danh sách flashcards
   useEffect(() => {
     const fetchCards = async () => {
@@ -87,15 +92,22 @@ export default function FlashcardPractice() {
 
   // 🚪 Thoát giữa chừng
   async function handleExit() {
-    setIsExitedEarly(true);
-    setFinished(true);
-    const duration = await updateEndtime();
-    toast(
-      `🚪 Bạn đã thoát giữa chừng ⏱️ Thời gian học: ${
-        duration || "đang tính..."
-      }`
-    );
-  }
+  setIsExitedEarly(true);
+  setFinished(true);
+
+  // 🔹 Lưu tiến độ trước khi thoát
+  setSavedKnown([...known]);
+  setSavedUnknown([...unknown]);
+  setSavedIndex(currentIndex);
+
+  const duration = await updateEndtime();
+  toast(
+    `🚪 Bạn đã thoát giữa chừng ⏱️ Thời gian học: ${
+      duration || "đang tính..."
+    }`
+  );
+}
+
 
   // 🧠 Trả lời thẻ
   async function handleAnswer(isKnown) {
@@ -118,21 +130,42 @@ export default function FlashcardPractice() {
   }
 
   // 🔁 Học lại
-  function handleRestart() {
-    setIsFlipped(false);
+ async function handleRestart() {
+  setIsFlipped(false);
+  setFinished(false);
+  setStudyDuration(null);
+
+  if (isExitedEarly) {
+    // 🔹 Tiếp tục học từ chỗ cũ, không reset known/unknown
+    setIsExitedEarly(false);
+    setCurrentIndex(savedIndex);
+    setKnown(savedKnown);
+    setUnknown(savedUnknown);
+    toast("🔁 Tiếp tục học từ vị trí trước khi thoát!");
+  } else {
+    // 🔹 Học lại từ đầu → tạo session mới ở backend
+    setCurrentIndex(0);
     setKnown([]);
     setUnknown([]);
-    setFinished(false);
-    setStudyDuration(null);
 
-    if (isExitedEarly) {
-      setIsExitedEarly(false);
-      toast("🔁 Tiếp tục học từ vị trí trước khi thoát!");
-    } else {
-      setCurrentIndex(0);
-      toast("🔁 Bắt đầu học lại từ đầu!");
+    try {
+      const { data } = await api.post(`/lists/${listId}/sessions`, {
+        userId: session.userId, // dùng userId từ session cũ
+      });
+
+      toast.success("Đã bắt đầu buổi học mới!");
+
+      // 🔁 Điều hướng sang session mới
+      navigate(`/lists/${listId}/practice`, {
+        state: { session: data.session },
+      });
+    } catch (err) {
+      console.error("❌ Lỗi khi bắt đầu session mới:", err);
+      toast.error("Không thể bắt đầu buổi học mới");
     }
   }
+}
+
 
   if (cards.length === 0)
     return (
