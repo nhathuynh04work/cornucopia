@@ -32,14 +32,18 @@ export const providers = {
 };
 
 export const testItemTypes = {
-	QUESTION: "question",
+	// question types
+	MULTIPLE_CHOICE: "multiple_choice",
+	SHORT_ANSWER: "short_answer",
+
+	// structural types
 	GROUP: "group",
 };
 
-export const questionTypes = {
-	MULTIPLE_CHOICE: "multiple_choice",
-	SHORT_ANSWER: "short_answer",
-};
+export const questionTypes = [
+	testItemTypes.MULTIPLE_CHOICE,
+	testItemTypes.SHORT_ANSWER,
+];
 
 export const expireTime = {
 	EMAIL_TOKEN: 24 * 60 * 60 * 1000, // 24h

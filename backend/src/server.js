@@ -3,7 +3,6 @@ import cors from "cors";
 import { env } from "./config/env.js";
 import {
 	authRouter,
-	sectionRouter,
 	testRouter,
 	uploadRouter,
 	optionRouter,
@@ -41,7 +40,6 @@ app.use("/posts", postRouter);
 app.use("/topics", topicRouter);
 app.use("/upload", uploadRouter);
 app.use("/tests", testRouter);
-app.use("/sections", sectionRouter);
 app.use("/items", itemRouter);
 app.use("/options", optionRouter);
 

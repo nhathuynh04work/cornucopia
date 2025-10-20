@@ -86,24 +86,23 @@ model Test {
     timeLimit   Int?       @map("time_limit")
     createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
-    items       TestItem[] 
+    items       TestItem[]
 
     @@map("tests")
 }
 
 model TestItem {
-    id           Int           @id @default(autoincrement())
-    testId       Int           @map("test_id")
-    parentItemId Int?          @map("parent_item_id")
+    id           Int          @id @default(autoincrement())
+    testId       Int          @map("test_id")
+    parentItemId Int?         @map("parent_item_id")
     type         TestItemType
     text         String?
-    questionType QuestionType? @map("question_type")
-    points       Decimal?      @default(1) @db.Decimal(5, 2)
-    sortOrder    Int?          @map("sort_order")
-    createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt    DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+    points       Decimal?     @default(1) @db.Decimal(5, 2)
+    sortOrder    Int?         @map("sort_order")
+    createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-    test          Test           @relation(fields: [testId], references: [id], onDelete: Cascade) // Added
+    test          Test           @relation(fields: [testId], references: [id], onDelete: Cascade)
     parent        TestItem?      @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
     children      TestItem[]     @relation("ItemToChildren")
     answerOptions AnswerOption[]
@@ -127,20 +126,10 @@ model AnswerOption {
 
 enum TestItemType {
     group
-    question
-    instruction
-    media
-
-    @@map("enum_test_items_type")
-}
-
-enum QuestionType {
     multiple_choice
     short_answer
-    true_false
-    matching
 
-    @@map("enum_test_items_question_type")
+    @@map("enum_test_items_type")
 }
 
 model FlashcardList {
