@@ -1,8 +1,8 @@
 import { useParams } from "react-router";
-import { useTestEditorQuery } from "../hooks/useTestEditorQuery";
-import TestEditorNav from "../components/TestNav/TestEditorNav";
-import TestItemSettings from "../components/TestItemSettings";
-import TestEditor from "../components/TestEditor/TestEditor";
+import TestEditorNav from "../components/TestEditor/TestNav/TestEditorNav";
+import TestEditor from "../components/TestEditor/TestEditor/TestEditor";
+import TestItemSettings from "../components/TestEditor/TestItemSettings/TestItemSettings";
+import { useTestEditorQuery } from "@/hooks/useTestEditorQuery";
 
 function TestEdit() {
 	const { id } = useParams();

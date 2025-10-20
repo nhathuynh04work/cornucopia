@@ -1,5 +1,5 @@
 import prisma from "../prisma.js";
-import { questionTypes, testItemTypes } from "../utils/constants.js";
+import { testItemTypes } from "../utils/constants.js";
 
 export async function getTests(client = prisma) {
 	return client.test.findMany();
@@ -9,14 +9,9 @@ export async function create(data, client = prisma) {
 	return client.test.create({
 		data: {
 			...data,
-			testSections: {
+			items: {
 				create: {
-					items: {
-						create: {
-							type: testItemTypes.QUESTION,
-							questionType: questionTypes.MULTIPLE_CHOICE,
-						},
-					},
+					type: testItemTypes.MULTIPLE_CHOICE,
 				},
 			},
 		},
@@ -35,23 +30,18 @@ export async function getDetails(id, client = prisma) {
 	return await client.test.findUnique({
 		where: { id },
 		include: {
-			testSections: {
+			items: {
+				where: { parentItemId: null }, // only top-level items
 				orderBy: { sortOrder: "asc" },
 				include: {
-					items: {
-						where: { parentItemId: null }, // only top-level items
+					answerOptions: {
+						orderBy: { sortOrder: "asc" },
+					},
+					children: {
 						orderBy: { sortOrder: "asc" },
 						include: {
 							answerOptions: {
 								orderBy: { sortOrder: "asc" },
-							},
-							children: {
-								orderBy: { sortOrder: "asc" },
-								include: {
-									answerOptions: {
-										orderBy: { sortOrder: "asc" },
-									},
-								},
 							},
 						},
 					},
