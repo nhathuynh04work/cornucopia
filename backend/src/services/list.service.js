@@ -1,80 +1,35 @@
-import {
-  getCardsOfList,
-  createCard,
-  updateCard,
-} from "../repositories/card.repository.js";
-import {
-  createList,
-  getList,
-  getListsOfUser,
-  deleteList,
-  updateList,
-} from "../repositories/list.repository.js";
-import {
-  startSession,
-} from "../repositories/session.repository.js"
+import * as cardRepo from "../repositories/card.repository.js";
+import * as listRepo from "../repositories/list.repository.js";
+import * as sessionRepo from "../repositories/session.repository.js";
 
-export async function createListService({ userId, title }) {
-  return prisma.$transaction(async (client) => {
-    const list = await createList(client, { userId, title });
-
-    return list;
-  });
+export async function createList(data) {
+  return listRepo.createList(data);
 }
 
-export async function createCardService({ listId, term, definition }) {
-  return prisma.$transaction(async (client) => {
-    const card = await createCard(client, { listId, term, definition });
-    return card;
-  });
+export async function createCard(data) {
+  return cardRepo.createCard(data);
 }
 
-export async function updateCardService({ cardId, term, definition }) {
-  return prisma.$transaction(async (client) => {
-    const card = await updateCard(client, { cardId, term, definition });
-    return card;
-  });
+export async function updateCard(id, data) {
+  cardRepo.updateCard(id, data);
 }
 
-export async function getListInfoService({ listId }) {
-  return prisma.$transaction(async (client) => {
-    const listInfo = await getList(client, { listId });
-    const cards = await getCardsOfList(client, { listId });
-
-    return {
-      ...listInfo,
-      cards,
-    };
-  });
+export async function getListInfo(id) {
+  return await listRepo.findById(id);
 }
 
-export async function getListsOfUserService({ userId }) {
-  return prisma.$transaction(async (client) => {
-    const lists = await getListsOfUser(client, { userId });
-
-    return lists;
-  });
+export async function getListsOfUser(userId) {
+  return listRepo.getListsOfUser(userId);
 }
 
-export async function deleteListService({ listId }) {
-  return prisma.$transaction(async (client) => {
-    const deletedList = await deleteList(client, { listId });
-
-    return deletedList;
-  });
+export async function deleteList(id) {
+  listRepo.deleteList(id);
 }
 
-export async function updateListService({ listId, title }) {
-  return prisma.$transaction(async (client) => {
-    const updatedList = await updateList(client, { listId, title });
-
-    return updatedList;
-  });
+export async function updateList(id, data) {
+  return listRepo.updateList(id, data);
 }
 
-export async function startSessionService({ listId, userId }) {
-  return prisma.$transaction(async (client) => {
-    const session = await startSession(client, { listId, userId });
-    return session;
-  });
+export async function startSession(listId, userId) {
+    return await sessionRepo.startSession(listId, userId);
 }
