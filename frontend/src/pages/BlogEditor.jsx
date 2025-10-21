@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
 import RichTextEditor from "../components/RichTextEditor";
-import { api } from "../apis/axios";
 import TopicCreateModal from "../components/TopicCreateModal";
 import TopicsInput from "../components/TopicsInput";
+import { api } from "../apis/axios";
+import { normalizeTopics } from "../lib/post";
 import {
   FaSpinner,
   FaTrash,
@@ -19,18 +20,17 @@ export default function BlogEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [titleError, setTitleError] = useState("");
 
-  // state chính
+  // main state
   const [title, setTitle] = useState("");
-  const [contentHtml, setContentHtml] = useState(""); // nội dung richtext
-  const [status, setStatus] = useState("draft"); // 'draft' | 'published'
-  const [coverUrl, setCoverUrl] = useState(""); // URL ảnh bìa
+  const [contentHtml, setContentHtml] = useState("");
+  const [status, setStatus] = useState("draft");
+  const [coverUrl, setCoverUrl] = useState("");
 
-  // đổi từ 1 topic -> nhiều topic
-  const [selectedTopicIds, setSelectedTopicIds] = useState([]); // number[]
+  // topics
+  const [selectedTopicIds, setSelectedTopicIds] = useState([]);
   const [topics, setTopics] = useState([]);
   const [openCreateTopic, setOpenCreateTopic] = useState(false);
 
-  // Hàm lưu bài viết (PUT)
   const savePost = useCallback(
     async (currentStatus = status, shouldNavigate = false) => {
       const plain = contentHtml.replace(/<[^>]+>/g, "").trim();
@@ -38,9 +38,7 @@ export default function BlogEditor() {
         if (shouldNavigate) alert("Vui lòng nhập đầy đủ tiêu đề và nội dung!");
         return;
       }
-
       if (shouldNavigate) setIsSaving(true);
-
       try {
         const payload = {
           title: title.trim(),
@@ -49,21 +47,13 @@ export default function BlogEditor() {
             .trim()
             .toLowerCase(),
           coverUrl: coverUrl ?? null,
-          // gửi mảng topicIds
-          topicIds: Array.isArray(selectedTopicIds)
-            ? selectedTopicIds
-                .map((x) => Number(x))
-                .filter((x) => Number.isFinite(x))
-            : [],
+          topicIds: (selectedTopicIds || [])
+            .map((x) => Number(x))
+            .filter((x) => Number.isFinite(x)),
         };
         await api.put(`/posts/${id}`, payload);
-
         setStatus(payload.status);
-
-        if (!shouldNavigate) console.log("Auto-saved draft.");
-        if (shouldNavigate) {
-          navigate("/blog");
-        }
+        if (shouldNavigate) navigate("/blog");
       } catch (e) {
         console.error(
           "PUT /posts/:id failed",
@@ -84,16 +74,11 @@ export default function BlogEditor() {
     [title, contentHtml, status, coverUrl, selectedTopicIds, id, navigate]
   );
 
-  // AUTO-SAVE EFFECT
+  // Auto-save
   useEffect(() => {
     if (loading || isSaving || !id) return;
-
-    const timer = setTimeout(() => {
-      // Auto-save theo trạng thái hiện tại
-      savePost(status, false);
-    }, 5000);
-
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => savePost(status, false), 5000);
+    return () => clearTimeout(t);
   }, [
     title,
     contentHtml,
@@ -106,7 +91,7 @@ export default function BlogEditor() {
     savePost,
   ]);
 
-  // tải bài viết từ API
+  // load post
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -116,31 +101,10 @@ export default function BlogEditor() {
         setTitle(p?.title ?? "");
         setStatus(String(p?.status ?? "draft").toLowerCase());
         setCoverUrl(p?.coverUrl ?? p?.cover_url ?? "");
-
-        // Chuẩn hoá topics từ post -> mảng id
-        const loadedTopics =
-          Array.isArray(p?.topics) && p.topics.length && p.topics[0]?.topic
-            ? p.topics.map((pt) => pt.topic)
-            : Array.isArray(p?.topics)
-            ? p.topics
-            : p?.topic
-            ? [
-                typeof p.topic === "string"
-                  ? {
-                      id: p.topic_id ?? null,
-                      name: p.topic,
-                      slug: p.topic_slug ?? null,
-                    }
-                  : p.topic,
-              ]
-            : [];
-
+        const normalized = normalizeTopics(p.topics ? p : { topic: p.topic });
         setSelectedTopicIds(
-          loadedTopics
-            .map((t) => Number(t.id))
-            .filter((x) => Number.isFinite(x))
+          normalized.map((t) => Number(t.id)).filter((x) => Number.isFinite(x))
         );
-
         setContentHtml(p?.content ?? "");
       } catch (e) {
         console.error(e);
@@ -158,8 +122,6 @@ export default function BlogEditor() {
         const { data } = await api.get("/topics");
         const list = Array.isArray(data) ? data : data.topics || [];
         setTopics(list);
-
-        // nếu chưa chọn topic nào, có thể set mặc định topic đầu
         if (
           (!selectedTopicIds || selectedTopicIds.length === 0) &&
           list[0]?.id
@@ -173,13 +135,11 @@ export default function BlogEditor() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Tạo topic thành công: thêm vào list và chọn ngay
   const handleTopicCreated = (t) => {
     if (!t?.id) return;
-    setTopics((prev) => {
-      const exists = prev.some((x) => x.id === t.id);
-      return exists ? prev : [t, ...prev];
-    });
+    setTopics((prev) =>
+      prev.some((x) => x.id === t.id) ? prev : [t, ...prev]
+    );
     setSelectedTopicIds((prev) =>
       prev.includes(Number(t.id)) ? prev : [Number(t.id), ...prev]
     );
@@ -192,31 +152,23 @@ export default function BlogEditor() {
       setTopics((prev) =>
         prev.some((x) => x.id === t.id) ? prev : [t, ...prev]
       );
-      return t; // để TopicsInput add vào selected
+      return t;
     }
     throw new Error("Create topic failed");
   };
 
-  // Xóa topic đang chọn (xóa hẳn entity topic)
   const handleDeleteTopic = async () => {
     if (!selectedTopicIds.length) return;
     const currentId = selectedTopicIds[0];
     const topic = topics.find((t) => Number(t.id) === Number(currentId));
     const name = topic?.name || `#${currentId}`;
-    if (
-      !confirm(
-        `Xóa chủ đề "${name}"?\nCác bài viết đang gắn chủ đề này sẽ KHÔNG bị xóa, chỉ bị gỡ khỏi chủ đề.`
-      )
-    )
+    if (!confirm(`Xóa chủ đề "${name}"?\nCác bài viết sẽ KHÔNG bị xóa.`))
       return;
-
     try {
       await api.delete(`/topics/${currentId}`);
-      // cập nhật danh sách topics
       setTopics((prev) =>
         prev.filter((t) => Number(t.id) !== Number(currentId))
       );
-      // bỏ khỏi selection
       setSelectedTopicIds((prev) =>
         prev.filter((id) => Number(id) !== Number(currentId))
       );
@@ -232,7 +184,6 @@ export default function BlogEditor() {
     }
   };
 
-  // chọn ảnh bìa
   const onPickCover = (file) => {
     if (!file) return;
     const reader = new FileReader();
@@ -244,17 +195,18 @@ export default function BlogEditor() {
   const publish = () => savePost("published", true);
   const saveDraftAndNavigate = () => savePost("draft", true);
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <FaSpinner className="animate-spin text-4xl text-gray-400 mb-2" />
         <p className="text-lg text-gray-500">Đang tải dữ liệu...</p>
       </div>
     );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* --- TOP NAVBAR --- */}
+      {/* Nav */}
       <nav className="flex items-center justify-between p-4 bg-white shadow sticky top-0 z-10 border-b border-gray-200">
         <div className="flex items-center space-x-4">
           <span
@@ -264,7 +216,6 @@ export default function BlogEditor() {
           >
             Blog Editor
           </span>
-          {/* Trạng thái lưu tự động */}
           {isSaving && (
             <span className="flex items-center gap-1 text-green-500 animate-pulse">
               <FaSpinner className="animate-spin" /> Đang lưu...
@@ -289,24 +240,22 @@ export default function BlogEditor() {
           <button
             onClick={publish}
             disabled={isSaving}
-            className="px-5 py-2 rounded-md bg-black text-white hover:bg-blue-700 transition-colors flex items-center font-semibold shadow"
-            title="Đăng bài viết lên blog"
+            className="px-5 py-2 rounded-md bg-black text-white hover:bg-blue-700 transition-colors font-semibold shadow"
           >
             Publish
           </button>
           <button
             onClick={saveDraftAndNavigate}
             disabled={isSaving}
-            className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors flex items-center text-sm font-medium shadow"
-            title="Lưu nháp và quay lại danh sách"
+            className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors text-sm font-medium shadow"
           >
             Save Draft
           </button>
         </div>
       </nav>
-      {/* ----------------------- */}
+
       <div className="max-w-4xl mx-auto p-8">
-        {/* --- PHẦN COVER IMAGE --- */}
+        {/* Cover */}
         <div className="mb-8">
           <p className="font-medium mb-2 text-lg">Ảnh bìa (Cover Image)</p>
           <div className="relative border-2 border-blue-200 border-dashed rounded-lg aspect-[4/1] grid place-items-center cursor-pointer hover:bg-blue-50 overflow-hidden bg-white shadow">
@@ -342,18 +291,18 @@ export default function BlogEditor() {
             )}
           </div>
         </div>
-        {/* Tiêu đề */}
+
+        {/* Title */}
         <div className="mb-8">
           <input
             type="text"
             placeholder="Tiêu đề bài viết (tối thiểu 5 ký tự)"
             value={title}
             onChange={(e) => {
-              setTitle(e.target.value);
+              const v = e.target.value;
+              setTitle(v);
               setTitleError(
-                e.target.value.length < 5
-                  ? "Tiêu đề phải có ít nhất 5 ký tự."
-                  : ""
+                v.length < 5 ? "Tiêu đề phải có ít nhất 5 ký tự." : ""
               );
             }}
             className={`w-full border border-blue-200 rounded p-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white shadow-sm ${
@@ -367,17 +316,19 @@ export default function BlogEditor() {
             </p>
           )}
         </div>
+
         {/* Editor */}
         <div className="mb-10">
           <RichTextEditor value={contentHtml} onChange={setContentHtml} />
         </div>
-        {/* --- PHẦN TOPIC (nhiều lựa chọn) --- */}
+
+        {/* Topics */}
         <div className="bg-white p-4 rounded-lg shadow border border-blue-100 mb-8">
           <TopicsInput
             allTopics={topics}
-            value={selectedTopicIds} // state mảng id bạn đã có
-            onChange={setSelectedTopicIds} // cập nhật state
-            onCreate={createTopicInline} // tạo topic mới khi Enter
+            value={selectedTopicIds}
+            onChange={setSelectedTopicIds}
+            onCreate={createTopicInline}
             label="Chủ đề"
             placeholder="Nhập để tìm, Enter để thêm…"
           />
@@ -400,7 +351,7 @@ export default function BlogEditor() {
             </button>
           </div>
         </div>
-        {/* Modal tạo Topic */}
+
         <TopicCreateModal
           open={openCreateTopic}
           onClose={() => setOpenCreateTopic(false)}

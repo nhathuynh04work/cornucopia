@@ -1,5 +1,3 @@
-/* Repository cho Post theo quan hệ M↔N (Post ⟷ Topic qua PostTopic) */
-
 function normalizePostTopics(p) {
   if (!p) return p;
   const topics =
@@ -13,58 +11,30 @@ function normalizePostTopics(p) {
 
 /* Tạo mới một bài viết (Post)
  * Trả về bài viết kèm thông tin tác giả (author) và danh sách chủ đề (topics: Topic[]) */
-export async function createPost(
-  client,
-  { slug, title, content, authorId, topicIds = [], coverUrl = null }
-) {
-  const created = await client.post.create({
-    data: {
-      authorId,
-      title,
-      slug,
-      content,
-      status: "draft",
-      publishedAt: null,
-      coverUrl,
-      ...(Array.isArray(topicIds) && topicIds.length
-        ? {
-            topics: {
-              create: topicIds.map((tid) => ({
-                topic: { connect: { id: Number(tid) } },
-              })),
-            },
-          }
-        : {}),
-    },
-    include: {
-      author: { select: { id: true, name: true, email: true } },
-      topics: {
-        include: { topic: { select: { id: true, name: true, slug: true } } },
-      },
-    },
-  });
-  return normalizePostTopics(created);
+export async function createPost(data, client = prisma) {
+  return client.post.create({ data });
 }
 
 /* Lấy thông tin một bài viết theo ID (include author + topics) */
-export async function getPostById(client, { id }) {
+export async function findById(id, client = prisma) {
   const row = await client.post.findUnique({
     where: { id },
     include: {
-      author: { select: { id: true, name: true, email: true } },
+      author: true,
       topics: {
-        include: { topic: { select: { id: true, name: true, slug: true } } },
+        include: { topic: true },
       },
     },
   });
+
   return normalizePostTopics(row);
 }
 
 /* Lấy tất cả các bài viết (order by publishedAt desc, createdAt desc) */
-export async function getAllPosts(client) {
+export async function getAllPosts(client = prisma) {
   const rows = await client.post.findMany({
     include: {
-      author: { select: { id: true, name: true, email: true } },
+      author: true,
       topics: {
         include: { topic: { select: { id: true, name: true, slug: true } } },
       },
@@ -75,56 +45,29 @@ export async function getAllPosts(client) {
 }
 
 /* Xóa bài viết theo ID */
-export async function deletePostById(client, { id }) {
-  try {
-    const deleted = await client.post.delete({
-      where: { id },
-      select: { id: true },
-    });
-    return deleted.id;
-  } catch {
-    return null;
-  }
+export async function deletePostById(id, client = prisma) {
+  await client.post.delete({ where: { id } });
 }
 
-/* Cập nhật nội dung bài viết */
-export async function updatePostById(
-  client,
-  { id, title, content, status, coverUrl = null, topicIds }
-) {
-  const existing = await client.post.findUnique({
-    where: { id },
-    select: { publishedAt: true },
-  });
-  if (!existing) return null;
-
-  let nextPublishedAt = existing.publishedAt;
-  if (status === "published") {
-    if (!existing.publishedAt) nextPublishedAt = new Date();
-  } else {
-    nextPublishedAt = null;
-  }
-
-  const data = {
-    title,
-    content,
-    status,
-    coverUrl,
-    publishedAt: nextPublishedAt,
-  };
-
-  if (Array.isArray(topicIds)) {
-    data.topics = {
-      deleteMany: {}, // xoá toàn bộ liên kết cũ
-      create: topicIds.map((tid) => ({
-        topic: { connect: { id: Number(tid) } },
-      })),
-    };
-  }
-
-  const updated = await client.post.update({
+export async function updatePostBase(id, data, client = prisma) {
+  return client.post.update({
     where: { id },
     data,
+  });
+}
+
+// Thay toàn bộ topics của post = topicIds (đã chuẩn hoá)
+export async function replacePostTopics(id, topicIds, client = prisma) {
+  return client.post.update({
+    where: { id },
+    data: {
+      topics: {
+        deleteMany: {}, // xoá toàn bộ liên kết cũ
+        create: topicIds.map((tid) => ({
+          topic: { connect: { id: Number(tid) } },
+        })),
+      },
+    },
     include: {
       author: { select: { id: true, name: true, email: true } },
       topics: {
@@ -132,7 +75,6 @@ export async function updatePostById(
       },
     },
   });
-  return normalizePostTopics(updated);
 }
 
 /*Lấy danh sách bài viết theo slug của topic*/

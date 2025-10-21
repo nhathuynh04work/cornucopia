@@ -2,12 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import { api } from "../apis/axios";
 import BlogList from "../components/BlogList";
-
-const stripHtml = (html = "") =>
-  String(html)
-    .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+import { stripHtml } from "../lib/text";
 
 export default function TopicPage() {
   const { slug } = useParams();
@@ -16,19 +11,16 @@ export default function TopicPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!slug) return; // chưa có slug thì bỏ qua
+    if (!slug) return;
     (async () => {
       setLoading(true);
       try {
-        // Lấy info topic (optional)
         try {
           const { data } = await api.get(`/topics/${encodeURIComponent(slug)}`);
           setTopic(data?.topic || data);
         } catch {
           setTopic(null);
         }
-
-        // Lấy posts theo topic
         const { data: dp } = await api.get(
           `/topics/${encodeURIComponent(slug)}/posts`
         );

@@ -26,25 +26,8 @@ export default function BlogDetail() {
   if (!post) return <p className="p-4">Không tìm thấy bài viết.</p>;
 
   const title = post.title;
-  const coverUrl = post.coverUrl ?? post.cover_url ?? null;
-
-  // Chuẩn hoá topics => mảng [{id,name,slug}]
-  const topics =
-    Array.isArray(post.topics) && post.topics.length && post.topics[0]?.topic
-      ? post.topics.map((pt) => pt.topic)
-      : Array.isArray(post.topics)
-      ? post.topics
-      : post.topic
-      ? [
-          typeof post.topic === "string"
-            ? {
-                id: post.topic_id ?? null,
-                name: post.topic,
-                slug: post.topic_slug ?? null,
-              }
-            : post.topic,
-        ]
-      : [];
+  const coverUrl = post.coverUrl ?? null;
+  const topics = Array.isArray(post.topics) ? post.topics : [];
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">

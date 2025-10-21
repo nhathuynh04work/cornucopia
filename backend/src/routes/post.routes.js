@@ -1,17 +1,29 @@
 import { Router } from "express";
-import {
-  getPostController,
-  createDefaultPostController,
-  getPostsController,
-  deletePostController,
-  updatePostController,
-} from "../controllers/post.controller.js";
+import * as postController from "../controllers/post.controller.js";
+import { authenticateJWT } from "../middlewares/authMiddleware.js";
+import { validateParams } from "../middlewares/validateParams.js";
+import { validateSchema } from "../middlewares/validateSchema.js";
+import { UpdatePostSchema } from "../schemas/post.schema.js";
 
 const router = Router();
 
-router.get("/:id", getPostController);
-router.post("/", createDefaultPostController);
-router.get("/", getPostsController);
-router.delete("/:id", deletePostController);
-router.put("/:id", updatePostController);
+router.get("/", postController.getPosts);
+router.get("/:id", validateParams(["id"]), postController.getPost);
+router.post("/", authenticateJWT, postController.createDefaultPost);
+
+router.put(
+  "/:id",
+  authenticateJWT,
+  validateParams(["id"]),
+  validateSchema(UpdatePostSchema),
+  postController.updatePost
+);
+
+router.delete(
+  "/:id",
+  authenticateJWT,
+  validateParams(["id"]),
+  postController.deletePost
+);
+
 export default router;

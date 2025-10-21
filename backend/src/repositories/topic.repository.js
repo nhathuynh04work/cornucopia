@@ -1,12 +1,10 @@
 import prisma from "../prisma.js";
 
-/* Lấy danh sách tất cả chủ đề (topics) kèm số lượng bài viết đã được publish */
 export async function listTopicsWithCount(client = prisma) {
   const topics = await client.topic.findMany({
     include: {
       posts: {
         where: { post: { status: "published" } },
-        select: { postId: true },
       },
     },
     orderBy: { name: "asc" },
@@ -21,55 +19,41 @@ export async function listTopicsWithCount(client = prisma) {
   }));
 }
 
-/* Tìm một topic theo slug */
-export async function findTopicBySlug(client = prisma, slug) {
-  const topic = await client.topic.findUnique({
+export async function findTopicBySlug(slug, client = prisma) {
+  return client.topic.findUnique({
     where: { slug },
-    select: { id: true, name: true, slug: true, description: true },
   });
-  return topic || null;
 }
 
-/* Tạo topic */
-export async function createTopic(
-  client = prisma,
-  { name, slug, description }
-) {
+export async function createTopic(data, client = prisma) {
   return client.topic.create({
-    data: { name, slug, description },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      createdAt: true,
+    data,
+  });
+}
+
+export async function deleteTopicById(id, client = prisma) {
+  await client.topic.delete({ where: { id } });
+}
+
+export async function listPostsByTopicSlug(
+  slug,
+  offset = 0,
+  limit = 50,
+  client = prisma
+) {
+  return client.post.findMany({
+    where: {
+      status: "published",
+      topics: { some: { topic: { slug } } },
     },
-  });
-}
-
-/* Xóa topic theo id */
-export async function deleteTopicById(client = prisma, id) {
-  return client.topic.delete({
-    where: { id },
-    select: { id: true, name: true, slug: true },
-  });
-}
-
-export async function listPostsByTopicSlug(client = prisma, slug) {
-  const topic = await client.topic.findUnique({
-    where: { slug },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    skip: offset,
+    take: limit,
     include: {
-      posts: {
-        include: {
-          post: true, // lấy bản ghi Post thực
-        },
+      author: true,
+      topics: {
+        include: { topic: true },
       },
     },
   });
-  if (!topic) return [];
-
-  // Trả ra mảng Post (có thể lọc status ở đây nếu muốn)
-  return topic.posts
-    .map((pt) => pt.post)
-    .filter((p) => p.status === "published");
 }
