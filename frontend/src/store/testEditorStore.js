@@ -20,11 +20,7 @@ export const useTestEditorStore = create((set, get) => ({
 			test: data,
 			_flatItems: flatItems,
 			_flatQuestions: flatQuestions,
-			currentItemId: flatItems.some(
-				(item) => item.id === get().currentItemId
-			)
-				? get().currentItemId
-				: null,
+			currentItemId: flatItems[0].id,
 		});
 	},
 

@@ -43,10 +43,13 @@ export async function getDetails(id, client = prisma) {
 							answerOptions: {
 								orderBy: { sortOrder: "asc" },
 							},
+							media: true,
 						},
 					},
+					media: true,
 				},
 			},
+			media: true,
 		},
 	});
 }

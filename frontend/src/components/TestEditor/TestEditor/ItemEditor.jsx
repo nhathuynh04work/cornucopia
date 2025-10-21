@@ -7,6 +7,7 @@ import DebouncedTextarea from "./DebouncedTextarea";
 import { MoveRight } from "lucide-react";
 import ItemIndex from "../ItemList/ItemIndex";
 import { itemTypeEnum } from "@/lib/item.config";
+import MediaList from "../TestItemSettings/MediaList";
 
 function ItemEditor({ item }) {
 	const { mutate: addOption } = useAddOptionMutation(item.id);
@@ -30,7 +31,7 @@ function ItemEditor({ item }) {
 			</div>
 
 			{item.type === itemTypeEnum.MULTIPLE_CHOICE && (
-				<div className="w-full flex flex-col gap-4 items-start">
+				<div className="w-full flex flex-col gap-4 items-start mb-6">
 					{item.answerOptions.map((o, i) => (
 						<AnswerOption
 							option={o}
@@ -47,6 +48,8 @@ function ItemEditor({ item }) {
 					</button>
 				</div>
 			)}
+
+			<MediaList media={item.media} layout="list" />
 		</>
 	);
 }
