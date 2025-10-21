@@ -22,6 +22,7 @@ import AuthCallback from "./pages/AuthCallback";
 import TestEdit from "./pages/TestEdit";
 import TestInfo from "./pages/TestInfo";
 import FlashcardPractice from "./components/FlashcardPractice";
+import TestAttempt from "./pages/TestAttempt";
 
 function App() {
 	return (
@@ -48,17 +49,16 @@ function App() {
 					<Route path="courses" element={<Courses />} />
 				</Route>
 				<Route path="tests/:id/edit" element={<TestEdit />} />
+				<Route path="tests/:id/attempt" element={<TestAttempt />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
 
-				{/* Route flashcards */}
 				<Route path="flashcards" element={<Flashcards />} />
 				<Route
 					path="lists/:listId/edit"
 					element={<FlashcardsDetail />}
 				/>
 
-				{/* ROUTE LUYENTAP */}
 				<Route
 					path="/lists/:listId/practice"
 					element={<FlashcardPractice />}

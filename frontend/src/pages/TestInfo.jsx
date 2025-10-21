@@ -1,16 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
-import { fetchTestBasicInfo } from "../apis/testApi";
 import NavButton from "../components/NavButton";
+import { useTestLiteQuery } from "@/hooks/useTestQuery";
 
 function TestInfo() {
 	const { id } = useParams();
-	const { data: test, isLoading } = useQuery({
-		queryKey: ["tests", id, "lite"],
-		queryFn: () => fetchTestBasicInfo(id),
-	});
+	const { data: test, isPending } = useTestLiteQuery(id);
 
-	if (isLoading) {
+	if (isPending) {
 		return <p>Loading...</p>;
 	}
 
@@ -21,6 +17,7 @@ function TestInfo() {
 				<p>{test.id}</p>
 				<p>{test.title}</p>
 				<NavButton to={`/tests/${id}/edit`}>Edit</NavButton>
+				<NavButton to={`/tests/${id}/attempt`}>Take test</NavButton>
 			</div>
 			<div className="w-1/6">Left side</div>
 		</div>

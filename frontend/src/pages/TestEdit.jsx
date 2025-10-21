@@ -1,7 +1,7 @@
 import { Navigate, useParams } from "react-router";
 import TestEditorNav from "../components/TestEditor/TestNav/TestEditorNav";
 import TestEditor from "../components/TestEditor/TestEditor/TestEditor";
-import { useTestEditorQuery } from "@/hooks/useTestEditorQuery";
+import { useTestEditorQuery } from "@/hooks/useTestQuery";
 import TestItemSettings from "@/components/TestEditor/TestItemSettings/TestItemSettings";
 import { useAuth } from "@/contexts/AuthContext";
 
