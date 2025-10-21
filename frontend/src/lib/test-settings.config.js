@@ -1,7 +1,7 @@
 export const SETTINGS_TABS = {
 	GENERAL: "general",
 	GRADING: "grading",
-	LANGUAGE: "language",
+	MEDIA: "media",
 };
 
 export const settingsMenu = [
@@ -14,7 +14,7 @@ export const settingsMenu = [
 		label: "Grading",
 	},
 	{
-		key: SETTINGS_TABS.LANGUAGE,
-		label: "Language",
+		key: SETTINGS_TABS.MEDIA,
+		label: "Media",
 	},
 ];

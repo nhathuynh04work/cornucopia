@@ -14,14 +14,15 @@ export default function MediaItem({ media, className }) {
 		deleteMedia(id);
 	}
 
-	const defaultStyles =
-		"relative w-full rounded-md overflow-hidden group";
+	// Combine default styles with the passed-in className
+	const defaultStyles = "relative w-full rounded-md overflow-hidden group";
 	const combinedClassName = `${defaultStyles} ${className || ""}`;
 
 	return (
 		<div className={combinedClassName}>
 			<MediaRenderer media={media} />
 
+			{/* Delete button (show on hover) */}
 			<button
 				type="button"
 				onClick={handleDelete}

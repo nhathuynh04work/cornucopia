@@ -7,7 +7,7 @@ import DebouncedTextarea from "./DebouncedTextarea";
 import { MoveRight } from "lucide-react";
 import ItemIndex from "../ItemList/ItemIndex";
 import { itemTypeEnum } from "@/lib/item.config";
-import MediaList from "../TestItemSettings/MediaList";
+import MediaList from "@/components/Media/MediaList";
 
 function ItemEditor({ item }) {
 	const { mutate: addOption } = useAddOptionMutation(item.id);

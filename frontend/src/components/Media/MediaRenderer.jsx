@@ -28,7 +28,7 @@ export default function MediaRenderer({ media }) {
 			<img
 				src={fetchUrl}
 				alt={s3Key}
-				className="object-cover w-full h-full border rounded-md"
+				className="object-contain w-full h-full border rounded-md bg-gray-100"
 			/>
 		);
 	}
@@ -38,14 +38,14 @@ export default function MediaRenderer({ media }) {
 			<video
 				src={fetchUrl}
 				controls
-				className="object-cover w-full h-full"
+				className="object-contain w-full h-full bg-black"
 			/>
 		);
 	}
 
 	if (fileType.startsWith("audio/")) {
 		return (
-			<div className="flex items-center justify-center w-full h-full p-2">
+			<div className="flex items-center justify-center w-full h-full p-2 bg-gray-100">
 				<audio src={fetchUrl} controls className="w-full" />
 			</div>
 		);

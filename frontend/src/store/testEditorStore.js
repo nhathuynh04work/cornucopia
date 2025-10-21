@@ -20,7 +20,6 @@ export const useTestEditorStore = create((set, get) => ({
 			test: data,
 			_flatItems: flatItems,
 			_flatQuestions: flatQuestions,
-			currentItemId: flatItems[0].id,
 		});
 	},
 
@@ -35,7 +34,7 @@ export const useTestEditorStore = create((set, get) => ({
 
 	getCurrentItem: () => {
 		const { currentItemId, _flatItems } = get();
-		if (!currentItemId) return undefined;
+		if (!currentItemId) return _flatItems[0];
 		return _flatItems.find((item) => item.id === currentItemId);
 	},
 

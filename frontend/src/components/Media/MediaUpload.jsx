@@ -1,29 +1,26 @@
 import { useState, useRef } from "react";
-import {
-	useLinkMediaMutation,
-	useRequestUploadUrlMutation,
-} from "@/hooks/useMediaMutation";
+import { useRequestUploadUrlMutation } from "@/hooks/useMediaMutation";
 
-export function MediaUpload({
-	entityId,
-	entityType,
+export default function MediaUpload({
 	children,
 	onUploadStart,
 	onUploadSuccess,
 	onUploadError,
+	disabled = false,
 }) {
 	const [isUploading, setIsUploading] = useState(false);
 	const inputRef = useRef(null);
 
+	const isDisabled = isUploading || disabled;
+
 	const { mutateAsync: requestUpload } = useRequestUploadUrlMutation();
-	const { mutate: linkMedia } = useLinkMediaMutation();
 
 	async function handleFileChange(event) {
 		const file = event.target.files?.[0];
 		if (!file) return;
 
 		setIsUploading(true);
-		onUploadStart?.(); // Notify parent: "Uploading started"
+		onUploadStart?.();
 
 		try {
 			// Step 1: Request a secure upload URL
@@ -45,26 +42,15 @@ export function MediaUpload({
 				throw new Error("S3 upload failed");
 			}
 
-			// Step 3: Link the media in our database
-			linkMedia(
-				{
-					s3Key: key,
-					fileType: file.type,
-					entityType,
-					entityId,
-				},
-				{
-					onSuccess: () => {
-						onUploadSuccess?.(); // Notify parent: "Success!"
-					},
-				}
-			);
+			// Step 3: Notify the parent with the S3 data.
+			// The parent will now handle linking.
+			onUploadSuccess?.({ s3Key: key, fileType: file.type });
 		} catch (err) {
-			console.error(err);
 			onUploadError?.(err.message || "Upload failed");
 		} finally {
 			setIsUploading(false);
-			// Clear the input value so the user can upload the same file again
+
+            // Reset input so user can upload the same file again
 			if (inputRef.current) {
 				inputRef.current.value = "";
 			}
@@ -73,25 +59,22 @@ export function MediaUpload({
 
 	return (
 		<>
-			{/* The hidden file input */}
 			<input
 				type="file"
 				ref={inputRef}
 				onChange={handleFileChange}
 				className="hidden"
 				accept="image/png, image/jpeg, image/gif, video/mp4, audio/mp3"
-				disabled={isUploading}
+				disabled={isDisabled}
 			/>
-
-			{/* Trigger the hidden input */}
 			<div
-				onClick={() => inputRef.current?.click()}
+				onClick={() => !isDisabled && inputRef.current?.click()}
 				className={`transition ${
-					isUploading
+					isDisabled
 						? "opacity-50 cursor-not-allowed"
 						: "cursor-pointer"
 				}`}
-				aria-disabled={isUploading}>
+				aria-disabled={isDisabled}>
 				{children}
 			</div>
 		</>
