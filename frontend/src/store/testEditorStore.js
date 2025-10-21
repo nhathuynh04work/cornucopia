@@ -101,7 +101,7 @@ export const useTestEditorStore = create((set, get) => ({
 	},
 }));
 
-function flattenTestItems(items = []) {
+export function flattenTestItems(items = []) {
 	const flatItems = items
 		.slice()
 		.sort((a, b) => a.sortOrder - b.sortOrder)
