@@ -21,10 +21,9 @@ function AnswerOption({ option, order, optionCount }) {
 		<div
 			className={`flex items-center rounded-lg border w-full font-light ${
 				isCorrect
-					? "!border-green-500 bg-white" // Subtle correct style
-					: "border-gray-300 bg-gray-50" // Neutral default style
+					? "!border-green-500 bg-white" 
+					: "border-gray-300 bg-gray-50" 
 			}`}>
-			{/* 2. Label is gray by default, green and bold if correct. */}
 			<span
 				className={`select-none text-center px-6 ${
 					isCorrect
@@ -34,7 +33,6 @@ function AnswerOption({ option, order, optionCount }) {
 				{label}
 			</span>
 
-			{/* 3. Textarea is now neutral. Border color changes based on state. */}
 			<DebouncedTextarea
 				initialValue={option.text}
 				mutationFn={handleTextUpdate}
@@ -46,7 +44,6 @@ function AnswerOption({ option, order, optionCount }) {
 			/>
 
 			<div className="mx-3">
-				{/* 4. Delete button is neutral gray, slightly green if correct. */}
 				<button
 					type="button"
 					aria-label="Delete option"

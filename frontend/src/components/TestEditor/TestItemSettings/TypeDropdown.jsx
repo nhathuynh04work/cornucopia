@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { itemTypeArray, ITEM_CONFIG } from "@/lib/item.config";
 import { ItemTypeIcon } from "@/components/TestEditor/ItemList/ItemTypeIcon";
 
-export function TypeDropdown({ currentType, onChange }) {
+export default function TypeDropdown({ currentType, onChange }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const dropdownRef = useRef(null);
 	const config = ITEM_CONFIG[currentType];

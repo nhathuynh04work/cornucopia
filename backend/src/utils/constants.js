@@ -1,7 +1,8 @@
 export const errorMessage = {
 	// Auth related
 	EXPIRED_TOKEN: "Token expired",
-	UNCONFIRMED_USER: "Account not verified. Check your email for confirmation link",
+	UNCONFIRMED_USER:
+		"Account not verified. Check your email for confirmation link",
 	EMAIL_REGISTERED: "Email already registered",
 
 	// Not found
@@ -10,6 +11,7 @@ export const errorMessage = {
 	SECTION_NOT_FOUND: "Section not found",
 	ITEM_NOT_FOUND: "Item not found",
 	OPTION_NOT_FOUND: "Option not found",
+	MEDIA_NOT_FOUND: "Media not found",
 
 	// Invalid
 	INVALID_TOKEN: "Token invalid",
@@ -24,10 +26,14 @@ export const errorMessage = {
 	// Cannot delete last
 	DELETE_LAST_ITEM: "Cannot delete last item of a test",
 	DELETE_LAST_CHILD: "Cannot delete last item of a group",
-	DELETE_LAST_OPTION: "Cannot delete last option of a multiple choice question",
+	DELETE_LAST_OPTION:
+		"Cannot delete last option of a multiple choice question",
 
 	// Default internal server error
 	INTERNAL_ERROR: "Internal server error",
+
+	// Other
+	MEDIA_ORPHAN: "Media is orphan",
 };
 
 export const providers = {
@@ -47,6 +53,8 @@ export const itemTypeEnum = {
 export const expireTime = {
 	EMAIL_TOKEN: 24 * 60 * 60 * 1000, // 24h
 	JWT_TOKEN: "24h",
+	S3_UPLOAD_URL: 60 * 5, // 5 minutes
+	S3_FETCH_URL: 60 * 5,
 };
 
 export const defaults = {

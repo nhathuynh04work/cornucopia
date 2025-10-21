@@ -3,6 +3,7 @@ import { MoveRight } from "lucide-react";
 import ChildSummary from "./ChildSummary";
 import ItemIndex from "../ItemList/ItemIndex";
 import { useUpdateItemMutation } from "@/hooks/useItemMutation";
+import MediaList from "@/components/Media/MediaList";
 
 function GroupEditor({ item }) {
 	const { mutate: updateItem } = useUpdateItemMutation(item.id);
@@ -25,11 +26,13 @@ function GroupEditor({ item }) {
 			</div>
 
 			{/* --- Child Questions --- */}
-			<div className="flex flex-col gap-2">
+			<div className="flex flex-col gap-2 mb-6">
 				{item.children.map((child) => (
 					<ChildSummary key={child.id} child={child} />
 				))}
 			</div>
+
+			<MediaList media={item.media} layout="list" />
 		</>
 	);
 }
