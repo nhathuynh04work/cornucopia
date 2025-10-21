@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { api } from "../../apis/axios";
+import { api } from "../apis/axios";
 import { toast } from "react-hot-toast";
 
 export function useFlashcardPractice(listId, sessionId) {
@@ -9,7 +9,7 @@ export function useFlashcardPractice(listId, sessionId) {
   const [known, setKnown] = useState([]);
   const [unknown, setUnknown] = useState([]);
   const [finished, setFinished] = useState(false);
-  const [studyDuration, setStudyDuration] = useState(null);
+  const [studyDuration] = useState(null);
   const [isExitedEarly, setIsExitedEarly] = useState(false);
   const [savedKnown, setSavedKnown] = useState([]);
   const [savedUnknown, setSavedUnknown] = useState([]);
@@ -42,23 +42,6 @@ export function useFlashcardPractice(listId, sessionId) {
     }
   }
 
-  // ⏱️ Cập nhật thời gian học
-  async function updateEndtime() {
-    try {
-      const { data } = await api.put("/sessions/updateEndtime");
-      if (data.startTime && data.endTime) {
-        const diffMs = new Date(data.endTime) - new Date(data.startTime);
-        const totalSeconds = Math.floor(diffMs / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        const durationText = `${minutes} phút ${seconds} giây`;
-        setStudyDuration(durationText);
-        return durationText;
-      }
-    } catch {
-      return null;
-    }
-  }
 
   return {
     cards,
@@ -82,6 +65,5 @@ export function useFlashcardPractice(listId, sessionId) {
     savedIndex,
     setSavedIndex,
     submitAnswer,
-    updateEndtime,
   };
 }

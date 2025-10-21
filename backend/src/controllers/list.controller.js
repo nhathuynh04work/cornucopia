@@ -32,7 +32,7 @@ export async function createCard(req, res) {
 export async function updateCard(req, res) {
   const cardId = req.params.cardId;
 
-  const card = await listService.updateCard(id, req.body);
+  const card = await listService.updateCard(cardId, req.body);
   res.status(200).json({ card });
 }
 

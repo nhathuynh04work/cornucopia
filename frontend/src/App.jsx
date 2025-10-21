@@ -21,7 +21,7 @@ import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
 import TestEdit from "./pages/TestEdit";
 import TestInfo from "./pages/TestInfo";
-import FlashcardPractice from "./components/FlashcardPractice";
+import FlashcardPractice from "./components/FlashCard/FlashcardPractice";
 
 function App() {
 	return (

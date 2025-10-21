@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from "react-router";
 import { useState } from "react";
-import { useFlashcardsDetail } from "../components/useFlashcardsDetail.jsx";
-import FlashcardView from "../components/FlashcardView.jsx";
-import CardNavigator from "../components/FlashcardNavigator.jsx";
-import CardActions from "../components/FlashcardActions.jsx";
-import CreateCardModal from "../components/CreateCardModal.jsx";
-import EditCardModal from "../components/EditCardModal.jsx";
+import { useFlashcardsDetail } from "../hooks/useFlashcardsDetail.jsx";
+import FlashcardView from "../components/FlashCard/FlashcardView.jsx";
+import CardNavigator from "../components/FlashCard/FlashcardNavigator.jsx";
+import CardActions from "../components/FlashCard/FlashcardActions.jsx";
+import CreateCardModal from "../components/FlashCard/CreateCardModal.jsx";
+import EditCardModal from "../components/FlashCard/EditCardModal.jsx";
 import LoadingMessage from "../components/LoadingMessage.jsx";
 
 export default function FlashcardsDetail() {

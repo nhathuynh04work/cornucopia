@@ -2,7 +2,8 @@ import { useParams, useNavigate, useLocation } from "react-router";
 import { toast } from "react-hot-toast";
 import FlashCardStudyCard from "./FlashcardStudyCard";
 import FlashcardResult from "./FlashcardResult";
-import { useFlashcardPractice } from "./useFlashcardPractice";
+import { useFlashcardPractice } from "../../hooks/useFlashcardPractice";
+import FlashcardStudyCard from "./FlashcardStudyCard";
 
 export default function FlashcardPractice() {
   const { listId } = useParams();
@@ -98,7 +99,7 @@ export default function FlashcardPractice() {
             <div>{cards.length}</div>
           </div>
 
-          <FlashcardCard
+          <FlashcardStudyCard
             card={currentCard}
             isFlipped={isFlipped}
             onFlip={() => setIsFlipped(!isFlipped)}
@@ -134,12 +135,14 @@ export default function FlashcardPractice() {
               setKnown(savedKnown);
               setUnknown(savedUnknown);
               setCurrentIndex(savedIndex);
+              setFinished(false);
               toast("🔁 Tiếp tục học từ vị trí trước khi thoát!");
             } else {
               // Học lại từ đầu
               setKnown([]);
               setUnknown([]);
               setCurrentIndex(0);
+              setFinished(false);
               toast("🔁 Bắt đầu học lại từ đầu!");
             }
           }}
