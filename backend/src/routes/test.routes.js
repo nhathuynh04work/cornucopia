@@ -3,19 +3,27 @@ import * as testController from "../controllers/test.controller.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
 import { validateParams } from "../middlewares/validateParams.js";
 import { CreateTestSchema, UpdateTestSchema } from "../schemas/test.schema.js";
+import { CreateItemSchema } from "../schemas/item.schema.js";
 
 const router = Router();
 
 router.get("/", testController.getTests);
-router.post("/", validateSchema(CreateTestSchema), testController.createTest);
 router.get("/:id", validateParams(["id"]), testController.getTestLite);
-router.post("/:id/sections", validateParams(["id"]), testController.addSection);
+router.get("/:id/full", validateParams(["id"]), testController.getTestDetails);
+
+router.post("/", validateSchema(CreateTestSchema), testController.createTest);
 router.patch(
 	"/:id",
 	validateParams(["id"]),
 	validateSchema(UpdateTestSchema),
 	testController.updateTest
 );
-router.get("/:id/full", validateParams(["id"]), testController.getTestDetails);
+
+router.post(
+	"/:id/items",
+	validateParams(["id"]),
+	validateSchema(CreateItemSchema),
+	testController.addItem
+);
 
 export default router;

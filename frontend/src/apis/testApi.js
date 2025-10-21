@@ -15,12 +15,17 @@ export async function fetchTestDetails(id) {
 	return data.test;
 }
 
-export async function createTest({ title, description }) {
-	const { data } = await api.post("/tests", { title, description });
+export async function create(input) {
+	const { data } = await api.post("/tests", input);
 	return data.test;
 }
 
-export async function updateTest(id, changes) {
+export async function update(id, changes) {
 	const { data } = await api.patch(`/tests/${id}`, changes);
+	return data.test;
+}
+
+export async function addItem(testId, input) {
+	const { data } = await api.post(`/tests/${testId}/items`, input);
 	return data.test;
 }
