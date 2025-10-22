@@ -8,11 +8,15 @@ const listLayoutClasses = {
 
 // classes for the ITEM itself
 const itemLayoutClasses = {
-	list: "aspect-auto", 
-	grid: "aspect-video", 
+	list: "aspect-auto",
+	grid: "aspect-video",
 };
 
-export default function MediaList({ media, layout = "grid" }) {
+export default function MediaList({
+	media,
+	layout = "grid",
+	isEditing = true,
+}) {
 	if (!media || media.length === 0) {
 		return null;
 	}
@@ -27,7 +31,8 @@ export default function MediaList({ media, layout = "grid" }) {
 				<MediaItem
 					key={mediaItem.id}
 					media={mediaItem}
-					className={itemClass} 
+					className={itemClass}
+					isEditing={isEditing}
 				/>
 			))}
 		</div>

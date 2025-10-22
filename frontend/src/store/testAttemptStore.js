@@ -19,7 +19,7 @@ export const useTestAttemptStore = create((set) => ({
 		flatQuestions.forEach((item) => {
 			initialAnswers[item.id] = {
 				questionId: item.id,
-				text: null,
+				text: "",
 				optionId: null,
 			};
 		});
