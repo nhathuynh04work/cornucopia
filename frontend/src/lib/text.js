@@ -28,3 +28,10 @@ export const formatVNDateTime = (iso) => {
   });
   return `${time} ${formatVNDate(iso)}`; // ví dụ: "14:05 19/10/2025"
 };
+
+// format time (e.g., 120 -> "02:00")
+export function formatTime(seconds) {
+	const mins = Math.floor(seconds / 60);
+	const secs = seconds % 60;
+	return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
