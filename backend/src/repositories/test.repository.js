@@ -11,7 +11,7 @@ export async function create(data, client = prisma) {
 			...data,
 			items: {
 				create: {
-					type: itemTypeEnum.MULTIPLE_CHOICE,
+					type: itemTypeEnum.SHORT_ANSWER,
 				},
 			},
 		},
@@ -45,6 +45,38 @@ export async function getDetails(id, client = prisma) {
 							},
 							media: true,
 						},
+					},
+					media: true,
+				},
+			},
+			media: true,
+		},
+	});
+}
+
+export async function getTestWithoutAnswer(id, client = prisma) {
+	return client.test.findUnique({
+		where: { id },
+		include: {
+			items: {
+				where: { parentItemId: null },
+				orderBy: { sortOrder: "asc" },
+				omit: { answer: true },
+				include: {
+					answerOptions: {
+						orderBy: { sortOrder: "asc" },
+						omit: { isCorrect: true },
+					},
+					children: {
+						orderBy: { sortOrder: "asc" },
+						include: {
+							answerOptions: {
+								orderBy: { sortOrder: "asc" },
+								omit: { isCorrect: true },
+							},
+							media: true,
+						},
+						omit: { answer: true },
 					},
 					media: true,
 				},

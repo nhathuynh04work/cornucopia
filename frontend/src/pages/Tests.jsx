@@ -2,29 +2,24 @@ import { useState } from "react";
 import Modal from "../components/Modal";
 import CreateTestForm from "../components/CreateTestForm";
 import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
-import { fetchTests } from "../apis/testApi.js";
 import NavButton from "../components/NavButton.jsx";
 import { useCreateTestMutation } from "../hooks/useTestMutation.js";
 import { toast } from "react-hot-toast";
+import { useTestsQuery } from "@/hooks/useTestQuery";
 
 function Tests() {
-	const { data: tests, isLoading } = useQuery({
-		queryKey: ["tests"],
-		queryFn: fetchTests,
-	});
+	const { data: tests, isPending } = useTestsQuery();
 	const createTest = useCreateTestMutation();
 	const [showModal, setShowModal] = useState(false);
 	const navigate = useNavigate();
 
 	async function handleCreateTest({ title, description }) {
 		const newTest = await createTest.mutateAsync({ title, description });
-		console.log(newTest);
 		toast.success("Test created successfully");
 		navigate(`/tests/${newTest.id}/edit`);
 	}
 
-	if (isLoading) {
+	if (isPending) {
 		return <p>Loading...</p>;
 	}
 

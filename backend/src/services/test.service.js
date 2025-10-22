@@ -25,6 +25,12 @@ export async function getTestDetails(id) {
 	return test;
 }
 
+export async function getTestForAttempt(id) {
+	const test = await testRepo.getTestWithoutAnswer(id);
+	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
+	return test;
+}
+
 export async function updateTest(id, data) {
 	const test = await testRepo.getLite(id);
 	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);

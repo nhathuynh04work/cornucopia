@@ -50,6 +50,12 @@ export const itemTypeEnum = {
 	GROUP: "group",
 };
 
+export const mediaLayouts = {
+	FULL_WIDTH_STACKED: "FULL_WIDTH_STACKED",
+	LEFT_STACKED: "LEFT_STACKED",
+	TEXT_TOP_MEDIA_LEFT: "TEXT_TOP_MEDIA_LEFT",
+};
+
 export const expireTime = {
 	EMAIL_TOKEN: 24 * 60 * 60 * 1000, // 24h
 	JWT_TOKEN: "24h",
