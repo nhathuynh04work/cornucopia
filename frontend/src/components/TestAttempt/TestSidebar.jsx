@@ -1,26 +1,41 @@
 import { useTestAttemptStore } from "@/store/testAttemptStore";
 import QuestionNav from "./QuestionNav";
-import { ArrowLeft, LogOut } from "lucide-react"; // 👈 Import the icon
-
-// format time (e.g., 120 -> "02:00")
-function formatTime(seconds) {
-	const mins = Math.floor(seconds / 60);
-	const secs = seconds % 60;
-	return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-}
+import { LogOut, Loader2 } from "lucide-react";
+import { formatTime } from "@/lib/text";
+import { useCreateAttemptMutation } from "@/hooks/useAttemptMutation";
+import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 function TestSidebar() {
 	const test = useTestAttemptStore((s) => s.test);
 	const timeLeft = useTestAttemptStore((s) => s.timeLeft);
+	const timeLimit = useTestAttemptStore((s) => s.timeLimit);
+	const answers = useTestAttemptStore((s) => s.answers);
+	const navigate = useNavigate();
 
-	function handleSubmit() {
-		// ...
-		console.log("Submitting test...");
+	const { mutateAsync: createAttempt, isPending: isSubmitting } =
+		useCreateAttemptMutation();
+
+	async function handleSubmit() {
+		if (isSubmitting) return;
+
+		const payload = {
+			testId: test.id,
+			time: timeLimit - timeLeft,
+			answers: Object.values(answers),
+		};
+
+		try {
+			const attempt = await createAttempt(payload);
+			toast.success("Test submitted successfully!");
+			navigate(`/attempts/${attempt.id}`);
+		} catch {
+			toast.error("Failed to submit test. Please try again.");
+		}
 	}
 
 	function handleExit() {
-		// ...
-		console.log("Exiting test...");
+		if (confirm("You sure you wanna leave?")) navigate(`/tests/${test.id}`);
 	}
 
 	return (
@@ -42,16 +57,21 @@ function TestSidebar() {
 			<div className="flex items-center gap-2 border-y border-gray-200 p-4">
 				<button
 					onClick={handleExit}
-					className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+					disabled={isSubmitting}
+					className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:opacity-50"
 					aria-label="Exit Test">
 					<LogOut className="h-3.5 w-3.5" />
 				</button>
 
-				{/* --- Bigger, subtle submit button (right) --- */}
 				<button
 					onClick={handleSubmit}
-					className="flex-1 rounded-md bg-gray-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-					Submit
+					disabled={isSubmitting}
+					className="flex-1 rounded-md bg-gray-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center h-9">
+					{isSubmitting ? (
+						<Loader2 className="h-4 w-4 animate-spin" />
+					) : (
+						"Submit"
+					)}
 				</button>
 			</div>
 
@@ -62,7 +82,6 @@ function TestSidebar() {
 				</h3>
 			</div>
 
-			{/* Adjusted padding for scroll area */}
 			<div className="flex-1 overflow-y-auto px-4 pb-4 scroll-container">
 				<QuestionNav />
 			</div>

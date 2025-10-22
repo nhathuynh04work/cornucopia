@@ -23,6 +23,7 @@ import TestEdit from "./pages/TestEdit";
 import TestInfo from "./pages/TestInfo";
 import FlashcardPractice from "./components/FlashcardPractice";
 import TestAttempt from "./pages/TestAttempt";
+import AttemptResult from "./pages/AttemptResult";
 
 function App() {
 	return (
@@ -47,6 +48,7 @@ function App() {
 					<Route path="tests/:id" element={<TestInfo />} />
 					<Route path="flashcards" element={<Flashcards />} />
 					<Route path="courses" element={<Courses />} />
+					<Route path="attempts/:id" element={<AttemptResult />} />
 				</Route>
 				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="tests/:id/attempt" element={<TestAttempt />} />

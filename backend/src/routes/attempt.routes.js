@@ -14,6 +14,6 @@ router.post(
 );
 
 // Later
-router.get("/:id/results");
+// router.get("/:id/results");
 
 export default router;

@@ -20,7 +20,7 @@ export const useTestAttemptStore = create((set) => ({
 			initialAnswers[item.id] = {
 				questionId: item.id,
 				text: "",
-				optionId: null,
+				optionIds: [],
 			};
 		});
 
