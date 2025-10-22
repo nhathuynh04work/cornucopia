@@ -34,26 +34,3 @@ export async function createTopic(data, client = prisma) {
 export async function deleteTopicById(id, client = prisma) {
   await client.topic.delete({ where: { id } });
 }
-
-export async function listPostsByTopicSlug(
-  slug,
-  offset = 0,
-  limit = 50,
-  client = prisma
-) {
-  return client.post.findMany({
-    where: {
-      status: "published",
-      topics: { some: { topic: { slug } } },
-    },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-    skip: offset,
-    take: limit,
-    include: {
-      author: true,
-      topics: {
-        include: { topic: true },
-      },
-    },
-  });
-}

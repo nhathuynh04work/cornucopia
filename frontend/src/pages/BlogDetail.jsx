@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import { api } from "../apis/axios";
+import toast from "react-hot-toast";
 
 export default function BlogDetail() {
   const { id } = useParams();
@@ -15,7 +16,7 @@ export default function BlogDetail() {
         setPost(data.post);
       } catch (e) {
         console.error(e);
-        alert("Không tải được bài viết");
+        toast.error("Không tải được bài viết");
       } finally {
         setLoading(false);
       }

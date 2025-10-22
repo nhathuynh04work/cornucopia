@@ -8,10 +8,7 @@ export async function listTopics(_req, res) {
 
 // GET /topics/:slug
 export async function getTopicBySlug(req, res) {
-  const topic = await topicService.getTopicBySlug({
-    slug: String(req.params.slug),
-  });
-  if (!topic) return res.status(404).json({ error: "Topic not found" });
+  const topic = await topicService.getTopicBySlug(String(req.params.slug));
   return res.status(200).json({ topic });
 }
 
@@ -34,6 +31,6 @@ export async function createTopic(req, res) {
 
 // DELETE /topics/:id
 export async function deleteTopicById(req, res) {
-  const deleted = await topicService.deleteTopic(req.params.id);
-  return res.status(200).json({ message: "Topic deleted", topic: deleted });
+  await topicService.deleteTopic(req.params.id);
+  res.status(204).end();
 }

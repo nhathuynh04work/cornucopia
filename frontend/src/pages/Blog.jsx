@@ -1,28 +1,33 @@
+// Blog.jsx
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, Link } from "react-router";
+import { useNavigate } from "react-router";
 import { api } from "../apis/axios";
 import BlogList from "../components/BlogList";
 import TopicSidebar from "../components/TopicSidebar";
 import RightSidebar from "../components/RightSidebar";
 import SectionHeader from "../components/SectionHeader";
-import LoadingScreen from "../components/LoadingScreen";
+import ClipLoader from "react-spinners/ClipLoader";
 import { stripHtml } from "../lib/text";
 import { FaPlus } from "react-icons/fa";
+import toast from "react-hot-toast";
+import { useTopicData } from "../hooks/useTopicData";
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
-  const [topics, setTopics] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingPosts, setLoadingPosts] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+
+  // lấy danh sách topics bằng hook useTopicData
+  const { topics, loading: loadingTopics, error: topicsError } = useTopicData();
 
   const handleCreateNewPost = async () => {
     try {
       const { data } = await api.post("/posts", {});
-      navigate(`/blog/${data.id}/edit`);
+      navigate(`/blog/${data.post.id}/edit`);
     } catch (e) {
       console.error(e);
-      alert(e?.message || "Không tạo được bài viết mới");
+      toast.error(e?.message || "Không tạo được bài viết mới");
     }
   };
 
@@ -33,18 +38,15 @@ export default function Blog() {
       setPosts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error(err);
-      alert("Xóa thất bại");
+      toast.error("Xóa thất bại");
     }
   };
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
+      setLoadingPosts(true);
       try {
-        const [postRes, topicRes] = await Promise.all([
-          api.get("/posts"),
-          api.get("/topics"),
-        ]);
+        const postRes = await api.get("/posts");
         const rawPosts = Array.isArray(postRes.data)
           ? postRes.data
           : postRes.data.posts || [];
@@ -57,16 +59,11 @@ export default function Blog() {
             onDelete: handleDelete,
           }))
         );
-
-        const tRaw = Array.isArray(topicRes.data)
-          ? topicRes.data
-          : topicRes.data.topics || [];
-        setTopics(tRaw);
       } catch (e) {
         console.error(e);
-        alert("Không tải được dữ liệu blog");
+        toast.error("Không tải được dữ liệu blog");
       } finally {
-        setLoading(false);
+        setLoadingPosts(false);
       }
     })();
   }, []);
@@ -81,7 +78,17 @@ export default function Blog() {
     );
   }, [posts, search]);
 
-  if (loading) return <LoadingScreen />;
+  if (topicsError) toast.error("Không tải được danh sách chủ đề");
+
+  const loading = loadingPosts || loadingTopics;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <ClipLoader color="#2563eb" size={60} speedMultiplier={0.9} />
+        <p className="mt-4 text-gray-600 text-lg">Đang tải dữ liệu...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">

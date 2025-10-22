@@ -1,6 +1,6 @@
 import SearchCard from "./SearchCard";
 
-export default function RightSidebar({ search, setSearch }) {
+export default function RightSidebar({ search, setSearch, children }) {
   return (
     <aside className="md:col-span-1 flex flex-col gap-10">
       <SearchCard value={search} onChange={setSearch} />
@@ -14,6 +14,7 @@ export default function RightSidebar({ search, setSearch }) {
           phát triển.
         </p>
       </div>
+      {children}
     </aside>
   );
 }

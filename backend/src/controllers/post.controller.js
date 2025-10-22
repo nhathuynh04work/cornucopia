@@ -4,7 +4,7 @@ import * as postService from "../services/post.service.js";
 export async function createDefaultPost(req, res) {
   const authorId = req.user.id;
   const post = await postService.createDefaultPost(authorId);
-  return res.status(201).json({ id: post.id, post }); // xoa id
+  return res.status(201).json({ post });
 }
 
 // GET /posts/:id

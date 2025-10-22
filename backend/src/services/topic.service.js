@@ -1,6 +1,7 @@
 import prisma from "../prisma.js";
 import { NotFoundError } from "../utils/AppError.js";
 import * as topicRepo from "../repositories/topic.repository.js";
+import * as postRepo from "../repositories/post.repository.js";
 
 /** util: tạo slug đơn giản */
 function toSlug(str = "") {
@@ -26,38 +27,33 @@ export async function getTopicBySlug(slug) {
 
 // GET /topics/:slug/posts
 export async function listPostsByTopicSlug({ slug, offset = 0, limit = 50 }) {
-  return prisma.$transaction((tx) =>
-    topicRepo.listPostsByTopicSlug({ slug, offset, limit }, tx)
-  );
+  return postRepo.listPostsByTopicSlug({ slug, offset, limit });
 }
 
 // POST /topics
 export async function createTopic({ name, slug, description }) {
   const finalSlug = (slug?.trim() ? toSlug(slug) : toSlug(name)).slice(0, 255);
-
-  return prisma.$transaction(async (tx) => {
-    const existed = await topicRepo.findTopicBySlug(finalSlug, tx);
-    if (existed) {
-      const err = new Error("Unique constraint failed on the fields: (slug)");
-      err.code = "P2002";
-      err.meta = { target: ["slug"] };
-      throw err;
-    }
-    return topicRepo.createTopic(
-      { name: name.trim(), slug: finalSlug, description },
-      tx
-    );
+  // Kiểm tra trùng slug trước
+  const existed = await topicRepo.findTopicBySlug(finalSlug);
+  if (existed) {
+    // Nếu topic đã tồn tại thì trả về luôn
+    return existed;
+  }
+  // Nếu chưa có thì tạo mới
+  return topicRepo.createTopic({
+    name: name.trim(),
+    slug: finalSlug,
+    description,
   });
 }
 
 // DELETE /topics/:id
 export async function deleteTopic(id) {
-  await prisma.$transaction(async (tx) => {
-    const exists = await tx.topic.findUnique({
-      where: { id: Number(id) },
-      select: { id: true },
-    });
-    if (!exists) throw new NotFoundError("Topic not found");
-    await topicRepo.deleteTopicById(Number(id), tx);
+  const topicId = Number(id);
+  const existed = await prisma.topic.findUnique({
+    where: { id: topicId },
+    select: { id: true },
   });
+  if (!existed) throw new NotFoundError("Topic not found");
+  await topicRepo.deleteTopicById(topicId);
 }
