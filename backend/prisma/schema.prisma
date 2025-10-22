@@ -99,17 +99,18 @@ model Test {
 }
 
 model TestItem {
-    id                   Int          @id @default(autoincrement())
-    testId               Int          @map("test_id")
-    parentItemId         Int?         @map("parent_item_id")
+    id                   Int                  @id @default(autoincrement())
+    testId               Int                  @map("test_id")
+    parentItemId         Int?                 @map("parent_item_id")
     type                 TestItemType
     text                 String?
     answer               String?
-    points               Decimal?     @default(1) @db.Decimal(5, 2)
-    allowMultipleCorrect Boolean?     @default(false) @map("allow_multiple_correct")
-    sortOrder            Int?         @map("sort_order")
-    createdAt            DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt            DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+    points               Decimal?             @default(1) @db.Decimal(5, 2)
+    allowMultipleCorrect Boolean?             @default(false) @map("allow_multiple_correct")
+    mediaLayout          TestItemMediaLayout @map("media_layout") @default(FULL_WIDTH_STACKED)
+    sortOrder            Int?                 @map("sort_order")
+    createdAt            DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt            DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
 
     test          Test           @relation(fields: [testId], references: [id], onDelete: Cascade)
     parent        TestItem?      @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
@@ -140,6 +141,17 @@ enum TestItemType {
     short_answer
 
     @@map("enum_test_items_type")
+}
+
+enum TestItemMediaLayout {
+    // Layout 1: Text, Media, Questions stacked vertically
+    FULL_WIDTH_STACKED
+
+    // Layout 2: [Text + Media] on left, [Questions] on right
+    LEFT_STACKED
+
+    // Layout 3: [Text] on top, [Media] on left, [Questions] on right
+    TEXT_TOP_MEDIA_LEFT
 }
 
 model FlashcardList {
