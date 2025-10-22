@@ -1,14 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTest, updateTest } from "../apis/testApi";
-import toast from "react-hot-toast";
 import { useTestEditorStore } from "../store/testEditorStore";
+import { useTestEditorMutation } from "./useTestEditorMutation";
+import * as testApi from "../apis/testApi";
+import toast from "react-hot-toast";
 
 export function useCreateTestMutation() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ title, description }) =>
-			createTest({ title, description }),
+		mutationFn: (data) => testApi.create(data),
 
 		onSuccess: (newTest) => {
 			queryClient.setQueryData(["tests"], (old = []) => [
@@ -23,18 +23,34 @@ export function useCreateTestMutation() {
 	});
 }
 
-export function useUpdateTestMutation(testId) {
-	const updateTestSettings = useTestEditorStore((s) => s.updateTestSettings);
+export function useUpdateTestMutation() {
+	const setTest = useTestEditorStore((s) => s.setTest);
+	const testId = useTestEditorStore((s) => s.test?.id);
 
-	return useMutation({
-		mutationFn: (changes) => updateTest(testId, changes),
+	return useTestEditorMutation({
+		mutationFn: (changes) => testApi.update(testId, changes),
 
 		onSuccess: (updatedTest) => {
-			updateTestSettings(updatedTest);
+			setTest(updatedTest);
 		},
 
-		onError: (err) => {
-			toast.error(err.message || "Failed to update test");
+		successMessage: "Test settings updated",
+		errorMessagePrefix: "Failed to update settings",
+	});
+}
+
+export function useAddItemMutation() {
+	const setTest = useTestEditorStore((s) => s.setTest);
+	const testId = useTestEditorStore((s) => s.test?.id);
+
+	return useTestEditorMutation({
+		mutationFn: (itemData) => testApi.addItem(testId, itemData),
+
+		onSuccess: (updatedTest) => {
+			setTest(updatedTest);
 		},
+
+		successMessage: "Item added",
+		errorMessagePrefix: "Failed to add item",
 	});
 }

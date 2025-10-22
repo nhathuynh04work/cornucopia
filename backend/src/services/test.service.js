@@ -1,5 +1,5 @@
-import * as sectionRepo from "../repositories/section.repository.js";
 import * as testRepo from "../repositories/test.repository.js";
+import * as itemRepo from "../repositories/item.repository.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { errorMessage } from "../utils/constants.js";
 
@@ -8,7 +8,9 @@ export async function getTests() {
 }
 
 export async function createTest(data) {
-	return testRepo.create(data);
+	// data: { title, description }
+	const test = await testRepo.create(data);
+	return testRepo.getDetails(test.id);
 }
 
 export async function getTestLite(id) {
@@ -27,13 +29,14 @@ export async function updateTest(id, data) {
 	const test = await testRepo.getLite(id);
 	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
 
-	return testRepo.update(id, data);
+	await testRepo.update(id, data);
+	return testRepo.getDetails(id);
 }
 
-export async function addSection(testId) {
+export async function addItem(testId, data) {
 	const test = await testRepo.getLite(testId);
 	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
 
-	const newSection = await sectionRepo.create(testId);
-	return sectionRepo.findById(newSection.id);
+	await itemRepo.create({ testId, ...data });
+	return testRepo.getDetails(testId);
 }

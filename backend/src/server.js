@@ -3,15 +3,15 @@ import cors from "cors";
 import { env } from "./config/env.js";
 import {
 	authRouter,
-	sectionRouter,
 	testRouter,
-	uploadRouter,
 	optionRouter,
 	itemRouter,
 	postRouter,
 	topicRouter,
 	cardRouter,
 	listRouter,
+	sessionRouter,
+    mediaRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -39,11 +39,11 @@ app.use("/lists", listRouter);
 app.use("/cards", cardRouter);
 app.use("/posts", postRouter);
 app.use("/topics", topicRouter);
-app.use("/upload", uploadRouter);
+app.use("/media", mediaRouter);
 app.use("/tests", testRouter);
-app.use("/sections", sectionRouter);
 app.use("/items", itemRouter);
 app.use("/options", optionRouter);
+app.use("/sessions", sessionRouter);
 
 // Handler riêng cho payload quá lớn (413)
 app.use((err, req, res, next) => {

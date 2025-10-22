@@ -6,8 +6,8 @@ export async function getTests(req, res) {
 }
 
 export async function createTest(req, res) {
-	const newTest = await testService.createTest(req.body);
-	res.status(201).json({ test: newTest });
+	const test = await testService.createTest(req.body);
+	res.status(201).json({ test });
 }
 
 export async function getTestLite(req, res) {
@@ -24,12 +24,12 @@ export async function getTestDetails(req, res) {
 
 export async function updateTest(req, res) {
 	const id = req.params.id;
-	const updated = await testService.updateTest(id, req.body);
-	res.status(200).json({ test: updated });
+	const test = await testService.updateTest(id, req.body);
+	res.status(200).json({ test });
 }
 
-export async function addSection(req, res) {
-	const testId = req.params.id;
-	const section = await testService.addSection(testId);
-	res.status(201).json({ section });
+export async function addItem(req, res) {
+	const id = req.params.id;
+	const test = await testService.addItem(id, req.body);
+	res.status(201).json({ test });
 }

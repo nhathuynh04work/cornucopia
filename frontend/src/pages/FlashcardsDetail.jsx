@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import CreateCardModal from "../components/CreateCardModal";
 import EditCardModal from "../components/EditCardModal";
 import LoadingMessage from "../components/LoadingMessage";
+import { useAuth } from "../contexts/AuthContext";
 
 function FlashcardsDetail() {
   const { listId } = useParams();
@@ -20,6 +21,7 @@ function FlashcardsDetail() {
   const [current, setCurrent] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [setFinished] = useState(false);
+  const { user } = useAuth();
 
   const navigate = useNavigate();
 
@@ -82,6 +84,23 @@ function FlashcardsDetail() {
     } catch (error) {
       console.error("Lỗi khi xóa:", error);
       toast.error("Không thể xóa flashcard!");
+    }
+  }
+
+  async function handleStartSession() {
+    try {
+      const { data } = await api.post(`/lists/${listId}/sessions`, {
+        userId: user.id,
+      });
+
+      toast.success("Đã bắt đầu buổi học!");
+
+      navigate(`/lists/${listId}/practice`, {
+        state: { session: data.session },
+      });
+    } catch (err) {
+      console.error("Lỗi khi bắt đầu session:", err);
+      toast.error("Không thể bắt đầu buổi học");
     }
   }
 
@@ -196,7 +215,7 @@ function FlashcardsDetail() {
             </button>
 
             <button
-              onClick={() => navigate(`/lists/${listId}/practice`)}
+              onClick={handleStartSession}
               className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
             >
               🚀 Tiến hành học
