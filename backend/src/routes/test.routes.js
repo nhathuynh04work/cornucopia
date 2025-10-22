@@ -10,6 +10,11 @@ const router = Router();
 router.get("/", testController.getTests);
 router.get("/:id", validateParams(["id"]), testController.getTestLite);
 router.get("/:id/full", validateParams(["id"]), testController.getTestDetails);
+router.get(
+	"/:id/attempt",
+	validateParams(["id"]),
+	testController.getTestForAttempt
+);
 
 router.post("/", validateSchema(CreateTestSchema), testController.createTest);
 router.patch(

@@ -8,6 +8,7 @@ export async function getTests() {
 }
 
 export async function createTest(data) {
+	// data: { title, description }
 	const test = await testRepo.create(data);
 	return testRepo.getDetails(test.id);
 }
@@ -20,6 +21,12 @@ export async function getTestLite(id) {
 
 export async function getTestDetails(id) {
 	const test = await testRepo.getDetails(id);
+	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
+	return test;
+}
+
+export async function getTestForAttempt(id) {
+	const test = await testRepo.getTestWithoutAnswer(id);
 	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
 	return test;
 }

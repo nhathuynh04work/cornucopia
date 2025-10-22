@@ -15,3 +15,7 @@ export async function remove(id, client = prisma) {
 export async function findById(id, client = prisma) {
 	return client.answerOption.findUnique({ where: { id } });
 }
+
+export async function findByItemId(itemId, client = prisma) {
+	return client.answerOption.findMany({ where: { itemId } });
+}

@@ -20,11 +20,6 @@ export const useTestEditorStore = create((set, get) => ({
 			test: data,
 			_flatItems: flatItems,
 			_flatQuestions: flatQuestions,
-			currentItemId: flatItems.some(
-				(item) => item.id === get().currentItemId
-			)
-				? get().currentItemId
-				: null,
 		});
 	},
 
@@ -39,7 +34,7 @@ export const useTestEditorStore = create((set, get) => ({
 
 	getCurrentItem: () => {
 		const { currentItemId, _flatItems } = get();
-		if (!currentItemId) return undefined;
+		if (!currentItemId) return _flatItems[0];
 		return _flatItems.find((item) => item.id === currentItemId);
 	},
 
@@ -106,7 +101,7 @@ export const useTestEditorStore = create((set, get) => ({
 	},
 }));
 
-function flattenTestItems(items = []) {
+export function flattenTestItems(items = []) {
 	const flatItems = items
 		.slice()
 		.sort((a, b) => a.sortOrder - b.sortOrder)

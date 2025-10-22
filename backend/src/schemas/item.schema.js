@@ -1,15 +1,17 @@
 import z from "zod";
-import { testItemTypes } from "../utils/constants.js";
+import { itemTypeEnum, mediaLayouts } from "../utils/constants.js";
 
-const TestItemTypeSchema = z.enum(Object.values(testItemTypes));
+const ItemType = z.enum(Object.values(itemTypeEnum));
+const ItemMediaLayout = z.enum(Object.values(mediaLayouts));
 
 export const CreateItemSchema = z.object({
-	type: TestItemTypeSchema,
+	type: ItemType,
 
-	parentItemId: z.number().nullable().optional(),
-	title: z.string().nullable().optional(),
-	text: z.string().nullable().optional(),
-	points: z.number().nullable().optional(),
+	parentItemId: z.number().nullish(),
+	title: z.string().nullish(),
+	text: z.string().nullish(),
+	points: z.number().nullish(),
+	mediaLayout: ItemMediaLayout.nullish(),
 });
 
 export const UpdateItemSchema = CreateItemSchema.partial()
