@@ -37,8 +37,14 @@ export const errorMessage = {
 };
 
 export const providers = {
-	local: "local",
-	google: "google",
+  local: "local",
+  google: "google",
+};
+
+export const defaultPost = {
+  title: "Bài viết mặc định",
+  content: "<p>Nội dung mặc định</p>",
+  status: "draft",
 };
 
 export const itemTypeEnum = {
@@ -66,4 +72,9 @@ export const expireTime = {
 export const defaults = {
 	QUESTION_TEXT: "This is a question",
 	OPTION_TEXT: "This is an option",
+  POST_INFO: {
+    title: "Bài viết mặc định",
+    content: "<p>Nội dung mặc định</p>",
+    status: "draft",
+  },
 };

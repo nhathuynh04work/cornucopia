@@ -1,11 +1,7 @@
-import {
-  listTopicsWithCount,
-  findTopicBySlug,
-  createTopic,
-  deleteTopicById,
-} from "../repositories/topic.repository.js";
 import prisma from "../prisma.js";
-import { getPostsByTopicSlug } from "../repositories/post.repository.js";
+import { NotFoundError } from "../utils/AppError.js";
+import * as topicRepo from "../repositories/topic.repository.js";
+import * as postRepo from "../repositories/post.repository.js";
 
 /** util: tạo slug đơn giản */
 function toSlug(str = "") {
@@ -17,46 +13,47 @@ function toSlug(str = "") {
     .replace(/(^-|-$)+/g, "");
 }
 
-/** Lấy danh sách topics kèm post_count */
-export async function listTopicsService() {
-  return listTopicsWithCount();
+// GET /topics
+export async function listTopics() {
+  return topicRepo.listTopicsWithCount();
 }
 
-/** Lấy 1 topic theo slug */
-export async function getTopicBySlugService({ slug }) {
-  return findTopicBySlug(undefined, slug);
+// GET /topics/:slug
+export async function getTopicBySlug(slug) {
+  const topic = await topicRepo.findTopicBySlug(slug);
+  if (!topic) throw new NotFoundError("Topic not found");
+  return topic;
 }
 
-/* Lấy danh sách bài theo topic slug (phân trang) */
-export async function listPostsByTopicSlugService({
-  slug,
-  offset = 0,
-  limit = 50,
-}) {
-  return prisma.$transaction(async (client) => {
-    return getPostsByTopicSlug(client, { slug, offset, limit });
-  });
+// GET /topics/:slug/posts
+export async function listPostsByTopicSlug({ slug, offset = 0, limit = 50 }) {
+  return postRepo.listPostsByTopicSlug({ slug, offset, limit });
 }
 
-/* Tạo mới một topic */
-export async function createTopicService({ name, slug, description }) {
+// POST /topics
+export async function createTopic({ name, slug, description }) {
   const finalSlug = (slug?.trim() ? toSlug(slug) : toSlug(name)).slice(0, 255);
-
-  return prisma.$transaction(async (tx) => {
-    const existed = await findTopicBySlug(tx, finalSlug);
-    if (existed) {
-      const err = new Error("Unique constraint failed on the fields: (slug)");
-      err.code = "P2002";
-      err.meta = { target: ["slug"] };
-      throw err;
-    }
-    return createTopic(tx, { name: name.trim(), slug: finalSlug, description });
+  // Kiểm tra trùng slug trước
+  const existed = await topicRepo.findTopicBySlug(finalSlug);
+  if (existed) {
+    // Nếu topic đã tồn tại thì trả về luôn
+    return existed;
+  }
+  // Nếu chưa có thì tạo mới
+  return topicRepo.createTopic({
+    name: name.trim(),
+    slug: finalSlug,
+    description,
   });
 }
 
-/** Xóa topic theo id */
-export async function deleteTopicByIdService({ id }) {
-  return prisma.$transaction(async (tx) => {
-    return deleteTopicById(tx, Number(id));
+// DELETE /topics/:id
+export async function deleteTopic(id) {
+  const topicId = Number(id);
+  const existed = await prisma.topic.findUnique({
+    where: { id: topicId },
+    select: { id: true },
   });
+  if (!existed) throw new NotFoundError("Topic not found");
+  await topicRepo.deleteTopicById(topicId);
 }
