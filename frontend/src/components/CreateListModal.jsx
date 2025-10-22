@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { X, XCircle, Save } from "lucide-react";
 
 function CreateListModal({ onClose, onSubmit }) {
   const [title, setTitle] = useState("");
@@ -10,7 +11,7 @@ function CreateListModal({ onClose, onSubmit }) {
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
         >
-          ✖
+          <X className="w-6 h-6" />
         </button>
 
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -35,7 +36,7 @@ function CreateListModal({ onClose, onSubmit }) {
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
           >
-            Hủy
+            <XCircle className="w-4 h-4 inline-block" /> Hủy
           </button>
           <button
             onClick={() => {
@@ -45,7 +46,7 @@ function CreateListModal({ onClose, onSubmit }) {
             }}
             className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
           >
-            Lưu
+            <Save className="w-4 h-4 inline-block" /> Lưu
           </button>
         </div>
       </div>

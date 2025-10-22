@@ -5,4 +5,4 @@ export const CreateCardSchema = z.object({
     definition: z.string(),
 });
 
-export const UpdateCardSchema = CreateCardSchema;
+export const UpdateCardSchema = CreateCardSchema.partial();

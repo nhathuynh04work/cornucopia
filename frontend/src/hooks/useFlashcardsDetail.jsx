@@ -78,5 +78,6 @@ export function useFlashcardsDetail(listId) {
     updateCard,
     deleteCard,
     startSession,
+    setCards,
   };
 }

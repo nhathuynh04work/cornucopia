@@ -7,8 +7,11 @@ export async function submitAnswerService(sessionId, flashcardId, needRevise) {
       { sessionId, flashcardId, needRevise },
       client
     );
-    console.log(answer.answerTime);
-    await updateSessionEndTime(sessionId, new Date(answer.answerTime));
+    await updateSessionEndTime(sessionId);
     return answer;
   });
+}
+
+export async function updateEndTime(id) {
+  return updateSessionEndTime(id);
 }

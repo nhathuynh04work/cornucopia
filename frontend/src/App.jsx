@@ -24,50 +24,42 @@ import TestInfo from "./pages/TestInfo";
 import FlashcardPractice from "./components/FlashCard/FlashcardPractice";
 
 function App() {
-	return (
-		<>
-			<Routes>
-				<Route element={<Layout />}>
-					<Route index element={<Home />} />
-					<Route path="signup" element={<Signup />} />
-					<Route path="login" element={<Login />} />
-					<Route path="profile" element={<Profile />}>
-						<Route index element={<ProfileInfo />} />
-						<Route path="edit" element={<ProfileEdit />} />
-						<Route path="security" element={<ProfileSecurity />} />
-						<Route path="stats" element={<ProfileStats />} />
-					</Route>
-					<Route path="blog" element={<Blog />} />
-					<Route path="blog/:id" element={<BlogDetail />} />
-					<Route path="blog/:id/:slug" element={<BlogDetail />} />
-					<Route path="blog/:id/edit" element={<BlogEditor />} />
-					<Route path="topics/:slug" element={<TopicPage />} />
-					<Route path="tests" element={<Tests />} />
-					<Route path="tests/:id" element={<TestInfo />} />
-					<Route path="flashcards" element={<Flashcards />} />
-					<Route path="courses" element={<Courses />} />
-				</Route>
-				<Route path="tests/:id/edit" element={<TestEdit />} />
-				<Route path="confirm" element={<Confirm />} />
-				<Route path="auth/callback" element={<AuthCallback />} />
+  return (
+    <>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="login" element={<Login />} />
+          <Route path="profile" element={<Profile />}>
+            <Route index element={<ProfileInfo />} />
+            <Route path="edit" element={<ProfileEdit />} />
+            <Route path="security" element={<ProfileSecurity />} />
+            <Route path="stats" element={<ProfileStats />} />
+          </Route>
+          <Route path="blog" element={<Blog />} />
+          <Route path="blog/:id" element={<BlogDetail />} />
+          <Route path="blog/:id/:slug" element={<BlogDetail />} />
+          <Route path="blog/:id/edit" element={<BlogEditor />} />
+          <Route path="topics/:slug" element={<TopicPage />} />
+          <Route path="tests" element={<Tests />} />
+          <Route path="tests/:id" element={<TestInfo />} />
+          <Route path="flashcards" element={<Flashcards />} />
+          <Route path="lists/:listId/edit" element={<FlashcardsDetail />} />
+          <Route
+            path="/lists/:listId/practice"
+            element={<FlashcardPractice />}
+          />
+          <Route path="courses" element={<Courses />} />
+        </Route>
+        <Route path="tests/:id/edit" element={<TestEdit />} />
+        <Route path="confirm" element={<Confirm />} />
+        <Route path="auth/callback" element={<AuthCallback />} />
+      </Routes>
 
-				{/* Route flashcards */}
-				<Route path="flashcards" element={<Flashcards />} />
-				<Route
-					path="lists/:listId/edit"
-					element={<FlashcardsDetail />}
-				/>
-
-				{/* ROUTE LUYENTAP */}
-				<Route
-					path="/lists/:listId/practice"
-					element={<FlashcardPractice />}
-				/>
-			</Routes>
-
-			<Toaster position="bottom-center" />
-		</>
-	);
+      <Toaster position="bottom-center" />
+    </>
+  );
 }
 
 export default App;

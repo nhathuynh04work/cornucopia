@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   submitAnswerController,
+  updateEndtimeController,
 } from "../controllers/session.controller.js";
 import { validateParams } from "../middlewares/validateParams.js";
 import { authenticateJWT } from "../middlewares/authMiddleware.js";
@@ -15,5 +16,6 @@ router.post(
   validateSchema(CreateAnswerSchema),
   submitAnswerController
 );
+router.put("/:sessionId/endTime", validateParams(["sessionId"]), updateEndtimeController);
 
 export default router;

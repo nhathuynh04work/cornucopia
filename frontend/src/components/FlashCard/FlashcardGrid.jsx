@@ -1,3 +1,5 @@
+import { Pencil, Trash2 } from "lucide-react";
+
 export default function FlashcardGrid({ lists, onEdit, onDelete, onNavigate }) {
   if (lists.length === 0)
     return (
@@ -32,14 +34,14 @@ export default function FlashcardGrid({ lists, onEdit, onDelete, onNavigate }) {
                 className="text-gray-500 hover:text-yellow-500 transition"
                 title="Chỉnh sửa"
               >
-                ✏️
+                <Pencil size={20} strokeWidth={2} color="#FFCC00"/>
               </button>
               <button
                 onClick={() => onDelete(list.id)}
                 className="text-gray-500 hover:text-red-500 transition"
                 title="Xóa danh sách"
               >
-                🗑️
+                <Trash2 size={20} strokeWidth={2} color="red"/>
               </button>
             </div>
           </div>

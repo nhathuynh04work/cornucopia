@@ -4,6 +4,7 @@ import FlashCardStudyCard from "./FlashcardStudyCard";
 import FlashcardResult from "./FlashcardResult";
 import { useFlashcardPractice } from "../../hooks/useFlashcardPractice";
 import FlashcardStudyCard from "./FlashcardStudyCard";
+import { X, Check, ArrowLeft } from "lucide-react";
 
 export default function FlashcardPractice() {
   const { listId } = useParams();
@@ -80,7 +81,7 @@ export default function FlashcardPractice() {
           }}
           className="absolute top-5 left-5 bg-[#4f75ff] hover:bg-[#6e8cff] text-white px-4 py-2 rounded-lg transition"
         >
-          ⬅ Thoát
+          <ArrowLeft size={18} className="inline-block"/> Thoát
         </button>
       )}
 
@@ -110,13 +111,13 @@ export default function FlashcardPractice() {
               onClick={() => handleAnswer(false)}
               className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg shadow-md transition"
             >
-              ❌
+              <X size={20} />
             </button>
             <button
               onClick={() => handleAnswer(true)}
               className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow-md transition"
             >
-              ✅
+              <Check size={20} />
             </button>
           </div>
         </div>

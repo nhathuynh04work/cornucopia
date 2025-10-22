@@ -7,6 +7,7 @@ import CardActions from "../components/FlashCard/FlashcardActions.jsx";
 import CreateCardModal from "../components/FlashCard/CreateCardModal.jsx";
 import EditCardModal from "../components/FlashCard/EditCardModal.jsx";
 import LoadingMessage from "../components/LoadingMessage.jsx";
+import { PlusCircle, ArrowLeft } from "lucide-react";
 
 export default function FlashcardsDetail() {
   const { listId } = useParams();
@@ -21,12 +22,13 @@ export default function FlashcardsDetail() {
     updateCard,
     deleteCard,
     startSession,
+    setCards,
   } = useFlashcardsDetail(listId);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(0); // current là 1 vị trí trong mảng
 
   if (loading) return <LoadingMessage text="⏳ Đang tải..." />;
 
@@ -57,6 +59,11 @@ export default function FlashcardsDetail() {
       await updateCard(cardId, term, definition);
       setShowEditForm(false);
       setEditingCard(null);
+      setCards((prev) =>
+        prev.map((card, index) =>
+          index === current ? { ...card, term, definition } : card
+        )
+      );
     } catch (err) {
       console.error("Lỗi khi cập nhật thẻ (wrapper):", err);
     }
@@ -86,12 +93,14 @@ export default function FlashcardsDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
-      <button
-        onClick={() => navigate("/flashcards")}
-        className="absolute top-6 left-6 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg font-medium transition-all"
-      >
-        ⬅ Quay lại
-      </button>
+      <div className="w-full max-w-7xl mb-9 relative">
+        <button
+          onClick={() => navigate("/flashcards")}
+          className="text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg font-medium transition-all"
+        >
+          <ArrowLeft className="w-4 h-4 inline-block" /> Quay lại
+        </button>
+      </div>
 
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-blue-700 mb-2">
@@ -109,7 +118,7 @@ export default function FlashcardsDetail() {
             onClick={() => setShowCreateForm(true)}
             className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow"
           >
-            + Tạo Flashcard
+            <PlusCircle className="inline-block" /> Tạo Flashcard
           </button>
         </div>
       ) : (
@@ -128,6 +137,10 @@ export default function FlashcardsDetail() {
               const session = await startSession();
               if (session)
                 navigate(`/lists/${listId}/practice?session=${session.id}`);
+            }}
+            onEdit={() => {
+              setEditingCard(card);
+              setShowEditForm(true);
             }}
           />
         </>

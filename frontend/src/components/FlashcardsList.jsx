@@ -9,6 +9,9 @@ import FlashcardGrid from "./FlashCard/FlashcardGrid";
 import CreateListModal from "./CreateListModal";
 import EditListModal from "./EditListModal";
 
+import { Plus } from "lucide-react";
+
+
 export default function FlashcardsList() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -72,7 +75,7 @@ export default function FlashcardsList() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] text-gray-900 py-12">
+    <div className="min-h-screen bg-white text-gray-900 py-12">
       <div className="max-w-6xl mx-auto px-6">
         <FlashcardStats totalLists={totalLists} totalCards={totalCards} />
 
@@ -84,7 +87,7 @@ export default function FlashcardsList() {
             onClick={() => setShowCreateForm(true)}
             className="px-6 py-2 bg-[#4f75ff] hover:bg-[#3b5cff] text-white font-medium rounded-lg shadow transition"
           >
-            + Tạo list mới
+            <Plus className="w-5 h-5 inline-block"/> Tạo list mới
           </button>
         </div>
 

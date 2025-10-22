@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { Pencil, Trash2 } from "lucide-react";
 
 function ListItem({ list, onEdit, onDelete }) {
   return (
@@ -15,14 +16,14 @@ function ListItem({ list, onEdit, onDelete }) {
         className="absolute top-3 right-10 text-yellow-500 hover:text-yellow-700 text-xl"
         title="Chỉnh sửa list"
       >
-        ✏️
+        <Pencil size={20} strokeWidth={2} />
       </button>
       <button
         onClick={() => onDelete(list.id)}
         className="absolute top-3 right-3 text-red-500 hover:text-red-700 text-xl"
         title="Xóa list"
       >
-        🗑️
+        <Trash2 size={20} strokeWidth={2} />
       </button>
     </div>
   );
