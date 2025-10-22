@@ -11,7 +11,7 @@ export async function create(data, client = prisma) {
 			...data,
 			items: {
 				create: {
-					type: itemTypeEnum.MULTIPLE_CHOICE,
+					type: itemTypeEnum.SHORT_ANSWER,
 				},
 			},
 		},
