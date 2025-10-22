@@ -1,5 +1,6 @@
 import TestRenderer from "@/components/TestAttempt/TestRenderer";
 import TestSidebar from "@/components/TestAttempt/TestSidebar";
+import { useSubmitTest } from "@/hooks/useSubmitTest";
 import { useTestAttemptQuery } from "@/hooks/useTestQuery";
 import { useTestAttemptStore } from "@/store/testAttemptStore";
 import { useEffect } from "react";
@@ -13,11 +14,13 @@ function TestAttempt() {
 	const timeLeft = useTestAttemptStore((s) => s.timeLeft);
 	const reset = useTestAttemptStore((s) => s.reset);
 
+	const { submitTest } = useSubmitTest();
+
 	// Timer
 	useEffect(() => {
 		// Start the timer when the component mounts
 		const timerId = setInterval(() => {
-			// tick();
+			tick();
 		}, 1000);
 
 		// Clean up the timer when the component unmounts
@@ -28,11 +31,8 @@ function TestAttempt() {
 
 	// Effect to handle auto-submit when time runs out
 	useEffect(() => {
-		if (timeLeft <= 0) {
-			// TODO: Handle auto-submission
-			console.log("Time is up! Auto-submitting...");
-		}
-	}, [timeLeft]);
+		if (typeof timeLeft === "number" && timeLeft <= 0) submitTest();
+	}, [timeLeft, submitTest]);
 
 	// Clean up the store on unmount
 	useEffect(() => {

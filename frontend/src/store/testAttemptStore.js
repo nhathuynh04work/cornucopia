@@ -7,8 +7,8 @@ export const useTestAttemptStore = create((set) => ({
 	items: [], // nested for UI
 	questions: [], // flatten questions for answering
 	answers: {},
-	timeLimit: 0,
-	timeLeft: 0,
+	timeLimit: null,
+	timeLeft: null,
 
 	// ACTIONS
 	setTest: (test) => {

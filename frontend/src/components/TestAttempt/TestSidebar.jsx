@@ -1,38 +1,16 @@
 import { useTestAttemptStore } from "@/store/testAttemptStore";
-import QuestionNav from "./QuestionNav";
-import { LogOut, Loader2 } from "lucide-react";
 import { formatTime } from "@/lib/text";
-import { useCreateAttemptMutation } from "@/hooks/useAttemptMutation";
 import { useNavigate } from "react-router";
-import toast from "react-hot-toast";
+import { useSubmitTest } from "@/hooks/useSubmitTest";
+import { Loader2, LogOut } from "lucide-react";
+import QuestionNav from "./QuestionNav";
 
 function TestSidebar() {
 	const test = useTestAttemptStore((s) => s.test);
 	const timeLeft = useTestAttemptStore((s) => s.timeLeft);
-	const timeLimit = useTestAttemptStore((s) => s.timeLimit);
-	const answers = useTestAttemptStore((s) => s.answers);
 	const navigate = useNavigate();
 
-	const { mutateAsync: createAttempt, isPending: isSubmitting } =
-		useCreateAttemptMutation();
-
-	async function handleSubmit() {
-		if (isSubmitting) return;
-
-		const payload = {
-			testId: test.id,
-			time: timeLimit - timeLeft,
-			answers: Object.values(answers),
-		};
-
-		try {
-			const attempt = await createAttempt(payload);
-			toast.success("Test submitted successfully!");
-			navigate(`/attempts/${attempt.id}`);
-		} catch {
-			toast.error("Failed to submit test. Please try again.");
-		}
-	}
+	const { submitTest, isSubmitting } = useSubmitTest();
 
 	function handleExit() {
 		if (confirm("You sure you wanna leave?")) navigate(`/tests/${test.id}`);
@@ -64,7 +42,7 @@ function TestSidebar() {
 				</button>
 
 				<button
-					onClick={handleSubmit}
+					onClick={submitTest}
 					disabled={isSubmitting}
 					className="flex-1 rounded-md bg-gray-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center h-9">
 					{isSubmitting ? (
