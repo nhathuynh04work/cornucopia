@@ -123,14 +123,14 @@ model TestItem {
 }
 
 model AnswerOption {
-    id            Int             @id @default(autoincrement())
-    itemId        Int             @map("item_id")
-    text          String?
-    isCorrect     Boolean?        @default(false) @map("is_correct")
-    sortOrder     Int?            @map("sort_order")
-    createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt     DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
-    item          TestItem        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+    id        Int      @id @default(autoincrement())
+    itemId    Int      @map("item_id")
+    text      String?
+    isCorrect Boolean? @default(false) @map("is_correct")
+    sortOrder Int?     @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    item      TestItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
     @@map("answer_options")
 }
@@ -155,26 +155,26 @@ enum TestItemMediaLayout {
 }
 
 model Attempt {
-    id            Int             @id @default(autoincrement())
-    userId        Int             @map("user_id")
-    testId        Int             @map("test_id")
-    time          Int
-    createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-    user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-    test          Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
-    AttemptAnswer AttemptAnswer[]
+    id        Int             @id @default(autoincrement())
+    userId    Int             @map("user_id")
+    testId    Int             @map("test_id")
+    time      Int
+    createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    test      Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+    answers   AttemptAnswer[]
 
     @@map("attempts")
 }
 
 model AttemptAnswer {
-    id         Int           @id @default(autoincrement())
-    attemptId  Int           @map("attempt_id")
+    id         Int      @id @default(autoincrement())
+    attemptId  Int      @map("attempt_id")
     questionId Int
     text       String?
-    optionIds  Int[]         @map("option_ids")
-    attempt    Attempt       @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-    question   TestItem      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    optionIds  Int[]    @map("option_ids")
+    attempt    Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+    question   TestItem @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
     @@map("attempt_answers")
 }
