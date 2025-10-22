@@ -1,176 +1,59 @@
-import {
-  createListService,
-  getListInfoService,
-  getListsOfUserService,
-  deleteListService,
-  createCardService,
-  updateListService,
-  updateCardService,
-  startSessionService,
-} from "../services/list.service.js";
+import * as listService from "../services/list.service.js";
 
-export async function createListController(req, res) {
-  const { userId, title } = req.body;
-
-  if (!userId) {
-    return res.status(400).json({ error: "Khong co userId" });
-  }
-
-  if (Number.isNaN(Number(userId))) {
-    return res.status(400).json({ error: "Id khong phai la so" });
-  }
-
-  try {
-    const list = await createListService({ userId, title });
-
-    res.status(201).json({ list });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.error });
-  }
-}
-
-export async function getListInfoController(req, res) {
-  const listId = Number(req.params.listId);
-
-  if (Number.isNaN(listId)) {
-    return res.status(400).json({ error: "List Id khong phai la so" });
-  }
-
-  try {
-    const list = await getListInfoService({ listId });
-    res.status(200).json({ list });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.error });
-  }
-}
-
-export async function getListsOfUserController(req, res) {
-  const userId = Number(req.query.userId);
-
-  if (!userId) {
-    return res.status(400).json({ error: "Khong co userId" });
-  }
-
-  if (Number.isNaN(userId)) {
-    return res.status(400).json({ error: "Id khong phai la so" });
-  }
-
-  try {
-    const lists = await getListsOfUserService({ userId });
-    res.status(200).json({ lists });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.error });
-  }
-}
-
-export async function createCardController(req, res) {
-  const listId = Number(req.params.listId);
-  const { term, definition } = req.body;
-
-  console.log("📥 Dữ liệu nhận từ frontend:", { listId, term, definition });
-
-  if (!listId) {
-    return res.status(400).json({ error: "Khong co listId" });
-  }
-
-  if (Number.isNaN(listId)) {
-    return res.status(400).json({ error: "Id khong phai la so" });
-  }
-
-  try {
-    const card = await createCardService({ listId, term, definition });
-
-    res.status(201).json({ card });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.error });
-  }
-}
-
-export async function updateCardController(req, res) {
-  const cardId = Number(req.params.cardId);
-  const {term, definition} = req.body;
-
-  if (!cardId) {
-    return res.status(400).json({ error: "Khong co cardId" });
-  }
-
-  if(Number.isNaN(cardId)) {
-    return res.status(400),json({ error: "Id khong phai la so"});
-  }
-
-  try {
-    const card = await updateCardService({ cardId, term, definition});
-    res.status(200).json({card});
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({error: err.error});
-  }
-}
-
-export async function deleteListController(req, res) {
-  const listId = Number(req.params.listId);
-
-  if (Number.isNaN(listId)) {
-    return res.status(400).json({ error: "Id khong phai la so" });
-  }
-
-  try {
-    const list = await deleteListService({ listId });
-    res.status(200).json({ list });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.error });
-  }
-}
-
-export async function updateListController(req, res) {
-  const listId = Number(req.params.listId);
+export async function createList(req, res) {
   const { title } = req.body;
+  const userId = req.user.id;
 
-  if (!listId) {
-    return res.status(400).json({ error: "Khong co listId" });
-  }
+  const list = await listService.createList({ userId, title });
 
-  if (Number.isNaN(listId)) {
-    return res.status(400).json({ error: "Id khong phai la so" });
-  }
-
-  try {
-    const list = await updateListService({ listId, title });
-    res.status(200).json({ list });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.error });
-  }
+  res.status(201).json({ list });
 }
 
-export async function startSessionController(req, res) {
-  try {
-    const { listId } = req.params;
-    const { userId } = req.body;
+export async function getListInfo(req, res) {
+  const listId = req.params.listId;
 
-    if (!listId || !userId) {
-      return res.status(400).json({ message: "Thiếu listId hoặc userId" });
-    }
+  const list = await listService.getListInfo(listId);
+  res.status(200).json({ list });
+}
 
-    const session = await startSessionService({
-      listId: Number(listId),
-      userId: Number(userId),
-    });
+export async function getListsOfUser(req, res) {
+  const userId = req.user.id;
 
-    res.status(201).json({
-      message: "Đã bắt đầu session học mới",
-      session,
-    });
-  } catch (error) {
-    console.error("Lỗi tạo session:", error);
-    res.status(500).json({
-      message: "Không thể tạo session",
-      error: error.message,
-    });
-  }
+  const lists = await listService.getListsOfUser(userId);
+  res.status(200).json({ lists });
+}
+
+export async function createCard(req, res) {
+  const listId = req.params.listId;
+  const card = await listService.createCard({ listId, ...req.body });
+  res.status(201).json({ card });
+}
+
+export async function updateCard(req, res) {
+  const cardId = req.params.cardId;
+
+  const card = await listService.updateCard(cardId, req.body);
+  res.status(200).json({ card });
+}
+
+export async function deleteList(req, res) {
+  const listId = req.params.listId;
+
+  await listService.deleteList(listId);
+  res.status(204).end();
+}
+
+export async function updateList(req, res) {
+  const listId = req.params.listId;
+
+  const list = await listService.updateList(listId, req.body);
+  res.status(200).json({ list });
+}
+
+export async function startSession(req, res) {
+  const listId = req.params.listId;
+  const userId = req.user.id;
+
+  const session = await listService.startSession(listId, userId);
+  res.status(201).json({ session });
 }

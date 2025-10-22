@@ -1,40 +1,17 @@
-export async function getCardsOfList(client, { listId }) {
-  return await client.flashcard.findMany({
-    where: {
-      listId,
-    },
-  });
+import prisma from "../prisma.js";
+
+export async function getCardsOfList(listId, client = prisma) {
+  return await client.flashcard.findMany({ where: { listId } });
 }
 
-export async function createCard(
-  client,
-  { listId, term = null, definition = null }
-) {
-  return await client.flashcard.create({
-    data: {
-      listId,
-      term,
-      definition,
-    },
-  });
+export async function createCard(data, client = prisma) {
+  return await client.flashcard.create({ data });
 }
 
-export async function deleteCard(client, { cardId }) {
-  return await client.flashcard.delete({
-    where: {
-      id: cardId,
-    },
-  });
+export async function deleteCard(id, client = prisma) {
+  await client.flashcard.delete({ where: { id } });
 }
 
-export async function updateCard(client, {cardId, term, definition}) {
-  return await client.flashcard.update({
-    where: {
-      id: cardId,
-    },
-    data: {
-      term,
-      definition,
-    },
-  });
+export async function updateCard(id, data, client = prisma) {
+  return client.flashcard.update({ where: { id }, data });
 }
