@@ -1,104 +1,42 @@
-import {
-  createPost,
-  getAllPosts,
-  getPostById,
-  deletePostById,
-  updatePostById,
-} from "../repositories/post.repository.js";
 import prisma from "../prisma.js";
+import { NotFoundError } from "../utils/AppError.js";
+import { defaultPost } from "../utils/constants.js";
+import * as postRepo from "../repositories/post.repository.js";
 
-export async function createDefaultPostService({
-  authorId,
-  topicIds = [],
-  coverUrl = null,
-}) {
-  return prisma.$transaction(async (client) => {
-    let resolvedTopicIds = Array.isArray(topicIds)
-      ? topicIds.map((x) => Number(x)).filter((x) => Number.isFinite(x))
-      : [];
-
-    // Nếu không truyền topicIds -> gán topic mặc định "Chung"
-    if (!resolvedTopicIds.length) {
-      const def = await client.topic.upsert({
-        where: { slug: "chung" },
-        update: {},
-        create: {
-          name: "Chung",
-          slug: "chung",
-          description: "Chủ đề mặc định",
-        },
-        select: { id: true },
-      });
-      resolvedTopicIds = [def.id];
-    }
-
-    const slug = `default-${Date.now()}`;
-    const post = await createPost(client, {
-      slug,
-      title: "Bài viết mặc định",
-      content: "<p>Nội dung mặc định</p>",
-      authorId,
-      topicIds: resolvedTopicIds,
-      coverUrl,
-    });
-
-    return post;
-  });
+export async function createDefaultPost(authorId) {
+  const slug = `default-post-${Date.now()}`;
+  const post = await postRepo.createPost({ ...defaultPost, authorId, slug });
+  await postRepo.replacePostTopics(post.id, [1]);
+  return postRepo.findById(post.id);
 }
 
-export async function getPostService({ id }) {
-  return prisma.$transaction(async (client) => {
-    const post = await getPostById(client, { id });
-    return post;
-  });
+export async function getPost(id) {
+  const post = await postRepo.findById(id);
+  if (!post) throw new NotFoundError("Post not found");
+  return post;
 }
 
-export async function getPostsService() {
-  return prisma.$transaction(async (client) => {
-    const posts = await getAllPosts(client);
-    return posts;
-  });
+export async function getPosts() {
+  return postRepo.getAllPosts();
 }
 
-export async function deletePostService({ id }) {
-  return prisma.$transaction(async (client) => {
-    const deleted = await deletePostById(client, { id });
-    return deleted;
-  });
+export async function deletePost(id) {
+  const post = await postRepo.findById(id);
+  if (!post) throw new NotFoundError("Post not found");
+  await postRepo.deletePostById(id);
 }
 
-export async function updatePostService(payload) {
-  // payload: { id, title, content, status, coverUrl, topicIds? }
-  return prisma.$transaction(async (client) => {
-    let topicIds = payload.topicIds;
+export async function updatePost(id, payload) {
+  const post = await postRepo.findById(id);
+  if (!post) throw new NotFoundError("Post not found");
 
-    if (Array.isArray(topicIds)) {
-      // chuẩn hoá mảng id -> number hợp lệ
-      topicIds = topicIds
-        .map((x) => Number(x))
-        .filter((x) => Number.isFinite(x));
+  await prisma.$transaction(async (client) => {
+    const { topicIds, ...rest } = payload;
+    await postRepo.updatePostBase(id, rest, client);
 
-      // nếu gửi [] -> gắn topic mặc định "Chung"
-      if (topicIds.length === 0) {
-        const def = await client.topic.upsert({
-          where: { slug: "chung" },
-          update: {},
-          create: {
-            name: "Chung",
-            slug: "chung",
-            description: "Chủ đề mặc định",
-          },
-          select: { id: true },
-        });
-        topicIds = [def.id];
-      }
-    }
-
-    const updated = await updatePostById(client, {
-      ...payload,
-      topicIds,
-    });
-
-    return updated;
+    if (topicIds.length === 0) topicIds.push(1);
+    await postRepo.replacePostTopics(id, topicIds, client);
   });
+
+  return postRepo.findById(id);
 }

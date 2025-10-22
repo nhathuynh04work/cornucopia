@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function EditCardModal({ card, onClose, onSubmit }) {
   const [term, setTerm] = useState(card.term || "");
   const [definition, setDefinition] = useState(card.definition || "");
+
+useEffect(() => {
+    if (card) {
+      setTerm(card.term || "");
+      setDefinition(card.definition || "");
+    }
+  }, [card]);
 
   const handleSubmit = () => {
     onSubmit(card.id, term, definition);

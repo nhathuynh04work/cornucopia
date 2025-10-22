@@ -1,3 +1,5 @@
+import { Pencil, Trash2 } from "lucide-react";
+
 function FlashcardCard({ card, onEdit, onDelete }) {
   return (
     <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white relative">
@@ -9,13 +11,13 @@ function FlashcardCard({ card, onEdit, onDelete }) {
           onClick={onEdit}
           className="text-blue-500 hover:text-blue-700 text-xl"
         >
-          ✏️
+          <Pencil size={20} strokeWidth={2} />
         </button>
         <button
           onClick={onDelete}
           className="text-red-500 hover:text-red-700 text-xl"
         >
-          🗑️
+          <Trash2 size={20} strokeWidth={2} />
         </button>
       </div>
     </div>

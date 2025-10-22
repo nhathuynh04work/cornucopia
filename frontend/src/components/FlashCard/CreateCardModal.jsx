@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { X, Save } from "lucide-react";
+
 
 function CreateCardModal({ onClose, onSubmit }) {
   const [term, setTerm] = useState("");
@@ -20,7 +22,7 @@ function CreateCardModal({ onClose, onSubmit }) {
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
         >
-          ✖
+          <X className="w-6 h-6" />
         </button>
 
         {/* Tiêu đề */}
@@ -60,7 +62,7 @@ function CreateCardModal({ onClose, onSubmit }) {
           onClick={handleSubmit}
           className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
         >
-          Lưu
+          <Save className="w-5 h-5 inline-block" /> Lưu
         </button>
       </div>
     </div>

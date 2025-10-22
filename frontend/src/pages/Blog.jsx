@@ -1,29 +1,33 @@
-import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router";
+// Blog.jsx
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { api } from "../apis/axios";
 import BlogList from "../components/BlogList";
-import { FaPlus, FaSearch } from "react-icons/fa";
+import TopicSidebar from "../components/TopicSidebar";
+import RightSidebar from "../components/RightSidebar";
+import SectionHeader from "../components/SectionHeader";
+import ClipLoader from "react-spinners/ClipLoader";
+import { stripHtml } from "../lib/text";
+import { FaPlus } from "react-icons/fa";
+import toast from "react-hot-toast";
+import { useTopicData } from "../hooks/useTopicData";
 
-const stripHtml = (html = "") =>
-  String(html)
-    .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-function Blog() {
+export default function Blog() {
   const [posts, setPosts] = useState([]);
-  const [topics, setTopics] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingPosts, setLoadingPosts] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
+  // lấy danh sách topics bằng hook useTopicData
+  const { topics, loading: loadingTopics, error: topicsError } = useTopicData();
+
   const handleCreateNewPost = async () => {
     try {
-      const { data } = await api.post("/posts", { userId: 1 });
-      navigate(`/blog/${data.id}/edit`);
+      const { data } = await api.post("/posts", {});
+      navigate(`/blog/${data.post.id}/edit`);
     } catch (e) {
       console.error(e);
-      alert("Không tạo được bài viết mới");
+      toast.error(e?.message || "Không tạo được bài viết mới");
     }
   };
 
@@ -34,87 +38,61 @@ function Blog() {
       setPosts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error(err);
-      alert("Xóa thất bại");
+      toast.error("Xóa thất bại");
     }
   };
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
+      setLoadingPosts(true);
       try {
-        const [postRes, topicRes] = await Promise.all([
-          api.get("/posts"),
-          api.get("/topics"),
-        ]);
-
-        const raw = Array.isArray(postRes.data)
+        const postRes = await api.get("/posts");
+        const rawPosts = Array.isArray(postRes.data)
           ? postRes.data
           : postRes.data.posts || [];
-
         setPosts(
-          raw.map((p) => {
-            // Chuẩn hoá topics => mảng [{id,name,slug}]
-            const topicsNorm =
-              Array.isArray(p.topics) && p.topics.length && p.topics[0]?.topic
-                ? p.topics.map((pt) => pt.topic)
-                : Array.isArray(p.topics)
-                ? p.topics
-                : p.topic
-                ? [
-                    typeof p.topic === "string"
-                      ? {
-                          id: p.topic_id ?? null,
-                          name: p.topic,
-                          slug: p.topic_slug ?? null,
-                        }
-                      : p.topic,
-                  ]
-                : [];
-
-            return {
-              ...p,
-              topics: topicsNorm,
-              excerpt:
-                p.excerpt ??
-                (p.content ? stripHtml(p.content).slice(0, 160) + "..." : ""),
-              onDelete: handleDelete,
-            };
-          })
+          rawPosts.map((p) => ({
+            ...p,
+            excerpt:
+              p.excerpt ??
+              (p.content ? stripHtml(p.content).slice(0, 160) + "..." : ""),
+            onDelete: handleDelete,
+          }))
         );
-
-        const tRaw = Array.isArray(topicRes.data)
-          ? topicRes.data
-          : topicRes.data.topics || [];
-        setTopics(tRaw);
       } catch (e) {
         console.error(e);
-        alert("Không tải được dữ liệu blog");
+        toast.error("Không tải được dữ liệu blog");
       } finally {
-        setLoading(false);
+        setLoadingPosts(false);
       }
     })();
   }, []);
 
-  // Lọc bài viết theo tìm kiếm
-  const filteredPosts = search.trim()
-    ? posts.filter(
-        (p) =>
-          p.title?.toLowerCase().includes(search.toLowerCase()) ||
-          p.excerpt?.toLowerCase().includes(search.toLowerCase())
-      )
-    : posts;
+  const filteredPosts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return posts;
+    return posts.filter(
+      (p) =>
+        p.title?.toLowerCase().includes(q) ||
+        p.excerpt?.toLowerCase().includes(q)
+    );
+  }, [posts, search]);
 
-  if (loading)
+  if (topicsError) toast.error("Không tải được danh sách chủ đề");
+
+  const loading = loadingPosts || loadingTopics;
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="animate-spin text-4xl text-blue-400 mb-2">🌀</div>
-        <p className="text-lg text-gray-500">Đang tải dữ liệu...</p>
+        <ClipLoader color="#2563eb" size={60} speedMultiplier={0.9} />
+        <p className="mt-4 text-gray-600 text-lg">Đang tải dữ liệu...</p>
       </div>
     );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
-      {/* Header + nút tạo bài */}
+      {/* Header */}
       <div className="max-w-7xl mx-auto px-8 pt-10 flex flex-col sm:flex-row items-center justify-between gap-6">
         <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
           BÀI VIẾT
@@ -128,54 +106,22 @@ function Blog() {
       </div>
 
       <div className="max-w-7xl mx-auto px-8 mt-10 grid grid-cols-1 md:grid-cols-4 gap-10">
-        {/* Sidebar chủ đề bên trái */}
-        <aside className="md:col-span-1">
-          <div className="bg-white rounded-lg shadow p-6 mb-10">
-            <h2 className="text-xl font-bold text-blue-700 mb-4">Chuyên mục</h2>
-            <ul className="space-y-2">
-              {topics.map((t) => (
-                <li key={t.id}>
-                  <Link
-                    to={`/topics/${t.slug}`}
-                    className="block px-3 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium transition"
-                  >
-                    {t.name}
-                  </Link>
-                </li>
-              ))}
-              {!topics.length && (
-                <li className="text-gray-400 text-sm italic">
-                  Chưa có chủ đề nào.
-                </li>
-              )}
-            </ul>
-          </div>
-        </aside>
+        {/* Sidebar trái */}
+        <TopicSidebar topics={topics} />
 
-        {/* Main content: các section bài viết */}
+        {/* Main */}
         <main className="md:col-span-2 flex flex-col gap-12">
-          {/* Section: Bài viết nổi bật */}
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Bài viết nổi bật
-            </h2>
+            <SectionHeader title="Bài viết nổi bật" />
             <BlogList posts={filteredPosts.slice(0, 4)} title={null} />
           </section>
 
-          {/* Section: Các nhóm bài theo chủ đề */}
           {topics.slice(0, 3).map((topic) => (
             <section key={topic.id}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-blue-700">
-                  {topic.name}
-                </h2>
-                <Link
-                  to={`/topics/${topic.slug}`}
-                  className="text-blue-500 hover:underline text-sm"
-                >
-                  Xem thêm →
-                </Link>
-              </div>
+              <SectionHeader
+                title={topic.name}
+                href={`/topics/${topic.slug}`}
+              />
               <BlogList
                 posts={filteredPosts
                   .filter(
@@ -189,46 +135,15 @@ function Blog() {
             </section>
           ))}
 
-          {/* Section: Bài viết mới nhất */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Bài viết mới nhất
-            </h2>
+            <SectionHeader title="Bài viết mới nhất" />
             <BlogList posts={filteredPosts.slice(0, 8)} title={null} />
           </section>
         </main>
 
         {/* Sidebar phải */}
-        <aside className="md:col-span-1 flex flex-col gap-10">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-blue-700 mb-4">
-              Tìm kiếm bài viết
-            </h2>
-            <div className="flex items-center gap-2 mb-2">
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Nhập từ khóa..."
-                className="w-full border border-blue-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              />
-              <FaSearch className="text-blue-400" />
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-blue-700 mb-2">
-              Giới thiệu Blog
-            </h2>
-            <p className="text-gray-700 text-sm">
-              Blog là nơi chia sẻ các bài viết, kinh nghiệm học tập, luyện thi,
-              tài liệu và các chủ đề hữu ích về ngoại ngữ. Bạn có thể tìm kiếm,
-              đọc, hoặc tạo bài viết mới để cùng cộng đồng học tập phát triển.
-            </p>
-          </div>
-        </aside>
+        <RightSidebar search={search} setSearch={setSearch} />
       </div>
     </div>
   );
 }
-
-export default Blog;

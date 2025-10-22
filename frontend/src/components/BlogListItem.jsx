@@ -1,70 +1,36 @@
+import { Link } from "react-router";
+import { formatVNDateTime } from "../lib/text";
+
 export default function BlogListItem({ post = {} }) {
-  // ===== Helpers =====
-  const toDate = (value) => {
-    if (!value) return null;
-    try {
-      const d =
-        typeof value === "string" || typeof value === "number"
-          ? new Date(value)
-          : value instanceof Date
-          ? value
-          : null;
-      if (!d || isNaN(d.getTime())) return null;
-      return d;
-    } catch {
-      return null;
-    }
-  };
+  const {
+    id,
+    slug,
+    title = "",
+    coverUrl = null,
+    publishedAt,
+    createdAt,
+    status = "",
+    topics = [],
+    author,
+    author_name,
+    excerpt,
+    onDelete,
+  } = post;
 
-  const pad2 = (n) => String(n).padStart(2, "0");
-
-  const formatVNDateTime = (value) => {
-    const d = toDate(value);
-    if (!d) return "";
-    return `${pad2(d.getHours())}:${pad2(d.getMinutes())} ${pad2(
-      d.getDate()
-    )}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
-  };
-
-  // ===== Chuẩn hóa dữ liệu =====
-  const id = post.id;
-  const slug = post.slug;
-  const title = post.title ?? "";
-  const coverUrl = post.coverUrl ?? post.cover_url ?? null;
-  const publishedAt = post.publishedAt ?? post.published_at ?? null;
-  const status = String(post.status ?? "").toLowerCase();
-
-  // topics => mảng [{id,name,slug}]
-  const topics =
-    Array.isArray(post.topics) && post.topics.length && post.topics[0]?.topic
-      ? post.topics.map((pt) => pt.topic)
-      : Array.isArray(post.topics)
-      ? post.topics
-      : post.topic
-      ? [
-          typeof post.topic === "string"
-            ? {
-                id: post.topic_id ?? null,
-                name: post.topic,
-                slug: post.topic_slug ?? null,
-              }
-            : post.topic,
-        ]
-      : [];
+  const postTo = slug ? `/blog/${id}/${slug}` : `/blog/${id}`;
+  const isPublished = status.toLowerCase() === "published";
+  const displayDate = isPublished
+    ? formatVNDateTime(publishedAt ?? createdAt)
+    : null;
 
   const authorName =
-    (typeof post.author === "string" ? post.author : post.author?.name) ??
-    post.author_name ??
-    null;
-
-  const postHref = slug ? `/blog/${id}/${slug}` : `/blog/${id}`;
-  const isPublished = status === "published";
-  const publishedText = isPublished ? formatVNDateTime(publishedAt) : "";
+    (typeof author === "string" ? author : author?.name) ?? author_name ?? null;
 
   return (
     <article className="flex gap-6 py-8">
-      <a
-        href={postHref}
+      {/* Ảnh bìa */}
+      <Link
+        to={postTo}
         className="w-[180px] h-[120px] rounded-lg overflow-hidden bg-gray-100 flex-shrink-0"
       >
         {coverUrl ? (
@@ -78,45 +44,48 @@ export default function BlogListItem({ post = {} }) {
             No image
           </div>
         )}
-      </a>
+      </Link>
 
+      {/* Nội dung */}
       <div className="flex-1">
-        {!!topics.length && (
+        {/* Chủ đề */}
+        {topics.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {topics.map((t) => (
-              <a
+              <Link
                 key={t.id ?? t.slug ?? t.name}
-                href={t.slug ? `/topics/${t.slug}` : "#"}
+                to={t.slug ? `/topics/${t.slug}` : "#"}
                 className="text-xs font-semibold tracking-widest uppercase bg-blue-50 text-blue-700 px-2 py-0.5 rounded"
               >
                 {t.name}
-              </a>
+              </Link>
             ))}
           </div>
         )}
 
+        {/* Tiêu đề */}
         <h2 className="mt-2 text-2xl font-extrabold leading-snug">
-          <a href={postHref} className="hover:underline">
+          <Link to={postTo} className="hover:underline">
             {title || "(Không có tiêu đề)"}
-          </a>
+          </Link>
         </h2>
 
-        {!!post.excerpt && (
-          <p className="mt-2 text-gray-700 leading-7 line-clamp-3">
-            {post.excerpt}
-          </p>
+        {/* Tóm tắt */}
+        {excerpt && (
+          <p className="mt-2 text-gray-700 leading-7 line-clamp-3">{excerpt}</p>
         )}
 
+        {/* Thông tin phụ */}
         <div className="mt-3 text-sm text-gray-500 flex items-center gap-3">
-          {isPublished ? (
-            publishedText && <span>{publishedText}</span>
+          {displayDate ? (
+            <span>{displayDate}</span>
           ) : status ? (
             <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
               {status}
             </span>
           ) : null}
 
-          {!!authorName && (
+          {authorName && (
             <>
               <span>•</span>
               <span>bởi {authorName}</span>
@@ -124,14 +93,14 @@ export default function BlogListItem({ post = {} }) {
           )}
 
           <span className="ml-auto flex items-center gap-3">
-            <a
-              href={`/blog/${id}/edit`}
+            <Link
+              to={`/blog/${id}/edit`}
               className="text-blue-600 hover:underline"
             >
               Edit
-            </a>
+            </Link>
             <button
-              onClick={() => post.onDelete?.(id)}
+              onClick={() => onDelete?.(id)}
               className="text-red-600 hover:underline"
               type="button"
             >
