@@ -25,4 +25,10 @@ export const ITEM_CONFIG = {
 	},
 };
 
+export const mediaLayouts = {
+	FULL_WIDTH_STACKED: "FULL_WIDTH_STACKED",
+	LEFT_STACKED: "LEFT_STACKED",
+	TEXT_TOP_MEDIA_LEFT: "TEXT_TOP_MEDIA_LEFT",
+};
+
 export const itemTypeArray = Object.values(itemTypeEnum);

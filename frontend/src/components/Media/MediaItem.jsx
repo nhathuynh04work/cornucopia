@@ -2,8 +2,8 @@ import { Loader2, X } from "lucide-react";
 import { useDeleteMediaMutation } from "@/hooks/useMediaMutation";
 import MediaRenderer from "./MediaRenderer";
 
-export default function MediaItem({ media, className, isEditing }) {
-	const { id } = media;
+export default function MediaItem({ media, isEditing }) {
+	const { id, fileType } = media;
 
 	const { mutate: deleteMedia, isPending: isDeleting } =
 		useDeleteMediaMutation();
@@ -14,9 +14,13 @@ export default function MediaItem({ media, className, isEditing }) {
 		deleteMedia(id);
 	}
 
-	// Combine default styles with the passed-in className
+	let aspectRatioClass = "aspect-auto";
+	if (fileType.startsWith("image")) {
+		aspectRatioClass = "aspect-video"; 
+	}
+
 	const defaultStyles = "relative w-full rounded-md overflow-hidden group";
-	const combinedClassName = `${defaultStyles} ${className || ""}`;
+	const combinedClassName = `${defaultStyles} ${aspectRatioClass}`;
 
 	return (
 		<div className={combinedClassName}>

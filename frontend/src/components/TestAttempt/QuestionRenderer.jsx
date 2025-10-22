@@ -29,24 +29,24 @@ function QuestionRenderer({ question }) {
 			{/* --- Question Number and Prompt --- */}
 			<div className="flex items-start">
 				<span
-					className="mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center
-                               rounded bg-gray-100 text-sm font-semibold text-gray-700">
+					className="mr-3 flex h-7 w-7 flex-shrink-0 items-center justify-center
+                   rounded-lg border !border-gray-300 bg-white text-xs font-semibold text-gray-700">
 					{questionNumber}
 				</span>
-				<p className="flex-1 font-medium text-gray-900">
+				<p className="flex-1 font-medium text-gray-900 pt-0.5">
 					{question.text}
 				</p>
 			</div>
 
 			{/* --- 4. Conditional Answer Area --- */}
-			<div className="pt-2">
+			<div>
 				{/* --- Multiple Choice --- */}
 				{question.type === itemTypeEnum.MULTIPLE_CHOICE && (
-					<div className="space-y-2">
+					<div>
 						{question.answerOptions.map((option) => (
 							<label
 								key={option.id}
-								className="flex cursor-pointer items-center rounded-md border border-gray-300 p-3 text-sm text-gray-800 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+								className="flex cursor-pointer items-center rounded-md p-3 text-sm text-gray-800">
 								<input
 									type="radio"
 									name={question.id}
@@ -67,8 +67,7 @@ function QuestionRenderer({ question }) {
 
 				{/* --- Short Answer --- */}
 				{question.type === itemTypeEnum.SHORT_ANSWER && (
-					<div className="pl-9">
-						{" "}
+					<div>
 						{/* Aligns input with options */}
 						<input
 							type="text"

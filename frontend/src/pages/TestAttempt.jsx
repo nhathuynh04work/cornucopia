@@ -17,7 +17,7 @@ function TestAttempt() {
 	useEffect(() => {
 		// Start the timer when the component mounts
 		const timerId = setInterval(() => {
-			tick();
+			// tick();
 		}, 1000);
 
 		// Clean up the timer when the component unmounts
