@@ -7,8 +7,51 @@ import { areSetsEqual } from "../utils/compare.js";
 
 // data: { userId, testId, time, answers }
 export async function createAttempt(data) {
-	const { answers: answersData, ...attemptData } = data;
-	return attemptRepo.create(attemptData, answersData);
+	const { answers, ...attemptData } = data;
+	const answerKey = await testService.getAnswersKey(attemptData.testId);
+
+	let correctCount = 0,
+		wrongCount = 0,
+		unansweredCount = 0,
+		scoredPoints = 0,
+		totalPossiblePoints = 0;
+
+	for (const submittedAnswer of answers) {
+		const correctAnswer = answerKey[submittedAnswer.questionId];
+		totalPossiblePoints += correctAnswer.points;
+
+		// unanswered
+		if (
+			submittedAnswer.text === "" &&
+			submittedAnswer.optionIds.length === 0
+		) {
+			unansweredCount++;
+			continue;
+		}
+
+		const isCorrect = gradeAnswer(submittedAnswer, correctAnswer);
+
+		// correct
+		if (isCorrect) {
+			correctCount++;
+			scoredPoints += correctAnswer.points;
+			continue;
+		}
+
+		wrongCount++; // wrong
+	}
+
+	return attemptRepo.create(
+		{
+			...attemptData,
+			correctCount,
+			wrongCount,
+			unansweredCount,
+			scoredPoints,
+			totalPossiblePoints,
+		},
+		answers
+	);
 }
 
 export async function getResult(id) {
@@ -46,7 +89,7 @@ export async function getResult(id) {
 		items.forEach((item) => {
 			const result = resultsMap[item.id];
 			if (result) {
-				// Attach the result directly to the item!
+				// Attach the result directly to the item
 				item.result = result;
 			}
 			// Recurse into children
@@ -59,10 +102,18 @@ export async function getResult(id) {
 	injectResults(test.items);
 
 	return {
-		test: test, // The full test object with results
+		// The full test object with per-question results for rendering
+		test: test,
+
+		// Precalculated fields
 		attemptId: attempt.id,
 		timeTaken: attempt.time,
 		createdAt: attempt.createdAt,
+		scoredPoints: attempt.scoredPoints,
+		totalPossiblePoints: attempt.totalPossiblePoints,
+		correctCount: attempt.correctCount,
+		wrongCount: attempt.wrongCount,
+		unansweredCount: attempt.unansweredCount,
 	};
 }
 
