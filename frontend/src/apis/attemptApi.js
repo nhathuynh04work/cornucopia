@@ -9,3 +9,4 @@ export async function getAttemptResult(id) {
 	const { data } = await api.get(`/attempts/${id}/results`);
 	return data.result;
 }
+

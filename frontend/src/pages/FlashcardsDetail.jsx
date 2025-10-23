@@ -1,12 +1,12 @@
 import { useParams, useNavigate } from "react-router";
 import { useState } from "react";
-import { useFlashcardsDetail } from "../hooks/useFlashcardsDetail.jsx";
-import FlashcardView from "../components/FlashCard/FlashcardView.jsx";
-import CardNavigator from "../components/FlashCard/FlashcardNavigator.jsx";
-import CardActions from "../components/FlashCard/FlashcardActions.jsx";
-import CreateCardModal from "../components/FlashCard/CreateCardModal.jsx";
-import EditCardModal from "../components/FlashCard/EditCardModal.jsx";
-import LoadingMessage from "../components/LoadingMessage.jsx";
+import { useFlashcardsDetail } from "../hooks/useFlashcardsDetail";
+import FlashcardView from "../components/FlashCard/FlashcardView";
+import CardNavigator from "../components/FlashCard/FlashcardNavigator";
+import CardActions from "../components/FlashCard/FlashcardActions";
+import CreateCardModal from "../components/FlashCard/CreateCardModal";
+import EditCardModal from "../components/FlashCard/EditCardModal";
+import LoadingMessage from "../components/LoadingMessage";
 import { PlusCircle, ArrowLeft } from "lucide-react";
 
 export default function FlashcardsDetail() {
