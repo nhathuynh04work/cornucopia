@@ -1,10 +1,9 @@
 import { useParams, useNavigate, useLocation } from "react-router";
 import { toast } from "react-hot-toast";
-import FlashCardStudyCard from "./FlashcardStudyCard";
 import FlashcardResult from "./FlashcardResult";
-import { useFlashcardPractice } from "../../hooks/useFlashcardPractice";
 import FlashcardStudyCard from "./FlashcardStudyCard";
 import { X, Check, ArrowLeft } from "lucide-react";
+import { useFlashcardPractice } from "@/hooks/useFlashcardPractice";
 
 export default function FlashcardPractice() {
   const { listId } = useParams();

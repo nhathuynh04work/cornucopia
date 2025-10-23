@@ -1,11 +1,13 @@
-import FlashcardsList from "../components/FlashcardsList"
+import FlashcardsList from "../components/FlashcardsList";
+import StudyStatisticsContainer from "../components/StudyStatisticsContainer";
 
 function Flashcards() {
+
   return (
     <div style={{ padding: 20 }}>
-      {/* <h1>Flashcards</h1>
-      <p>Chào mừng! Hãy tạo list để bắt đầu học.</p> */}
-
+      {/* Biểu đồ thống kê */}
+      <StudyStatisticsContainer />
+      
       {/* FlashcardsList giờ tự xử lý tạo list và điều hướng */}
       <FlashcardsList />
     </div>

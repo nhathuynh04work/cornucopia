@@ -8,3 +8,4 @@ export { default as testRouter } from "./test.routes.js";
 export { default as itemRouter } from "./item.routes.js";
 export { default as optionRouter } from "./option.routes.js";
 export { default as sessionRouter } from "./session.routes.js";
+export { default as userRouter } from "./user.routes.js";

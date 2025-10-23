@@ -16,3 +16,23 @@ export async function updateSessionEndTime(id) {
     data: { endTime: new Date() },
   });
 }
+
+export async function getSessionsLast12Months(userId) {
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+
+  return await prisma.studySession.findMany({
+    where: {
+      userId,
+      startTime: {
+        gte: startDate,
+        lte: now,
+      },
+    },
+    select: {
+      id: true,
+      startTime: true,
+    },
+    orderBy: { startTime: "asc" },
+  });
+}

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router";
 import { useState } from "react";
-import { useFlashcardsDetail } from "../hooks/useFlashcardsDetail.jsx";
+import { useFlashcardsDetail } from "../hooks/useFlashcardsDetail";
 import FlashcardView from "../components/FlashCard/FlashcardView.jsx";
 import CardNavigator from "../components/FlashCard/FlashcardNavigator.jsx";
 import CardActions from "../components/FlashCard/FlashcardActions.jsx";

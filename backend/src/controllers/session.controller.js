@@ -13,8 +13,13 @@ export async function submitAnswerController(req, res) {
 }
 
 export async function updateEndtimeController(req, res) {
-  const { startTime, endTime } = await sessionService.updateEndTime(
-    req.params.sessionId
-  );
+  const sessionId = req.params.sessionId;
+  const { startTime, endTime } = await sessionService.updateEndTime();
   res.status(200).json({ startTime, endTime });
+}
+
+export async function getStudyStatistic(req, res) {
+  const userId = req.user.id;
+  const stats = await sessionService.getStudyStatisticService(userId);
+  res.status(200).json({ stats });
 }
