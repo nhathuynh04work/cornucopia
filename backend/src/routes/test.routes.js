@@ -1,7 +1,9 @@
 import { Router } from "express";
 import * as testController from "../controllers/test.controller.js";
+import * as attemptController from "../controllers/attempt.controller.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
 import { validateParams } from "../middlewares/validateParams.js";
+import { authenticateJWT } from "../middlewares/authMiddleware.js";
 import { CreateTestSchema, UpdateTestSchema } from "../schemas/test.schema.js";
 import { CreateItemSchema } from "../schemas/item.schema.js";
 
@@ -14,6 +16,12 @@ router.get(
 	"/:id/attempt",
 	validateParams(["id"]),
 	testController.getTestForAttempt
+);
+router.get(
+	"/:id/attempts",
+	authenticateJWT,
+	validateParams(["id"]),
+	attemptController.getUserAttemptsOnTest
 );
 
 router.post("/", validateSchema(CreateTestSchema), testController.createTest);

@@ -11,3 +11,10 @@ export async function getAttemptResult(req, res) {
 	const result = await attemptService.getResult(id);
 	res.status(200).json({ result });
 }
+
+export async function getUserAttemptsOnTest(req, res) {
+	const testId = req.params.id;
+	const userId = req.user.id;
+	const attempts = await attemptService.getUserAttemptsOnTest(testId, userId);
+	res.status(200).json({ attempts });
+}
