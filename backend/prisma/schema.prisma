@@ -105,7 +105,7 @@ model TestItem {
     type                 TestItemType
     text                 String?
     answer               String?
-    points               Decimal?            @default(1) @db.Decimal(5, 2)
+    points               Int?                @default(1)
     allowMultipleCorrect Boolean?            @default(false) @map("allow_multiple_correct")
     mediaLayout          TestItemMediaLayout @default(FULL_WIDTH_STACKED) @map("media_layout")
     sortOrder            Int?                @map("sort_order")
@@ -155,14 +155,19 @@ enum TestItemMediaLayout {
 }
 
 model Attempt {
-    id        Int             @id @default(autoincrement())
-    userId    Int             @map("user_id")
-    testId    Int             @map("test_id")
-    time      Int
-    createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-    user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-    test      Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
-    answers   AttemptAnswer[]
+    id                  Int             @id @default(autoincrement())
+    userId              Int             @map("user_id")
+    testId              Int             @map("test_id")
+    scoredPoints        Int?            @map("scored_points")
+    totalPossiblePoints Int?            @map("total_possible_points")
+    correctCount        Int?            @map("correct_count")
+    wrongCount          Int?            @map("wrong_count")
+    unansweredCount     Int?            @map("unanswered_count")
+    time                Int
+    createdAt           DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    test                Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+    answers             AttemptAnswer[]
 
     @@map("attempts")
 }
@@ -262,10 +267,10 @@ model StudySession {
 }
 
 model SessionAnswer {
-    id          Int       @id @default(autoincrement())
-    sessionId   Int       @map("session_id")
-    flashcardId Int       @map("flashcard_id")
-    needRevise  Boolean   @map("need_revise")
+    id          Int      @id @default(autoincrement())
+    sessionId   Int      @map("session_id")
+    flashcardId Int      @map("flashcard_id")
+    needRevise  Boolean  @map("need_revise")
     answerTime  DateTime @default(now()) @map("answer_time") @db.Timestamptz(6)
 
     session   StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)

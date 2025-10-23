@@ -10,6 +10,12 @@ export async function create(attemptData, answersData, client = prisma) {
 				create: answersData,
 			},
 		},
+	});
+}
+
+export async function findById(id, client = prisma) {
+	return client.attempt.findUnique({
+		where: { id },
 		include: {
 			answers: true,
 		},

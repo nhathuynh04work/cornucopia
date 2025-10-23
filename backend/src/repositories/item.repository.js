@@ -59,3 +59,12 @@ export async function countSiblings(parentItemId, client = prisma) {
 export async function countTopLevelChildren(testId, client = prisma) {
 	return client.testItem.count({ where: { testId, parentItemId: null } });
 }
+
+export async function findQuestionsOfTest(testId, client = prisma) {
+	return client.testItem.findMany({
+		where: { testId, type: { not: itemTypeEnum.GROUP } },
+		include: {
+			answerOptions: true,
+		},
+	});
+}
