@@ -4,6 +4,7 @@ import * as testService from "../services/test.service.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { errorMessage, itemTypeEnum } from "../utils/constants.js";
 import { areSetsEqual } from "../utils/compare.js";
+import { GetAttemptsSchema } from "../schemas/attempt.schema.js";
 
 // data: { userId, testId, time, answers }
 export async function createAttempt(data) {
@@ -115,6 +116,13 @@ export async function getResult(id) {
 		wrongCount: attempt.wrongCount,
 		unansweredCount: attempt.unansweredCount,
 	};
+}
+
+export async function getUserAttemptsOnTest(testId, userId) {
+	const { testId: validTestId, userId: validUserId } =
+		GetAttemptsSchema.parse({ testId, userId });
+        
+	return attemptRepo.findManyByTestIdAndUserId(validTestId, validUserId);
 }
 
 function gradeAnswer(submittedAnswer, correctAnswer) {

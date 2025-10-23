@@ -93,7 +93,7 @@ model Test {
     updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
     items       TestItem[]
     media       Media[]    @relation("TestToMedia")
-    Attempt     Attempt[]
+    attempts     Attempt[]
 
     @@map("tests")
 }

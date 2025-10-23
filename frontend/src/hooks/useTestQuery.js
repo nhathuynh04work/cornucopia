@@ -52,3 +52,10 @@ export function useTestAttemptQuery(id) {
 
 	return query;
 }
+
+export function useTestAttemptsHistoryQuery(testId) {
+	return useQuery({
+		queryKey: ["attempts-history", testId],
+		queryFn: () => testApi.fetchTestAttemptsHistory(testId),
+	});
+}
