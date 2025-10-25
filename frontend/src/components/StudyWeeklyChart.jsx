@@ -4,11 +4,10 @@ import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 
-export default function StudyStatisticsHeatmap({ stats }) {
-  const today = new Date();
-
+export default function StudyStatisticsHeatmap({ stats }) { 
   // Tạo danh sách 12 tháng gần nhất
   const last12Months = useMemo(() => {
+    const today = new Date();
     const months = [];
     for (let i = 0; i < 12; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
@@ -19,7 +18,7 @@ export default function StudyStatisticsHeatmap({ stats }) {
       });
     }
     return months.reverse(); // để tháng hiện tại ở cuối
-  }, [today]);
+  }, []);
 
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(11); // mặc định tháng hiện tại
 
