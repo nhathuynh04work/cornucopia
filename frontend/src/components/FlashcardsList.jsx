@@ -75,8 +75,8 @@ export default function FlashcardsList() {
   );
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 py-12">
-      <div className="max-w-6xl mx-auto px-6">
+    <div className="min-h-screen bg-white text-gray-900 py-12 w-220 mt-[-65%]">
+      <div className="max-w-6xl px-6 ml-[0%]">
         <FlashcardStats totalLists={totalLists} totalCards={totalCards} />
 
         <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">

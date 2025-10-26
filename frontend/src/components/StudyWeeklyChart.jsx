@@ -40,7 +40,7 @@ export default function StudyStatisticsHeatmap({ stats }) {
   const startDate = new Date(selectedMonth.year, selectedMonth.month, 1);
   const endDate = new Date(selectedMonth.year, selectedMonth.month + 1, 0); // ngày cuối tháng
 
-  // Thang màu dùng Tailwind (xanh lá giống GitHub)
+  // Thang màu dùng Tailwind (xanh lá)
   const getColorClass = (count) => {
     if (!count || count === 0) return "fill-gray-200";
     if (count < 2) return "fill-green-200";
@@ -50,7 +50,7 @@ export default function StudyStatisticsHeatmap({ stats }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-md inline-block align-top w-[25%] ml-[15%] mb-6 h-[570px]">
+    <div className="bg-white rounded-2xl p-6 shadow-md w-[30%] ml-auto mr-[5%] h-[600px]">
       <h2 className="text-lg font-semibold mb-4 text-center">
         Biểu đồ hoạt động học tập theo ngày ({selectedMonth.label})
       </h2>
