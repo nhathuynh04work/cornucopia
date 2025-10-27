@@ -13,6 +13,7 @@ import {
 	sessionRouter,
 	mediaRouter,
 	attemptRouter,
+	courseRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -46,6 +47,7 @@ app.use("/items", itemRouter);
 app.use("/options", optionRouter);
 app.use("/sessions", sessionRouter);
 app.use("/attempts", attemptRouter);
+app.use("/courses", courseRouter);
 
 // Handler riêng cho payload quá lớn (413)
 app.use((err, req, res, next) => {
