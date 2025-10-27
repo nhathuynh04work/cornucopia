@@ -6,6 +6,8 @@ import * as courseController from "../controllers/course.controller.js";
 
 const router = Router();
 
+router.get("/", courseController.getCourses);
+
 router.post(
 	"/",
 	authenticateJWT,
