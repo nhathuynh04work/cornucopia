@@ -1,5 +1,9 @@
 import * as courseRepo from "../repositories/course.repository.js";
 
+export async function getAll() {
+	return courseRepo.getAll();
+}
+
 export async function create(data) {
 	const createCoursePayload = {
 		...data,
