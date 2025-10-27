@@ -23,6 +23,7 @@ model User {
     posts                  Post[]
     studySessions          StudySession[]
     Attempt                Attempt[]
+    Course                 Course[]
 
     @@map("users")
 }
@@ -93,7 +94,7 @@ model Test {
     updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
     items       TestItem[]
     media       Media[]    @relation("TestToMedia")
-    attempts     Attempt[]
+    attempts    Attempt[]
 
     @@map("tests")
 }
@@ -277,4 +278,51 @@ model SessionAnswer {
     flashcard Flashcard    @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
 
     @@map("session_answers")
+}
+
+model Course {
+    id          Int      @id @default(autoincrement())
+    userId      Int      @map("user_id")
+    name        String
+    description String?
+    price       Int
+    coverUrl    String?  @map("cover_url")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    modules     Module[]
+
+    @@map("courses")
+}
+
+model Module {
+    id        Int      @id @default(autoincrement())
+    courseId  Int      @map("course_id")
+    title     String
+    sortOrder Int?     @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    lessons   Lesson[]
+
+    @@map("modules")
+}
+
+model Lesson {
+    id        Int        @id @default(autoincrement())
+    moduleId  Int        @map("module_id")
+    title     String
+    type      LessonType
+    videoUrl  String?    @map("video_url")
+    sortOrder Int?       @map("sort_order")
+    createdAt DateTime   @default(now()) @map("created_at")
+    updatedAt DateTime   @updatedAt @map("updated_at")
+    module    Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+    @@map("lessons")
+}
+
+enum LessonType {
+    TEXT
+    VIDEO
 }

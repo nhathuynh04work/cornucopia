@@ -9,3 +9,4 @@ export { default as itemRouter } from "./item.routes.js";
 export { default as optionRouter } from "./option.routes.js";
 export { default as sessionRouter } from "./session.routes.js";
 export { default as attemptRouter } from "./attempt.routes.js";
+export { default as courseRouter } from "./course.routes.js";
