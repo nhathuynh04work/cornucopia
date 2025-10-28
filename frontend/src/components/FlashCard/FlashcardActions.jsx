@@ -1,11 +1,6 @@
 import { PlusCircle, Trash2, Rocket, Pencil } from "lucide-react";
 
-export default function FlashcardActions({
-  onCreate,
-  onDelete,
-  onStart,
-  onEdit,
-}) {
+export default function FlashcardActions({ onCreate, onStart, onCreateBulk }) {
   return (
     <div className="mt-8 flex flex-wrap gap-4 justify-center">
       <button
@@ -15,21 +10,12 @@ export default function FlashcardActions({
         <PlusCircle size={18} strokeWidth={2} className="inline-block" />
         <span> Tạo thẻ mới</span>
       </button>
-
       <button
-        onClick={onDelete}
-        className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition"
-      >
-        <Trash2 size={18} strokeWidth={2} className="inline-block" />
-        <span> Xóa thẻ này</span>
-      </button>
-
-      <button
-        onClick={onEdit}
+        onClick={onCreateBulk}
         className="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition"
       >
-        <Pencil size={18} strokeWidth={2} className="inline-block" />
-        <span> Chỉnh sửa thẻ</span>
+        <PlusCircle size={18} strokeWidth={2} className="inline-block" />
+        <span> Tạo hàng loạt</span>
       </button>
 
       <button

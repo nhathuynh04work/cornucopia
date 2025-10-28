@@ -4,10 +4,10 @@ import { api } from "../apis/axios";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-hot-toast";
 
-import FlashcardStats from "./FlashCard/FlashcardStats";
-import FlashcardGrid from "./FlashCard/FlashcardGrid";
-import CreateListModal from "./CreateListModal";
-import EditListModal from "./EditListModal";
+import FlashcardStats from "../components/FlashCard/FlashcardStats";
+import FlashcardGrid from "../components/FlashCard/FlashcardGrid";
+import CreateListModal from "../components/CreateListModal";
+import EditListModal from "../components/EditListModal";
 
 import { Plus } from "lucide-react";
 

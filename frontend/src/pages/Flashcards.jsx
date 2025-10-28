@@ -1,5 +1,5 @@
 import StudyHeatmapContainer from "../components/StudyHeatmapContainer";
-import FlashcardsList from "../components/FlashcardsList";
+import FlashcardsList from "./FlashcardsList";
 import StudyStatisticsContainer from "../components/StudyStatisticsContainer";
 
 function Flashcards() {

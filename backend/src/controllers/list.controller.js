@@ -57,3 +57,19 @@ export async function startSession(req, res) {
   const session = await listService.startSession(listId, userId);
   res.status(201).json({ session });
 }
+
+export async function createCardsBulk(req, res) {
+  const listId = req.params.listId;
+  const cards = req.body.cards;
+
+  try {
+    const result = await listService.createCardsBulk(listId, cards);
+    res.status(201).json({
+      message: `Đã tạo ${result.count} thẻ thành công`,
+      count: result.count,
+    });
+  } catch (error) {
+    console.error("Lỗi tạo hàng loạt:", error);
+    res.status(500).json({ message: error.message });
+  }
+}

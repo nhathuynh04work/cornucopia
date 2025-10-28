@@ -4,7 +4,7 @@ function EditCardModal({ card, onClose, onSubmit }) {
   const [term, setTerm] = useState(card.term || "");
   const [definition, setDefinition] = useState(card.definition || "");
 
-useEffect(() => {
+  useEffect(() => {
     if (card) {
       setTerm(card.term || "");
       setDefinition(card.definition || "");
