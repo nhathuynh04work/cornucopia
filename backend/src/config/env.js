@@ -19,4 +19,5 @@ export const env = {
 	AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
 	AWS_REGION: process.env.AWS_REGION,
 	S3_BUCKET: process.env.S3_BUCKET,
+	BUCKET_URL: process.env.S3_BUCKET_URL,
 };
