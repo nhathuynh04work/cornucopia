@@ -1,9 +1,29 @@
-import { getCourses } from "@/apis/courseApi";
+import * as courseApi from "@/apis/courseApi";
+import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export function useCoursesQuery() {
 	return useQuery({
 		queryKey: ["courses"],
-		queryFn: getCourses,
+		queryFn: courseApi.getCourses,
 	});
+}
+
+export function useCourseQuery(courseId) {
+	const setCourse = useCourseEditorStore((s) => s.setCourse);
+
+	const query = useQuery({
+		queryKey: ["course", courseId],
+		queryFn: () => courseApi.getCourse(courseId),
+		enabled: !!courseId,
+	});
+
+	useEffect(() => {
+		if (query.data) {
+			setCourse(query.data);
+		}
+	}, [query.data, setCourse]);
+
+	return query;
 }

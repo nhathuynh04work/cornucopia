@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { useCoursesQuery } from "@/hooks/useCourseQuery";
-import Modal from "../components/Modal"; // Assuming this component exists
-import { useCreateCourseMutation } from "@/hooks/useCourseMuttation";
+import Modal from "../components/Modal";
+import { useCreateCourseMutation } from "@/hooks/useCourseMutation";
+import { Link } from "react-router";
 
-/**
- * A minimal form component placed inside Courses.jsx for simplicity.
- */
 function CreateCourseForm({ onSubmit, onCancel, isSubmitting }) {
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
-	const [price, setPrice] = useState(0); // Price in cents
+	const [price, setPrice] = useState(0);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -69,9 +67,6 @@ function CreateCourseForm({ onSubmit, onCancel, isSubmitting }) {
 	);
 }
 
-/**
- * The main Courses page component
- */
 function Courses() {
 	const [showModal, setShowModal] = useState(false);
 	const { data: courses, isPending } = useCoursesQuery();
@@ -106,15 +101,14 @@ function Courses() {
 				{courses?.length === 0 && (
 					<p>No courses found. Create one to get started!</p>
 				)}
+
 				{courses?.map((course) => (
-					<div
+					<Link
+						to={`/courses/${course.id}`}
 						key={course.id}
-						className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+						className="block border border-gray-200 rounded-lg shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-purple-300">
 						<img
-							src={
-								course.coverUrl ||
-								"https://via.placeholder.com/400x200"
-							}
+							src={course.coverUrl || "/default-course-cover.svg"}
 							alt={course.name}
 							className="w-full h-40 object-cover"
 						/>
@@ -129,7 +123,7 @@ function Courses() {
 								${course.price / 100}
 							</p>
 						</div>
-					</div>
+					</Link>
 				))}
 			</div>
 

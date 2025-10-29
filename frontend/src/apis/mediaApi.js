@@ -9,6 +9,11 @@ export async function requestUploadUrl({ fileName, fileType }) {
 	return data; // { key, uploadUrl }
 }
 
+export async function setMediaProperty(payload) {
+	const { data } = await api.post("/media/set-property", payload);
+	return data.url;
+}
+
 export async function linkMedia({ s3Key, fileType, entityType, entityId }) {
 	const { data } = await api.post("/media/link", {
 		s3Key,

@@ -5,14 +5,64 @@ import * as testRepo from "../repositories/test.repository.js";
 import * as itemRepo from "../repositories/item.repository.js";
 import * as s3 from "../config/s3.js";
 import { entityEnum } from "../schemas/media.schema.js";
-import { BadRequestError, NotFoundError } from "../utils/AppError.js";
+import {
+	BadRequestError,
+	ForbiddenError,
+	NotFoundError,
+} from "../utils/AppError.js";
 import { errorMessage } from "../utils/constants.js";
+import prisma from "../prisma.js";
+import { env } from "../config/env.js";
 
 export async function generateUploadUrl({ fileName, fileType }) {
 	const key = `uploads/${randomUUID()}-${fileName}`;
 	const uploadUrl = await getUploadURL(key, fileType);
 
 	return { uploadUrl, key };
+}
+
+export async function setEntityProperty({
+	entityType,
+	entityId,
+	property,
+	s3Key,
+	userId,
+}) {
+	const url = `${env.BUCKET_URL}/${s3Key}`;
+
+	switch (entityType) {
+		case entityEnum.USER:
+			if (entityId !== userId) {
+				throw new ForbiddenError(
+					"You can only update your own profile."
+				);
+			}
+			if (property !== "avatarUrl") {
+				throw new BadRequestError(
+					"Invalid property 'avatarUrl' for entity 'user'."
+				);
+			}
+
+			return await prisma.user.update({
+				where: { id: userId },
+				data: { avatarUrl: url },
+			});
+
+		case entityEnum.COURSE:
+			if (property !== "coverUrl") {
+				throw new BadRequestError(
+					"Invalid property 'coverUrl' for entity 'course'."
+				);
+			}
+
+			return await prisma.course.update({
+				where: { id: entityId },
+				data: { coverUrl: url },
+			});
+
+		default:
+			throw new BadRequestError("Invalid entity type specified.");
+	}
 }
 
 export async function linkMediaToEntity(data) {

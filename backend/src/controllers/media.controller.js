@@ -6,6 +6,16 @@ export async function requestUploadURL(req, res) {
 	res.status(200).json({ key, uploadUrl });
 }
 
+export async function setEntityProperty(req, res) {
+	const userId = req.user.id;
+
+	const { url } = await mediaService.setEntityProperty({
+		...req.body,
+		userId,
+	});
+	res.status(200).json({ url });
+}
+
 export async function linkMediaToEntity(req, res) {
 	const test = await mediaService.linkMediaToEntity(req.body);
 	res.status(201).json({ test });

@@ -6,7 +6,9 @@ import { validateParams } from "../middlewares/validateParams.js";
 import {
 	LinkMediaSchema,
 	RequestUploadURLSchema,
+	SetPropertySchema,
 } from "../schemas/media.schema.js";
+import { authenticateJWT } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -14,6 +16,13 @@ router.post(
 	"/upload-request",
 	validateSchema(RequestUploadURLSchema),
 	mediaController.requestUploadURL
+);
+
+router.post(
+	"/set-property",
+	authenticateJWT,
+	validateSchema(SetPropertySchema),
+	mediaController.setEntityProperty
 );
 
 router.post(
