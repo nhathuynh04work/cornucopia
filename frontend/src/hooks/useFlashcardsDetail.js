@@ -30,10 +30,7 @@ export function useFlashcardsDetail(listId) {
 
   async function createCard(term, definition) {
     try {
-      const { data } = await api.post(`/lists/${listId}/cards`, {
-        term,
-        definition,
-      });
+      const { data } = await api.post(`/lists/${listId}/cards`, { term, definition });
       setCards((prev) => [...prev, data.card]);
       toast.success("Đã tạo flashcard!");
     } catch {
@@ -43,11 +40,7 @@ export function useFlashcardsDetail(listId) {
 
   async function updateCard(cardId, term, definition) {
     try {
-      const { data } = await api.put(`/lists/${listId}/cards/${cardId}`, {
-        term,
-        definition,
-      });
-      console.log(data.card);
+      const { data } = await api.put(`/lists/${listId}/cards/${cardId}`, { term, definition });
       setCards((prev) => prev.map((c) => (c.id === cardId ? data.card : c)));
       toast.success("Đã cập nhật flashcard!");
     } catch {

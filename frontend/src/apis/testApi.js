@@ -15,6 +15,16 @@ export async function fetchTestDetails(id) {
 	return data.test;
 }
 
+export async function fetchTestForAttempt(id) {
+	const { data } = await api.get(`/tests/${id}/attempt`);
+	return data.test;
+}
+
+export async function fetchTestAttemptsHistory(testId) {
+	const { data } = await api.get(`/tests/${testId}/attempts`);
+	return data.attempts;
+}
+
 export async function create(input) {
 	const { data } = await api.post("/tests", input);
 	return data.test;

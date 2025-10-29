@@ -22,6 +22,12 @@ export async function getTestDetails(req, res) {
 	res.status(200).json({ test });
 }
 
+export async function getTestForAttempt(req, res) {
+	const id = req.params.id;
+	const test = await testService.getTestForAttempt(id);
+	res.status(200).json({ test });
+}
+
 export async function updateTest(req, res) {
 	const id = req.params.id;
 	const test = await testService.updateTest(id, req.body);

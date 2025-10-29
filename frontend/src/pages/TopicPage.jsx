@@ -2,33 +2,26 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import { api } from "../apis/axios";
 import BlogList from "../components/BlogList";
-
-const stripHtml = (html = "") =>
-  String(html)
-    .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+import { stripHtml } from "../lib/text";
+import toast from "react-hot-toast";
+import { useTopicData } from "../hooks/useTopicData";
 
 export default function TopicPage() {
   const { slug } = useParams();
-  const [topic, setTopic] = useState(null);
+  const {
+    topic,
+    loading: loadingTopic,
+    error: topicError,
+  } = useTopicData(slug);
+
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingPosts, setLoadingPosts] = useState(false);
 
   useEffect(() => {
-    if (!slug) return; // chưa có slug thì bỏ qua
+    if (!slug) return;
     (async () => {
-      setLoading(true);
+      setLoadingPosts(true);
       try {
-        // Lấy info topic (optional)
-        try {
-          const { data } = await api.get(`/topics/${encodeURIComponent(slug)}`);
-          setTopic(data?.topic || data);
-        } catch {
-          setTopic(null);
-        }
-
-        // Lấy posts theo topic
         const { data: dp } = await api.get(
           `/topics/${encodeURIComponent(slug)}/posts`
         );
@@ -42,13 +35,16 @@ export default function TopicPage() {
           }))
         );
       } catch (e) {
-        console.error("Lỗi tải topic:", e);
+        console.error("Lỗi tải posts theo topic:", e);
+        toast.error("Không tải được bài viết theo chủ đề");
       } finally {
-        setLoading(false);
+        setLoadingPosts(false);
       }
     })();
   }, [slug]);
 
+  if (topicError) toast.error("Không tải được thông tin chủ đề");
+  const loading = loadingTopic || loadingPosts;
   if (loading) return <p className="p-4">Loading...</p>;
 
   return (

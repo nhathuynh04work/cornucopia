@@ -8,6 +8,7 @@ import ModalFooter from "./ModalFooter";
 import { useTestEditorStore } from "@/store/testEditorStore";
 import { useUpdateTestMutation } from "@/hooks/useTestMutation";
 import { SETTINGS_TABS } from "@/lib/test-settings.config";
+import ModalContentMedia from "./ModalContentMedia";
 
 function SettingsModal({ children }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -37,7 +38,6 @@ function SettingsModal({ children }) {
 	useEffect(() => {
 		if (isOpen) {
 			reset(settings);
-			setCurrentTab(SETTINGS_TABS.GENERAL);
 		}
 	}, [isOpen, settings, reset]);
 
@@ -68,6 +68,9 @@ function SettingsModal({ children }) {
 								<main className="flex-1 flex flex-col">
 									{currentTab === SETTINGS_TABS.GENERAL && (
 										<ModalContentGeneral />
+									)}
+									{currentTab === SETTINGS_TABS.MEDIA && (
+										<ModalContentMedia />
 									)}
 								</main>
 							</div>

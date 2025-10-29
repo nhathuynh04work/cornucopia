@@ -1,5 +1,42 @@
-/* Repository cho Post theo quan hệ M↔N (Post ⟷ Topic qua PostTopic) */
+/* 
+Hàm này dùng để chuẩn hoá dữ liệu `topics` của một bài viết (Post) để frontend luôn nhận được dạng thống nhất: mảng Topic[] thuần tuý.
+Vì trong Prisma schema, mối quan hệ giữa Post và Topic là nhiều–nhiều (M:N) thông qua bảng trung gian PostTopic
 
+⚙️ Dữ liệu TRƯỚC khi chuẩn hoá (khi Prisma truy vấn với `include: { topics: { include: { topic: true } } }`)
+ *
+ *  {
+ *    id: 1,
+ *    title: "Giới thiệu về AI",
+ *    topics: [
+ *      { topic: { id: 2, name: "AI", slug: "ai" } },
+ *      { topic: { id: 5, name: "Machine Learning", slug: "machine-learning" } }
+ *    ]
+ *  }
+ *
+ * 👉 Ở đây: `topics` là mảng các bản ghi **trung gian PostTopic**,
+ *     mỗi phần tử có thuộc tính `topic` (chứa dữ liệu thật của Topic).
+ *
+ * ---
+ * ✅ Dữ liệu SAU khi chuẩn hoá (kết quả sau khi gọi normalizePostTopics)
+ *
+ *  {
+ *    id: 1,
+ *    title: "Giới thiệu về AI",
+ *    topics: [
+ *      { id: 2, name: "AI", slug: "ai" },
+ *      { id: 5, name: "Machine Learning", slug: "machine-learning" }
+ *    ]
+ *  }
+ *
+ * 👉 Sau khi chuẩn hoá: `topics` trở thành mảng các đối tượng Topic thuần túy,
+ *     không còn wrapper `topic:` bên trong.
+ * Trước chuẩn hoá: topics = [{ topic: Topic }, { topic: Topic }]
+ * Sau chuẩn hoá: topics = [Topic, Topic]
+ * 🧠 Lợi ích:
+ * - Giúp frontend chỉ cần xử lý `post.topics` như mảng `Topic[]`.
+ * - Tránh lỗi khi phải check `t.topic` hay `t.id`.
+ * - Dữ liệu đồng nhất dù truy vấn Prisma khác nhau (`include topic` hoặc `select topic`).
+*/
 function normalizePostTopics(p) {
   if (!p) return p;
   const topics =
@@ -13,58 +50,30 @@ function normalizePostTopics(p) {
 
 /* Tạo mới một bài viết (Post)
  * Trả về bài viết kèm thông tin tác giả (author) và danh sách chủ đề (topics: Topic[]) */
-export async function createPost(
-  client,
-  { slug, title, content, authorId, topicIds = [], coverUrl = null }
-) {
-  const created = await client.post.create({
-    data: {
-      authorId,
-      title,
-      slug,
-      content,
-      status: "draft",
-      publishedAt: null,
-      coverUrl,
-      ...(Array.isArray(topicIds) && topicIds.length
-        ? {
-            topics: {
-              create: topicIds.map((tid) => ({
-                topic: { connect: { id: Number(tid) } },
-              })),
-            },
-          }
-        : {}),
-    },
-    include: {
-      author: { select: { id: true, name: true, email: true } },
-      topics: {
-        include: { topic: { select: { id: true, name: true, slug: true } } },
-      },
-    },
-  });
-  return normalizePostTopics(created);
+export async function createPost(data, client = prisma) {
+  return client.post.create({ data });
 }
 
 /* Lấy thông tin một bài viết theo ID (include author + topics) */
-export async function getPostById(client, { id }) {
+export async function findById(id, client = prisma) {
   const row = await client.post.findUnique({
     where: { id },
     include: {
-      author: { select: { id: true, name: true, email: true } },
+      author: true,
       topics: {
-        include: { topic: { select: { id: true, name: true, slug: true } } },
+        include: { topic: true },
       },
     },
   });
+
   return normalizePostTopics(row);
 }
 
 /* Lấy tất cả các bài viết (order by publishedAt desc, createdAt desc) */
-export async function getAllPosts(client) {
+export async function getAllPosts(client = prisma) {
   const rows = await client.post.findMany({
     include: {
-      author: { select: { id: true, name: true, email: true } },
+      author: true,
       topics: {
         include: { topic: { select: { id: true, name: true, slug: true } } },
       },
@@ -75,56 +84,29 @@ export async function getAllPosts(client) {
 }
 
 /* Xóa bài viết theo ID */
-export async function deletePostById(client, { id }) {
-  try {
-    const deleted = await client.post.delete({
-      where: { id },
-      select: { id: true },
-    });
-    return deleted.id;
-  } catch {
-    return null;
-  }
+export async function deletePostById(id, client = prisma) {
+  await client.post.delete({ where: { id } });
 }
 
-/* Cập nhật nội dung bài viết */
-export async function updatePostById(
-  client,
-  { id, title, content, status, coverUrl = null, topicIds }
-) {
-  const existing = await client.post.findUnique({
-    where: { id },
-    select: { publishedAt: true },
-  });
-  if (!existing) return null;
-
-  let nextPublishedAt = existing.publishedAt;
-  if (status === "published") {
-    if (!existing.publishedAt) nextPublishedAt = new Date();
-  } else {
-    nextPublishedAt = null;
-  }
-
-  const data = {
-    title,
-    content,
-    status,
-    coverUrl,
-    publishedAt: nextPublishedAt,
-  };
-
-  if (Array.isArray(topicIds)) {
-    data.topics = {
-      deleteMany: {}, // xoá toàn bộ liên kết cũ
-      create: topicIds.map((tid) => ({
-        topic: { connect: { id: Number(tid) } },
-      })),
-    };
-  }
-
-  const updated = await client.post.update({
+export async function updatePostBase(id, data, client = prisma) {
+  return client.post.update({
     where: { id },
     data,
+  });
+}
+
+// Thay toàn bộ topics của post = topicIds (đã chuẩn hoá)
+export async function replacePostTopics(id, topicIds, client = prisma) {
+  return client.post.update({
+    where: { id },
+    data: {
+      topics: {
+        deleteMany: {}, // xoá toàn bộ liên kết cũ
+        create: topicIds.map((tid) => ({
+          topic: { connect: { id: Number(tid) } },
+        })),
+      },
+    },
     include: {
       author: { select: { id: true, name: true, email: true } },
       topics: {
@@ -132,41 +114,32 @@ export async function updatePostById(
       },
     },
   });
-  return normalizePostTopics(updated);
 }
 
 /*Lấy danh sách bài viết theo slug của topic*/
-export async function getPostsByTopicSlug(
-  client,
-  { slug, offset = 0, limit = 50 }
+export async function listPostsByTopicSlug(
+  { slug, offset = 0, limit = 50 },
+  client = prisma
 ) {
-  const topic = await client.topic.findUnique({
-    where: { slug: String(slug) },
-    select: { id: true },
-  });
-  if (!topic) return [];
-
-  const rows = await client.postTopic.findMany({
+  const rows = await client.post.findMany({
     where: {
-      topicId: topic.id,
-      post: { status: "published" }, // chỉ lấy bài đã publish
+      status: "published",
+      topics: { some: { topic: { slug } } },
     },
-    include: {
-      post: {
-        include: {
-          author: { select: { id: true, name: true, email: true } },
-          topics: {
-            include: {
-              topic: { select: { id: true, name: true, slug: true } },
-            },
-          },
-        },
-      },
-    },
-    orderBy: { post: { publishedAt: "desc" } },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     skip: offset,
     take: limit,
+    include: {
+      author: true,
+      topics: { include: { topic: true } },
+    },
   });
 
-  return rows.map((r) => normalizePostTopics(r.post));
+  // 🔁 Normalize: PostTopic[] -> Topic[]
+  return rows.map((p) => ({
+    ...p,
+    topics: Array.isArray(p.topics)
+      ? p.topics.map((pt) => pt.topic) // chỉ còn Topic[]
+      : [],
+  }));
 }

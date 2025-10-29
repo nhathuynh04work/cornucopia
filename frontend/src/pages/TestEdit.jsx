@@ -1,14 +1,29 @@
-import { useParams } from "react-router";
+import { Navigate, useParams } from "react-router";
 import TestEditorNav from "../components/TestEditor/TestNav/TestEditorNav";
 import TestEditor from "../components/TestEditor/TestEditor/TestEditor";
-import TestItemSettings from "../components/TestEditor/TestItemSettings/TestItemSettings";
-import { useTestEditorQuery } from "@/hooks/useTestEditorQuery";
+import { useTestEditorQuery } from "@/hooks/useTestQuery";
+import TestItemSettings from "@/components/TestEditor/TestItemSettings/TestItemSettings";
+import { useAuth } from "@/contexts/AuthContext";
 
 function TestEdit() {
 	const { id } = useParams();
-	const { isLoading, isError } = useTestEditorQuery(id);
+	const { isLoading: isTestLoading, isError } = useTestEditorQuery(id);
 
-	if (isLoading)
+	const { user, isInitialLoading } = useAuth();
+
+	if (isInitialLoading) {
+		return (
+			<div className="flex justify-center items-center h-screen text-gray-500">
+				Checking authentication...
+			</div>
+		);
+	}
+
+	if (!user) {
+		return <Navigate to="/" />;
+	}
+
+	if (isTestLoading)
 		return (
 			<div className="flex justify-center items-center h-screen text-gray-500 animate-pulse">
 				Loading editor...
@@ -23,9 +38,9 @@ function TestEdit() {
 		);
 
 	return (
-		<div className="grid grid-cols-12 h-screen bg-gray-50/50">
+		<div className="fixed inset-0 grid grid-cols-12 bg-gray-50/50">
 			{/* Left navigation */}
-			<aside className="col-span-2 border-r shadow-sm overflow-hidden">
+			<aside className="col-span-2 border-r shadow-sm h-full overflow-hidden">
 				<TestEditorNav />
 			</aside>
 
@@ -37,7 +52,7 @@ function TestEdit() {
 			</main>
 
 			{/* Settings panel */}
-			<aside className="col-span-2 border-l p-6">
+			<aside className="col-span-2 border-l h-full overflow-hidden">
 				<TestItemSettings />
 			</aside>
 		</div>
