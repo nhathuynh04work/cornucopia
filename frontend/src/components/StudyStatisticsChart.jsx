@@ -65,7 +65,7 @@ export default function StudyStatisticsChart({ stats }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-md w-[40%] ml-auto mr-[0%] mb-6">
+    <div className="bg-white rounded-2xl p-6 shadow-md">
       <h2 className="text-lg font-semibold mb-4 text-center">
         Thống kê học tập hàng tháng (12 Tháng Gần Nhất)
       </h2>
