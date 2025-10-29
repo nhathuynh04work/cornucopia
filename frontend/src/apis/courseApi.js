@@ -9,3 +9,8 @@ export async function createCourse(payload) {
 	const { data } = await api.post("/courses", payload);
 	return data.course;
 }
+
+export async function getCourse(courseId) {
+	const { data } = await api.get(`/courses/${courseId}`);
+	return data.course;
+}
