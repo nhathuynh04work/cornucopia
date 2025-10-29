@@ -108,10 +108,7 @@ function Courses() {
 						key={course.id}
 						className="block border border-gray-200 rounded-lg shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-purple-300">
 						<img
-							src={
-								course.coverUrl ||
-								"https://via.placeholder.com/400x200"
-							}
+							src={course.coverUrl || "/default-course-cover.svg"}
 							alt={course.name}
 							className="w-full h-40 object-cover"
 						/>

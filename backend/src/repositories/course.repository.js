@@ -24,3 +24,17 @@ export async function create(data, client = prisma) {
 		include: { modules: true },
 	});
 }
+
+export async function update(id, data, client = prisma) {
+	return client.course.update({
+		where: { id },
+		data,
+		include: {
+			modules: {
+				include: {
+					lessons: true,
+				},
+			},
+		},
+	});
+}

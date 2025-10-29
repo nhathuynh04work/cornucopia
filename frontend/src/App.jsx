@@ -25,6 +25,7 @@ import TestAttempt from "./pages/TestAttempt";
 import AttemptResult from "./pages/AttemptResult";
 import FlashcardPractice from "./components/FlashCard/FlashcardPractice";
 import CourseInfo from "./pages/CourseInfo";
+import CourseEdit from "./pages/CourseEdit";
 
 function App() {
 	return (
@@ -71,6 +72,7 @@ function App() {
 					{/* Courses Routes */}
 					<Route path="courses" element={<Courses />} />
 					<Route path="courses/:id" element={<CourseInfo />} />
+					<Route path="courses/:id/edit" element={<CourseEdit />} />
 
 					{/* Other Routes */}
 					<Route path="attempts/:id" element={<AttemptResult />} />

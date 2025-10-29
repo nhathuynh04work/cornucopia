@@ -9,4 +9,4 @@ const CourseSchema = z.object({
 
 export const CreateCourseSchema = CourseSchema.omit({ coverUrl: true });
 
-export const UpdateCourseSchema = CourseSchema;
+export const UpdateCourseSchema = CourseSchema.partial();

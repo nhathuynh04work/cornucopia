@@ -23,3 +23,10 @@ export async function create(data) {
 	};
 	return courseRepo.create(createCoursePayload);
 }
+
+export async function update(courseId, data) {
+	const course = await courseRepo.findById(courseId);
+	if (!course) throw new NotFoundError("Course not found");
+
+	return courseRepo.update(courseId, data);
+}

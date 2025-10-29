@@ -14,7 +14,7 @@ export function useRequestUploadUrlMutation() {
 }
 
 export function useSetMediaPropertyMutation({ onSuccess, onError }) {
-	const queryClient = useQueryClient(); // Get query client for invalidation
+	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: ({ entityType, entityId, property, s3Key }) =>
@@ -25,10 +25,8 @@ export function useSetMediaPropertyMutation({ onSuccess, onError }) {
 				s3Key,
 			}),
 
-		// We pass onSuccess/onError from the component
 		onSuccess: (data, variables) => {
 			// Invalidate relevant queries after success
-			// Example: If a course coverUrl was updated, refetch that course
 			if (variables.entityType === "course") {
 				queryClient.invalidateQueries({
 					queryKey: ["course", variables.entityId],
@@ -36,11 +34,10 @@ export function useSetMediaPropertyMutation({ onSuccess, onError }) {
 			}
 			// Add similar invalidations for 'user' (avatarUrl) etc.
 
-			onSuccess?.(data, variables); // Call the success handler passed from the component
+			onSuccess?.(data, variables);
 		},
 		onError: (err, variables) => {
-			console.error("Set media property error:", err);
-			onError?.(err.message || "Failed to update property.", variables); // Call error handler
+			onError?.(err.message || "Failed to update property.", variables);
 		},
 	});
 }
