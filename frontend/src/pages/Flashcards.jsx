@@ -4,7 +4,7 @@ import StudyStatisticsContainer from "../components/StudyStatisticsContainer";
 
 function Flashcards() {
   return (
-    <div className="p-6 grid grid-cols-10 grid-rows-5 gap-4">
+    <div className="p-6 grid grid-cols-10 gap-4">
       <div className="col-span-6">
         {/* FlashcardsList giờ tự xử lý tạo list và điều hướng */}
         <FlashcardsList />

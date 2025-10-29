@@ -9,7 +9,7 @@ import EditCardModal from "../components/FlashCard/EditCardModal.jsx";
 import LoadingMessage from "../components/LoadingMessage.jsx";
 import CreateCardBulkModal from "../components/FlashCard/CreateCardBulkModal.jsx";
 import { api } from "../apis/axios";
-import { PlusCircle, ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { PlusCircle, ArrowLeft, Pencil, Trash2, Volume2 } from "lucide-react";
 
 export default function FlashcardsDetail() {
   const { listId } = useParams();
@@ -192,6 +192,19 @@ export default function FlashcardsDetail() {
             {/* Thuật ngữ bên trái */}
             <div className="flex-1 text-left font-semibold text-blue-600 text-lg">
               {c.term}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const utter = new SpeechSynthesisUtterance(c.term);
+                  utter.lang = "en-US"; // hoặc 'vi-VN' nếu là tiếng Việt
+                  speechSynthesis.cancel(); // hủy nếu đang nói
+                  speechSynthesis.speak(utter);
+                }}
+                className="ml-2 text-blue-500 hover:text-blue-700"
+                title="Phát âm"
+              >
+                <Volume2 className="w-4 h-4 inline-block" />
+              </button>
             </div>
 
             {/* Đường ngăn giữa */}
@@ -200,6 +213,19 @@ export default function FlashcardsDetail() {
             {/* Nghĩa bên phải */}
             <div className="flex-1 text-gray-700 text-lg text-left">
               {c.definition}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const utter = new SpeechSynthesisUtterance(c.definition); // ✅ sửa thành definition
+                  utter.lang = "vi-VN"; // đọc tiếng Việt
+                  speechSynthesis.cancel();
+                  speechSynthesis.speak(utter);
+                }}
+                className="ml-2 text-blue-500 hover:text-blue-700"
+                title="Phát âm định nghĩa"
+              >
+                <Volume2 className="w-4 h-4 inline-block" />
+              </button>
             </div>
 
             {/* Các nút hành động bên phải */}

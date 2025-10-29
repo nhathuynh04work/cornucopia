@@ -50,7 +50,7 @@ export default function StudyStatisticsHeatmap({ stats }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-md">
+    <div className="bg-white rounded-2xl p-6 pb-0 shadow-md h-[50%]">
       <h2 className="text-lg font-semibold mb-4 text-center">
         Biểu đồ hoạt động học tập theo ngày ({selectedMonth.label})
       </h2>
