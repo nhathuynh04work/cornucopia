@@ -10,8 +10,12 @@ export async function createCard(data) {
   return cardRepo.createCard(data);
 }
 
+export async function createCardsBulk(listId, cards) {
+  return await cardRepo.createCardsBulk(listId, cards);
+}
+
 export async function updateCard(id, data) {
-  cardRepo.updateCard(id, data);
+  return cardRepo.updateCard(id, data);
 }
 
 export async function getListInfo(id) {
@@ -31,5 +35,6 @@ export async function updateList(id, data) {
 }
 
 export async function startSession(listId, userId) {
-    return await sessionRepo.startSession(listId, userId);
+  return await sessionRepo.startSession(listId, userId);
 }
+

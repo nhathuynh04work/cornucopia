@@ -13,8 +13,24 @@ export async function submitAnswerController(req, res) {
 }
 
 export async function updateEndtimeController(req, res) {
-  const { startTime, endTime } = await sessionService.updateEndTime(
-    req.params.sessionId
-  );
+  const sessionId = req.params.sessionId;
+  const { startTime, endTime } = await sessionService.updateEndTime(sessionId);
   res.status(200).json({ startTime, endTime });
+}
+
+export async function getStudyStatistic(req, res) {
+  const userId = req.user.id;
+  const stats = await sessionService.getStudyStatisticService(userId);
+  res.status(200).json({ stats });
+}
+
+export async function getYearlyStudyStatistic(req, res) {
+  try {
+    const userId = req.user.id;
+    const stats = await sessionService.getYearlyStudyStatisticService(userId);
+    res.status(200).json({ data: stats });
+  } catch (error) {
+    console.error("Error fetching yearly stats:", error);
+    res.status(500).json({ error: "Failed to fetch yearly statistics" });
+  }
 }

@@ -1,13 +1,15 @@
 import { useParams, useNavigate } from "react-router";
 import { useState } from "react";
 import { useFlashcardsDetail } from "../hooks/useFlashcardsDetail";
-import FlashcardView from "../components/FlashCard/FlashcardView";
-import CardNavigator from "../components/FlashCard/FlashcardNavigator";
-import CardActions from "../components/FlashCard/FlashcardActions";
-import CreateCardModal from "../components/FlashCard/CreateCardModal";
-import EditCardModal from "../components/FlashCard/EditCardModal";
-import LoadingMessage from "../components/LoadingMessage";
-import { PlusCircle, ArrowLeft } from "lucide-react";
+import FlashcardView from "../components/FlashCard/FlashcardView.jsx";
+import CardNavigator from "../components/FlashCard/FlashcardNavigator.jsx";
+import CardActions from "../components/FlashCard/FlashcardActions.jsx";
+import CreateCardModal from "../components/FlashCard/CreateCardModal.jsx";
+import EditCardModal from "../components/FlashCard/EditCardModal.jsx";
+import LoadingMessage from "../components/LoadingMessage.jsx";
+import CreateCardBulkModal from "../components/FlashCard/CreateCardBulkModal.jsx";
+import { api } from "../apis/axios";
+import { PlusCircle, ArrowLeft, Pencil, Trash2 } from "lucide-react";
 
 export default function FlashcardsDetail() {
   const { listId } = useParams();
@@ -22,13 +24,13 @@ export default function FlashcardsDetail() {
     updateCard,
     deleteCard,
     startSession,
-    setCards,
   } = useFlashcardsDetail(listId);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
   const [current, setCurrent] = useState(0); // current là 1 vị trí trong mảng
+  const [showBulkForm, setShowBulkForm] = useState(false);
 
   if (loading) return <LoadingMessage text="⏳ Đang tải..." />;
 
@@ -53,17 +55,21 @@ export default function FlashcardsDetail() {
     }
   }
 
+  async function handleCreateBulk(cardsArray) {
+    try {
+      await api.post(`/lists/${listId}/cards/bulk`, { cards: cardsArray });
+      setShowBulkForm(false);
+      window.location.reload(); // hoặc refetchCards();
+    } catch (err) {
+      console.error("Lỗi khi tạo hàng loạt:", err);
+    }
+  }
+
   // Wrapper để cập nhật thẻ (nếu modal edit cần đóng từ component cha)
   async function handleUpdate(cardId, term, definition) {
     try {
       await updateCard(cardId, term, definition);
       setShowEditForm(false);
-      setEditingCard(null);
-      setCards((prev) =>
-        prev.map((card, index) =>
-          index === current ? { ...card, term, definition } : card
-        )
-      );
     } catch (err) {
       console.error("Lỗi khi cập nhật thẻ (wrapper):", err);
     }
@@ -90,6 +96,8 @@ export default function FlashcardsDetail() {
       console.error("Lỗi khi xóa thẻ (wrapper):", err);
     }
   }
+
+  if (!cards) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
@@ -132,6 +140,7 @@ export default function FlashcardsDetail() {
           />
           <CardActions
             onCreate={() => setShowCreateForm(true)}
+            onCreateBulk={() => setShowBulkForm(true)}
             onDelete={() => handleDelete(card?.id)}
             onStart={async () => {
               const session = await startSession();
@@ -153,16 +162,73 @@ export default function FlashcardsDetail() {
         />
       )}
 
+      {showBulkForm && (
+        <CreateCardBulkModal
+          onClose={() => setShowBulkForm(false)}
+          onSubmit={handleCreateBulk} // handler mới
+        />
+      )}
+
       {showEditForm && editingCard && (
         <EditCardModal
           card={editingCard}
           onClose={() => {
             setShowEditForm(false);
-            setEditingCard(null);
           }}
           onSubmit={handleUpdate}
         />
       )}
+      {/* Danh sách toàn bộ thẻ trong bộ này */}
+      <div className="mt-10 flex flex-col gap-4 w-full max-w-4xl mx-auto">
+        {cards.map((c, index) => (
+          <div
+            key={c.id || index}
+            className={`flex justify-between items-center p-4 rounded-xl shadow-md transition-all duration-200 ${
+              index === current
+                ? "bg-blue-100 border-2 border-blue-500"
+                : "bg-white hover:bg-gray-100"
+            }`}
+          >
+            {/* Thuật ngữ bên trái */}
+            <div className="flex-1 text-left font-semibold text-blue-600 text-lg">
+              {c.term}
+            </div>
+
+            {/* Đường ngăn giữa */}
+            <div className="w-px bg-gray-300 h-8 mx-4"></div>
+
+            {/* Nghĩa bên phải */}
+            <div className="flex-1 text-gray-700 text-lg text-left">
+              {c.definition}
+            </div>
+
+            {/* Các nút hành động bên phải */}
+            <div className="flex items-center gap-3 ml-4">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingCard(c);
+                  setShowEditForm(true);
+                }}
+                className="text-gray-500 hover:text-green-600"
+                title="Chỉnh sửa"
+              >
+                <Pencil className="w-5 h-5 text-gray-500 hover:text-green-600" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(c.id);
+                }}
+                className="text-gray-500 hover:text-green-600"
+                title="Xóa thẻ"
+              >
+                <Trash2 className="w-5 h-5 text-gray-500 hover:text-red-600" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

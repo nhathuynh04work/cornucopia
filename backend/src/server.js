@@ -6,11 +6,12 @@ import {
 	testRouter,
 	optionRouter,
 	itemRouter,
-	postRouter,
-	topicRouter,
-	cardRouter,
-	listRouter,
-	sessionRouter,
+  postRouter, 
+  topicRouter,
+  cardRouter,
+  listRouter,
+  sessionRouter,
+  userRouter,
 	mediaRouter,
 	attemptRouter,
 	courseRouter,
@@ -46,6 +47,7 @@ app.use("/tests", testRouter);
 app.use("/items", itemRouter);
 app.use("/options", optionRouter);
 app.use("/sessions", sessionRouter);
+app.use("/users", userRouter);
 app.use("/attempts", attemptRouter);
 app.use("/courses", courseRouter);
 

@@ -161,3 +161,23 @@ button:disabled {
 	outline-offset: 2px; /* Khoảng cách giữa ảnh và viền */
 	border-radius: 4px; /* Bo góc nhẹ cho viền */
 }
+
+/* Ghi đè style mặc định của react-calendar-heatmap */
+.react-calendar-heatmap text {
+  font-size: 5px !important; /* chỉnh nhỏ lại */
+  fill: #777 !important; /* đổi màu nếu muốn */
+  dominant-baseline: middle; /* căn giữa theo chiều dọc */
+  transform: translateY(-6px);
+}
+
+/* Thu nhỏ toàn bộ heatmap */
+.react-calendar-heatmap {
+  transform: scale(0.8);
+  transform-origin: top left;
+}
+
+/* Chỉnh kích thước ô nếu cần tinh chỉnh thêm */
+.react-calendar-heatmap rect {
+  width: 8px !important;
+  height: 8px !important;
+}

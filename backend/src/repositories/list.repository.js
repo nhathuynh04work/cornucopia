@@ -10,7 +10,11 @@ export async function findById(id, client = prisma) {
       id,
     },
     include: {
-      flashcards: true,
+      flashcards: {
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
     },
   });
 }

@@ -57,3 +57,12 @@ export async function startSession(req, res) {
   const session = await listService.startSession(listId, userId);
   res.status(201).json({ session });
 }
+
+export async function createCardsBulk(req, res) {
+  const listId = req.params.listId;
+  const cards = req.body.cards;
+  const result = await listService.createCardsBulk(listId, cards);
+  res.status(201).json({
+    count: result.count,
+  });
+}
