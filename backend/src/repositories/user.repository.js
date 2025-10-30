@@ -42,3 +42,7 @@ export async function create(data, authData, client = prisma) {
 export async function activate(id, client = prisma) {
 	return client.user.update({ where: { id }, data: { isActive: true } });
 }
+
+export async function update(id, data, client = prisma) {
+	return client.update({ where: { id }, data });
+}

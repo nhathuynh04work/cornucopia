@@ -9,7 +9,7 @@ export async function requestUploadURL(req, res) {
 export async function setEntityProperty(req, res) {
 	const userId = req.user.id;
 
-	const { url } = await mediaService.setEntityProperty({
+	const url = await mediaService.setEntityProperty({
 		...req.body,
 		userId,
 	});
