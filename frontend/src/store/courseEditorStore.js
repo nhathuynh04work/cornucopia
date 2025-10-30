@@ -24,4 +24,18 @@ export const useCourseEditorStore = create((set, get) => ({
 			},
 		});
 	},
+
+	removeModule: (moduleId) => {
+		const currentCourse = get().course;
+		if (currentCourse) {
+			set({
+				course: {
+					...currentCourse,
+					modules: currentCourse.modules.filter(
+						(m) => m.id !== moduleId
+					),
+				},
+			});
+		}
+	},
 }));
