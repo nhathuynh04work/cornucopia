@@ -36,6 +36,8 @@ export async function getFetchUrl(key) {
 }
 
 export async function deleteFile(key) {
+	if (!key) return;
+
 	const command = new DeleteObjectCommand({
 		Bucket: env.S3_BUCKET,
 		Key: key,

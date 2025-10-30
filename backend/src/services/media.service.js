@@ -3,6 +3,8 @@ import { getUploadURL } from "../config/s3.js";
 import * as mediaRepo from "../repositories/media.repository.js";
 import * as testRepo from "../repositories/test.repository.js";
 import * as itemRepo from "../repositories/item.repository.js";
+import * as userRepo from "../repositories/user.repository.js";
+import * as courseRepo from "../repositories/course.repository.js";
 import * as s3 from "../config/s3.js";
 import { entityEnum } from "../schemas/media.schema.js";
 import {
@@ -11,7 +13,6 @@ import {
 	NotFoundError,
 } from "../utils/AppError.js";
 import { errorMessage } from "../utils/constants.js";
-import prisma from "../prisma.js";
 import { env } from "../config/env.js";
 
 export async function generateUploadUrl({ fileName, fileType }) {
@@ -29,39 +30,48 @@ export async function setEntityProperty({
 	userId,
 }) {
 	const url = `${env.BUCKET_URL}/${s3Key}`;
+	let oldKey = null;
 
-	switch (entityType) {
-		case entityEnum.USER:
-			if (entityId !== userId) {
+	try {
+		// CASE: user
+		if (entityType === entityEnum.USER) {
+			if (entityId !== userId)
 				throw new ForbiddenError(
 					"You can only update your own profile."
 				);
-			}
-			if (property !== "avatarUrl") {
+
+			if (property !== "avatarUrl")
 				throw new BadRequestError(
 					"Invalid property 'avatarUrl' for entity 'user'."
 				);
-			}
 
-			return await prisma.user.update({
-				where: { id: userId },
-				data: { avatarUrl: url },
-			});
+			const user = await userRepo.findById(userId);
+			oldKey = urlToS3Key(user.avatarUrl);
 
-		case entityEnum.COURSE:
-			if (property !== "coverUrl") {
+			await userRepo.update(userId, { avatarUrl: url });
+		}
+
+		// CASE: course
+		if (entityType === entityEnum.COURSE) {
+			if (property !== "coverUrl")
 				throw new BadRequestError(
 					"Invalid property 'coverUrl' for entity 'course'."
 				);
-			}
 
-			return await prisma.course.update({
-				where: { id: entityId },
-				data: { coverUrl: url },
-			});
+			const course = await courseRepo.findById(entityId);
+			oldKey = urlToS3Key(course.coverUrl);
 
-		default:
-			throw new BadRequestError("Invalid entity type specified.");
+			await courseRepo.update(entityId, { coverUrl: url });
+		}
+
+		// Delete the s3 file in the background
+		if (oldKey) s3.deleteFile(oldKey);
+
+		return url;
+
+	} catch (err) {
+		s3.deleteFile(s3Key); // delete the new file on s3 if db update fails
+		throw err;
 	}
 }
 
@@ -109,4 +119,11 @@ export async function deleteMedia(mediaId) {
 	await mediaRepo.remove(mediaId);
 
 	return testRepo.getDetails(testId);
+}
+
+function urlToS3Key(url) {
+	if (!url) return;
+
+	const s3Url = new URL(url);
+	return s3Url.pathname.substring(1);
 }

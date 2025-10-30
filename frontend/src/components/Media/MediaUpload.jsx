@@ -7,6 +7,7 @@ export default function MediaUpload({
 	onUploadSuccess,
 	onUploadError,
 	disabled = false,
+	accept = "image/*, video/*, audio/*",
 }) {
 	const [isUploading, setIsUploading] = useState(false);
 	const inputRef = useRef(null);
@@ -43,14 +44,13 @@ export default function MediaUpload({
 			}
 
 			// Step 3: Notify the parent with the S3 data.
-			// The parent will now handle linking.
 			onUploadSuccess?.({ s3Key: key, fileType: file.type });
 		} catch (err) {
 			onUploadError?.(err.message || "Upload failed");
 		} finally {
 			setIsUploading(false);
 
-            // Reset input so user can upload the same file again
+			// Reset input so user can upload the same file again
 			if (inputRef.current) {
 				inputRef.current.value = "";
 			}
@@ -64,7 +64,7 @@ export default function MediaUpload({
 				ref={inputRef}
 				onChange={handleFileChange}
 				className="hidden"
-				accept="image/png, image/jpeg, image/gif, video/mp4, audio/mp3"
+				accept={accept}
 				disabled={isDisabled}
 			/>
 			<div
