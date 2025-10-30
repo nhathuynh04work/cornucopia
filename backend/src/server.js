@@ -6,15 +6,17 @@ import {
 	testRouter,
 	optionRouter,
 	itemRouter,
-  postRouter, 
-  topicRouter,
-  cardRouter,
-  listRouter,
-  sessionRouter,
-  userRouter,
+	postRouter,
+	topicRouter,
+	cardRouter,
+	listRouter,
+	sessionRouter,
+	userRouter,
 	mediaRouter,
 	attemptRouter,
 	courseRouter,
+	moduleRouter,
+	lessonRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -50,6 +52,8 @@ app.use("/sessions", sessionRouter);
 app.use("/users", userRouter);
 app.use("/attempts", attemptRouter);
 app.use("/courses", courseRouter);
+app.use("/modules", moduleRouter);
+app.use("/lessons", lessonRouter);
 
 // Handler riêng cho payload quá lớn (413)
 app.use((err, req, res, next) => {
