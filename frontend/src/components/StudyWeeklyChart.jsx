@@ -36,7 +36,7 @@ export default function StudyStatisticsHeatmap({ stats }) {
           endDate={endDate}
           values={values}
           showMonthLabels={true}
-          showWeekdayLabels={true}
+          showWeekdayLabels={false}
           classForValue={(value) => getColorClass(value?.count)}
           tooltipDataAttrs={(value) => ({
             "data-tooltip-id": "heatmap-tooltip",

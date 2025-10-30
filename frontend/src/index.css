@@ -161,3 +161,8 @@ button:disabled {
 	outline-offset: 2px; /* Khoảng cách giữa ảnh và viền */
 	border-radius: 4px; /* Bo góc nhẹ cho viền */
 }
+
+.react-calendar-heatmap rect {
+  rx: 3px; 
+  ry: 3px;
+}
