@@ -27,15 +27,23 @@ export const useCourseEditorStore = create((set, get) => ({
 
 	removeModule: (moduleId) => {
 		const currentCourse = get().course;
-		if (currentCourse) {
-			set({
-				course: {
-					...currentCourse,
-					modules: currentCourse.modules.filter(
-						(m) => m.id !== moduleId
-					),
-				},
-			});
-		}
+		set({
+			course: {
+				...currentCourse,
+				modules: currentCourse.modules.filter((m) => m.id !== moduleId),
+			},
+		});
+	},
+
+	updateModule: (module) => {
+		const currentCourse = get().course;
+		set({
+			course: {
+				...currentCourse,
+				modules: currentCourse.modules.map((m) =>
+					m.id !== module.id ? m : module
+				),
+			},
+		});
 	},
 }));

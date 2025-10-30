@@ -16,9 +16,11 @@ function CourseCurriculumEditor() {
 				Start building your course by adding modules and lessons.
 			</p>
 			<div className="space-y-6">
-				{course?.modules.map((module) => (
-					<ModuleItem key={module.id} module={module} />
-				))}
+				{course?.modules
+					.sort((a, b) => a.sortOrder - b.sortOrder)
+					.map((module) => (
+						<ModuleItem key={module.id} module={module} />
+					))}
 			</div>
 
 			{/* Add Module Button */}
