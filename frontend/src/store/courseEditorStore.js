@@ -13,4 +13,15 @@ export const useCourseEditorStore = create((set, get) => ({
 		const currentCourse = get().course;
 		set({ course: { ...currentCourse, coverUrl: url } });
 	},
+
+	addModule: (module) => {
+		const currentCourse = get().course;
+
+		set({
+			course: {
+				...currentCourse,
+				modules: [...currentCourse.modules, module],
+			},
+		});
+	},
 }));

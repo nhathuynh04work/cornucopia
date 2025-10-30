@@ -24,3 +24,9 @@ export async function updateCourse(req, res) {
 	const course = await courseService.update(id, req.body);
 	res.status(200).json({ course });
 }
+
+export async function addModule(req, res) {
+	const id = req.params.id;
+	const module = await courseService.addModule(id);
+	res.status(201).json({ module });
+}

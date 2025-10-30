@@ -19,3 +19,8 @@ export async function update(courseId, payload) {
 	const { data } = await api.patch(`/courses/${courseId}`, payload);
 	return data.course;
 }
+
+export async function addModule(courseId) {
+	const { data } = await api.post(`/courses/${courseId}/modules`);
+	return data.module;
+}

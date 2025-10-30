@@ -1,3 +1,4 @@
+import { useAddModuleMutation } from "@/hooks/useCourseMutation";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import {
 	Plus,
@@ -10,7 +11,8 @@ import {
 
 function CourseCurriculumEditor() {
 	const course = useCourseEditorStore((s) => s.course);
-    
+	const { mutate: addModule } = useAddModuleMutation(course?.id);
+
 	const lessonIcon = {
 		VIDEO: <Video className="w-4 h-4 text-purple-600" />,
 		TEXT: <FileText className="w-4 h-4 text-blue-600" />,
@@ -53,7 +55,7 @@ function CourseCurriculumEditor() {
 
 						{/* Lessons List */}
 						<ul className="p-4 space-y-3">
-							{module.lessons.map((lesson) => (
+							{module?.lessons.map((lesson) => (
 								<li
 									key={lesson.id}
 									className="flex items-center justify-between p-3 rounded-md border border-gray-200 bg-gray-50">
@@ -95,7 +97,7 @@ function CourseCurriculumEditor() {
 
 			{/* Add Module Button */}
 			<button
-				onClick={() => alert("Add module placeholder")}
+				onClick={addModule}
 				className="mt-6 flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-700 rounded-md">
 				<Plus className="w-4 h-4" /> Add Module
 			</button>

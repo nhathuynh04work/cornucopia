@@ -78,4 +78,7 @@ export const defaults = {
 		content: "<p>Nội dung mặc định</p>",
 		status: "draft",
 	},
+	MODULE_INFO: {
+		title: "New module",
+	},
 };
