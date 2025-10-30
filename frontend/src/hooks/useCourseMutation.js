@@ -24,12 +24,9 @@ export function useUpdateCourseMutation(courseId) {
 		mutationFn: (payload) => courseApi.update(courseId, payload),
 		onSuccess: () => {
 			toast.success("Course updated");
-            
+
 			// refetch the list of all courses
 			queryClient.invalidateQueries({ queryKey: ["courses"] });
-
-			// refetch the specific course that was just updated
-			queryClient.invalidateQueries({ queryKey: ["course", courseId] });
 		},
 		onError: (err) => {
 			toast.error(err.message || "Failed to update course.");

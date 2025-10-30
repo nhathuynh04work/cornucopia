@@ -25,7 +25,7 @@ export function useSetMediaPropertyMutation({ onSuccess, onError }) {
 				s3Key,
 			}),
 
-		onSuccess: (data, variables) => {
+		onSuccess: (url, variables) => {
 			// Invalidate relevant queries after success
 			if (variables.entityType === "course") {
 				queryClient.invalidateQueries({
@@ -34,7 +34,7 @@ export function useSetMediaPropertyMutation({ onSuccess, onError }) {
 			}
 			// Add similar invalidations for 'user' (avatarUrl) etc.
 
-			onSuccess?.(data, variables);
+			onSuccess?.(url, variables);
 		},
 		onError: (err, variables) => {
 			onError?.(err.message || "Failed to update property.", variables);
