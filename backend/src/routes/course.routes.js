@@ -28,4 +28,6 @@ router.patch(
 	courseController.updateCourse
 );
 
+router.post("/:id/modules", validateParams(["id"]), courseController.addModule);
+
 export default router;
