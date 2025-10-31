@@ -81,4 +81,7 @@ export const defaults = {
 	MODULE_INFO: {
 		title: "New module",
 	},
+	LESSON_INFO: {
+		title: "New lesson",
+	},
 };

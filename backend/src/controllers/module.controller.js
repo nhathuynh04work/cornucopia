@@ -1,5 +1,12 @@
 import * as moduleService from "../services/module.service.js";
 
+export async function addLesson(req, res) {
+	const moduleId = req.params.id;
+	const lesson = await moduleService.addLesson(moduleId);
+
+	res.status(201).json({ lesson });
+}
+
 export async function updateModule(req, res) {
 	const id = req.params.id;
 	const module = await moduleService.update(id, req.body);

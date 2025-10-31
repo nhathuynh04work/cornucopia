@@ -6,6 +6,8 @@ import { UpdateModuleSchema } from "../schemas/module.schema.js";
 
 const router = Router();
 
+router.post("/:id/lessons", validateParams(["id"]), moduleController.addLesson);
+
 router.patch(
 	"/:id",
 	validateParams(["id"]),
