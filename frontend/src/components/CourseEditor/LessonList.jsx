@@ -1,14 +1,24 @@
-import { Edit, FileText, GripVertical, Plus, Trash2, Video } from "lucide-react";
+import { useAddLessonMutation } from "@/hooks/useModuleMutation";
+import {
+	Edit,
+	FileText,
+	GripVertical,
+	Plus,
+	Trash2,
+	Video,
+} from "lucide-react";
 
 const lessonIcon = {
 	VIDEO: <Video className="w-4 h-4 text-purple-600" />,
 	TEXT: <FileText className="w-4 h-4 text-blue-600" />,
 };
 
-export default function LessonList({ lessons }) {
+export default function LessonList({ module }) {
+	const { mutate: addLesson } = useAddLessonMutation(module.id);
+
 	return (
 		<ul className="p-4 space-y-3">
-			{lessons.map((lesson) => (
+			{module.lessons.map((lesson) => (
 				<li
 					key={lesson.id}
 					className="flex items-center justify-between p-3 rounded-md border border-gray-200 bg-gray-50">
@@ -29,9 +39,10 @@ export default function LessonList({ lessons }) {
 					</div>
 				</li>
 			))}
-			{/* Add Lesson Button (Placeholder) */}
+
+			{/* Add Lesson Button */}
 			<button
-				onClick={() => alert("Add lesson placeholder")}
+				onClick={addLesson}
 				className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-700">
 				<Plus className="w-4 h-4" /> Add Lesson
 			</button>

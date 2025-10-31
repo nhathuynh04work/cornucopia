@@ -4,7 +4,7 @@ export const useCourseEditorStore = create((set, get) => ({
 	// STATE
 	course: null,
 
-	// ACTIONS
+	// COURSE ACTIONS
 	setCourse: (data) => {
 		set({ course: data });
 	},
@@ -14,6 +14,7 @@ export const useCourseEditorStore = create((set, get) => ({
 		set({ course: { ...currentCourse, coverUrl: url } });
 	},
 
+	// MODULE ACTIONS
 	addModule: (module) => {
 		const currentCourse = get().course;
 
@@ -45,5 +46,18 @@ export const useCourseEditorStore = create((set, get) => ({
 				),
 			},
 		});
+	},
+
+	// LESSON ACTIONS
+	addLesson: (newLesson) => {
+		const currentCourse = get().course;
+		const updatedModules = currentCourse.modules.map((module) => {
+			if (module.id === newLesson.moduleId)
+				return { ...module, lessons: [...module.lessons, newLesson] };
+
+			return module;
+		});
+
+		set({ course: { ...currentCourse, modules: updatedModules } });
 	},
 }));
