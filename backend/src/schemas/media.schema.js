@@ -11,6 +11,7 @@ export const entityEnum = {
 	TEST_ITEM: "testItem",
 	USER: "user",
 	COURSE: "course",
+	LESSON: "lesson",
 };
 
 // Schema for linking a media to an entity (one-to-many)
@@ -35,9 +36,13 @@ export const LinkMediaSchema = z.discriminatedUnion("entityType", [
 ]);
 
 // Schema for adding media as a field (one-to-one)
-export const EntityType = z.enum([entityEnum.USER, entityEnum.COURSE]);
+export const EntityType = z.enum([
+	entityEnum.USER,
+	entityEnum.COURSE,
+	entityEnum.LESSON,
+]);
 
-export const PropertyType = z.enum(["avatarUrl", "coverUrl"]);
+export const PropertyType = z.enum(["avatarUrl", "coverUrl", "videoUrl"]);
 
 export const SetPropertySchema = z.object({
 	entityType: EntityType,

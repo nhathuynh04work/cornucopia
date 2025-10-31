@@ -5,6 +5,7 @@ import * as testRepo from "../repositories/test.repository.js";
 import * as itemRepo from "../repositories/item.repository.js";
 import * as userRepo from "../repositories/user.repository.js";
 import * as courseRepo from "../repositories/course.repository.js";
+import * as lessonRepo from "../repositories/lesson.repository.js";
 import * as s3 from "../config/s3.js";
 import { entityEnum } from "../schemas/media.schema.js";
 import {
@@ -64,11 +65,23 @@ export async function setEntityProperty({
 			await courseRepo.update(entityId, { coverUrl: url });
 		}
 
+		// CASE: lesson
+		if (entityType === entityEnum.LESSON) {
+			if (property !== "videoUrl")
+				throw new BadRequestError(
+					"Invalid property 'videoUrl' for entity 'lesson'."
+				);
+
+			const lesson = await lessonRepo.findById(entityId);
+			oldKey = urlToS3Key(lesson.videoUrl);
+
+			await lessonRepo.update(entityId, { videoUrl: url });
+		}
+
 		// Delete the s3 file in the background
 		if (oldKey) s3.deleteFile(oldKey);
 
 		return url;
-
 	} catch (err) {
 		s3.deleteFile(s3Key); // delete the new file on s3 if db update fails
 		throw err;
