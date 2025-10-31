@@ -309,15 +309,16 @@ model Module {
 }
 
 model Lesson {
-    id        Int        @id @default(autoincrement())
-    moduleId  Int        @map("module_id")
-    title     String
-    type      LessonType
-    videoUrl  String?    @map("video_url")
-    sortOrder Int?       @map("sort_order")
-    createdAt DateTime   @default(now()) @map("created_at")
-    updatedAt DateTime   @updatedAt @map("updated_at")
-    module    Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+    id          Int         @id @default(autoincrement())
+    moduleId    Int         @map("module_id")
+    title       String
+    type        LessonType?
+    textContent String?     @map("text_content")
+    videoUrl    String?     @map("video_url")
+    sortOrder   Int?        @map("sort_order")
+    createdAt   DateTime    @default(now()) @map("created_at")
+    updatedAt   DateTime    @updatedAt @map("updated_at")
+    module      Module      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
     @@map("lessons")
 }
