@@ -2,9 +2,8 @@ import { useState } from "react";
 import PropertyMediaUploader from "../Media/PropertyMediaUploader";
 import {
 	FileText,
-	Trash2,
 	Video,
-	X,
+	X, // This icon will be used for the delete button
 	Plus,
 	Check,
 	Loader2,
@@ -24,104 +23,57 @@ const lessonIcon = {
 };
 
 export default function LessonItem({ lesson }) {
-	const lessonIndex = useCourseEditorStore((s) =>
-		s.getLessonIndex(lesson.id)
-	);
-
-	const [isEditingTitle, setIsEditingTitle] = useState(false);
-	const [title, setTitle] = useState(lesson.title);
+	const lessonIdx = useCourseEditorStore((s) => s.getLessonIndex(lesson.id));
 
 	const [isEditingContent, setIsEditingContent] = useState(false);
+
 	const { mutateAsync: updateLesson, isPending: isUpdating } =
 		useUpdateLessonMutation(lesson.id);
-
-	async function handleSaveTitle() {
-		if (title !== lesson.title) {
-			await updateLesson({ title: title });
-		}
-		setIsEditingTitle(false);
-	}
-
-	function handleCancelTitle() {
-		setIsEditingTitle(false);
-		setTitle(lesson.title);
-	}
-
-	function toggleContentEditor() {
-		setIsEditingContent((e) => !e);
-	}
-
-	async function handleSelectType(type) {
-		await updateLesson({ type });
-	}
+	const updateStoreLesson = useCourseEditorStore((s) => s.updateLesson);
 
 	return (
-		<div className="rounded-md border border-gray-200 bg-gray-50">
+		<div className="relative group rounded-md border border-gray-200 bg-gray-50">
 			{/* --- Lesson Header --- */}
 			<div className="flex items-center justify-between p-3">
+                {/* Lesson title + Action buttons */}
 				<div className="flex items-center gap-3 w-full">
 					<span className="text-sm font-medium text-gray-500 flex-shrink-0">
-						Lesson {lessonIndex + 1}:
+						Lesson {lessonIdx + 1}:
 					</span>
 
 					{lesson.type && lessonIcon[lesson.type]}
 
 					<EditableText
-						isEditing={isEditingTitle}
-						setIsEditing={setIsEditingTitle}
-						value={title}
-						onChange={setTitle}
-						onSave={handleSaveTitle}
+						initialValue={lesson.title}
+						onSave={(value) => updateLesson({ title: value })}
 						isPending={isUpdating}
-						spanClassName="text-gray-700"
-						inputClassName="font-semibold text-gray-700 border-b border-purple-300 w-full p-0"
+						spanClassName="text-gray-700 text-sm"
+						inputClassName="text-gray-700 text-sm p-0"
 					/>
 				</div>
 
-				{/* --- Header Buttons (Unchanged) --- */}
-				<div className="flex items-center gap-3 ml-4 flex-shrink-0">
-					{isEditingTitle ? (
-						<>
-							<button
-								onClick={handleSaveTitle}
-								disabled={isUpdating}>
-								{isUpdating ? (
-									<Loader2 className="w-4 h-4 animate-spin" />
-								) : (
-									<Check className="w-4 h-4 text-green-600" />
-								)}
-							</button>
-							<button
-								onClick={handleCancelTitle}
-								disabled={isUpdating}>
-								<X className="w-4 h-4 text-gray-500" />
-							</button>
-						</>
+				{/* Chevron / Add content button */}
+				<button
+					onClick={() => setIsEditingContent((e) => !e)}
+					disabled={isUpdating}>
+					{isEditingContent ? (
+						lesson.type ? (
+							<ChevronUp className="w-4 h-4 text-gray-500" />
+						) : (
+							<X className="w-4 h-4 text-gray-500" />
+						)
+					) : lesson.type ? (
+						<ChevronDown className="w-4 h-4 text-gray-500" />
 					) : (
-						<>
-							<button
-								onClick={toggleContentEditor}
-								disabled={isUpdating}>
-								{isEditingContent ? (
-									lesson.type ? (
-										<ChevronUp className="w-4 h-4 text-gray-500" />
-									) : (
-										<X className="w-4 h-4 text-gray-500" />
-									)
-								) : lesson.type ? (
-									<ChevronDown className="w-4 h-4 text-gray-500" />
-								) : (
-									<Plus className="w-4 h-4 text-purple-600" />
-								)}
-							</button>
-						</>
+						<Plus className="w-4 h-4 text-purple-600" />
 					)}
-				</div>
+				</button>
 			</div>
 
-			{/* --- Collapsible Editor Content (Unchanged) --- */}
+			{/* Collapsible Editor Content */}
 			{isEditingContent && (
 				<div className="p-4 border-t border-gray-200">
+					{/* Video uploader */}
 					{lesson.type === "VIDEO" && (
 						<PropertyMediaUploader
 							label="Lesson Video"
@@ -130,10 +82,14 @@ export default function LessonItem({ lesson }) {
 							entityType="lesson"
 							property="videoUrl"
 							mediaType="video"
+							onSuccess={(url) =>
+								updateStoreLesson({ ...lesson, videoUrl: url })
+							}
 							disabled={isUpdating}
 						/>
 					)}
 
+					{/* Text editor */}
 					{lesson.type === "TEXT" && (
 						<LessonTextEditor
 							onSave={(content) =>
@@ -144,10 +100,11 @@ export default function LessonItem({ lesson }) {
 						/>
 					)}
 
+					{/* Type picker when lesson has not been assigned a type */}
 					{!lesson.type && (
 						<div className="flex items-center justify-center gap-4">
 							<button
-								onClick={() => handleSelectType("VIDEO")}
+								onClick={() => updateLesson({ type: "VIDEO" })}
 								className="flex flex-col items-center gap-2 p-4 border rounded-md hover:bg-gray-100">
 								<Film
 									className="w-8 h-8 text-purple-600"
@@ -158,7 +115,7 @@ export default function LessonItem({ lesson }) {
 								</span>
 							</button>
 							<button
-								onClick={() => handleSelectType("TEXT")}
+								onClick={() => updateLesson({ type: "TEXT" })}
 								className="flex flex-col items-center gap-2 p-4 border rounded-md hover:bg-gray-100">
 								<Type
 									className="w-8 h-8 text-blue-600"

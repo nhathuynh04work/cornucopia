@@ -35,7 +35,7 @@ export default function PropertyMediaUploader({
 	const { mutate: setMediaProperty, isPending: isLinking } =
 		useSetMediaPropertyMutation({
 			onSuccess: (url) => {
-				onSuccess(url);
+				onSuccess?.(url);
 				setDisplayUrl(url);
 				toast.success("Media updated!");
 				setTimeout(() => setUploadPercent(null), 1000); // Hide progress
