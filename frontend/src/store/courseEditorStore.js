@@ -60,4 +60,39 @@ export const useCourseEditorStore = create((set, get) => ({
 
 		set({ course: { ...currentCourse, modules: updatedModules } });
 	},
+
+	updateLesson: (updatedLesson) => {
+		const currentCourse = get().course;
+		if (!currentCourse) return;
+
+		const updatedModules = currentCourse.modules.map((module) => {
+			// Find the correct module
+			if (module.id === updatedLesson.moduleId) {
+				// Return a new module object with the updated lessons array
+				return {
+					...module,
+					lessons: module.lessons.map((lesson) =>
+						lesson.id === updatedLesson.id ? updatedLesson : lesson
+					),
+				};
+			}
+			// Not the module we're looking for, return it unchanged
+			return module;
+		});
+
+		set({ course: { ...currentCourse, modules: updatedModules } });
+	},
+
+	getLessonIndex: (lessonId) => {
+		const course = get().course;
+
+		// flatten
+		const allLessonIds = course.modules.flatMap((module) =>
+			module.lessons.map((lesson) => lesson.id)
+		);
+
+		const index = allLessonIds.indexOf(lessonId);
+
+		return index; // 0-based
+	},
 }));
