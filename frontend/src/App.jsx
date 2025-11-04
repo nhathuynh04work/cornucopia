@@ -26,6 +26,7 @@ import AttemptResult from "./pages/AttemptResult";
 import FlashcardPractice from "./components/FlashCard/FlashcardPractice";
 import CourseInfo from "./pages/CourseInfo";
 import CourseEdit from "./pages/CourseEdit";
+import CourseLearn from "./pages/CourseLearn";
 
 function App() {
 	return (
@@ -81,6 +82,7 @@ function App() {
 				{/* --- Routes Outside Main Layout --- */}
 				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="tests/:id/attempt" element={<TestAttempt />} />
+				<Route path="courses/:id/learn" element={<CourseLearn />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
 			</Routes>

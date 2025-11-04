@@ -1,6 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useCourseQuery } from "@/hooks/useCourseQuery";
-import { Edit, Video, FileText, BookOpen, Layers } from "lucide-react";
+import {
+	Edit,
+	Video,
+	FileText,
+	BookOpen,
+	Layers,
+	Play, 
+} from "lucide-react";
 import NavButton from "@/components/NavButton";
 
 // Helper to get the correct icon for a lesson
@@ -11,7 +18,7 @@ const lessonIcon = {
 
 function CourseInfo() {
 	const { id } = useParams();
-	const { data: course, isPending } = useCourseQuery(id); // Assumes you create this hook
+	const { data: course, isPending } = useCourseQuery(id);
 
 	if (isPending) {
 		return <p className="p-6">Loading...</p>;
@@ -38,13 +45,21 @@ function CourseInfo() {
 					{course.description || "No description provided."}
 				</p>
 
-				{/* Action Button */}
-				<NavButton
-					to={`/courses/${id}/edit`}
-					className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-					<Edit className="w-4 h-4" />
-					Edit Course
-				</NavButton>
+				{/* Action Buttons */}
+				<div className="flex items-center gap-4">
+					<NavButton
+						to={`/courses/${id}/learn`}
+						className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700">
+						<Play className="w-4 h-4" />
+						Start Learning
+					</NavButton>
+					<NavButton
+						to={`/courses/${id}/edit`}
+						className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+						<Edit className="w-4 h-4" />
+						Edit Course
+					</NavButton>
+				</div>
 
 				{/* Curriculum */}
 				<h2 className="text-2xl font-bold text-gray-900 mt-10 mb-6">

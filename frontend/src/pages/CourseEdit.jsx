@@ -11,7 +11,7 @@ function CourseEdit() {
 	const { id } = useParams();
 	const [activeTab, setActiveTab] = useState("info");
 
-	const { isPending, isError } = useCourseQuery(id);
+	const { isPending, isError } = useCourseQuery(id, { isEditing: true });
 
 	if (isPending) {
 		return <p className="p-6">Loading course data...</p>;

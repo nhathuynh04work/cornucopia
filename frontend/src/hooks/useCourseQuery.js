@@ -10,7 +10,7 @@ export function useCoursesQuery() {
 	});
 }
 
-export function useCourseQuery(courseId) {
+export function useCourseQuery(courseId, { isEditing = false } = {}) {
 	const setCourse = useCourseEditorStore((s) => s.setCourse);
 
 	const query = useQuery({
@@ -20,10 +20,10 @@ export function useCourseQuery(courseId) {
 	});
 
 	useEffect(() => {
-		if (query.data) {
+		if (isEditing && query.data) {
 			setCourse(query.data);
 		}
-	}, [query.data, setCourse]);
+	}, [query.data, setCourse, isEditing]);
 
 	return query;
 }
