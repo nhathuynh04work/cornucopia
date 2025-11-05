@@ -23,6 +23,7 @@ import TestEdit from "./pages/TestEdit";
 import TestAttempt from "./pages/TestAttempt";
 import TestInfo from "./pages/TestInfo";
 import FlashcardPractice from "./components/FlashCard/FlashcardPractice";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
@@ -54,7 +55,7 @@ function App() {
           <Route path="courses" element={<Courses />} />
         </Route>
         <Route path="tests/:id/edit" element={<TestEdit />} />
-				<Route path="tests/:id/attempt" element={<TestAttempt />} />
+        <Route path="tests/:id/attempt" element={<TestAttempt />} />
         <Route path="confirm" element={<Confirm />} />
         <Route path="auth/callback" element={<AuthCallback />} />
       </Routes>
