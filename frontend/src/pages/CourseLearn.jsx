@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { useCourseQuery } from "@/hooks/useCourseQuery";
-
-// Import the new components
+import { useCourseLearnQuery } from "@/hooks/useCourseQuery"; // This hook is correct
 import LearnHeader from "@/components/CourseLearn/LearnHeader";
 import LearnSidebar from "@/components/CourseLearn/LearnSidebar";
 import LessonContent from "@/components/CourseLearn/LessonContent";
@@ -10,11 +8,34 @@ import LearnTabs from "@/components/CourseLearn/LearnTabs";
 
 function CourseLearn() {
 	const { id } = useParams();
-	const { data: course, isPending } = useCourseQuery(id);
+	const { data: course, isPending } = useCourseLearnQuery(id);
 
 	const [activeLesson, setActiveLesson] = useState(null);
 	const [openModules, setOpenModules] = useState({});
 	const [activeTab, setActiveTab] = useState("overview");
+
+	// --- 1. Calculate Real Progress ---
+	const { progressPercent } = useMemo(() => {
+		let total = 0;
+		let completed = 0;
+
+		course?.modules?.forEach((module) => {
+			module.lessons?.forEach((lesson) => {
+				total++;
+				// Check if the progress array exists and isCompleted is true
+				if (lesson.progress?.[0]?.isCompleted) {
+					completed++;
+				}
+			});
+		});
+
+		const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+		return {
+			totalLessons: total,
+			completedLessons: completed,
+			progressPercent: percent,
+		};
+	}, [course]);
 
 	// CREATE A MAP FOR GLOBAL LESSON NUMBERS
 	const lessonMap = useMemo(() => {
@@ -27,7 +48,7 @@ function CourseLearn() {
 			});
 		});
 		return map;
-	}, [course]); // Recalculate only when course data changes
+	}, [course]);
 
 	useEffect(() => {
 		if (course && course.modules?.[0]?.lessons?.[0]) {
@@ -63,7 +84,8 @@ function CourseLearn() {
 
 	return (
 		<div>
-			<LearnHeader courseName={course.name} />
+			{/* --- 2. Pass Real Progress to Header --- */}
+			<LearnHeader courseName={course.name} progress={progressPercent} />
 			<div className="flex">
 				{/* Column 1: Main Content (Lesson Viewer & Tabs) */}
 				<main className="flex-1 bg-gray-100 min-h-screen pb-20">

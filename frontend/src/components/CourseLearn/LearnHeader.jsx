@@ -1,11 +1,9 @@
 import React from "react";
 import Logo from "@/components/Logo";
-import DonutChart from "./DonutChart"; // Assumes DonutChart is in the same folder
+import DonutChart from "./DonutChart";
 
-function LearnHeader({ courseName }) {
-	// Placeholder for progress logic
-	const progress = 35;
-
+// --- 1. Accept `progress` as a prop ---
+function LearnHeader({ courseName, progress }) {
 	return (
 		<header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10">
 			<div className="flex items-center gap-4">
@@ -17,6 +15,7 @@ function LearnHeader({ courseName }) {
 			</div>
 			<div className="flex items-center gap-3">
 				<span className="text-sm text-gray-600">
+					{/* --- 2. Use the `progress` prop --- */}
 					{progress}% complete
 				</span>
 				<DonutChart progress={progress} size={32} strokeWidth={4} />

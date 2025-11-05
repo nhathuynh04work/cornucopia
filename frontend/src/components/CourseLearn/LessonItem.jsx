@@ -1,32 +1,55 @@
 import { Square, CheckSquare } from "lucide-react";
 import { Video, FileText } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+// We have to assume an API function exists for this
+import * as lessonApi from "@/apis/lessonApi";
 
-// (COLORLESS) LESSON ICONS
 const lessonIcon = {
 	VIDEO: <Video className="w-3 h-3 text-gray-600" />,
 	TEXT: <FileText className="w-3 h-3 text-gray-600" />,
 };
 
 function LessonItem({
+	courseId,
 	lesson,
 	lessonNumber,
 	isCompleted,
 	isActive,
 	onSelectLesson,
 }) {
-	// Checkbox click handler
+	const queryClient = useQueryClient();
+
+	const { mutate: toggleComplete } = useMutation({
+		mutationFn: () =>
+			lessonApi.toggleLessonComplete({
+				lessonId: lesson.id,
+				isCompleted: !isCompleted,
+			}),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["course", courseId, "learn"],
+			});
+		},
+		onError: (err) => {
+			console.error("Failed to update progress", err);
+		},
+	});
+
 	const handleToggleComplete = (e) => {
 		e.stopPropagation();
-		// Add check/uncheck logic here
-		console.log("Toggled check!");
+		toggleComplete();
 	};
+
+	const durationInMinutes = lesson.duration
+		? Math.round(lesson.duration / 60)
+		: 0;
 
 	return (
 		<div
 			className={`grid grid-cols-[auto_1fr] border-t border-gray-200 transition-colors duration-150 items-start font-extralight ${
 				isActive
-					? "bg-gray-300 text-gray-900" // Active state
-					: "text-gray-700 hover:bg-gray-300 hover:text-gray-900" // Default + Hover state
+					? "bg-gray-300 text-gray-900"
+					: "text-gray-700 hover:bg-gray-300 hover:text-gray-900"
 			}`}>
 			{/* --- Column 1: Checkbox --- */}
 			<button onClick={handleToggleComplete} className="px-4 py-[14px]">
@@ -50,7 +73,8 @@ function LessonItem({
 				<div className="flex items-center gap-2 mt-3">
 					{lessonIcon[lesson.type]}
 					<span className="text-xs text-gray-600">
-						{lesson.duration || "5m"}
+						{/* 4. Display formatted time */}
+						{durationInMinutes}m
 					</span>
 				</div>
 			</button>

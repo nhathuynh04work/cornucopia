@@ -7,7 +7,7 @@ function ModuleHeader({
 	isOpen,
 	checkedCount,
 	totalLessons,
-	totalTime,
+	totalTime, // This is now real data (in minutes)
 	onClick,
 }) {
 	return (
@@ -19,6 +19,7 @@ function ModuleHeader({
 					Section {index + 1}: {module.title}
 				</span>
 				<span className="block text-xs text-gray-600 mt-1.5">
+					{/* This UI now displays real data */}
 					{checkedCount} / {totalLessons} | {totalTime}m
 				</span>
 			</div>

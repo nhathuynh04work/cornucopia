@@ -20,24 +20,36 @@ function LearnSidebar({
 			}}>
 			<div>
 				{course.modules?.map((module, index) => {
-					// --- PLACEHOLDER DATA FOR MODULE HEADER ---
+					// --- 1. Calculate Real Data from Backend ---
 					const totalLessons = module.lessons?.length || 0;
-					const checkedCount = Math.floor(totalLessons / 3);
-					const totalTime = totalLessons * 5;
+
+					// Count completed lessons from the 'progress' array
+					const checkedCount = module.lessons.filter(
+						(l) => l.progress?.[0]?.isCompleted
+					).length;
+
+					// Sum duration (in seconds) from all lessons
+					const totalSeconds = module.lessons.reduce(
+						(acc, l) => acc + (l.duration || 0),
+						0
+					);
+					// Convert to minutes
+					const totalTime = Math.round(totalSeconds / 60);
+
 					const isOpen = !!openModules[module.id];
 
 					return (
 						<div
 							key={module.id}
 							className="border-b border-gray-300 last:border-b-0">
-							{/* --- 1. Use ModuleHeader Component --- */}
+							{/* --- 2. Pass Real Data to ModuleHeader --- */}
 							<ModuleHeader
 								module={module}
 								index={index}
 								isOpen={isOpen}
 								checkedCount={checkedCount}
 								totalLessons={totalLessons}
-								totalTime={totalTime}
+								totalTime={totalTime} // Pass total minutes
 								onClick={() => toggleModule(module.id)}
 							/>
 
@@ -48,16 +60,19 @@ function LearnSidebar({
 										const lessonNumber = lessonMap.get(
 											lesson.id
 										);
-										// Placeholder: every 3rd lesson is complete
+
+										// 3. Get Real Completion Status
 										const isCompleted =
-											lessonNumber % 3 === 0;
+											lesson.progress?.[0]?.isCompleted ??
+											false;
+
 										const isActive =
 											activeLesson?.id === lesson.id;
 
 										return (
-											// --- 2. Use LessonItem Component ---
 											<LessonItem
 												key={lesson.id}
+												courseId={course.id} // 4. Pass courseId for mutation
 												lesson={lesson}
 												lessonNumber={lessonNumber}
 												isCompleted={isCompleted}

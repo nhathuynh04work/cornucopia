@@ -5,10 +5,25 @@ export async function getCourses(req, res) {
 	res.status(200).json({ courses });
 }
 
-export async function getCourse(req, res) {
-	const id = req.params.id;
+export async function getPublicCourseDetails(req, res) {
+	const courseId = req.params.id;
+	const course = await courseService.getPublicCourseDetails(courseId);
+	res.status(200).json({ course });
+}
 
-	const course = await courseService.getCourse(id);
+export async function getCourseForEditor(req, res) {
+	const courseId = req.params.id;
+	const userId = req.user.id;
+
+	const course = await courseService.getCourseForEditor(courseId, userId);
+	res.status(200).json({ course });
+}
+
+export async function getCourseForLearning(req, res) {
+	const courseId = req.params.id;
+	const userId = req.user.id;
+
+	const course = await courseService.getCourseForLearning(courseId, userId);
 	res.status(200).json({ course });
 }
 

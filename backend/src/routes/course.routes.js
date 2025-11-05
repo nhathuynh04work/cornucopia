@@ -12,7 +12,25 @@ const router = Router();
 
 router.get("/", courseController.getCourses);
 
-router.get("/:id", validateParams(["id"]), courseController.getCourse);
+router.get(
+	"/:id/public",
+	validateParams(["id"]),
+	courseController.getPublicCourseDetails
+);
+
+router.get(
+	"/:id/edit",
+	authenticateJWT,
+	validateParams(["id"]),
+	courseController.getCourseForEditor
+);
+
+router.get(
+	"/:id/learn",
+	authenticateJWT,
+	validateParams(["id"]),
+	courseController.getCourseForLearning
+);
 
 router.post(
 	"/",

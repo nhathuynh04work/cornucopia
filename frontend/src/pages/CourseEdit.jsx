@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useCourseQuery } from "@/hooks/useCourseQuery";
+import { useCourseEditorQuery } from "@/hooks/useCourseQuery";
 import { LayoutDashboard, ListVideo, Settings } from "lucide-react";
 import EditSidebarButton from "@/components/CourseEditor/EditSidebarButton";
 import CourseInfoEditor from "@/components/CourseEditor/CourseInfoEditor";
@@ -11,7 +11,7 @@ function CourseEdit() {
 	const { id } = useParams();
 	const [activeTab, setActiveTab] = useState("info");
 
-	const { isPending, isError } = useCourseQuery(id, { isEditing: true });
+	const { isPending, isError } = useCourseEditorQuery(id);
 
 	if (isPending) {
 		return <p className="p-6">Loading course data...</p>;

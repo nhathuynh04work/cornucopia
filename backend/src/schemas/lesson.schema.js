@@ -10,3 +10,7 @@ const LessonSchema = z.object({
 });
 
 export const UpdateLessonSchema = LessonSchema.partial();
+
+export const UpdateLessonProgressSchema = z.object({
+	isCompleted: z.boolean(),
+});

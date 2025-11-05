@@ -1,14 +1,7 @@
 import { useParams } from "react-router-dom";
-import { useCourseQuery } from "@/hooks/useCourseQuery";
-import {
-	Edit,
-	Video,
-	FileText,
-	BookOpen,
-	Layers,
-	Play, 
-} from "lucide-react";
+import { Edit, Video, FileText, BookOpen, Layers, Play } from "lucide-react";
 import NavButton from "@/components/NavButton";
+import { usePublicCourseQuery } from "@/hooks/useCourseQuery";
 
 // Helper to get the correct icon for a lesson
 const lessonIcon = {
@@ -18,7 +11,7 @@ const lessonIcon = {
 
 function CourseInfo() {
 	const { id } = useParams();
-	const { data: course, isPending } = useCourseQuery(id);
+	const { data: course, isPending } = usePublicCourseQuery(id);
 
 	if (isPending) {
 		return <p className="p-6">Loading...</p>;
