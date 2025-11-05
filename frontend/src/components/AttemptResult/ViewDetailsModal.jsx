@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { X } from "lucide-react";
 import { itemTypeEnum } from "@/lib/item.config";
 import SingleQuestionDetail from "./SingleQuestionDetail";
-import MediaList from "../Media/MediaList";
+import MediaList from "../Media/MediaList.jsx";
 
 function findItemOrGroup(items = [], questionId) {
 	for (const item of items) {

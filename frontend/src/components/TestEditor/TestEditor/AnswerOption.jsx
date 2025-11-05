@@ -1,13 +1,13 @@
 import {
-	useDeleteOptionMutation,
-	useUpdateOptionMutation,
-} from "@/hooks/useOptionMutation";
+	useDeleteOption,
+	useUpdateOption,
+} from "@/hooks/useTestEditorMutation";
 import DebouncedTextarea from "./DebouncedTextarea";
 import { X } from "lucide-react";
 
 function AnswerOption({ option, order, optionCount }) {
-	const { mutate: updateOption } = useUpdateOptionMutation();
-	const { mutate: deleteOption } = useDeleteOptionMutation(option.id);
+	const { mutate: updateOption } = useUpdateOption();
+	const { mutate: deleteOption } = useDeleteOption(option.id);
 	const label = String.fromCharCode(65 + order);
 
 	const isLastOption = optionCount <= 1;
@@ -21,8 +21,8 @@ function AnswerOption({ option, order, optionCount }) {
 		<div
 			className={`flex items-center rounded-lg border w-full font-light ${
 				isCorrect
-					? "!border-green-500 bg-white" 
-					: "border-gray-300 bg-gray-50" 
+					? "!border-green-500 bg-white"
+					: "border-gray-300 bg-gray-50"
 			}`}>
 			<span
 				className={`select-none text-center px-6 ${

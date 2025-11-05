@@ -6,9 +6,9 @@ import ModalSidebar from "./ModalSidebar";
 import ModalContentGeneral from "./ModalContentGeneral";
 import ModalFooter from "./ModalFooter";
 import { useTestEditorStore } from "@/store/testEditorStore";
-import { useUpdateTestMutation } from "@/hooks/useTestMutation";
 import { SETTINGS_TABS } from "@/lib/test-settings.config";
 import ModalContentMedia from "./ModalContentMedia";
+import { useUpdateTest } from "@/hooks/useTestEditorMutation";
 
 function SettingsModal({ children }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +19,7 @@ function SettingsModal({ children }) {
 		return rest;
 	}, [test]);
 
-	const { mutateAsync: updateTest } = useUpdateTestMutation();
+	const { mutateAsync: updateTest } = useUpdateTest();
 	const [currentTab, setCurrentTab] = useState(SETTINGS_TABS.GENERAL);
 
 	const methods = useForm({ defaultValues: settings });

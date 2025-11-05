@@ -2,13 +2,13 @@ import DebouncedTextarea from "./DebouncedTextarea";
 import { MoveRight } from "lucide-react";
 import ChildSummary from "./ChildSummary";
 import ItemIndex from "../ItemList/ItemIndex";
-import { useUpdateItemMutation } from "@/hooks/useItemMutation";
 import MediaList from "@/components/Media/MediaList";
 import EditorLayout from "./EditorLayout";
 import { mediaLayouts } from "@/lib/item.config";
+import { useUpdateItem } from "@/hooks/useTestEditorMutation";
 
 function GroupEditor({ item }) {
-	const { mutate: updateItem } = useUpdateItemMutation(item.id);
+	const { mutate: updateItem } = useUpdateItem(item.id);
 
 	const textBlock = (
 		<div className="flex items-start gap-3">

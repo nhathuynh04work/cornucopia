@@ -1,10 +1,8 @@
 import { toast } from "react-hot-toast";
 import * as mediaApi from "@/apis/mediaApi";
-import { useTestEditorStore } from "@/store/testEditorStore";
-import { useTestEditorMutation } from "./useTestEditorMutation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function useRequestUploadUrlMutation() {
+export function useRequestUploadUrl() {
 	return useMutation({
 		mutationFn: (data) => mediaApi.requestUploadUrl(data),
 		onError: () => {
@@ -13,26 +11,34 @@ export function useRequestUploadUrlMutation() {
 	});
 }
 
-export function useSetMediaPropertyMutation({ onSuccess, onError }) {
+export function useSetMediaProperty({ onSuccess, onError }) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ entityType, entityId, property, s3Key }) =>
-			mediaApi.setMediaProperty({
+		mutationFn: ({ entityType, entityId, url, duration }) =>
+			mediaApi.setProperty({
 				entityType,
 				entityId,
-				property,
-				s3Key,
+				url,
+				duration,
 			}),
 
 		onSuccess: (url, variables) => {
-			// Invalidate relevant queries after success
 			if (variables.entityType === "course") {
 				queryClient.invalidateQueries({
 					queryKey: ["course", variables.entityId],
 				});
 			}
-			// Add similar invalidations for 'user' (avatarUrl) etc.
+			if (variables.entityType === "lesson") {
+				queryClient.invalidateQueries({
+					queryKey: ["course"],
+				});
+			}
+			if (variables.entityType === "user") {
+				queryClient.invalidateQueries({
+					queryKey: ["user", variables.entityId],
+				});
+			}
 
 			onSuccess?.(url, variables);
 		},
@@ -42,32 +48,46 @@ export function useSetMediaPropertyMutation({ onSuccess, onError }) {
 	});
 }
 
-export function useLinkMediaMutation() {
-	const setTest = useTestEditorStore((s) => s.setTest);
+export function useLinkMedia({ onSuccess, onError } = {}) {
+	const queryClient = useQueryClient();
 
-	return useTestEditorMutation({
+	return useMutation({
+		// data: { url, fileType, entityType, entityId }
 		mutationFn: (data) => mediaApi.linkMedia(data),
 
-		onSuccess: (test) => {
-			setTest(test);
-		},
+		onSuccess: (data, variables) => {
+			onSuccess?.(data, variables);
 
-		successMessage: "Media uploaded",
-		errorMessagePrefix: "Failed to add media",
+			if (variables.testId) {
+				queryClient.invalidateQueries({
+					queryKey: ["tests", variables.testId, "full"],
+				});
+			}
+		},
+		onError: (err) => {
+			onError?.(err);
+		},
 	});
 }
 
-export function useDeleteMediaMutation() {
-	const setTest = useTestEditorStore((s) => s.setTest);
+export function useDeleteMedia({ onSuccess, onError } = {}) {
+	const queryClient = useQueryClient();
 
-	return useTestEditorMutation({
-		mutationFn: (mediaId) => mediaApi.remove(mediaId),
+	return useMutation({
+		mutationFn: ({ id }) => mediaApi.remove(id),
 
-		onSuccess: (test) => {
-			setTest(test);
+		onSuccess: (data, variables) => {
+			onSuccess?.(data, variables);
+
+			if (variables.testId) {
+				queryClient.invalidateQueries({
+					queryKey: ["tests", variables.testId, "full"],
+				});
+			}
 		},
 
-		successMessage: "Media removed",
-		errorMessagePrefix: "Failed to remove media",
+		onError: (err) => {
+			onError?.(err);
+		},
 	});
 }

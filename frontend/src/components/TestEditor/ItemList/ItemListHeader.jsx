@@ -1,9 +1,9 @@
 import { Plus } from "lucide-react";
 import AddItemModal from "./AddItemModal";
-import { useAddItemMutation } from "@/hooks/useTestMutation";
+import { useAddItem } from "@/hooks/useTestEditorMutation";
 
 function ItemListHeader() {
-	const { mutate } = useAddItemMutation();
+	const { mutate } = useAddItem();
 
 	function handleAddItem(type) {
 		mutate({ type });

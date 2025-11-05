@@ -1,22 +1,23 @@
 import { Loader2, X } from "lucide-react";
-import { useDeleteMediaMutation } from "@/hooks/useMediaMutation";
+import { useDeleteMedia } from "@/hooks/useMediaMutation";
 import MediaRenderer from "./MediaRenderer";
+import { useTestEditorStore } from "@/store/testEditorStore";
 
 export default function MediaItem({ media, isEditing }) {
 	const { id, fileType } = media;
 
-	const { mutate: deleteMedia, isPending: isDeleting } =
-		useDeleteMediaMutation();
+	const { mutate: deleteMedia, isPending: isDeleting } = useDeleteMedia();
+	const test = useTestEditorStore((s) => s.test);
 
 	function handleDelete(e) {
 		e.preventDefault();
 		e.stopPropagation();
-		deleteMedia(id);
+		deleteMedia({ id, testId: test.id });
 	}
 
 	let aspectRatioClass = "aspect-auto";
 	if (fileType.startsWith("image")) {
-		aspectRatioClass = "aspect-video"; 
+		aspectRatioClass = "aspect-video";
 	}
 
 	const defaultStyles = "relative w-full rounded-md overflow-hidden group";
