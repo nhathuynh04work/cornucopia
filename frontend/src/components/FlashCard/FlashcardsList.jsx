@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { api } from "../apis/axios";
-import { useAuth } from "../contexts/AuthContext";
+import { api } from "../../apis/axios";
+import { useAuth } from "../../contexts/AuthContext";
 import { toast } from "react-hot-toast";
 
-import FlashcardStats from "./FlashCard/FlashcardStats";
-import FlashcardGrid from "./FlashCard/FlashcardGrid";
-import CreateListModal from "./CreateListModal";
-import EditListModal from "./EditListModal";
+import FlashcardStats from "./FlashcardStats";
+import FlashcardGrid from "./FlashcardGrid";
+import CreateListModal from "../CreateListModal";
+import EditListModal from "../EditListModal";
 
 import { Plus } from "lucide-react";
 
@@ -75,8 +75,8 @@ export default function FlashcardsList() {
   );
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 py-12">
-      <div className="max-w-6xl mx-auto px-6">
+    <div className="min-h-screen bg-white text-gray-900 w-full">
+      <div className="">
         <FlashcardStats totalLists={totalLists} totalCards={totalCards} />
 
         <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">

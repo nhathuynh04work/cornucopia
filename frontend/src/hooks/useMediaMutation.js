@@ -1,10 +1,8 @@
 import { toast } from "react-hot-toast";
 import * as mediaApi from "@/apis/mediaApi";
-import { useTestEditorStore } from "@/store/testEditorStore";
-import { useTestEditorMutation } from "./useTestEditorMutation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function useRequestUploadUrlMutation() {
+export function useRequestUploadUrl() {
 	return useMutation({
 		mutationFn: (data) => mediaApi.requestUploadUrl(data),
 		onError: () => {
@@ -13,32 +11,83 @@ export function useRequestUploadUrlMutation() {
 	});
 }
 
-export function useLinkMediaMutation() {
-	const setTest = useTestEditorStore((s) => s.setTest);
+export function useSetMediaProperty({ onSuccess, onError }) {
+	const queryClient = useQueryClient();
 
-	return useTestEditorMutation({
-		mutationFn: (data) => mediaApi.linkMedia(data),
+	return useMutation({
+		mutationFn: ({ entityType, entityId, url, duration }) =>
+			mediaApi.setProperty({
+				entityType,
+				entityId,
+				url,
+				duration,
+			}),
 
-		onSuccess: (test) => {
-			setTest(test);
+		onSuccess: (url, variables) => {
+			if (variables.entityType === "course") {
+				queryClient.invalidateQueries({
+					queryKey: ["course", variables.entityId],
+				});
+			}
+			if (variables.entityType === "lesson") {
+				queryClient.invalidateQueries({
+					queryKey: ["course"],
+				});
+			}
+			if (variables.entityType === "user") {
+				queryClient.invalidateQueries({
+					queryKey: ["user", variables.entityId],
+				});
+			}
+
+			onSuccess?.(url, variables);
 		},
-
-		successMessage: "Media uploaded",
-		errorMessagePrefix: "Failed to add media",
+		onError: (err, variables) => {
+			onError?.(err.message || "Failed to update property.", variables);
+		},
 	});
 }
 
-export function useDeleteMediaMutation() {
-	const setTest = useTestEditorStore((s) => s.setTest);
+export function useLinkMedia({ onSuccess, onError } = {}) {
+	const queryClient = useQueryClient();
 
-	return useTestEditorMutation({
-		mutationFn: (mediaId) => mediaApi.remove(mediaId),
+	return useMutation({
+		// data: { url, fileType, entityType, entityId }
+		mutationFn: (data) => mediaApi.linkMedia(data),
 
-		onSuccess: (test) => {
-			setTest(test);
+		onSuccess: (data, variables) => {
+			onSuccess?.(data, variables);
+
+			if (variables.testId) {
+				queryClient.invalidateQueries({
+					queryKey: ["tests", variables.testId, "full"],
+				});
+			}
+		},
+		onError: (err) => {
+			onError?.(err);
+		},
+	});
+}
+
+export function useDeleteMedia({ onSuccess, onError } = {}) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id }) => mediaApi.remove(id),
+
+		onSuccess: (data, variables) => {
+			onSuccess?.(data, variables);
+
+			if (variables.testId) {
+				queryClient.invalidateQueries({
+					queryKey: ["tests", variables.testId, "full"],
+				});
+			}
 		},
 
-		successMessage: "Media removed",
-		errorMessagePrefix: "Failed to remove media",
+		onError: (err) => {
+			onError?.(err);
+		},
 	});
 }

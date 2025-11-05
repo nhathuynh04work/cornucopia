@@ -8,6 +8,16 @@ export async function createCard(data, client = prisma) {
   return await client.flashcard.create({ data });
 }
 
+export async function createCardsBulk(listId, cards, client = prisma) {
+  return await client.flashcard.createMany({
+    data: cards.map(card => ({
+      listId,
+      term: card.term,
+      definition: card.definition,
+    })),
+  });
+}
+
 export async function deleteCard(id, client = prisma) {
   await client.flashcard.delete({ where: { id } });
 }

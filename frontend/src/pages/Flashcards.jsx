@@ -1,13 +1,14 @@
-import FlashcardsList from "../components/FlashcardsList"
+import StudyHeatmapContainer from "../components/StudyHeatmapContainer";
+import FlashcardsList from "../components/FlashCard/FlashcardsList";
+import StudyStatisticsContainer from "../components/StudyStatisticsContainer";
 
 function Flashcards() {
   return (
-    <div style={{ padding: 20 }}>
-      {/* <h1>Flashcards</h1>
-      <p>Chào mừng! Hãy tạo list để bắt đầu học.</p> */}
-
-      {/* FlashcardsList giờ tự xử lý tạo list và điều hướng */}
-      <FlashcardsList />
+    <div className="p-6 flex flex-col gap-8 max-w-6xl mx-auto">
+        {/* Biểu đồ HeatMap */}
+        <StudyHeatmapContainer />
+        {/* FlashcardsList giờ tự xử lý tạo list và điều hướng */}
+        <FlashcardsList />
     </div>
   );
 }

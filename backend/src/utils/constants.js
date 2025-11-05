@@ -12,6 +12,7 @@ export const errorMessage = {
 	ITEM_NOT_FOUND: "Item not found",
 	OPTION_NOT_FOUND: "Option not found",
 	MEDIA_NOT_FOUND: "Media not found",
+	ATTEMPT_NOT_FOUND: "Attempt not found",
 
 	// Invalid
 	INVALID_TOKEN: "Token invalid",
@@ -37,14 +38,14 @@ export const errorMessage = {
 };
 
 export const providers = {
-  local: "local",
-  google: "google",
+	local: "local",
+	google: "google",
 };
 
 export const defaultPost = {
-  title: "Bài viết mặc định",
-  content: "<p>Nội dung mặc định</p>",
-  status: "draft",
+	title: "Bài viết mặc định",
+	content: "<p>Nội dung mặc định</p>",
+	status: "draft",
 };
 
 export const itemTypeEnum = {
@@ -72,9 +73,15 @@ export const expireTime = {
 export const defaults = {
 	QUESTION_TEXT: "This is a question",
 	OPTION_TEXT: "This is an option",
-  POST_INFO: {
-    title: "Bài viết mặc định",
-    content: "<p>Nội dung mặc định</p>",
-    status: "draft",
-  },
+	POST_INFO: {
+		title: "Bài viết mặc định",
+		content: "<p>Nội dung mặc định</p>",
+		status: "draft",
+	},
+	MODULE_INFO: {
+		title: "New module",
+	},
+	LESSON_INFO: {
+		title: "New lesson",
+	},
 };

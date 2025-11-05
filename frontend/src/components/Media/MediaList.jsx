@@ -6,7 +6,6 @@ const listLayoutClasses = {
 	grid: "grid grid-cols-2 gap-3 pb-4", // Grid
 };
 
-// ITEM layout classes are REMOVED from here
 
 export default function MediaList({
 	media,

@@ -1,7 +1,7 @@
 import * as testRepo from "../repositories/test.repository.js";
 import * as itemRepo from "../repositories/item.repository.js";
 import { NotFoundError } from "../utils/AppError.js";
-import { errorMessage } from "../utils/constants.js";
+import { errorMessage, itemTypeEnum } from "../utils/constants.js";
 
 export async function getTests() {
 	return testRepo.getTests();
@@ -45,4 +45,30 @@ export async function addItem(testId, data) {
 
 	await itemRepo.create({ testId, ...data });
 	return testRepo.getDetails(testId);
+}
+
+export async function getAnswersKey(testId) {
+	const test = await testRepo.getLite(testId);
+	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
+
+	const questions = await itemRepo.findQuestionsOfTest(testId);
+	const answerKey = {};
+
+	questions.forEach((question) => {
+		const correctOptionIds =
+			question.type === itemTypeEnum.MULTIPLE_CHOICE
+				? question.answerOptions
+						.filter((option) => option.isCorrect)
+						.map((option) => option.id)
+				: [];
+
+		answerKey[question.id] = {
+			type: question.type,
+			answer: question.answer,
+			optionIds: correctOptionIds,
+            points: question.points
+		};
+	});
+
+	return answerKey;
 }

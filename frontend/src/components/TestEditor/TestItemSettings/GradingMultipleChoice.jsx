@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useUpdateItemMutation } from "@/hooks/useItemMutation";
-import { useUpdateOptionMutation } from "@/hooks/useOptionMutation";
 import { debounce } from "lodash";
 import ScoreInput from "./ScoreInput";
+import { useUpdateItem, useUpdateOption } from "@/hooks/useTestEditorMutation";
 
 // Helper function
 function findCorrectOptionId(options) {
@@ -12,7 +11,7 @@ function findCorrectOptionId(options) {
 
 export default function GradingMultipleChoice({ currentItem }) {
 	// -------------------- Points --------------------
-	const { mutate: updateItem } = useUpdateItemMutation(currentItem.id);
+	const { mutate: updateItem } = useUpdateItem(currentItem.id);
 
 	const {
 		register,
@@ -45,7 +44,7 @@ export default function GradingMultipleChoice({ currentItem }) {
 	// ------------------------------------------------
 
 	// -------------------- Answer --------------------
-	const { mutate: updateOption } = useUpdateOptionMutation();
+	const { mutate: updateOption } = useUpdateOption();
 	const [selectedAnswer, setSelectedAnswer] = useState(
 		findCorrectOptionId(currentItem.answerOptions)
 	);

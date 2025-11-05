@@ -7,8 +7,8 @@ export const useTestAttemptStore = create((set) => ({
 	items: [], // nested for UI
 	questions: [], // flatten questions for answering
 	answers: {},
-	timeLimit: 0,
-	timeLeft: 0,
+	timeLimit: null,
+	timeLeft: null,
 
 	// ACTIONS
 	setTest: (test) => {
@@ -20,7 +20,7 @@ export const useTestAttemptStore = create((set) => ({
 			initialAnswers[item.id] = {
 				questionId: item.id,
 				text: "",
-				optionId: null,
+				optionIds: [],
 			};
 		});
 
@@ -48,6 +48,11 @@ export const useTestAttemptStore = create((set) => ({
 
 	tick: () => {
 		set((state) => {
+			// Don't do anything if the timer isn't initialized yet
+			if (typeof state.timeLeft !== "number") {
+				return {}; 
+			}
+
 			if (state.timeLeft <= 0) {
 				return { timeLeft: 0 };
 			}
@@ -61,8 +66,8 @@ export const useTestAttemptStore = create((set) => ({
 			items: [],
 			questions: [],
 			answers: {},
-			timeLimit: 0,
-			timeLeft: 0,
+			timeLimit: null,
+			timeLeft: null,
 		});
 	},
 }));

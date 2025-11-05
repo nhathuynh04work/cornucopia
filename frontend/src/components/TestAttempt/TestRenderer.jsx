@@ -1,5 +1,5 @@
 import { useTestAttemptStore } from "@/store/testAttemptStore";
-import MediaList from "../Media/MediaList";
+import MediaList from "../Media/MediaList.jsx";
 import TestItem from "./TestItem";
 
 function TestRenderer() {

@@ -1,13 +1,12 @@
 import { Plus, Trash2 } from "lucide-react";
 import AddItemModal from "./AddItemModal";
-import { useDeleteItemMutation } from "@/hooks/useItemMutation";
-import { useAddItemMutation } from "@/hooks/useTestMutation";
 import { useTestEditorStore } from "@/store/testEditorStore";
 import { itemTypeEnum } from "@/lib/item.config";
+import { useAddItem, useDeleteItem } from "@/hooks/useTestEditorMutation";
 
 function ItemActions({ item }) {
-	const { mutate: deleteItem } = useDeleteItemMutation(item.id);
-	const { mutate: addItem } = useAddItemMutation();
+	const { mutate: deleteItem } = useDeleteItem(item.id);
+	const { mutate: addItem } = useAddItem();
 	const setGroupOpen = useTestEditorStore((s) => s.setGroupOpen);
 	const items = useTestEditorStore((s) => s._flatItems);
 

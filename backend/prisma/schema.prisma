@@ -9,22 +9,24 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique @db.VarChar(255)
-  name      String?  @db.VarChar(255)
-  avatarUrl String?  @map("avatar_url") @db.VarChar(255)
-  isActive  Boolean? @default(false) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    id                     Int                     @id @default(autoincrement())
+    email                  String                  @unique @db.VarChar(255)
+    name                   String?                 @db.VarChar(255)
+    avatarUrl              String?                 @map("avatar_url") @db.VarChar(255)
+    isActive               Boolean?                @default(false) @map("is_active")
+    createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt              DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
+    authentication         Authentication[]
+    emailVerificationToken EmailVerificationToken?
+    userRole               UserRole?
+    flashcardLists         FlashcardList[]
+    posts                  Post[]
+    studySessions          StudySession[]
+    attempts               Attempt[]
+    courses                Course[]
+    lessonProgress         UserLessonProgress[]
 
-  authentication         Authentication[]
-  emailVerificationToken EmailVerificationToken?
-  userRole               UserRole?
-  flashcardLists         FlashcardList[]
-  posts                  Post[]
-  studySessions          StudySession[]
-
-  @@map("users")
+    @@map("users")
 }
 
 model UserRole {
@@ -67,70 +69,70 @@ model EmailVerificationToken {
 }
 
 model Media {
-  id        Int      @id @default(autoincrement())
-  s3Key     String   @unique @map("s3_key")
-  fileType  String   @map("file_type")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    id        Int      @id @default(autoincrement())
+    url       String   @unique
+    fileType  String   @map("file_type")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  // Belongs to a Test
-  testId Int?  @map("test_id")
-  test   Test? @relation("TestToMedia", fields: [testId], references: [id], onDelete: Cascade)
+    // Belongs to a Test
+    testId Int?  @map("test_id")
+    test   Test? @relation("TestToMedia", fields: [testId], references: [id], onDelete: Cascade)
 
-  // Belongs to a TestItem 
-  testItemId Int?      @map("test_item_id")
-  testItem   TestItem? @relation("TestItemToMedia", fields: [testItemId], references: [id], onDelete: Cascade)
+    // Belongs to a TestItem 
+    testItemId Int?      @map("test_item_id")
+    testItem   TestItem? @relation("TestItemToMedia", fields: [testItemId], references: [id], onDelete: Cascade)
 
-  @@map("media")
+    @@map("media")
 }
 
 model Test {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  timeLimit   Int?     @map("time_limit")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  items TestItem[]
-  media Media[]    @relation("TestToMedia")
+    id          Int        @id @default(autoincrement())
+    title       String
+    description String?
+    timeLimit   Int?       @map("time_limit")
+    createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+    items       TestItem[]
+    media       Media[]    @relation("TestToMedia")
+    attempts    Attempt[]
 
   @@map("tests")
 }
 
 model TestItem {
-  id                   Int                 @id @default(autoincrement())
-  testId               Int                 @map("test_id")
-  parentItemId         Int?                @map("parent_item_id")
-  type                 TestItemType
-  text                 String?
-  answer               String?
-  points               Decimal?            @default(1) @db.Decimal(5, 2)
-  allowMultipleCorrect Boolean?            @default(false) @map("allow_multiple_correct")
-  mediaLayout          TestItemMediaLayout @default(FULL_WIDTH_STACKED) @map("media_layout")
-  sortOrder            Int?                @map("sort_order")
-  createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt            DateTime            @default(now()) @map("updated_at") @db.Timestamptz(6)
+    id                   Int                 @id @default(autoincrement())
+    testId               Int                 @map("test_id")
+    parentItemId         Int?                @map("parent_item_id")
+    type                 TestItemType
+    text                 String?
+    answer               String?
+    points               Int?                @default(1)
+    allowMultipleCorrect Boolean?            @default(false) @map("allow_multiple_correct")
+    mediaLayout          TestItemMediaLayout @default(FULL_WIDTH_STACKED) @map("media_layout")
+    sortOrder            Int?                @map("sort_order")
+    createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt            DateTime            @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  test          Test           @relation(fields: [testId], references: [id], onDelete: Cascade)
-  parent        TestItem?      @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
-  children      TestItem[]     @relation("ItemToChildren")
-  answerOptions AnswerOption[]
-  media         Media[]        @relation("TestItemToMedia")
+    test          Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+    parent        TestItem?       @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
+    children      TestItem[]      @relation("ItemToChildren")
+    answerOptions AnswerOption[]
+    media         Media[]         @relation("TestItemToMedia")
+    AttemptAnswer AttemptAnswer[]
 
-  @@map("test_items")
+    @@map("test_items")
 }
 
 model AnswerOption {
-  id        Int      @id @default(autoincrement())
-  itemId    Int      @map("item_id")
-  text      String?
-  isCorrect Boolean? @default(false) @map("is_correct")
-  sortOrder Int?     @map("sort_order")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  item TestItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+    id        Int      @id @default(autoincrement())
+    itemId    Int      @map("item_id")
+    text      String?
+    isCorrect Boolean? @default(false) @map("is_correct")
+    sortOrder Int?     @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    item      TestItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@map("answer_options")
 }
@@ -152,6 +154,36 @@ enum TestItemMediaLayout {
 
   // Layout 3: [Text] on top, [Media] on left, [Questions] on right
   TEXT_TOP_MEDIA_LEFT
+}
+
+model Attempt {
+    id                  Int             @id @default(autoincrement())
+    userId              Int             @map("user_id")
+    testId              Int             @map("test_id")
+    scoredPoints        Int?            @map("scored_points")
+    totalPossiblePoints Int?            @map("total_possible_points")
+    correctCount        Int?            @map("correct_count")
+    wrongCount          Int?            @map("wrong_count")
+    unansweredCount     Int?            @map("unanswered_count")
+    time                Int
+    createdAt           DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    test                Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+    answers             AttemptAnswer[]
+
+    @@map("attempts")
+}
+
+model AttemptAnswer {
+    id         Int      @id @default(autoincrement())
+    attemptId  Int      @map("attempt_id")
+    questionId Int
+    text       String?
+    optionIds  Int[]    @map("option_ids")
+    attempt    Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+    question   TestItem @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+    @@map("attempt_answers")
 }
 
 model FlashcardList {
@@ -264,4 +296,68 @@ model PostChunk {
 
   @@index([postId])
   @@map("post_chunks")
+}
+
+model Course {
+    id          Int      @id @default(autoincrement())
+    userId      Int      @map("user_id")
+    name        String
+    description String?
+    price       Int
+    coverUrl    String?  @map("cover_url")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    modules     Module[]
+
+    @@map("courses")
+}
+
+model Module {
+    id        Int      @id @default(autoincrement())
+    courseId  Int      @map("course_id")
+    title     String
+    sortOrder Int?     @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    lessons   Lesson[]
+
+    @@map("modules")
+}
+
+model Lesson {
+    id          Int                  @id @default(autoincrement())
+    moduleId    Int                  @map("module_id")
+    title       String
+    duration    Int                  @default(0)
+    type        LessonType?
+    textContent String?              @map("text_content")
+    videoUrl    String?              @map("video_url")
+    sortOrder   Int?                 @map("sort_order")
+    createdAt   DateTime             @default(now()) @map("created_at")
+    updatedAt   DateTime             @updatedAt @map("updated_at")
+    module      Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+    progress    UserLessonProgress[]
+
+    @@map("lessons")
+}
+
+enum LessonType {
+    TEXT
+    VIDEO
+}
+
+model UserLessonProgress {
+    id          Int      @id @default(autoincrement())
+    userId      Int      @map("user_id")
+    lessonId    Int      @map("lesson_id")
+    isCompleted Boolean  @default(false) @map("is_completed")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, lessonId])
+    @@map("user_lesson_progress")
 }

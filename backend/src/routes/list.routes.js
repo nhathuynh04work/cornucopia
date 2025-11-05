@@ -15,7 +15,11 @@ router.post(
 );
 router.get("/:listId", validateParams(["listId"]), listController.getListInfo);
 router.get("/", authenticateJWT, listController.getListsOfUser);
-router.delete("/:listId", validateParams(["listId"]), listController.deleteList);
+router.delete(
+  "/:listId",
+  validateParams(["listId"]),
+  listController.deleteList
+);
 router.post(
   "/:listId/cards",
   validateParams(["listId"]),
@@ -40,4 +44,11 @@ router.post(
   validateParams(["listId"]),
   listController.startSession
 );
+
+router.post(
+  "/:listId/cards/bulk",
+  validateParams(["listId"]),
+  listController.createCardsBulk
+);
+
 export default router;
