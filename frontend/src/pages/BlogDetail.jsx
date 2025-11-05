@@ -27,7 +27,6 @@ export default function BlogDetail() {
   if (!post) return <p className="p-4">Không tìm thấy bài viết.</p>;
 
   const title = post.title;
-  const coverUrl = post.coverUrl ?? null;
   const topics = Array.isArray(post.topics) ? post.topics : [];
 
   return (
@@ -51,14 +50,6 @@ export default function BlogDetail() {
       )}
 
       <h1 className="mt-2 text-3xl font-extrabold">{title}</h1>
-
-      {coverUrl && (
-        <img
-          src={coverUrl}
-          alt={title}
-          className="mt-4 w-full rounded-lg object-cover"
-        />
-      )}
 
       <article
         className="mt-6 leading-7 text-gray-800"

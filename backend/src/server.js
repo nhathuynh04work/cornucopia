@@ -13,6 +13,7 @@ import {
 	sessionRouter,
 	userRouter,
 	mediaRouter,
+  ragRouter,
 	attemptRouter,
 	courseRouter,
 	moduleRouter,
@@ -25,10 +26,10 @@ const app = express();
 
 // Middlewares
 app.use(
-	cors({
-		origin: env.FRONTEND_URL || true,
-		credentials: true,
-	})
+  cors({
+    origin: env.FRONTEND_URL || true,
+    credentials: true,
+  })
 );
 
 // tăng giới hạn body cho JSON & form
@@ -49,6 +50,7 @@ app.use("/tests", testRouter);
 app.use("/items", itemRouter);
 app.use("/options", optionRouter);
 app.use("/sessions", sessionRouter);
+app.use("/rag", ragRouter);
 app.use("/users", userRouter);
 app.use("/attempts", attemptRouter);
 app.use("/courses", courseRouter);
@@ -57,15 +59,15 @@ app.use("/lessons", lessonRouter);
 
 // Handler riêng cho payload quá lớn (413)
 app.use((err, req, res, next) => {
-	if (err?.type === "entity.too.large") {
-		return res.status(413).json({ error: "Payload too large" });
-	}
-	next(err);
+  if (err?.type === "entity.too.large") {
+    return res.status(413).json({ error: "Payload too large" });
+  }
+  next(err);
 });
 
 // Error handler
 app.use(errorHandler);
 
 app.listen(env.PORT, () => {
-	console.log(`Server running on port ${env.PORT}`);
+  console.log(`Server running on port ${env.PORT}`);
 });
