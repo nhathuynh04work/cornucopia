@@ -1,7 +1,6 @@
 import { Router } from "express";
 import * as mediaController from "../controllers/media.controller.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
-import { validateQueries } from "../middlewares/validateQueries.js";
 import { validateParams } from "../middlewares/validateParams.js";
 import {
 	LinkMediaSchema,
@@ -29,12 +28,6 @@ router.post(
 	"/link",
 	validateSchema(LinkMediaSchema),
 	mediaController.linkMediaToEntity
-);
-
-router.get(
-	"/view-url",
-	validateQueries(["key"]),
-	mediaController.getSignedViewURL
 );
 
 router.delete("/:id", validateParams(["id"]), mediaController.deleteMedia);

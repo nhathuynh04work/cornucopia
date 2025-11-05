@@ -10,15 +10,27 @@ export function useCoursesQuery() {
 	});
 }
 
-export function useCourseQuery(courseId) {
+export function usePublicCourseQuery(courseId) {
+	const numericCourseId = Number(courseId);
+
+	return useQuery({
+		queryKey: ["course", numericCourseId, "public"],
+		queryFn: () => courseApi.getPublicCourseDetails(numericCourseId),
+		enabled: !!numericCourseId,
+	});
+}
+
+export function useCourseEditorQuery(courseId) {
 	const setCourse = useCourseEditorStore((s) => s.setCourse);
+	const numericCourseId = Number(courseId);
 
 	const query = useQuery({
-		queryKey: ["course", courseId],
-		queryFn: () => courseApi.getCourse(courseId),
-		enabled: !!courseId,
+		queryKey: ["course", numericCourseId, "edit"],
+		queryFn: () => courseApi.getCourseForEditor(numericCourseId),
+		enabled: !!numericCourseId,
 	});
 
+	// Hydrate store when query resolves
 	useEffect(() => {
 		if (query.data) {
 			setCourse(query.data);
@@ -26,4 +38,14 @@ export function useCourseQuery(courseId) {
 	}, [query.data, setCourse]);
 
 	return query;
+}
+
+export function useCourseLearnQuery(courseId) {
+	const numericCourseId = Number(courseId);
+
+	return useQuery({
+		queryKey: ["course", numericCourseId, "learn"],
+		queryFn: () => courseApi.getCourseForLearning(numericCourseId),
+		enabled: !!numericCourseId,
+	});
 }

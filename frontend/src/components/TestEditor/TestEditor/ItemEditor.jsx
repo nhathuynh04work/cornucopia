@@ -1,18 +1,15 @@
-import {
-	useAddOptionMutation,
-	useUpdateItemMutation,
-} from "@/hooks/useItemMutation";
 import AnswerOption from "./AnswerOption";
 import DebouncedTextarea from "./DebouncedTextarea";
 import { MoveRight } from "lucide-react";
 import ItemIndex from "../ItemList/ItemIndex";
 import { itemTypeEnum, mediaLayouts } from "@/lib/item.config";
 import MediaList from "@/components/Media/MediaList";
-import EditorLayout from "./EditorLayout"; // 1. Import the new layout component
+import EditorLayout from "./EditorLayout"; 
+import { useAddOption, useUpdateItem } from "@/hooks/useTestEditorMutation";
 
 function ItemEditor({ item }) {
-	const { mutate: addOption } = useAddOptionMutation(item.id);
-	const { mutate: updateItem } = useUpdateItemMutation(item.id);
+	const { mutate: addOption } = useAddOption(item.id);
+	const { mutate: updateItem } = useUpdateItem(item.id);
 
 	// --- 2. Define the 3 content blocks ---
 

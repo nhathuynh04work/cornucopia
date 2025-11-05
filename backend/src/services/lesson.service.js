@@ -7,3 +7,23 @@ export async function update(id, payload) {
 
 	return lessonRepo.update(id, payload);
 }
+
+export async function updateLessonProgress({ lessonId, userId, isCompleted }) {
+	return prisma.userLessonProgress.upsert({
+		where: {
+			userId_lessonId: {
+				userId: userId,
+				lessonId: lessonId,
+			},
+		},
+		update: {
+			isCompleted: isCompleted,
+		},
+		// Data to create if record is NOT found
+		create: {
+			userId: userId,
+			lessonId: lessonId,
+			isCompleted: isCompleted,
+		},
+	});
+}

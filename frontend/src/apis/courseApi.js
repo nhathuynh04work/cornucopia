@@ -5,8 +5,18 @@ export async function getCourses() {
 	return data.courses;
 }
 
-export async function getCourse(courseId) {
-	const { data } = await api.get(`/courses/${courseId}`);
+export async function getPublicCourseDetails(courseId) {
+	const { data } = await api.get(`/courses/${courseId}/public`);
+	return data.course;
+}
+
+export async function getCourseForEditor(courseId) {
+	const { data } = await api.get(`/courses/${courseId}/edit`);
+	return data.course;
+}
+
+export async function getCourseForLearning(courseId) {
+	const { data } = await api.get(`/courses/${courseId}/learn`);
 	return data.course;
 }
 

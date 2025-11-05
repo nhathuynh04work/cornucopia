@@ -3,11 +3,12 @@ import Modal from "../components/Modal";
 import CreateTestForm from "../components/CreateTestForm";
 import { useNavigate } from "react-router";
 import NavButton from "../components/NavButton.jsx";
-import { useCreateTestMutation } from "../hooks/useTestMutation.js";
 import { toast } from "react-hot-toast";
 import { useTestsQuery } from "@/hooks/useTestQuery";
 import { Plus, Clock, HelpCircle, Search } from "lucide-react";
 import { formatTime } from "@/lib/text";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import * as testApi from "../apis/testApi";
 
 // --------------------------------------------------------------------------
 // Sub-Component: TabButton (Now used for all tabs)
@@ -37,7 +38,7 @@ function TestCard({ test }) {
 		<NavButton
 			to={`/tests/${test.id}`}
 			key={test.id}
-			className="block p-5 bg-white border border-gray-200 rounded-lg shadow-sm transition-all hover:shadow-md hover:border-purple-400 h-36 flex flex-col justify-between">
+			className="p-5 bg-white border border-gray-200 rounded-lg shadow-sm transition-all hover:shadow-md hover:border-purple-400 h-36 flex flex-col justify-between">
 			<div>
 				<p className="font-semibold text-lg text-gray-900 truncate">
 					{test.title}
@@ -122,7 +123,22 @@ function Tests() {
 	const draftTests = [];
 	const isDraftPending = false;
 
-	const createTest = useCreateTestMutation();
+	const queryClient = useQueryClient();
+    
+	const createTest = useMutation({
+		mutationFn: (data) => testApi.create(data),
+
+		onSuccess: (newTest) => {
+			queryClient.setQueryData(["tests"], (old = []) => [
+				...old,
+				newTest,
+			]);
+		},
+
+		onError: (err) => {
+			toast.error(err.message || "Failed to create test");
+		},
+	});
 
 	// --- Handlers ---
 	async function handleCreateTest({ title, description }) {

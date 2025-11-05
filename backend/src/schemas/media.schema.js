@@ -14,9 +14,17 @@ export const entityEnum = {
 	LESSON: "lesson",
 };
 
+export const EntityType = z.enum([
+	entityEnum.TEST,
+	entityEnum.TEST_ITEM,
+	entityEnum.USER,
+	entityEnum.COURSE,
+	entityEnum.LESSON,
+]);
+
 // Schema for linking a media to an entity (one-to-many)
 const BaseMediaSchema = z.object({
-	s3Key: z.string().min(1),
+	url: z.string().url("A valid URL is required"),
 	fileType: z.string().min(1),
 });
 
@@ -36,17 +44,9 @@ export const LinkMediaSchema = z.discriminatedUnion("entityType", [
 ]);
 
 // Schema for adding media as a field (one-to-one)
-export const EntityType = z.enum([
-	entityEnum.USER,
-	entityEnum.COURSE,
-	entityEnum.LESSON,
-]);
-
-export const PropertyType = z.enum(["avatarUrl", "coverUrl", "videoUrl"]);
-
 export const SetPropertySchema = z.object({
 	entityType: EntityType,
 	entityId: z.coerce.number().positive(),
-	property: PropertyType,
-	s3Key: z.string().min(1, "s3Key is required"),
+	url: z.url("A valid URL is required"),
+	duration: z.number().int().nonnegative().optional(),
 });

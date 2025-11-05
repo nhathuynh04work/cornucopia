@@ -1,6 +1,6 @@
 import { itemTypeEnum, mediaLayouts } from "@/lib/item.config";
 import QuestionRenderer from "./QuestionRenderer";
-import MediaList from "../Media/MediaList";
+import MediaList from "../Media/MediaList.jsx";
 
 function QuestionList({ questions = [] }) {
 	return (

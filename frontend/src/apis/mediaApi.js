@@ -6,34 +6,30 @@ export async function requestUploadUrl({ fileName, fileType }) {
 		fileType,
 	});
 
-	return data; // { key, uploadUrl }
+	return data;
 }
 
-export async function setMediaProperty(payload) {
-	const { data } = await api.post("/media/set-property", payload);
+export async function setProperty({ entityType, entityId, url, duration }) {
+	const { data } = await api.post("/media/set-property", {
+		entityType,
+		entityId,
+		url,
+		duration,
+	});
 	return data.url;
 }
 
-export async function linkMedia({ s3Key, fileType, entityType, entityId }) {
+export async function linkMedia({ url, fileType, entityType, entityId }) {
 	const { data } = await api.post("/media/link", {
-		s3Key,
+		url,
 		fileType,
 		entityType,
 		entityId,
 	});
 
-	return data.test;
-}
-
-export async function getSignedViewUrl(key) {
-	const { data } = await api.get("/media/view-url", {
-		params: { key },
-	});
-
-	return data.fetchUrl;
+	return data.media;
 }
 
 export async function remove(id) {
-	const { data } = await api.delete(`/media/${id}`);
-	return data.test;
+	await api.delete(`/media/${id}`);
 }
