@@ -84,7 +84,6 @@ function CourseLearn() {
 
 	return (
 		<div>
-			{/* --- 2. Pass Real Progress to Header --- */}
 			<LearnHeader courseName={course.name} progress={progressPercent} />
 			<div className="flex">
 				{/* Column 1: Main Content (Lesson Viewer & Tabs) */}

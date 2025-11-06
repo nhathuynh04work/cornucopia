@@ -1,9 +1,12 @@
-import { useParams } from "react-router-dom";
-import { Edit, Video, FileText, BookOpen, Layers, Play } from "lucide-react";
+import { useEffect } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { Edit, Video, FileText, BookOpen, Layers, Loader2 } from "lucide-react";
 import NavButton from "@/components/NavButton";
 import { usePublicCourseQuery } from "@/hooks/useCourseQuery";
+import { useMutation } from "@tanstack/react-query";
+import * as courseApi from "@/apis/courseApi";
+import { toast } from "react-hot-toast";
 
-// Helper to get the correct icon for a lesson
 const lessonIcon = {
 	VIDEO: <Video className="w-4 h-4 text-purple-600" />,
 	TEXT: <FileText className="w-4 h-4 text-blue-600" />,
@@ -11,7 +14,32 @@ const lessonIcon = {
 
 function CourseInfo() {
 	const { id } = useParams();
+	const [searchParams, setSearchParams] = useSearchParams();
+
 	const { data: course, isPending } = usePublicCourseQuery(id);
+
+	const { mutate: createCheckout, isPending: isCheckoutPending } =
+		useMutation({
+			mutationFn: () => courseApi.createCheckoutSession(id),
+			onSuccess: (url) => {
+				window.location.href = url;
+			},
+			onError: (err) => {
+				toast.error(err.message || "Failed to start checkout.");
+			},
+		});
+
+	useEffect(() => {
+		const paymentStatus = searchParams.get("payment");
+
+		if (paymentStatus === "success") {
+			toast.success("Payment successful! You are now enrolled.");
+			setSearchParams({}, { replace: true });
+		} else if (paymentStatus === "canceled") {
+			toast.error("Payment was canceled.");
+			setSearchParams({}, { replace: true });
+		}
+	}, [searchParams, setSearchParams]);
 
 	if (isPending) {
 		return <p className="p-6">Loading...</p>;
@@ -26,6 +54,8 @@ function CourseInfo() {
 	const totalLessons =
 		course.modules?.reduce((acc, mod) => acc + mod.lessons.length, 0) || 0;
 
+	const isBusy = isCheckoutPending;
+
 	return (
 		<div className="flex h-[calc(100vh-65px)] overflow-hidden bg-white">
 			{/* Column 1: Main Content (Details & Curriculum) */}
@@ -38,14 +68,20 @@ function CourseInfo() {
 					{course.description || "No description provided."}
 				</p>
 
-				{/* Action Buttons */}
+				{/* 9. Action Buttons Updated */}
 				<div className="flex items-center gap-4">
-					<NavButton
-						to={`/courses/${id}/learn`}
-						className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700">
-						<Play className="w-4 h-4" />
-						Start Learning
-					</NavButton>
+					{/* This is now the "Buy Now" button */}
+					<button
+						onClick={() => createCheckout()}
+						disabled={isBusy}
+						className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 disabled:bg-purple-400">
+						{isBusy ? (
+							<Loader2 className="w-4 h-4 animate-spin" />
+						) : (
+							"Buy Now"
+						)}
+					</button>
+					{/* The "Edit Course" button remains */}
 					<NavButton
 						to={`/courses/${id}/edit`}
 						className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
@@ -91,7 +127,7 @@ function CourseInfo() {
 					className="w-full rounded-lg object-cover mb-4"
 				/>
 				<p className="text-3xl font-bold text-gray-900 mb-6">
-					${course.price / 100}
+					${(course.price / 100).toFixed(2)}
 				</p>
 
 				<h3 className="text-lg font-semibold text-gray-900 mb-4">

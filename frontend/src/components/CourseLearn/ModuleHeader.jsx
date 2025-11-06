@@ -7,7 +7,7 @@ function ModuleHeader({
 	isOpen,
 	checkedCount,
 	totalLessons,
-	totalTime, // This is now real data (in minutes)
+	totalTime, 
 	onClick,
 }) {
 	return (
