@@ -34,3 +34,8 @@ export async function addModule(courseId) {
 	const { data } = await api.post(`/courses/${courseId}/modules`);
 	return data.module;
 }
+
+export async function createCheckoutSession(courseId) {
+	const { data } = await api.post(`/checkout/create-session/${courseId}`);
+	return data.url;
+}
