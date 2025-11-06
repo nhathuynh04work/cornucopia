@@ -18,6 +18,7 @@ import {
 	courseRouter,
 	moduleRouter,
 	lessonRouter,
+    checkoutRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -56,6 +57,7 @@ app.use("/attempts", attemptRouter);
 app.use("/courses", courseRouter);
 app.use("/modules", moduleRouter);
 app.use("/lessons", lessonRouter);
+app.use("/checkout", checkoutRouter);
 
 // Handler riêng cho payload quá lớn (413)
 app.use((err, req, res, next) => {
