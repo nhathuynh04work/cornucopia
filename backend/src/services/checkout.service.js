@@ -57,7 +57,7 @@ export async function handleStripeWebhook(rawBody, signature) {
 		event = stripe.webhooks.constructEvent(
 			rawBody,
 			signature,
-			process.env.STRIPE_WEBHOOK_SECRET
+			env.STRIPE_WEBHOOK_SECRET
 		);
 	} catch (err) {
 		throw new BadRequestError(`Webhook Error: ${err.message}`);
