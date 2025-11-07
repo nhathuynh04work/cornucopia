@@ -11,12 +11,13 @@ export function useCoursesQuery() {
 	});
 }
 
-export function usePublicCourseQuery(courseId) {
+export function useCourseInfoView(courseId) {
+	const { user } = useAuth();
 	const numericCourseId = Number(courseId);
 
 	return useQuery({
-		queryKey: ["course", numericCourseId, "public"],
-		queryFn: () => courseApi.getPublicCourseDetails(numericCourseId),
+		queryKey: ["course", numericCourseId, "info-view", user?.id],
+		queryFn: () => courseApi.getCourseForInfoView(numericCourseId),
 		enabled: !!numericCourseId,
 	});
 }
@@ -33,7 +34,7 @@ export function useEnrollmentStatusQuery(courseId) {
 	});
 }
 
-export function useCourseEditorQuery(courseId) {
+export function useCourseEditor(courseId) {
 	const setCourse = useCourseEditorStore((s) => s.setCourse);
 	const numericCourseId = Number(courseId);
 
@@ -43,7 +44,6 @@ export function useCourseEditorQuery(courseId) {
 		enabled: !!numericCourseId,
 	});
 
-	// Hydrate store when query resolves
 	useEffect(() => {
 		if (query.data) {
 			setCourse(query.data);
@@ -60,5 +60,25 @@ export function useCourseLearnQuery(courseId) {
 		queryKey: ["course", numericCourseId, "learn"],
 		queryFn: () => courseApi.getCourseForLearning(numericCourseId),
 		enabled: !!numericCourseId,
+	});
+}
+
+export function useEnrolledCourses() {
+	const { user } = useAuth();
+
+	return useQuery({
+		queryKey: ["courses", "enrolled", user?.id],
+		queryFn: courseApi.getEnrolledCourses,
+		enabled: !!user,
+	});
+}
+
+export function useMyCourses() {
+	const { user } = useAuth();
+
+	return useQuery({
+		queryKey: ["courses", "my-courses", user?.id],
+		queryFn: courseApi.getMyCourses,
+		enabled: !!user,
 	});
 }

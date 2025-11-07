@@ -1,16 +1,15 @@
 import { Loader2 } from "lucide-react";
 import { useCourseEditorStore } from "../../store/courseEditorStore";
-import { useUpdateCourseMutation } from "../../hooks/useCourseMutation";
 import DebouncedInput from "../../components/DebouncedInput";
 import DebouncedTextarea from "../../components/TestEditor/TestEditor/DebouncedTextarea";
 import CourseCoverUploader from "./CourseCoverUploader";
+import { useUpdateCourse } from "@/hooks/useCourseMutation";
 
 function CourseInfoEditor() {
 	const course = useCourseEditorStore((s) => s.course);
-	const changeCoverUrl = useCourseEditorStore((s) => s.changeCoverUrl);
 
 	const { mutate: updateCourse, isPending: isUpdating } =
-		useUpdateCourseMutation(course?.id);
+		useUpdateCourse(course?.id);
 
 	const isBusy = isUpdating;
 
@@ -22,10 +21,7 @@ function CourseInfoEditor() {
 				<label className="block text-sm font-medium text-gray-700 mb-2">
 					Cover Image
 				</label>
-				<CourseCoverUploader
-					course={course}
-					onSuccess={changeCoverUrl}
-				/>
+				<CourseCoverUploader course={course} />
 			</div>
 
 			{/* --- Text Fields Form --- */}

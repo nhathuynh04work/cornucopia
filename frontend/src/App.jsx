@@ -81,7 +81,6 @@ function App() {
 						<Route path="admin" element={<MyCourses />} />
 					</Route>
 					<Route path="courses/:id" element={<CourseInfo />} />
-					<Route path="courses/:id/edit" element={<CourseEdit />} />
 
 					{/* Other Routes */}
 					<Route path="attempts/:id" element={<AttemptResult />} />
@@ -91,6 +90,7 @@ function App() {
 				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="tests/:id/attempt" element={<TestAttempt />} />
 				<Route path="courses/:id/learn" element={<CourseLearn />} />
+				<Route path="courses/:id/edit" element={<CourseEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
 			</Routes>

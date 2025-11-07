@@ -17,7 +17,6 @@ export function usePropertyUploader({
 }) {
 	const [uploadPercent, setUploadPercent] = useState(null);
 
-	// This is the mutation that calls your "/set-property" backend route
 	const { mutate: setProperty, isPending: isLinking } = useSetMediaProperty({
 		onSuccess: (data, variables) => {
 			toast.success("Media updated!");
@@ -32,13 +31,12 @@ export function usePropertyUploader({
 		},
 	});
 
-	// This function will be
 	function handleUploadSuccess({ url, duration }) {
 		setProperty({
 			entityType,
 			entityId,
 			url,
-			duration: duration || 0, // Send duration (defaults to 0 for images)
+			duration: duration || 0,
 		});
 	}
 

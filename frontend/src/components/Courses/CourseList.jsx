@@ -6,6 +6,7 @@ export default function CourseList({
 	searchTerm,
 	emptyMessage,
 	searchEmptyMessage,
+	prependItem,
 }) {
 	if (isPending) {
 		return (
@@ -13,13 +14,14 @@ export default function CourseList({
 		);
 	}
 
-	if (courses?.length === 0) {
+	if (courses?.length === 0 && !prependItem) {
 		const message = searchTerm ? searchEmptyMessage : emptyMessage;
 		return <p className="text-center text-gray-500 mt-10">{message}</p>;
 	}
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+			{prependItem}
 			{courses.map((course) => (
 				<CourseCard key={course.id} course={course} />
 			))}

@@ -1,10 +1,10 @@
 import CourseList from "@/components/Courses/CourseList";
-import { useCoursesQuery } from "@/hooks/useCourseQuery";
+import { useEnrolledCourses } from "@/hooks/useCourseQuery";
 import { useFilteredCourses } from "@/hooks/useFilteredCourses";
 
 function EnrolledCourses() {
 	const { filteredCourses, isPending, searchTerm } =
-		useFilteredCourses(useCoursesQuery);
+		useFilteredCourses(useEnrolledCourses);
 
 	return (
 		<CourseList

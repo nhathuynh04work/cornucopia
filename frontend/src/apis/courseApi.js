@@ -5,9 +5,9 @@ export async function getCourses() {
 	return data.courses;
 }
 
-export async function getPublicCourseDetails(courseId) {
-	const { data } = await api.get(`/courses/${courseId}/public`);
-	return data.course;
+export async function getCourseForInfoView(courseId) {
+	const { data } = await api.get(`/courses/${courseId}/info`);
+	return data; // { course, accessStatus }
 }
 
 export async function getEnrollmentStatus(courseId) {
@@ -23,6 +23,16 @@ export async function getCourseForEditor(courseId) {
 export async function getCourseForLearning(courseId) {
 	const { data } = await api.get(`/courses/${courseId}/learn`);
 	return data.course;
+}
+
+export async function getEnrolledCourses() {
+	const { data } = await api.get("/courses/enrolled");
+	return data.courses;
+}
+
+export async function getMyCourses() {
+	const { data } = await api.get("/courses/my-courses");
+	return data.courses;
 }
 
 export async function create(payload) {

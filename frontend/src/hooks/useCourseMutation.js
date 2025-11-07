@@ -1,15 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as courseApi from "@/apis/courseApi";
 import { toast } from "react-hot-toast";
-import { useCourseEditorStore } from "@/store/courseEditorStore";
 
-export function useCreateCourseMutation() {
+export function useCreateCourse() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: (courseData) => courseApi.create(courseData),
 		onSuccess: () => {
-			toast.success("Course created successfully!");
 			queryClient.invalidateQueries({ queryKey: ["courses"] });
 		},
 		onError: (err) => {
@@ -18,14 +16,18 @@ export function useCreateCourseMutation() {
 	});
 }
 
-export function useUpdateCourseMutation(courseId) {
-	const setCourse = useCourseEditorStore((s) => s.setCourse);
+export function useUpdateCourse(courseId) {
+	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: (payload) => courseApi.update(courseId, payload),
-		onSuccess: (course) => {
-			setCourse(course);
-			toast.success("Course updated");
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["courses"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["course", courseId],
+			});
 		},
 		onError: (err) => {
 			toast.error(err.message || "Failed to update course.");
@@ -33,14 +35,18 @@ export function useUpdateCourseMutation(courseId) {
 	});
 }
 
-export function useAddModuleMutation(courseId) {
-	const addModule = useCourseEditorStore((s) => s.addModule);
+export function useAddModule(courseId) {
+	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: () => courseApi.addModule(courseId),
-		onSuccess: (module) => {
-			addModule(module);
-			toast.success("Module added");
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["courses"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["course", courseId],
+			});
 		},
 		onError: (err) => {
 			toast.error(err.message || "Failed to add module.");

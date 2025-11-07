@@ -1,13 +1,15 @@
 import { Navigate } from "react-router-dom";
-import { useCoursesQuery } from "@/hooks/useCourseQuery";
-import { useFilteredCourses } from "@/hooks/useFilteredCourses";
+import { useMyCourses } from "@/hooks/useCourseQuery";
+import CreateCourseCard from "@/components/Courses/CreateCourseCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFilteredCourses } from "@/hooks/useFilteredCourses";
 import CourseList from "@/components/Courses/CourseList";
 
 function MyCourses() {
 	const { role } = useAuth();
+
 	const { filteredCourses, isPending, searchTerm } =
-		useFilteredCourses(useCoursesQuery);
+		useFilteredCourses(useMyCourses);
 
 	if (role !== "admin") return <Navigate to="/courses/all" replace />;
 
@@ -18,6 +20,7 @@ function MyCourses() {
 			searchTerm={searchTerm}
 			emptyMessage="You have not created any courses."
 			searchEmptyMessage="No courses match your search."
+			prependItem={<CreateCourseCard />}
 		/>
 	);
 }

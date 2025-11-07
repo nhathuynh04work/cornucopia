@@ -1,7 +1,7 @@
-import { useCourseInfoPage } from "@/hooks/useCourseInfoPage";
-import CourseHeader from "@/components/CourseInfo/CourseHeader";
 import CourseCurriculum from "@/components/CourseInfo/CourseCurriculum";
+import CourseHeader from "@/components/CourseInfo/CourseHeader";
 import CourseSidebar from "@/components/CourseInfo/CourseSidebar";
+import { useCourseInfoPage } from "@/hooks/useCourseInfoPage";
 
 function CourseInfo() {
 	const {
@@ -9,31 +9,28 @@ function CourseInfo() {
 		course,
 		totalModules,
 		totalLessons,
-		isEnrolled,
 		isBusy,
 		user,
 		createCheckout,
+		accessStatus,
+		isError,
 	} = useCourseInfoPage();
 
 	if (isPending) {
-		return <p className="p-6">Loading...</p>;
+		return <p className="p-6 text-center text-gray-500">Loading...</p>;
 	}
 
-	if (!course) {
-		return <p className="p-6">Course not found.</p>;
+	if (isError || !course) {
+		return (
+			<p className="p-6 text-center text-gray-500">Course not found.</p>
+		);
 	}
 
 	return (
 		<div className="flex h-[calc(100vh-65px)] overflow-hidden bg-white">
 			{/* Column 1: Main Content (Details & Curriculum) */}
 			<div className="w-3/4 p-6 overflow-y-auto scroll-container">
-				<CourseHeader
-					course={course}
-					isEnrolled={isEnrolled}
-					isBusy={isBusy}
-					user={user}
-					createCheckout={createCheckout}
-				/>
+				<CourseHeader course={course} />
 				<CourseCurriculum modules={course.modules} />
 			</div>
 
@@ -42,6 +39,10 @@ function CourseInfo() {
 				course={course}
 				totalModules={totalModules}
 				totalLessons={totalLessons}
+				isBusy={isBusy}
+				user={user}
+				createCheckout={createCheckout}
+				accessStatus={accessStatus}
 			/>
 		</div>
 	);

@@ -1,7 +1,17 @@
-import { BookOpen, Layers, Users } from "lucide-react";
+import { BookOpen, Edit, Layers, Loader2, Play, Users } from "lucide-react";
 import Avatar from "../Avatar";
+import NavButton from "@/components/NavButton";
+import { toast } from "react-hot-toast";
 
-export default function CourseSidebar({ course, totalModules, totalLessons }) {
+export default function CourseSidebar({
+	course,
+	totalModules,
+	totalLessons,
+	isBusy,
+	user,
+	createCheckout,
+	accessStatus,
+}) {
 	const instructor = course.user || {};
 	const enrollmentCount = course._count?.enrollments || 0;
 
@@ -10,11 +20,50 @@ export default function CourseSidebar({ course, totalModules, totalLessons }) {
 			<img
 				src={course.coverUrl || "https://via.placeholder.com/400x200"}
 				alt={course.name}
-				className="w-full rounded-lg object-cover mb-4"
+				className="w-full rounded-lg object-cover mb-4 border"
 			/>
-			<p className="text-3xl font-bold text-gray-900 mb-6">
-				${(course.price / 100).toFixed(2)}
-			</p>
+
+			{/* --- Button Action Block --- */}
+			<div className="mb-6 space-y-3">
+				{accessStatus === "none" && (
+					<p className="text-3xl font-bold text-gray-900 mb-4">
+						${(course.price / 100).toFixed(2)}
+					</p>
+				)}
+
+				{accessStatus === "owner" ? (
+					<NavButton
+						to={`/courses/${course.id}/edit`}
+						className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+						<Edit className="w-4 h-4" />
+						Edit Course
+					</NavButton>
+				) : accessStatus === "enrolled" ? (
+					<NavButton
+						to={`/courses/${course.id}/learn`}
+						className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700">
+						<Play className="w-4 h-4" />
+						Start Learning
+					</NavButton>
+				) : (
+					<button
+						onClick={() => {
+							if (!user) {
+								toast.error("Please log in to purchase.");
+								return;
+							}
+							createCheckout();
+						}}
+						disabled={isBusy}
+						className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 disabled:bg-purple-400">
+						{isBusy ? (
+							<Loader2 className="w-4 h-4 animate-spin" />
+						) : (
+							"Buy Now"
+						)}
+					</button>
+				)}
+			</div>
 
 			<h3 className="text-lg font-semibold text-gray-900 mb-4">
 				Instructor
