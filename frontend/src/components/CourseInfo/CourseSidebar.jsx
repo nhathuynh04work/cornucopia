@@ -1,7 +1,7 @@
 import { BookOpen, Edit, Layers, Loader2, Play, Users } from "lucide-react";
-import Avatar from "../Avatar";
-import NavButton from "@/components/NavButton";
 import { toast } from "react-hot-toast";
+import NavButton from "../NavButton";
+import Avatar from "../Avatar";
 
 export default function CourseSidebar({
 	course,
@@ -10,7 +10,7 @@ export default function CourseSidebar({
 	isBusy,
 	user,
 	createCheckout,
-	accessStatus,
+	accessStatus, // Use the new prop
 }) {
 	const instructor = course.user || {};
 	const enrollmentCount = course._count?.enrollments || 0;
@@ -25,43 +25,53 @@ export default function CourseSidebar({
 
 			{/* --- Button Action Block --- */}
 			<div className="mb-6 space-y-3">
+				{/* Show "Buy Now" section (price + button) only if
+                  the user has no access.
+                */}
 				{accessStatus === "none" && (
-					<p className="text-3xl font-bold text-gray-900 mb-4">
-						${(course.price / 100).toFixed(2)}
-					</p>
+					<>
+						<p className="text-3xl font-bold text-gray-900 mb-4">
+							${(course.price / 100).toFixed(2)}
+						</p>
+						<button
+							onClick={() => {
+								if (!user) {
+									toast.error("Please log in to purchase.");
+									return;
+								}
+								createCheckout();
+							}}
+							disabled={isBusy}
+							className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 disabled:bg-purple-400">
+							{isBusy ? (
+								<Loader2 className="w-4 h-4 animate-spin" />
+							) : (
+								"Buy Now"
+							)}
+						</button>
+					</>
 				)}
 
-				{accessStatus === "owner" ? (
-					<NavButton
-						to={`/courses/${course.id}/edit`}
-						className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-						<Edit className="w-4 h-4" />
-						Edit Course
-					</NavButton>
-				) : accessStatus === "enrolled" ? (
+				{/* Show "Start Learning" if the user is ENROLLED or the OWNER.
+				 */}
+				{(accessStatus === "enrolled" || accessStatus === "owner") && (
 					<NavButton
 						to={`/courses/${course.id}/learn`}
 						className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700">
 						<Play className="w-4 h-4" />
 						Start Learning
 					</NavButton>
-				) : (
-					<button
-						onClick={() => {
-							if (!user) {
-								toast.error("Please log in to purchase.");
-								return;
-							}
-							createCheckout();
-						}}
-						disabled={isBusy}
-						className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 disabled:bg-purple-400">
-						{isBusy ? (
-							<Loader2 className="w-4 h-4 animate-spin" />
-						) : (
-							"Buy Now"
-						)}
-					</button>
+				)}
+
+				{/* Show "Edit Course" ONLY if the user is the OWNER.
+				 */}
+				{accessStatus === "owner" && (
+					<NavButton
+						to={`/courses/${course.id}/edit`}
+						className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+						<Edit className="w-4 h-4" />
+						Edit Course
+					</NavButton>
 				)}
 			</div>
 

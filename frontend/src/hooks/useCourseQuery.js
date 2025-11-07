@@ -34,7 +34,7 @@ export function useEnrollmentStatusQuery(courseId) {
 	});
 }
 
-export function useCourseEditor(courseId) {
+export function useCourseEditorQuery(courseId) {
 	const setCourse = useCourseEditorStore((s) => s.setCourse);
 	const numericCourseId = Number(courseId);
 

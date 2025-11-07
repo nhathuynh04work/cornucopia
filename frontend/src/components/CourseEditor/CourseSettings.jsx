@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import {
-	Loader2,
-	Trash,
-	CheckCircle,
-	EyeOff,
-	UploadCloud,
-} from "lucide-react";
+import { Loader2, Trash, CheckCircle, EyeOff, UploadCloud } from "lucide-react";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useDeleteCourse, useUpdateCourse } from "@/hooks/useCourseMutation";
 import ConfirmationModal from "./ConfirmationModal";
@@ -36,9 +30,7 @@ export default function CourseSettings() {
 	function handleUpdateStatus(newStatus) {
 		updateCourse(
 			{ status: newStatus },
-			{
-				onSuccess: () => toast.success("Status updated"),
-			}
+			{ onSuccess: () => toast.success("Status updated") }
 		);
 	}
 
@@ -136,11 +128,18 @@ export default function CourseSettings() {
 			{/* --- Confirmation Modal --- */}
 			{showConfirmModal && (
 				<ConfirmationModal
-					courseName={course.name}
-					setShow={setShowConfirmModal}
-					isDeleting={isDeleting}
-					handleDelete={handleDelete}
-				/>
+					title="Delete course?"
+					variant="danger"
+					confirmText="Delete"
+					isLoading={isDeleting}
+					onConfirm={handleDelete}
+					onCancel={() => setShowConfirmModal(false)}>
+					<p>
+						Are you sure you want to delete "{course.name}"? All of
+						its data, including modules and lessons, will be
+						permanently removed.
+					</p>
+				</ConfirmationModal>
 			)}
 		</div>
 	);

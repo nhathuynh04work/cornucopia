@@ -154,6 +154,7 @@ export async function getCourseForLearning(courseId, userId) {
 		},
 		select: {
 			id: true,
+			userId: true,
 		},
 	});
 
@@ -163,19 +164,18 @@ export async function getCourseForLearning(courseId, userId) {
 		);
 	}
 
+	const isOwner = accessCheck.userId === userId;
+	const contentWhereClause = isOwner ? {} : { status: ContentStatus.PUBLIC };
+
 	return prisma.course.findUnique({
 		where: { id: courseId },
 		include: {
 			modules: {
-				where: {
-					status: ContentStatus.PUBLIC,
-				},
+				where: contentWhereClause,
 				orderBy: { sortOrder: "asc" },
 				include: {
 					lessons: {
-						where: {
-							status: ContentStatus.PUBLIC,
-						},
+						where: contentWhereClause,
 						orderBy: { sortOrder: "asc" },
 						include: {
 							progress: {

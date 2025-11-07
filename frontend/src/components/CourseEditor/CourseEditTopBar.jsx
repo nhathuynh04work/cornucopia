@@ -1,5 +1,7 @@
 import Logo from "@/components/Logo";
 import UserMenu from "@/components/UserMenu";
+import { useCourseEditorStore } from "@/store/courseEditorStore";
+import { Link } from "react-router";
 
 const statusStyles = {
 	DRAFT: {
@@ -17,8 +19,9 @@ const statusStyles = {
 	},
 };
 
-export default function CourseEditTopBar({ course }) {
-	const currentStatus = statusStyles[course.status] || statusStyles.DRAFT;
+export default function CourseEditTopBar() {
+	const course = useCourseEditorStore((s) => s.course);
+	const currentStatus = statusStyles[course?.status] || statusStyles.DRAFT;
 
 	return (
 		<header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10">
@@ -27,9 +30,11 @@ export default function CourseEditTopBar({ course }) {
 				<div className="w-px h-6 bg-gray-300 flex-shrink-0" />
 
 				<div className="flex items-center gap-3 min-w-0">
-					<h1 className="text-md font-extralight text-gray-600 truncate">
-						{course.name}
-					</h1>
+					<Link
+						to={`/courses/${course?.id}`}
+						className="text-md font-extralight text-gray-600 truncate">
+						{course?.name}
+					</Link>
 
 					<span
 						className={`
