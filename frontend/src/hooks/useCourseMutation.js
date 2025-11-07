@@ -47,3 +47,15 @@ export function useAddModuleMutation(courseId) {
 		},
 	});
 }
+
+export function useCreateCheckoutSession(courseId) {
+	return useMutation({
+		mutationFn: () => courseApi.createCheckoutSession(courseId),
+		onSuccess: (url) => {
+			window.location.href = url;
+		},
+		onError: (err) => {
+			toast.error(err.message || "Failed to start checkout.");
+		},
+	});
+}

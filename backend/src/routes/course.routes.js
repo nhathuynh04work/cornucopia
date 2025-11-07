@@ -19,6 +19,13 @@ router.get(
 );
 
 router.get(
+	"/:id/enrollment",
+	authenticateJWT, 
+	validateParams(["id"]),
+	courseController.getEnrollmentStatus
+);
+
+router.get(
 	"/:id/edit",
 	authenticateJWT,
 	validateParams(["id"]),

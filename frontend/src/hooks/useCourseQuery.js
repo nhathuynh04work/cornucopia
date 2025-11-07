@@ -1,4 +1,5 @@
 import * as courseApi from "@/apis/courseApi";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -17,6 +18,18 @@ export function usePublicCourseQuery(courseId) {
 		queryKey: ["course", numericCourseId, "public"],
 		queryFn: () => courseApi.getPublicCourseDetails(numericCourseId),
 		enabled: !!numericCourseId,
+	});
+}
+
+export function useEnrollmentStatusQuery(courseId) {
+	const { user } = useAuth();
+	const numericCourseId = Number(courseId);
+
+	return useQuery({
+		queryKey: ["course", numericCourseId, "enrollment", user?.id],
+		queryFn: () => courseApi.getEnrollmentStatus(numericCourseId),
+		enabled: !!numericCourseId && !!user,
+		staleTime: 1000 * 60 * 5,
 	});
 }
 

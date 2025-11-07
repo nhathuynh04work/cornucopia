@@ -11,6 +11,17 @@ export async function getPublicCourseDetails(req, res) {
 	res.status(200).json({ course });
 }
 
+export async function getEnrollmentStatus(req, res) {
+	const courseId = req.params.id;
+	const userId = req.user.id;
+
+	const isEnrolled = await courseService.getEnrollmentStatus(
+		courseId,
+		userId
+	);
+	res.status(200).json({ isEnrolled });
+}
+
 export async function getCourseForEditor(req, res) {
 	const courseId = req.params.id;
 	const userId = req.user.id;

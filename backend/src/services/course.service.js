@@ -41,6 +41,34 @@ export async function getPublicCourseDetails(courseId) {
 	return course;
 }
 
+export async function getEnrollmentStatus(courseId, userId) {
+	const course = await prisma.course.findFirst({
+		where: {
+			id: courseId,
+			OR: [
+				{
+					// Condition 1: The user is the owner
+					userId: userId,
+				},
+				{
+					// Condition 2: The user is enrolled
+					enrollments: {
+						some: {
+							userId: userId,
+						},
+					},
+				},
+			],
+		},
+		select: {
+			id: true, // We just need to know if a record exists
+		},
+	});
+
+	// Return a simple boolean 
+	return !!course;
+}
+
 export async function getCourseForEditor(courseId, userId) {
 	const course = await prisma.course.findFirst({
 		where: {
@@ -71,17 +99,39 @@ export async function getCourseForEditor(courseId, userId) {
 }
 
 export async function getCourseForLearning(courseId, userId) {
-	// FIXME: Check enrollment
-	const course = await prisma.course.findFirst({
+	// 1. Check if user can access this (are they the owner OR enrolled?)
+	const accessCheck = await prisma.course.findFirst({
 		where: {
 			id: courseId,
+			OR: [
+				{
+					// Condition 1: The user is the owner
+					userId: userId,
+				},
+				{
+					// Condition 2: The user is enrolled
+					enrollments: {
+						some: {
+							userId: userId,
+						},
+					},
+				},
+			],
+		},
+		// We only need the ID to confirm access
+		select: {
+			id: true,
 		},
 	});
 
-	if (!course) {
-		throw new ForbiddenError("You are not enrolled in this course.");
+	// If the query returns nothing, the user has no access.
+	if (!accessCheck) {
+		throw new ForbiddenError(
+			"You are not enrolled in this course or do not own it."
+		);
 	}
 
+	// 2. Fetch all course data, but also include the user's *specific* progress.
 	return prisma.course.findUnique({
 		where: { id: courseId },
 		include: {

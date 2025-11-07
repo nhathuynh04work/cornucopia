@@ -10,6 +10,11 @@ export async function getPublicCourseDetails(courseId) {
 	return data.course;
 }
 
+export async function getEnrollmentStatus(courseId) {
+	const { data } = await api.get(`/courses/${courseId}/enrollment`);
+	return data.isEnrolled;
+}
+
 export async function getCourseForEditor(courseId) {
 	const { data } = await api.get(`/courses/${courseId}/edit`);
 	return data.course;
