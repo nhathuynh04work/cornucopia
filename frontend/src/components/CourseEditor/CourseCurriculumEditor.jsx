@@ -1,4 +1,4 @@
-import { useAddModuleMutation } from "@/hooks/useCourseMutation";
+import { useAddModule } from "@/hooks/useCourseMutation";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { Plus, Loader2 } from "lucide-react";
 import ModuleItem from "./ModuleItem";
@@ -6,13 +6,11 @@ import ModuleItem from "./ModuleItem";
 function CourseCurriculumEditor() {
 	const course = useCourseEditorStore((s) => s.course);
 
-	const { mutate: addModule, isPending: isAdding } = useAddModuleMutation(
-		course?.id
-	);
+	const { mutate: addModule, isPending: isAdding } = useAddModule(course?.id);
 
 	return (
 		<div className="max-w-3xl">
-			<p className="mb-6 text-gray-600">
+			<p className="mt-1 text-sm text-gray-600 mb-8">
 				Start building your course by adding modules and lessons.
 			</p>
 			<div className="space-y-6">

@@ -45,6 +45,7 @@ export function AuthProvider({ children }) {
 	}
 
 	const value = {
+		role: user?.userRole.role,
 		user,
 		isInitialLoading,
 		login,

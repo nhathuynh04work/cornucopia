@@ -306,25 +306,29 @@ model Course {
     description String?
     price       Int
     coverUrl    String?                @map("cover_url")
+    status      CourseStatus           @default(DRAFT)
     createdAt   DateTime               @default(now()) @map("created_at")
     updatedAt   DateTime               @updatedAt @map("updated_at")
     user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
     modules     Module[]
     enrollments UserCourseEnrollment[]
 
+    @@index([status])
     @@map("courses")
 }
 
 model Module {
-    id        Int      @id @default(autoincrement())
-    courseId  Int      @map("course_id")
+    id        Int           @id @default(autoincrement())
+    courseId  Int           @map("course_id")
     title     String
-    sortOrder Int?     @map("sort_order")
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-    course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    sortOrder Int?          @map("sort_order")
+    status    ContentStatus @default(DRAFT)
+    createdAt DateTime      @default(now()) @map("created_at")
+    updatedAt DateTime      @updatedAt @map("updated_at")
+    course    Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
     lessons   Lesson[]
 
+    @@index([status])
     @@map("modules")
 }
 
@@ -337,11 +341,13 @@ model Lesson {
     textContent String?              @map("text_content")
     videoUrl    String?              @map("video_url")
     sortOrder   Int?                 @map("sort_order")
+    status      ContentStatus        @default(DRAFT)
     createdAt   DateTime             @default(now()) @map("created_at")
     updatedAt   DateTime             @updatedAt @map("updated_at")
     module      Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
     progress    UserLessonProgress[]
 
+    @@index([status])
     @@map("lessons")
 }
 
@@ -362,6 +368,17 @@ model UserLessonProgress {
 
     @@unique([userId, lessonId])
     @@map("user_lesson_progress")
+}
+
+enum CourseStatus {
+    DRAFT
+    PUBLIC
+    UNLISTED
+}
+
+enum ContentStatus {
+    DRAFT
+    PUBLIC
 }
 
 model UserCourseEnrollment {

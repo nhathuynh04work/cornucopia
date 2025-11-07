@@ -9,8 +9,9 @@ export async function addLesson(req, res) {
 
 export async function updateModule(req, res) {
 	const id = req.params.id;
-	const module = await moduleService.update(id, req.body);
+	const userId = req.user.id;
 
+	const module = await moduleService.update(id, req.body, userId);
 	res.status(200).json({ module });
 }
 

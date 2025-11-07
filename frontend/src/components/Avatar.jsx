@@ -6,12 +6,12 @@ const avatarSizes = {
 
 const baseClasses = "rounded-full object-cover border border-gray-300";
 
-function Avatar({ size = "small", url = "/default-avatar.svg" }) {
+function Avatar({ size = "small", url }) {
 	const sizeClasses = avatarSizes[size] || avatarSizes.small;
 
 	return (
 		<img
-			src={url}
+			src={url ?? "/default-avatar.svg"}
 			alt="user avatar"
 			className={`${sizeClasses} ${baseClasses}`}
 		/>

@@ -1,5 +1,5 @@
 import { Toaster } from "react-hot-toast";
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
@@ -16,7 +16,6 @@ import Tests from "./pages/Tests";
 import TestInfo from "./pages/TestInfo";
 import Flashcards from "./pages/Flashcards";
 import FlashcardsDetail from "./pages/FlashcardsDetail";
-import Courses from "./pages/Courses";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
@@ -27,6 +26,10 @@ import FlashcardPractice from "./components/FlashCard/FlashcardPractice";
 import CourseInfo from "./pages/CourseInfo";
 import CourseEdit from "./pages/CourseEdit";
 import CourseLearn from "./pages/CourseLearn";
+import AllCourses from "./pages/AllCourses";
+import EnrolledCourses from "./pages/EnrolledCourses";
+import MyCourses from "./pages/MyCourses";
+import CoursesLayout from "./layouts/CoursesLayout";
 
 function App() {
 	return (
@@ -71,9 +74,13 @@ function App() {
 					/>
 
 					{/* Courses Routes */}
-					<Route path="courses" element={<Courses />} />
+					<Route path="/courses" element={<CoursesLayout />}>
+						<Route index element={<Navigate to="all" replace />} />
+						<Route path="all" element={<AllCourses />} />
+						<Route path="enrolled" element={<EnrolledCourses />} />
+						<Route path="admin" element={<MyCourses />} />
+					</Route>
 					<Route path="courses/:id" element={<CourseInfo />} />
-					<Route path="courses/:id/edit" element={<CourseEdit />} />
 
 					{/* Other Routes */}
 					<Route path="attempts/:id" element={<AttemptResult />} />
@@ -83,6 +90,7 @@ function App() {
 				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="tests/:id/attempt" element={<TestAttempt />} />
 				<Route path="courses/:id/learn" element={<CourseLearn />} />
+				<Route path="courses/:id/edit" element={<CourseEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
 			</Routes>

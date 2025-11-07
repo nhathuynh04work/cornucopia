@@ -1,7 +1,9 @@
 import * as moduleRepo from "../repositories/module.repository.js";
 import * as lessonRepo from "../repositories/lesson.repository.js";
-import { NotFoundError } from "../utils/AppError.js";
+import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
 import { defaults } from "../utils/constants.js";
+import { ContentStatus } from "../generated/prisma/index.js";
+import prisma from "../prisma.js";
 
 export async function addLesson(moduleId) {
 	const module = await moduleRepo.findById(moduleId);
@@ -13,11 +15,46 @@ export async function addLesson(moduleId) {
 	});
 }
 
-export async function update(id, data) {
-	const module = await moduleRepo.findById(id);
-	if (!module) throw new NotFoundError("Module not found");
+export async function update(id, data, userId) {
+	const module = await prisma.module.findUnique({
+		where: { id: id },
+		select: {
+			status: true,
+			course: {
+				select: {
+					userId: true,
+					_count: {
+						select: { enrollments: true },
+					},
+				},
+			},
+		},
+	});
 
-	return moduleRepo.update(id, data);
+	if (!module) {
+		throw new NotFoundError("Module not found");
+	}
+
+	if (module.course.userId !== userId) {
+		throw new ForbiddenError(
+			"You do not have permission to edit this module."
+		);
+	}
+
+	const hasEnrollments = module.course._count.enrollments > 0;
+
+	if (data.status && data.status === ContentStatus.DRAFT) {
+		if (module.status === ContentStatus.PUBLIC && hasEnrollments) {
+			throw new ForbiddenError(
+				"A public module cannot be moved to draft when students are enrolled."
+			);
+		}
+	}
+
+	return prisma.module.update({
+		where: { id: id },
+		data: data,
+	});
 }
 
 export async function remove(id) {
