@@ -45,6 +45,10 @@ export async function update(courseId, payload) {
 	return data.course;
 }
 
+export async function remove(courseId) {
+	await api.delete(`/courses/${courseId}`);
+}
+
 export async function addModule(courseId) {
 	const { data } = await api.post(`/courses/${courseId}/modules`);
 	return data.module;

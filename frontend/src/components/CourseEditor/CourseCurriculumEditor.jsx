@@ -10,7 +10,7 @@ function CourseCurriculumEditor() {
 
 	return (
 		<div className="max-w-3xl">
-			<p className="mb-6 text-gray-600">
+			<p className="mt-1 text-sm text-gray-600 mb-8">
 				Start building your course by adding modules and lessons.
 			</p>
 			<div className="space-y-6">

@@ -1,10 +1,10 @@
 import { Loader2, Plus } from "lucide-react";
-import { useCreateCourse } from "../../hooks/useCourseMutation"; // Assuming this is your mutations file
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useCreateCourse } from "@/hooks/useCourseMutation";
 
 function CreateCourseCard() {
-	const { mutate: createCourse, isPending: isCreating } = useCreateCourse();
+	const { mutate: createCourse, isPending } = useCreateCourse();
 	const navigate = useNavigate();
 
 	function handleCreate() {
@@ -29,9 +29,9 @@ function CreateCourseCard() {
 	return (
 		<button
 			onClick={handleCreate}
-			disabled={isCreating}
+			disabled={isPending}
 			className="flex flex-col items-center justify-center h-full min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg text-gray-500 transition-all hover:border-purple-300 hover:text-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed">
-			{isCreating ? (
+			{isPending ? (
 				<Loader2 className="w-10 h-10 animate-spin" />
 			) : (
 				<>

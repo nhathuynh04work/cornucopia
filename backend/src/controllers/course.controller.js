@@ -57,6 +57,14 @@ export async function updateCourse(req, res) {
 	res.status(200).json({ course });
 }
 
+export async function deleteCourse(req, res) {
+	const courseId = req.params.id;
+	const userId = req.user.id;
+
+	await courseService.remove(courseId, userId);
+	res.status(204).end();
+}
+
 export async function addModule(req, res) {
 	const id = req.params.id;
 	const module = await courseService.addModule(id);

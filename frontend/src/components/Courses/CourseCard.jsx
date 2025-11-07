@@ -13,7 +13,11 @@ export default function CourseCard({ course }) {
 
 	return (
 		<Link
-			to={`/courses/${course.id}`}
+			to={
+				course.status === "DRAFT"
+					? `/courses/${course.id}/edit`
+					: `/courses/${course.id}`
+			}
 			className="block border border-gray-200 rounded-lg shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
 			<img
 				src={coverImage}

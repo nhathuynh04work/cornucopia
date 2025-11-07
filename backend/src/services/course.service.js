@@ -130,6 +130,7 @@ export async function getCourseForEditor(courseId, userId) {
 					},
 				},
 			},
+			_count: { select: { enrollments: true } },
 		},
 	});
 }
@@ -250,10 +251,66 @@ export async function create(data) {
 }
 
 export async function update(courseId, data) {
-	const course = await courseRepo.findById(courseId);
-	if (!course) throw new NotFoundError("Course not found");
+	const course = await prisma.course.findUnique({
+		where: { id: courseId },
+		include: {
+			_count: {
+				select: { enrollments: true },
+			},
+		},
+	});
 
-	return courseRepo.update(courseId, data);
+	if (!course) {
+		throw new NotFoundError("Course not found");
+	}
+
+	const hasEnrollments = course._count.enrollments > 0;
+
+	if (data.status && data.status !== course.status) {
+		if (data.status === "DRAFT" && hasEnrollments) {
+			throw new ForbiddenError(
+				"A course with enrolled students cannot be moved to draft. Please unlist it instead to prevent new enrollments."
+			);
+		}
+	}
+
+	return prisma.course.update({
+		where: { id: courseId },
+		data: data,
+	});
+}
+
+export async function remove(courseId, userId) {
+	const course = await prisma.course.findFirst({
+		where: {
+			id: courseId,
+			userId: userId,
+		},
+		include: {
+			_count: {
+				select: { enrollments: true },
+			},
+		},
+	});
+
+	if (!course) {
+		throw new ForbiddenError(
+			"You do not have permission to delete this course."
+		);
+	}
+
+	const hasEnrollments = course._count.enrollments > 0;
+	if (hasEnrollments) {
+		throw new ForbiddenError(
+			"Cannot delete a course with enrolled students. Please unlist it instead."
+		);
+	}
+
+	await prisma.course.delete({
+		where: { id: courseId },
+	});
+
+	return { message: "Course deleted successfully." };
 }
 
 export async function addModule(courseId) {

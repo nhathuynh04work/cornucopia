@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { authenticateJWT, authenticateJWTOptional } from "../middlewares/authMiddleware.js";
+import {
+	authenticateJWT,
+	authenticateJWTOptional,
+} from "../middlewares/authMiddleware.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
 import {
 	CreateCourseSchema,
@@ -18,7 +21,7 @@ router.get("/my-courses", authenticateJWT, courseController.getMyCourses);
 
 router.get(
 	"/:id/info",
-    authenticateJWTOptional,
+	authenticateJWTOptional,
 	validateParams(["id"]),
 	courseController.getCourseForInfoView
 );
@@ -49,6 +52,13 @@ router.patch(
 	validateParams(["id"]),
 	validateSchema(UpdateCourseSchema),
 	courseController.updateCourse
+);
+
+router.delete(
+	"/:id",
+	authenticateJWT,
+	validateParams(["id"]),
+	courseController.deleteCourse
 );
 
 router.post("/:id/modules", validateParams(["id"]), courseController.addModule);

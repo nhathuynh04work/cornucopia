@@ -35,6 +35,20 @@ export function useUpdateCourse(courseId) {
 	});
 }
 
+export function useDeleteCourse(courseId) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: () => courseApi.remove(courseId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["courses"] });
+		},
+		onError: (err) => {
+			toast.error(err.message || "Failed to delete course.");
+		},
+	});
+}
+
 export function useAddModule(courseId) {
 	const queryClient = useQueryClient();
 
