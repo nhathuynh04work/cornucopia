@@ -50,12 +50,14 @@ export default function CourseHeader({
 				)}
 
 				{/* The "Edit Course" button remains */}
-				<NavButton
-					to={`/courses/${course.id}/edit`}
-					className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-					<Edit className="w-4 h-4" />
-					Edit Course
-				</NavButton>
+				{user.id === course.user.id && (
+					<NavButton
+						to={`/courses/${course.id}/edit`}
+						className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+						<Edit className="w-4 h-4" />
+						Edit Course
+					</NavButton>
+				)}
 			</div>
 		</>
 	);

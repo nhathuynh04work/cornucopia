@@ -4,7 +4,20 @@ import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
 import { defaults } from "../utils/constants.js";
 
 export async function getAll() {
-	return courseRepo.getAll();
+	return prisma.course.findMany({
+		include: {
+			user: {
+				select: {
+					id: true,
+					name: true,
+					avatarUrl: true,
+				},
+			},
+			_count: {
+				select: { enrollments: true },
+			},
+		},
+	});
 }
 
 export async function getPublicCourseDetails(courseId) {
@@ -16,6 +29,13 @@ export async function getPublicCourseDetails(courseId) {
 			description: true,
 			price: true,
 			coverUrl: true,
+			user: {
+				select: {
+					id: true,
+					name: true,
+					avatarUrl: true,
+				},
+			},
 			modules: {
 				orderBy: { sortOrder: "asc" },
 				select: {
@@ -31,6 +51,9 @@ export async function getPublicCourseDetails(courseId) {
 						},
 					},
 				},
+			},
+			_count: {
+				select: { enrollments: true },
 			},
 		},
 	});
@@ -65,7 +88,7 @@ export async function getEnrollmentStatus(courseId, userId) {
 		},
 	});
 
-	// Return a simple boolean 
+	// Return a simple boolean
 	return !!course;
 }
 
