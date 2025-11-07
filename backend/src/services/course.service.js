@@ -1,3 +1,5 @@
+import { ContentStatus, CourseStatus } from "../generated/prisma/index.js";
+import prisma from "../prisma.js";
 import * as courseRepo from "../repositories/course.repository.js";
 import * as moduleRepo from "../repositories/module.repository.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
@@ -5,6 +7,9 @@ import { defaults } from "../utils/constants.js";
 
 export async function getAll() {
 	return prisma.course.findMany({
+		where: {
+			status: CourseStatus.PUBLIC,
+		},
 		include: {
 			user: {
 				select: {
@@ -20,7 +25,7 @@ export async function getAll() {
 	});
 }
 
-export async function getPublicCourseDetails(courseId) {
+export async function getCourseForInfoView(courseId, userId = null) {
 	const course = await prisma.course.findUnique({
 		where: { id: courseId },
 		select: {
@@ -29,19 +34,19 @@ export async function getPublicCourseDetails(courseId) {
 			description: true,
 			price: true,
 			coverUrl: true,
+			status: true,
+			userId: true,
 			user: {
-				select: {
-					id: true,
-					name: true,
-					avatarUrl: true,
-				},
+				select: { id: true, name: true, avatarUrl: true },
 			},
 			modules: {
+				where: { status: ContentStatus.PUBLIC },
 				orderBy: { sortOrder: "asc" },
 				select: {
 					id: true,
 					title: true,
 					lessons: {
+						where: { status: ContentStatus.PUBLIC },
 						orderBy: { sortOrder: "asc" },
 						select: {
 							id: true,
@@ -61,35 +66,43 @@ export async function getPublicCourseDetails(courseId) {
 	if (!course) {
 		throw new NotFoundError("Course not found");
 	}
-	return course;
-}
 
-export async function getEnrollmentStatus(courseId, userId) {
-	const course = await prisma.course.findFirst({
-		where: {
-			id: courseId,
-			OR: [
-				{
-					// Condition 1: The user is the owner
-					userId: userId,
-				},
-				{
-					// Condition 2: The user is enrolled
-					enrollments: {
-						some: {
-							userId: userId,
-						},
-					},
-				},
-			],
-		},
-		select: {
-			id: true, // We just need to know if a record exists
-		},
-	});
+	// 1. Determine user's access status
+	let accessStatus = "none";
 
-	// Return a simple boolean
-	return !!course;
+	if (userId) {
+		// Owner
+		if (course.userId === userId) {
+			accessStatus = "owner";
+		} else {
+			// Check for enrollment only if not the owner
+			const enrollment = await prisma.userCourseEnrollment.findFirst({
+				where: { courseId: courseId, userId: userId },
+			});
+			if (enrollment) {
+				accessStatus = "enrolled";
+			}
+		}
+	}
+
+	// 2. Apply visibility rules
+	if (course.status === CourseStatus.PUBLIC) {
+		return { course, accessStatus };
+	}
+
+	if (
+		course.status === CourseStatus.UNLISTED &&
+		(accessStatus === "owner" || accessStatus === "enrolled")
+	) {
+		return { course, accessStatus };
+	}
+
+	if (course.status === CourseStatus.DRAFT && accessStatus === "owner") {
+		return { course, accessStatus };
+	}
+
+	// 3. If none of the above conditions are met, the user has no access.
+	throw new NotFoundError("Course not found");
 }
 
 export async function getCourseForEditor(courseId, userId) {
@@ -122,17 +135,14 @@ export async function getCourseForEditor(courseId, userId) {
 }
 
 export async function getCourseForLearning(courseId, userId) {
-	// 1. Check if user can access this (are they the owner OR enrolled?)
 	const accessCheck = await prisma.course.findFirst({
 		where: {
 			id: courseId,
 			OR: [
 				{
-					// Condition 1: The user is the owner
 					userId: userId,
 				},
 				{
-					// Condition 2: The user is enrolled
 					enrollments: {
 						some: {
 							userId: userId,
@@ -141,27 +151,30 @@ export async function getCourseForLearning(courseId, userId) {
 				},
 			],
 		},
-		// We only need the ID to confirm access
 		select: {
 			id: true,
 		},
 	});
 
-	// If the query returns nothing, the user has no access.
 	if (!accessCheck) {
 		throw new ForbiddenError(
 			"You are not enrolled in this course or do not own it."
 		);
 	}
 
-	// 2. Fetch all course data, but also include the user's *specific* progress.
 	return prisma.course.findUnique({
 		where: { id: courseId },
 		include: {
 			modules: {
+				where: {
+					status: ContentStatus.PUBLIC,
+				},
 				orderBy: { sortOrder: "asc" },
 				include: {
 					lessons: {
+						where: {
+							status: ContentStatus.PUBLIC,
+						},
 						orderBy: { sortOrder: "asc" },
 						include: {
 							progress: {
@@ -173,6 +186,53 @@ export async function getCourseForLearning(courseId, userId) {
 					},
 				},
 			},
+		},
+	});
+}
+
+export async function getEnrolledCourses(userId) {
+	return prisma.course.findMany({
+		where: {
+			enrollments: {
+				some: {
+					userId: userId,
+				},
+			},
+		},
+		include: {
+			user: {
+				select: {
+					id: true,
+					name: true,
+					avatarUrl: true,
+				},
+			},
+			_count: {
+				select: { enrollments: true },
+			},
+		},
+	});
+}
+
+export async function getMyCourses(userId) {
+	return prisma.course.findMany({
+		where: {
+			userId: userId,
+		},
+		include: {
+			user: {
+				select: {
+					id: true,
+					name: true,
+					avatarUrl: true,
+				},
+			},
+			_count: {
+				select: { enrollments: true },
+			},
+		},
+		orderBy: {
+			createdAt: "desc",
 		},
 	});
 }

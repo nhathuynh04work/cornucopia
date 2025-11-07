@@ -17,3 +17,26 @@ export async function authenticateJWT(req, res, next) {
 	req.user = { ...payload, id: payload.sub };
 	next();
 }
+
+export async function authenticateJWTOptional(req, res, next) {
+	const authHeader = req.headers.authorization;
+
+
+	if (!authHeader || !authHeader.startsWith("Bearer ")) {
+		return next();
+	}
+
+	const token = authHeader.split(" ")[1];
+	if (!token) {
+		return next(); 
+	}
+
+	const { payload, expired } = verifyJWT(token);
+
+	if (expired || !payload) {
+		return next();
+	}
+
+	req.user = { ...payload, id: payload.sub };
+	return next();
+}

@@ -5,21 +5,15 @@ export async function getCourses(req, res) {
 	res.status(200).json({ courses });
 }
 
-export async function getPublicCourseDetails(req, res) {
+export async function getCourseForInfoView(req, res) {
 	const courseId = req.params.id;
-	const course = await courseService.getPublicCourseDetails(courseId);
-	res.status(200).json({ course });
-}
+	const userId = req?.user.id;
 
-export async function getEnrollmentStatus(req, res) {
-	const courseId = req.params.id;
-	const userId = req.user.id;
-
-	const isEnrolled = await courseService.getEnrollmentStatus(
+	const { course, accessStatus } = await courseService.getCourseForInfoView(
 		courseId,
 		userId
 	);
-	res.status(200).json({ isEnrolled });
+	res.status(200).json({ course, accessStatus });
 }
 
 export async function getCourseForEditor(req, res) {
@@ -36,6 +30,18 @@ export async function getCourseForLearning(req, res) {
 
 	const course = await courseService.getCourseForLearning(courseId, userId);
 	res.status(200).json({ course });
+}
+
+export async function getEnrolledCourses(req, res) {
+	const userId = req.user.id;
+	const courses = await courseService.getEnrolledCourses(userId);
+	res.status(200).json({ courses });
+}
+
+export async function getMyCourses(req, res) {
+	const userId = req.user.id;
+	const courses = await courseService.getMyCourses(userId);
+	res.status(200).json({ courses });
 }
 
 export async function createCourse(req, res) {
