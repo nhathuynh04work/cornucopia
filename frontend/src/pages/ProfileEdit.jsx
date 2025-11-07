@@ -40,7 +40,7 @@ function ProfileEdit() {
 		fetchUser();
 	}, [reset, token]);
 
-	// 🧩 Gửi request PATCH tới backend
+	// Gửi request PATCH tới backend
 	const onSubmit = async (data) => {
 		try {
 			const res = await api.patch(

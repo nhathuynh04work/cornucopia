@@ -100,15 +100,7 @@ export default function FlashcardsDetail() {
   if (!cards) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
-      <div className="w-full max-w-7xl mb-9 relative">
-        <button
-          onClick={() => navigate("/flashcards")}
-          className="text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg font-medium transition-all"
-        >
-          <ArrowLeft className="w-4 h-4 inline-block" /> Quay lại
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-24">
 
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-blue-700 mb-2">
@@ -216,7 +208,7 @@ export default function FlashcardsDetail() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const utter = new SpeechSynthesisUtterance(c.definition); // ✅ sửa thành definition
+                  const utter = new SpeechSynthesisUtterance(c.definition);
                   utter.lang = "vi-VN"; // đọc tiếng Việt
                   speechSynthesis.cancel();
                   speechSynthesis.speak(utter);

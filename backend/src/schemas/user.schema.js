@@ -7,5 +7,6 @@ export const UpdateUserBasicInfoSchema = z.object({
 })
 
 export const UpdateAuthSchema = z.object({
-    password: z.string().min(8, "Password must have at least 8 characters").optional(),
+    oldPassword: z.string().min(8, "Password must have at least 8 characters").optional(),
+    newPassword: z.string().min(8, "Password must have at least 8 characters").optional(),
 })
