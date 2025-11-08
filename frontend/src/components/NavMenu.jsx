@@ -14,7 +14,9 @@ function NavMenu() {
 				<NavButton
 					key={item.name}
 					to={item.path}
-					className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
+					end={false}
+					className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors px-1 py-1"
+					activeClassName="text-purple-600 underline underline-offset-4">
 					{item.name}
 				</NavButton>
 			))}

@@ -1,7 +1,7 @@
 import {
 	useDeleteOption,
 	useUpdateOption,
-} from "@/hooks/useTestEditorMutation";
+} from "@/hooks/useTestMutation";
 import DebouncedTextarea from "./DebouncedTextarea";
 import { X } from "lucide-react";
 

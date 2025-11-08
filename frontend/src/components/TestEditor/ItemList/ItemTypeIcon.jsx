@@ -1,4 +1,4 @@
-import { ITEM_CONFIG } from "@/lib/item.config";
+import { ITEM_CONFIG, itemTypeEnum } from "@/lib/item.config";
 import { useTestEditorStore } from "@/store/testEditorStore";
 
 export function ItemTypeIcon({ type, groupOpen = false, itemId, children }) {
@@ -8,7 +8,7 @@ export function ItemTypeIcon({ type, groupOpen = false, itemId, children }) {
 	const iconSizeClass = "w-3.5 h-3.5";
 	const iconColorClass = "text-gray-700";
 	const bgSizeClass = `${children ? "px-2" : "px-1"} py-1`;
-	const isGroup = type === "group";
+	const isGroup = type === itemTypeEnum.GROUP;
 
 	const config = ITEM_CONFIG[type];
 	// Handle case where type might not be in config (e.g., during optimistic update)

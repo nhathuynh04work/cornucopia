@@ -1,6 +1,5 @@
 import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router";
-import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Confirm from "./pages/Confirm";
@@ -12,7 +11,6 @@ import Blog from "./pages/Blog";
 import BlogEditor from "./pages/BlogEditor";
 import BlogDetail from "./pages/BlogDetail";
 import TopicPage from "./pages/TopicPage";
-import Tests from "./pages/Tests";
 import TestInfo from "./pages/TestInfo";
 import Flashcards from "./pages/Flashcards";
 import FlashcardsDetail from "./pages/FlashcardsDetail";
@@ -26,10 +24,12 @@ import FlashcardPractice from "./components/FlashCard/FlashcardPractice";
 import CourseInfo from "./pages/CourseInfo";
 import CourseEdit from "./pages/CourseEdit";
 import CourseLearn from "./pages/CourseLearn";
-import AllCourses from "./pages/AllCourses";
-import EnrolledCourses from "./pages/EnrolledCourses";
-import MyCourses from "./pages/MyCourses";
 import CoursesLayout from "./layouts/CoursesLayout";
+import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
+import TestsLayout from "./layouts/TestsLayout";
+import { AllCourses, EnrolledCourses, MyCourses } from "./pages/Courses";
+import { AllTests, AttemptedTests, MyTests } from "./pages/Tests";
 
 function App() {
 	return (
@@ -37,7 +37,8 @@ function App() {
 			<Routes>
 				{/* --- Routes Inside Main Layout --- */}
 				<Route element={<Layout />}>
-					<Route index element={<Home />} />
+					<Route index element={<Landing />} />
+					<Route path="dashboard" element={<Dashboard />} />
 					<Route path="signup" element={<Signup />} />
 					<Route path="login" element={<Login />} />
 
@@ -59,7 +60,12 @@ function App() {
 					<Route path="topics/:slug" element={<TopicPage />} />
 
 					{/* Test Routes */}
-					<Route path="tests" element={<Tests />} />
+					<Route path="/tests" element={<TestsLayout />}>
+						<Route index element={<Navigate to="all" replace />} />
+						<Route path="all" element={<AllTests />} />
+						<Route path="attempted" element={<AttemptedTests />} />
+						<Route path="admin" element={<MyTests />} />
+					</Route>
 					<Route path="tests/:id" element={<TestInfo />} />
 
 					{/* Flashcard Routes */}
@@ -93,6 +99,8 @@ function App() {
 				<Route path="courses/:id/edit" element={<CourseEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
+
+				<Route path="*" element={<Navigate to="/" />} />
 			</Routes>
 
 			{/* Toaster should be outside <Routes> */}

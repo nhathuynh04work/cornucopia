@@ -65,6 +65,7 @@ export default function CourseSettings() {
 					{/* --- DRAFT --- */}
 					{course.status === "DRAFT" && (
 						<button
+							type="button"
 							onClick={() => handleUpdateStatus("PUBLIC")}
 							disabled={isUpdating}
 							className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:bg-gray-300">
@@ -76,6 +77,7 @@ export default function CourseSettings() {
 					{/* --- PUBLIC --- */}
 					{course.status === "PUBLIC" && (
 						<button
+							type="button"
 							onClick={() => handleUpdateStatus("UNLISTED")}
 							disabled={isUpdating}
 							className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 disabled:bg-gray-300">
@@ -87,6 +89,7 @@ export default function CourseSettings() {
 					{/* --- UNLISTED --- */}
 					{course.status === "UNLISTED" && (
 						<button
+							type="button"
 							onClick={() => handleUpdateStatus("PUBLIC")}
 							disabled={isUpdating}
 							className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:bg-gray-300">
@@ -112,6 +115,7 @@ export default function CourseSettings() {
 						: "Be careful, this action is permanent and cannot be undone."}
 				</p>
 				<button
+					type="button"
 					onClick={() => setShowConfirmModal(true)}
 					disabled={isDeleting || hasEnrollments}
 					className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"

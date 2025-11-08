@@ -31,7 +31,7 @@ function AttemptResult() {
 
 	return (
 		<>
-			<div className="flex h-[calc(100vh-65px)] overflow-hidden bg-white">
+			<div className="flex h-[calc(100vh-64px)] overflow-hidden bg-white">
 				{/* Left: Test title + table */}
 				<div className="w-5/6 px-6 py-8 flex flex-col h-full">
 					<h1 className="text-3xl font-bold mb-2">

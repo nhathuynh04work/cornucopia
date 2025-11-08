@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
 		localStorage.setItem(ACCESS_TOKEN_KEY, token);
 		const user = await authApi.getMe();
 		setUser(user);
-		navigate("/");
+		navigate("/dashboard");
 	}
 
 	async function login(credentials) {
@@ -41,7 +41,7 @@ export function AuthProvider({ children }) {
 	function logout() {
 		localStorage.removeItem(ACCESS_TOKEN_KEY);
 		setUser(null);
-		navigate("/");
+		navigate("/dashboard");
 	}
 
 	const value = {

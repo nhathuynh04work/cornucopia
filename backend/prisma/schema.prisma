@@ -26,6 +26,7 @@ model User {
     courses                Course[]
     lessonProgress         UserLessonProgress[]
     enrollments            UserCourseEnrollment[]
+    tests                  Test[]
 
     @@map("users")
 }
@@ -90,15 +91,24 @@ model Media {
 model Test {
     id          Int        @id @default(autoincrement())
     title       String
+    userId      Int
+    status      TestStatus @default(DRAFT)
     description String?
     timeLimit   Int?       @map("time_limit")
     createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
     items       TestItem[]
     media       Media[]    @relation("TestToMedia")
     attempts    Attempt[]
 
     @@map("tests")
+}
+
+enum TestStatus {
+    DRAFT
+    PUBLIC
+    ARCHIVED
 }
 
 model TestItem {
@@ -139,9 +149,9 @@ model AnswerOption {
 }
 
 enum TestItemType {
-    group
-    multiple_choice
-    short_answer
+    GROUP
+    MULTIPLE_CHOICE
+    SHORT_ANSWER
 
     @@map("enum_test_items_type")
 }

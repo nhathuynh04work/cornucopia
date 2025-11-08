@@ -1,9 +1,15 @@
 import { z } from "zod";
+import { TestStatus } from "../generated/prisma/index.js";
 
-export const CreateTestSchema = z.object({
+const TestStatusSchema = z.enum(TestStatus);
+
+const TestSchema = z.object({
 	title: z.string().min(1, "Title is required"),
 	description: z.string().optional(),
 	timeLimit: z.number().int().nonnegative().nullable().optional(),
+	status: TestStatusSchema,
 });
 
-export const UpdateTestSchema = CreateTestSchema.partial();
+export const CreateTestSchema = TestSchema.omit({ status: true });
+
+export const UpdateTestSchema = TestSchema.partial();
