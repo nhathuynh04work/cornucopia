@@ -1,10 +1,40 @@
 import { Search } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Outlet, useSearchParams } from "react-router";
 
-export default function CoursesHeader({ tabs, searchTerm, onSearchChange }) {
+export default function TabsSearchbarLayout({
+	tabs,
+	searchPlaceholder = "Search...",
+}) {
+	const [searchParams, setSearchParams] = useSearchParams();
+	const searchTerm = searchParams.get("q") || "";
+
+	const handleSearchChange = (e) => {
+		const q = e.target.value;
+		if (q) {
+			setSearchParams({ q }, { replace: true });
+		} else {
+			setSearchParams({}, { replace: true });
+		}
+	};
+
+	return (
+		<div className="p-6 bg-white w-5/6 mx-auto">
+			<Header
+				tabs={tabs}
+				searchTerm={searchTerm}
+				onSearchChange={handleSearchChange}
+				searchPlaceholder={searchPlaceholder}
+			/>
+			<div className="mt-6">
+				<Outlet context={{ searchTerm }} />
+			</div>
+		</div>
+	);
+}
+
+function Header({ tabs, searchTerm, onSearchChange, searchPlaceholder }) {
 	return (
 		<div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-			{/* Tabs are now NavLinks */}
 			<div className="flex-shrink-0">
 				<nav className="flex space-x-1" aria-label="Tabs">
 					{tabs.map((tab) => (
@@ -24,14 +54,13 @@ export default function CoursesHeader({ tabs, searchTerm, onSearchChange }) {
 				</nav>
 			</div>
 
-			{/* Search Bar (value/onChange controlled by layout) */}
 			<div className="relative w-full md:w-auto md:max-w-xs">
 				<span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 					<Search className="w-3.5 h-3.5 text-gray-400" />
 				</span>
 				<input
 					type="text"
-					placeholder="Search courses..."
+					placeholder={searchPlaceholder}
 					value={searchTerm}
 					onChange={onSearchChange}
 					className="block text-sm w-full pl-10 pr-4 py-2 border !border-gray-300 rounded-md shadow-sm focus:!ring-purple-500 focus:!border-purple-500"

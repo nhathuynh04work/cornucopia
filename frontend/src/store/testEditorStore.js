@@ -23,10 +23,6 @@ export const useTestEditorStore = create((set, get) => ({
 		});
 	},
 
-	updateTestSettings: (updated) => {
-		set((state) => ({ test: { ...state.test, ...updated } }));
-	},
-
 	// Item
 	changeCurrentItem: (itemId) => {
 		set({ currentItemId: itemId });
@@ -58,7 +54,11 @@ export const useTestEditorStore = create((set, get) => ({
 		const group = _flatItems.find((item) => item.id === groupId);
 
 		// Ensure it's a group and has children
-		if (!group || group.type !== "group" || !group.children?.length) {
+		if (
+			!group ||
+			group.type !== itemTypeEnum.GROUP ||
+			!group.children?.length
+		) {
 			return [null, null];
 		}
 

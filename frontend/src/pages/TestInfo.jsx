@@ -31,7 +31,7 @@ function TestInfo() {
 	const attemptsCount = test._count?.attempts || 0;
 
 	return (
-		<div className="flex h-[calc(100vh-65px)] overflow-hidden bg-white">
+		<div className="flex h-[calc(100vh-64px)] overflow-hidden bg-white">
 			{/* Column 1: Main Content (Test Details) */}
 			<div className="w-3/4 overflow-y-auto scroll-container">
 				{/* Header Section */}

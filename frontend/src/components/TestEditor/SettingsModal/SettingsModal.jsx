@@ -8,7 +8,8 @@ import ModalFooter from "./ModalFooter";
 import { useTestEditorStore } from "@/store/testEditorStore";
 import { SETTINGS_TABS } from "@/lib/test-settings.config";
 import ModalContentMedia from "./ModalContentMedia";
-import { useUpdateTest } from "@/hooks/useTestEditorMutation";
+import { useUpdateTest } from "@/hooks/useTestMutation";
+import ModalContentStatus from "./ModalContentStatus";
 
 function SettingsModal({ children }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -71,6 +72,9 @@ function SettingsModal({ children }) {
 									)}
 									{currentTab === SETTINGS_TABS.MEDIA && (
 										<ModalContentMedia />
+									)}
+									{currentTab === SETTINGS_TABS.STATUS && (
+										<ModalContentStatus />
 									)}
 								</main>
 							</div>

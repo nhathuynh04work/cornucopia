@@ -11,13 +11,27 @@ export function useTestsQuery() {
 	});
 }
 
+export function useAttemptedTests() {
+	return useQuery({
+		queryKey: ["tests", "attempted"],
+		queryFn: testApi.fetchAttemptedTests,
+	});
+}
+
+export function useMyTests() {
+	return useQuery({
+		queryKey: ["tests", "admin"],
+		queryFn: testApi.fetchMyTests,
+	});
+}
+
 export function useTestLiteQuery(id) {
 	const numericId = Number(id);
 
 	return useQuery({
-		queryKey: ["tests", numericId, "lite"],
+		queryKey: ["test", numericId, "info"],
 		queryFn: () => testApi.fetchTestBasicInfo(numericId),
-		enabled: !!numericId, 
+		enabled: !!numericId,
 	});
 }
 
@@ -26,7 +40,7 @@ export function useTestEditorQuery(id) {
 	const numericId = Number(id);
 
 	const query = useQuery({
-		queryKey: ["tests", numericId, "full"],
+		queryKey: ["test", numericId, "edit"],
 		queryFn: () => testApi.fetchTestDetails(numericId),
 		enabled: !!numericId,
 	});
@@ -34,6 +48,7 @@ export function useTestEditorQuery(id) {
 	// Hydrate store when query resolves
 	useEffect(() => {
 		if (query.data) {
+			console.log(query.data.status);
 			setTest(query.data);
 		}
 	}, [query.data, setTest]);
@@ -47,7 +62,7 @@ export function useTestAttemptQuery(id) {
 	const setTest = useTestAttemptStore((s) => s.setTest);
 
 	const query = useQuery({
-		queryKey: ["tests", numericId, "attempt"],
+		queryKey: ["test", numericId, "attempt"],
 		queryFn: () => testApi.fetchTestForAttempt(numericId),
 		enabled: !!numericId,
 	});

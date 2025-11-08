@@ -1,9 +1,9 @@
 import { ListChecks, Type, FolderOpen, FolderClosed } from "lucide-react";
 
 export const itemTypeEnum = {
-	MULTIPLE_CHOICE: "multiple_choice",
-	SHORT_ANSWER: "short_answer",
-	GROUP: "group",
+	MULTIPLE_CHOICE: "MULTIPLE_CHOICE",
+	SHORT_ANSWER: "SHORT_ANSWER",
+	GROUP: "GROUP",
 };
 
 export const ITEM_CONFIG = {

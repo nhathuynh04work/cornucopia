@@ -60,7 +60,7 @@ export function useLinkMedia({ onSuccess, onError } = {}) {
 
 			if (variables.testId) {
 				queryClient.invalidateQueries({
-					queryKey: ["tests", variables.testId, "full"],
+					queryKey: ["test", variables.testId],
 				});
 			}
 		},

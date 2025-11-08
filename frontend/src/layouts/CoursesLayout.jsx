@@ -1,48 +1,37 @@
-import CoursesHeader from "@/components/Courses/CoursesHeader";
-import { useAuth } from "@/contexts/AuthContext";
 import { useMemo } from "react";
-import { Outlet, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import TabsSearchbarLayout from "./TabSearchbarLayout";
 
-const tabs = [
-	{ title: "All Courses", key: "all", path: "/courses/all" },
-	{ title: "Enrolled", key: "enrolled", path: "/courses/enrolled" },
-];
+const TABS = {
+	ALL: { title: "All Courses", key: "all", path: "/courses/all" },
+	ENROLLED: { title: "Enrolled", key: "enrolled", path: "/courses/enrolled" },
+	MY_COURSES: { title: "My Courses", key: "admin", path: "/courses/admin" },
+};
 
 function CoursesLayout() {
 	const { role } = useAuth();
-	const [searchParams, setSearchParams] = useSearchParams();
-	const searchTerm = searchParams.get("q") || "";
 
 	const visibleTabs = useMemo(() => {
-		if (role === "admin") {
-			return [
-				...tabs,
-				{ title: "My Courses", key: "admin", path: "/courses/admin" },
-			];
+		// For admin/creator
+		if (role === "admin" || role === "creator") {
+			return [TABS.ALL, TABS.ENROLLED, TABS.MY_COURSES];
 		}
-		return tabs;
+
+		// For a logged-in user
+		if (role === "user") {
+			return [TABS.ALL, TABS.ENROLLED];
+		}
+
+		// For a visitor (not logged in)
+		// This handles role being null, undefined, "visitor", etc.
+		return [TABS.ALL];
 	}, [role]);
 
-	const handleSearchChange = (e) => {
-		const q = e.target.value;
-		if (q) {
-			setSearchParams({ q }, { replace: true });
-		} else {
-			setSearchParams({}, { replace: true });
-		}
-	};
-
 	return (
-		<div className="p-6 bg-white w-5/6 mx-auto">
-			<CoursesHeader
-				tabs={visibleTabs}
-				searchTerm={searchTerm}
-				onSearchChange={handleSearchChange}
-			/>
-			<div className="mt-6">
-				<Outlet context={{ searchTerm }} />
-			</div>
-		</div>
+		<TabsSearchbarLayout
+			tabs={visibleTabs}
+			searchPlaceholder="Search courses..."
+		/>
 	);
 }
 

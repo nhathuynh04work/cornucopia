@@ -5,13 +5,23 @@ export async function fetchTests() {
 	return data.tests;
 }
 
+export async function fetchAttemptedTests() {
+	const { data } = await api.get("/tests/attempted");
+	return data.tests;
+}
+
+export async function fetchMyTests() {
+	const { data } = await api.get("/tests/admin");
+	return data.tests;
+}
+
 export async function fetchTestBasicInfo(id) {
-	const { data } = await api.get(`/tests/${id}`);
+	const { data } = await api.get(`/tests/${id}/info`);
 	return data.test;
 }
 
 export async function fetchTestDetails(id) {
-	const { data } = await api.get(`/tests/${id}/full`);
+	const { data } = await api.get(`/tests/${id}/edit`);
 	return data.test;
 }
 
@@ -35,7 +45,11 @@ export async function update(id, changes) {
 	return data.test;
 }
 
+export async function remove(id) {
+	await api.delete(`/tests/${id}`);
+}
+
 export async function addItem(testId, input) {
 	const { data } = await api.post(`/tests/${testId}/items`, input);
-	return data.test;
+	return data.item;
 }
