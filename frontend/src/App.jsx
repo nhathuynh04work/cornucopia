@@ -1,6 +1,5 @@
 import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router";
-import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Confirm from "./pages/Confirm";
@@ -30,6 +29,8 @@ import AllCourses from "./pages/AllCourses";
 import EnrolledCourses from "./pages/EnrolledCourses";
 import MyCourses from "./pages/MyCourses";
 import CoursesLayout from "./layouts/CoursesLayout";
+import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
 	return (
@@ -37,7 +38,8 @@ function App() {
 			<Routes>
 				{/* --- Routes Inside Main Layout --- */}
 				<Route element={<Layout />}>
-					<Route index element={<Home />} />
+					<Route index element={<Landing />} />
+					<Route path="dashboard" element={<Dashboard />} />
 					<Route path="signup" element={<Signup />} />
 					<Route path="login" element={<Login />} />
 
@@ -93,6 +95,8 @@ function App() {
 				<Route path="courses/:id/edit" element={<CourseEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
+
+				<Route path="*" element={<Navigate to="/" />} />
 			</Routes>
 
 			{/* Toaster should be outside <Routes> */}

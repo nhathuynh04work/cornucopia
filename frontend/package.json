@@ -27,6 +27,7 @@
 		"@tiptap/starter-kit": "^2.26.3",
 		"axios": "^1.12.2",
 		"chart.js": "^4.5.1",
+		"country-flag-icons": "^1.5.21",
 		"framer-motion": "^12.23.22",
 		"highlight.js": "^11.11.1",
 		"lodash": "^4.17.21",
