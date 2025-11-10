@@ -1,6 +1,6 @@
 import { BookOpen, Layers, Users } from "lucide-react";
 import Avatar from "../Avatar";
-import SidebarButtons from "./SidebarButtons";
+import ActionButtons from "./ActionButtons";
 
 export default function CourseSidebar({ course, totalModules, totalLessons }) {
 	const instructor = course.user || {};
@@ -15,7 +15,7 @@ export default function CourseSidebar({ course, totalModules, totalLessons }) {
 			/>
 
 			{/* Action section */}
-			<SidebarButtons course={course} />
+			<ActionButtons course={course} />
 
 			{/* Instructor info */}
 			<div className="mb-8">

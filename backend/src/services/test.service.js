@@ -1,7 +1,10 @@
 import prisma from "../prisma.js";
-import * as testRepo from "../repositories/test.repository.js";
-import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
-import { defaults, errorMessage } from "../utils/constants.js";
+import {
+	BadRequestError,
+	ForbiddenError,
+	NotFoundError,
+} from "../utils/AppError.js";
+import { defaults } from "../utils/constants.js";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 
 export async function getTests() {
@@ -138,9 +141,17 @@ export async function getTestForEdit(testId, userId) {
 	});
 }
 
-export async function getTestForAttempt(id) {
-	const test = await testRepo.getTestWithoutAnswer(id);
-	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
+export async function getTestForAttempt(testId) {
+	const test = await getTestWithoutAnswer(testId);
+
+	if (!test) {
+		throw new NotFoundError("Test not found");
+	}
+
+	if (test.status !== TestStatus.PUBLIC) {
+		throw new BadRequestError("Cannot attempt on non-public test");
+	}
+
 	return test;
 }
 
@@ -255,4 +266,36 @@ export async function getAnswersKey(testId) {
 	});
 
 	return answerKey;
+}
+
+export async function getTestWithoutAnswer(testId) {
+	return prisma.test.findFirst({
+		where: { id: testId },
+		include: {
+			items: {
+				where: { parentItemId: null },
+				orderBy: { sortOrder: "asc" },
+				omit: { answer: true },
+				include: {
+					answerOptions: {
+						orderBy: { sortOrder: "asc" },
+						omit: { isCorrect: true },
+					},
+					children: {
+						orderBy: { sortOrder: "asc" },
+						include: {
+							answerOptions: {
+								orderBy: { sortOrder: "asc" },
+								omit: { isCorrect: true },
+							},
+							media: true,
+						},
+						omit: { answer: true },
+					},
+					media: true,
+				},
+			},
+			media: true,
+		},
+	});
 }

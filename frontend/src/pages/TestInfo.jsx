@@ -1,16 +1,13 @@
 import { useParams } from "react-router";
-import NavButton from "../components/NavButton";
 import { useTestInfoQuery } from "@/hooks/useTestQuery";
-import { Edit, Play } from "lucide-react";
 import TestStatsBar from "../components/TestInfo/TestStatsBar";
 import TestAttemptHistory from "../components/TestInfo/TestAttemptHistory";
 import TestCommentsSection from "../components/TestInfo/TestCommentsSection";
-import { useAuth } from "@/contexts/AuthContext";
 import StatusBadge from "@/components/StatusBadge";
+import ActionButtons from "@/components/TestInfo/ActionButtons";
 
 function TestInfo() {
 	const { id } = useParams();
-	const { role, user } = useAuth();
 	const { data: test, isPending } = useTestInfoQuery(id);
 
 	if (isPending) {
@@ -49,32 +46,7 @@ function TestInfo() {
 				/>
 
 				{/* Action Buttons */}
-				<div className="flex flex-wrap items-center gap-4 px-6 mt-6">
-					{user ? (
-						<NavButton
-							to={`/tests/${id}/attempt`}
-							className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700">
-							<Play className="w-4 h-4" />
-							Take Test
-						</NavButton>
-					) : (
-						<NavButton
-							to="/login"
-							className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 border !border-purple-300 rounded-md hover:bg-purple-200">
-							<Play className="w-4 h-4" />
-							Log in to Take Test
-						</NavButton>
-					)}
-
-					{role === "admin" && (
-						<NavButton
-							to={`/tests/${id}/edit`}
-							className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 border !border-purple-300 rounded-md hover:bg-purple-200">
-							<Edit className="w-4 h-4" />
-							Edit
-						</NavButton>
-					)}
-				</div>
+				<ActionButtons test={test} />
 
 				{/* Attempt History */}
 				<TestAttemptHistory testId={test.id} />

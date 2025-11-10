@@ -1,5 +1,4 @@
 import * as attemptRepo from "../repositories/attempt.repository.js";
-import * as testRepo from "../repositories/test.repository.js";
 import * as testService from "../services/test.service.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { errorMessage } from "../utils/constants.js";
@@ -60,7 +59,7 @@ export async function getResult(id) {
 	const attempt = await attemptRepo.findById(id);
 	if (!attempt) throw new NotFoundError(errorMessage.ATTEMPT_NOT_FOUND);
 
-	const test = await testRepo.getTestWithoutAnswer(attempt.testId);
+	const test = await testService.getTestWithoutAnswer(attempt.testId);
 	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
 
 	const answerKey = await testService.getAnswersKey(attempt.testId);
