@@ -8,6 +8,7 @@ import ConfirmationModal from "@/components/CourseEditor/ConfirmationModal";
 
 export default function ModalContentStatus() {
 	const test = useTestEditorStore((s) => s.test);
+	const attemptCount = test._count.attempts;
 	const navigate = useNavigate();
 
 	const { mutate: updateTest, isPending: isUpdating } = useUpdateTest();
@@ -117,11 +118,20 @@ export default function ModalContentStatus() {
 				<button
 					type="button"
 					onClick={() => setShowConfirmModal(true)}
-					disabled={isDeleting}
-					className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed">
+					disabled={isDeleting || attemptCount > 0}
+					className={`mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-md ${
+						attemptCount > 0
+							? "bg-gray-400 cursor-not-allowed"
+							: "bg-red-600 hover:bg-red-700"
+					}`}>
 					<Trash2 className="w-4 h-4" />
 					Delete Test
 				</button>
+				{attemptCount > 0 && (
+					<p className="mt-2 text-xs text-red-600">
+						Cannot delete a test with existing attempts.
+					</p>
+				)}
 			</section>
 
 			{/* --- Confirmation Modal for Delete --- */}

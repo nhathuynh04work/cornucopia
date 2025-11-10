@@ -10,6 +10,7 @@ import { SETTINGS_TABS } from "@/lib/test-settings.config";
 import ModalContentMedia from "./ModalContentMedia";
 import { useUpdateTest } from "@/hooks/useTestMutation";
 import ModalContentStatus from "./ModalContentStatus";
+import ModalContentRules from "./ModalContentRules";
 
 function SettingsModal({ children }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -23,7 +24,9 @@ function SettingsModal({ children }) {
 	const { mutateAsync: updateTest } = useUpdateTest();
 	const [currentTab, setCurrentTab] = useState(SETTINGS_TABS.GENERAL);
 
-	const methods = useForm({ defaultValues: settings });
+	const methods = useForm({
+		defaultValues: settings,
+	});
 
 	const {
 		handleSubmit,
@@ -69,6 +72,9 @@ function SettingsModal({ children }) {
 								<main className="flex-1 flex flex-col">
 									{currentTab === SETTINGS_TABS.GENERAL && (
 										<ModalContentGeneral />
+									)}
+									{currentTab === SETTINGS_TABS.RULES && (
+										<ModalContentRules />
 									)}
 									{currentTab === SETTINGS_TABS.MEDIA && (
 										<ModalContentMedia />

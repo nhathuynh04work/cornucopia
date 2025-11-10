@@ -1,8 +1,7 @@
 import prisma from "../prisma.js";
 import * as testRepo from "../repositories/test.repository.js";
-import * as itemRepo from "../repositories/item.repository.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
-import { defaults, errorMessage, itemTypeEnum } from "../utils/constants.js";
+import { defaults, errorMessage } from "../utils/constants.js";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 
 export async function getTests() {
@@ -134,6 +133,7 @@ export async function getTestForEdit(testId, userId) {
 				},
 			},
 			media: true,
+			_count: { select: { attempts: true } },
 		},
 	});
 }
@@ -240,7 +240,7 @@ export async function getAnswersKey(testId) {
 
 	questions.forEach((question) => {
 		const correctOptionIds =
-			question.type === itemTypeEnum.MULTIPLE_CHOICE
+			question.type === TestItemType.MULTIPLE_CHOICE
 				? question.answerOptions
 						.filter((option) => option.isCorrect)
 						.map((option) => option.id)
