@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Users } from "lucide-react";
+import StatusBadge from "../StatusBadge";
 
 export default function CourseCard({ course }) {
 	const { pathname } = useLocation();
@@ -13,13 +14,6 @@ export default function CourseCard({ course }) {
 
 	const enrollments = course._count?.enrollments || 0;
 	const instructor = course.user;
-
-	const statusStyle =
-		{
-			DRAFT: "text-yellow-700 bg-yellow-50 border-yellow-200",
-			PUBLIC: "text-green-700 bg-green-50 border-green-200",
-			UNLISTED: "text-gray-700 bg-gray-100 border-gray-200",
-		}[course.status] || "text-gray-700 bg-gray-100 border-gray-200";
 
 	return (
 		<Link
@@ -37,13 +31,10 @@ export default function CourseCard({ course }) {
 					className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
 				/>
 
-				{/* Status badge — only shown in admin section */}
-				{isAdmin && course.status && (
-					<span
-						className={`absolute top-2 left-2 text-[10px] font-medium border rounded-full px-2 py-[1px] ${statusStyle}`}>
-						{course.status.charAt(0) +
-							course.status.slice(1).toLowerCase()}
-					</span>
+				{isAdmin && (
+					<div className="absolute top-2 left-3">
+						<StatusBadge status={course.status} size="xs" />
+					</div>
 				)}
 			</div>
 

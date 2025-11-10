@@ -1,13 +1,13 @@
 import { Navigate, useParams } from "react-router";
 import TestEditorNav from "../components/TestEditor/TestNav/TestEditorNav";
 import TestEditor from "../components/TestEditor/TestEditor/TestEditor";
-import { useTestEditorQuery } from "@/hooks/useTestQuery";
 import TestItemSettings from "@/components/TestEditor/TestItemSettings/TestItemSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTestEditQuery } from "@/hooks/useTestQuery";
 
 function TestEdit() {
 	const { id } = useParams();
-	const { isLoading: isTestLoading, isError } = useTestEditorQuery(id);
+	const { isLoading: isTestLoading, isError } = useTestEditQuery(id);
 
 	const { user, isInitialLoading } = useAuth();
 

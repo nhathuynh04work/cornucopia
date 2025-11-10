@@ -7,12 +7,12 @@ export async function getCourses() {
 
 export async function getCourseForInfoView(courseId) {
 	const { data } = await api.get(`/courses/${courseId}/info`);
-	return data; // { course, accessStatus }
+	return data.course;
 }
 
 export async function getEnrollmentStatus(courseId) {
 	const { data } = await api.get(`/courses/${courseId}/enrollment`);
-	return data.isEnrolled;
+	return data.enrollment;
 }
 
 export async function getCourseForEditor(courseId) {

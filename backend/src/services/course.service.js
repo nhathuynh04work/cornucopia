@@ -25,7 +25,7 @@ export async function getAll() {
 	});
 }
 
-export async function getCourseForInfoView(courseId, userId = null) {
+export async function getCourseForInfoView(courseId) {
 	const course = await prisma.course.findUnique({
 		where: { id: courseId },
 		select: {
@@ -67,42 +67,7 @@ export async function getCourseForInfoView(courseId, userId = null) {
 		throw new NotFoundError("Course not found");
 	}
 
-	// 1. Determine user's access status
-	let accessStatus = "none";
-
-	if (userId) {
-		// Owner
-		if (course.userId === userId) {
-			accessStatus = "owner";
-		} else {
-			// Check for enrollment only if not the owner
-			const enrollment = await prisma.userCourseEnrollment.findFirst({
-				where: { courseId: courseId, userId: userId },
-			});
-			if (enrollment) {
-				accessStatus = "enrolled";
-			}
-		}
-	}
-
-	// 2. Apply visibility rules
-	if (course.status === CourseStatus.PUBLIC) {
-		return { course, accessStatus };
-	}
-
-	if (
-		course.status === CourseStatus.UNLISTED &&
-		(accessStatus === "owner" || accessStatus === "enrolled")
-	) {
-		return { course, accessStatus };
-	}
-
-	if (course.status === CourseStatus.DRAFT && accessStatus === "owner") {
-		return { course, accessStatus };
-	}
-
-	// 3. If none of the above conditions are met, the user has no access.
-	throw new NotFoundError("Course not found");
+	return course;
 }
 
 export async function getCourseForEditor(courseId, userId) {
@@ -236,6 +201,14 @@ export async function getMyCourses(userId) {
 			createdAt: "desc",
 		},
 	});
+}
+
+export async function getUserCourseEnrollment(courseId, userId) {
+	const enrollment = await prisma.userCourseEnrollment.findFirst({
+		where: { courseId: courseId, userId: userId },
+	});
+
+	return enrollment ? enrollment : null;
 }
 
 export async function create(data) {

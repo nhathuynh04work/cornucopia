@@ -22,7 +22,7 @@ export function useCourseInfoView(courseId) {
 	});
 }
 
-export function useEnrollmentStatusQuery(courseId) {
+export function useEnrollmentStatus(courseId) {
 	const { user } = useAuth();
 	const numericCourseId = Number(courseId);
 

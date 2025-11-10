@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { Clock, CheckCircle, ExternalLink } from "lucide-react"; // Import ExternalLink
+import { Clock, CheckCircle, ExternalLink } from "lucide-react";
+import { Link } from "react-router";
 
 // Helper function to format time
 const formatTime = (totalSeconds) => {
@@ -10,7 +10,7 @@ const formatTime = (totalSeconds) => {
 };
 
 // Helper function to format the date
-const formatAttemptDate = (dateString) => {
+const formatDate = (dateString) => {
 	const date = new Date(dateString);
 	return date
 		.toLocaleString("en-US", {
@@ -25,7 +25,6 @@ const formatAttemptDate = (dateString) => {
 };
 
 function AttemptHistoryItem({ attempt, index }) {
-	// 1. Calculate the counts (using nullish coalescing for safety)
 	const correct = attempt.correctCount ?? 0;
 	const wrong = attempt.wrongCount ?? 0;
 	const unanswered = attempt.unansweredCount ?? 0;
@@ -46,7 +45,6 @@ function AttemptHistoryItem({ attempt, index }) {
 
 			{/* Stats Row: Correct Count and Time */}
 			<div className="flex items-center justify-between text-xs text-gray-600 mb-3 pt-3 border-t border-gray-100">
-				{/* 2. This is the updated section */}
 				<div className="flex items-center gap-1.5">
 					<CheckCircle className="w-3.5 h-3.5 text-gray-400" />
 					<span>
@@ -62,7 +60,7 @@ function AttemptHistoryItem({ attempt, index }) {
 
 			{/* Date row */}
 			<p className="text-xs text-gray-500">
-				{formatAttemptDate(attempt.createdAt)}
+				{formatDate(attempt.createdAt)}
 			</p>
 		</Link>
 	);

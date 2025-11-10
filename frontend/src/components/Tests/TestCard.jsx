@@ -1,5 +1,6 @@
 import { Users, Clock, FileText } from "lucide-react";
 import { Link, useLocation } from "react-router";
+import StatusBadge from "../StatusBadge";
 
 export default function TestCard({ test }) {
 	const { pathname } = useLocation();
@@ -24,11 +25,7 @@ export default function TestCard({ test }) {
 					title={test.title}>
 					{test.title}
 				</h2>
-				{isAdmin && test.status === "DRAFT" && (
-					<span className="mt-1 inline-block text-[10px] font-medium text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-full px-2 py-[1px]">
-						Draft
-					</span>
-				)}
+				{isAdmin && <StatusBadge status={test.status} size="xs" />}
 			</div>
 
 			{/* Stats */}
