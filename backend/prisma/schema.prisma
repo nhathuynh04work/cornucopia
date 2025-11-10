@@ -94,7 +94,7 @@ model Test {
     userId      Int
     status      TestStatus @default(DRAFT)
     description String?
-    timeLimit   Int?       @map("time_limit")
+    timeLimit   Int        @default(1800) @map("time_limit")
     createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
     user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -37,7 +37,7 @@ export default function TestCard({ test }) {
 				<div className="flex items-center">
 					<Clock className="w-4 h-4 mr-2 text-gray-400" />
 					<span className="text-xs font-medium">
-						{duration ? `${duration} mins` : "No limit"}
+						{duration / 60} mins
 					</span>
 				</div>
 				<div className="flex items-center">
