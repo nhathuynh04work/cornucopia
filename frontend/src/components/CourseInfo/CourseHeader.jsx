@@ -1,6 +1,4 @@
 import React from "react";
-import { Edit } from "lucide-react";
-import NavButton from "@/components/NavButton";
 
 export default function CourseHeader({ course }) {
 	return (

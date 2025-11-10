@@ -1,36 +1,36 @@
 import { api } from "./axios.js";
 
-export async function fetchTests() {
+export async function getTests() {
 	const { data } = await api.get("/tests");
 	return data.tests;
 }
 
-export async function fetchAttemptedTests() {
+export async function getAttemptedTests() {
 	const { data } = await api.get("/tests/attempted");
 	return data.tests;
 }
 
-export async function fetchMyTests() {
+export async function getMyTests() {
 	const { data } = await api.get("/tests/admin");
 	return data.tests;
 }
 
-export async function fetchTestBasicInfo(id) {
+export async function getTestForInfoView(id) {
 	const { data } = await api.get(`/tests/${id}/info`);
 	return data.test;
 }
 
-export async function fetchTestDetails(id) {
+export async function getTestForEdit(id) {
 	const { data } = await api.get(`/tests/${id}/edit`);
 	return data.test;
 }
 
-export async function fetchTestForAttempt(id) {
+export async function getTestForAttempt(id) {
 	const { data } = await api.get(`/tests/${id}/attempt`);
 	return data.test;
 }
 
-export async function fetchTestAttemptsHistory(testId) {
+export async function getAttemptHistory(testId) {
 	const { data } = await api.get(`/tests/${testId}/attempts`);
 	return data.attempts;
 }

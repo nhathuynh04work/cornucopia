@@ -1,8 +1,5 @@
 import { Router } from "express";
-import {
-	authenticateJWT,
-	authenticateJWTOptional,
-} from "../middlewares/authMiddleware.js";
+import { authenticateJWT } from "../middlewares/authMiddleware.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
 import {
 	CreateCourseSchema,
@@ -21,7 +18,6 @@ router.get("/my-courses", authenticateJWT, courseController.getMyCourses);
 
 router.get(
 	"/:id/info",
-	authenticateJWTOptional,
 	validateParams(["id"]),
 	courseController.getCourseForInfoView
 );
@@ -38,6 +34,13 @@ router.get(
 	authenticateJWT,
 	validateParams(["id"]),
 	courseController.getCourseForLearning
+);
+
+router.get(
+	"/:id/enrollment",
+	authenticateJWT,
+	validateParams(["id"]),
+	courseController.getUserCourseEnrollment
 );
 
 router.post(

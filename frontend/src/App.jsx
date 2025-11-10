@@ -37,7 +37,8 @@ function App() {
 			<Routes>
 				{/* --- Routes Inside Main Layout --- */}
 				<Route element={<Layout />}>
-					<Route index element={<Landing />} />
+					<Route index element={<Navigate to="dashboard" />} />
+					<Route path="landing" element={<Landing />} />
 					<Route path="dashboard" element={<Dashboard />} />
 					<Route path="signup" element={<Signup />} />
 					<Route path="login" element={<Login />} />

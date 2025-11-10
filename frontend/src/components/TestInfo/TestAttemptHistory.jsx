@@ -1,17 +1,16 @@
-// src/components/TestInfo/TestAttemptHistory.jsx
-import { useTestAttemptsHistoryQuery } from "@/hooks/useTestQuery";
+import { useAttemptHistoryQuery } from "@/hooks/useTestQuery";
 import AttemptHistoryItem from "./AttemptHistoryItem";
+import { useAuth } from "@/contexts/AuthContext";
 
 function TestAttemptHistory({ testId }) {
-	const { data: attempts, isPending } = useTestAttemptsHistoryQuery(testId);
+	const { user } = useAuth();
+	const { data: attempts, isPending } = useAttemptHistoryQuery(testId);
+
+	if (!user) return null;
 
 	return (
-		<div className="border-b border-gray-200">
-			{" "}
-			{/* Added border */}
+		<div className="">
 			<div className="p-6">
-				{" "}
-				{/* Added padding here */}
 				<h2 className="text-lg font-semibold text-gray-900 mb-4">
 					Your Attempt History
 				</h2>
@@ -34,7 +33,7 @@ function TestAttemptHistory({ testId }) {
 									<AttemptHistoryItem
 										key={attempt.id}
 										attempt={attempt}
-										index={attempts.length - index} // Pass index for Attempt #
+										index={attempts.length - index}
 									/>
 								))
 							)}

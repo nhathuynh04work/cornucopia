@@ -3,52 +3,52 @@ import * as testApi from "../apis/testApi";
 import { useTestEditorStore } from "../store/testEditorStore.js";
 import { useEffect } from "react";
 import { useTestAttemptStore } from "@/store/testAttemptStore";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function useTestsQuery() {
 	return useQuery({
 		queryKey: ["tests"],
-		queryFn: testApi.fetchTests,
+		queryFn: testApi.getTests,
 	});
 }
 
 export function useAttemptedTests() {
 	return useQuery({
 		queryKey: ["tests", "attempted"],
-		queryFn: testApi.fetchAttemptedTests,
+		queryFn: testApi.getAttemptedTests,
 	});
 }
 
 export function useMyTests() {
 	return useQuery({
 		queryKey: ["tests", "admin"],
-		queryFn: testApi.fetchMyTests,
+		queryFn: testApi.getMyTests,
 	});
 }
 
-export function useTestLiteQuery(id) {
+export function useTestInfoQuery(id) {
 	const numericId = Number(id);
 
 	return useQuery({
 		queryKey: ["test", numericId, "info"],
-		queryFn: () => testApi.fetchTestBasicInfo(numericId),
+		queryFn: () => testApi.getTestForInfoView(numericId),
 		enabled: !!numericId,
 	});
 }
 
-export function useTestEditorQuery(id) {
+export function useTestEditQuery(id) {
 	const setTest = useTestEditorStore((s) => s.setTest);
 	const numericId = Number(id);
 
 	const query = useQuery({
 		queryKey: ["test", numericId, "edit"],
-		queryFn: () => testApi.fetchTestDetails(numericId),
+		queryFn: () => testApi.getTestForEdit(numericId),
 		enabled: !!numericId,
 	});
 
 	// Hydrate store when query resolves
 	useEffect(() => {
 		if (query.data) {
-			console.log(query.data.status);
 			setTest(query.data);
 		}
 	}, [query.data, setTest]);
@@ -63,7 +63,7 @@ export function useTestAttemptQuery(id) {
 
 	const query = useQuery({
 		queryKey: ["test", numericId, "attempt"],
-		queryFn: () => testApi.fetchTestForAttempt(numericId),
+		queryFn: () => testApi.getTestForAttempt(numericId),
 		enabled: !!numericId,
 	});
 
@@ -76,12 +76,13 @@ export function useTestAttemptQuery(id) {
 	return query;
 }
 
-export function useTestAttemptsHistoryQuery(testId) {
+export function useAttemptHistoryQuery(testId) {
+	const { user } = useAuth();
 	const numericTestId = Number(testId);
 
 	return useQuery({
 		queryKey: ["attempts-history", numericTestId],
-		queryFn: () => testApi.fetchTestAttemptsHistory(numericTestId),
-		enabled: !!numericTestId,
+		queryFn: () => testApi.getAttemptHistory(numericTestId),
+		enabled: !!numericTestId && !!user,
 	});
 }

@@ -219,10 +219,23 @@ export async function addItem(testId, data, userId) {
 }
 
 export async function getAnswersKey(testId) {
-	const test = await testRepo.getLite(testId);
-	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
+	const test = await prisma.test.findUnique({
+		where: { id: testId },
+		include: {
+			items: {
+				where: {
+					type: { not: TestItemType.GROUP },
+				},
+				include: {
+					answerOptions: true,
+				},
+			},
+		},
+	});
 
-	const questions = await itemRepo.findQuestionsOfTest(testId);
+	if (!test) throw new NotFoundError("Test not found");
+
+	const questions = test.items;
 	const answerKey = {};
 
 	questions.forEach((question) => {

@@ -4,17 +4,8 @@ import CourseSidebar from "@/components/CourseInfo/CourseSidebar";
 import { useCourseInfoPage } from "@/hooks/useCourseInfoPage";
 
 function CourseInfo() {
-	const {
-		isPending,
-		course,
-		totalModules,
-		totalLessons,
-		isBusy,
-		user,
-		createCheckout,
-		accessStatus,
-		isError,
-	} = useCourseInfoPage();
+	const { isPending, course, totalModules, totalLessons, isError } =
+		useCourseInfoPage();
 
 	if (isPending) {
 		return <p className="p-6 text-center text-gray-500">Loading...</p>;
@@ -39,10 +30,6 @@ function CourseInfo() {
 				course={course}
 				totalModules={totalModules}
 				totalLessons={totalLessons}
-				isBusy={isBusy}
-				user={user}
-				createCheckout={createCheckout}
-				accessStatus={accessStatus}
 			/>
 		</div>
 	);

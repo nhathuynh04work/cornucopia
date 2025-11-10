@@ -25,7 +25,7 @@ function CourseCurriculumEditor() {
 			<button
 				onClick={addModule}
 				disabled={isAdding}
-				className="mt-6 flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-700 rounded-md disabled:bg-purple-400">
+				className="mt-6 flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md disabled:bg-purple-400">
 				{isAdding ? (
 					<Loader2 className="w-4 h-4 animate-spin" />
 				) : (

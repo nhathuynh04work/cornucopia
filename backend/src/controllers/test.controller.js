@@ -26,7 +26,6 @@ export async function createTest(req, res) {
 
 export async function getTestForInfoView(req, res) {
 	const id = req.params.id;
-	// const userId = req.user.id;
 
 	const test = await testService.getTestForInfoView(id);
 	res.status(200).json({ test });

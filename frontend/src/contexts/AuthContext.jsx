@@ -11,19 +11,20 @@ export function AuthProvider({ children }) {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		setIsInitialLoading(true);
-		authApi
-			.getMe()
-			.then((user) => {
+		async function fetchUser() {
+			try {
+				setIsInitialLoading(true);
+				const user = await authApi.getMe();
 				setUser(user);
-			})
-			.catch(() => {
+			} catch {
 				localStorage.removeItem(ACCESS_TOKEN_KEY);
 				setUser(null);
-			})
-			.finally(() => {
+			} finally {
 				setIsInitialLoading(false);
-			});
+			}
+		}
+        
+		fetchUser();
 	}, []);
 
 	async function setAuthenticatedSession(token) {

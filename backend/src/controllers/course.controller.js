@@ -7,13 +7,10 @@ export async function getCourses(req, res) {
 
 export async function getCourseForInfoView(req, res) {
 	const courseId = req.params.id;
-	const userId = req?.user.id;
 
-	const { course, accessStatus } = await courseService.getCourseForInfoView(
-		courseId,
-		userId
-	);
-	res.status(200).json({ course, accessStatus });
+	const course = await courseService.getCourseForInfoView(courseId);
+
+	res.status(200).json({ course });
 }
 
 export async function getCourseForEditor(req, res) {
@@ -42,6 +39,18 @@ export async function getMyCourses(req, res) {
 	const userId = req.user.id;
 	const courses = await courseService.getMyCourses(userId);
 	res.status(200).json({ courses });
+}
+
+export async function getUserCourseEnrollment(req, res) {
+	const courseId = req.params.id;
+	const userId = req.user.id;
+
+	const enrollment = await courseService.getUserCourseEnrollment(
+		courseId,
+		userId
+	);
+
+	res.status(200).json({ enrollment });
 }
 
 export async function createCourse(req, res) {

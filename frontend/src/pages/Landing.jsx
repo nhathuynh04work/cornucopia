@@ -162,7 +162,6 @@ function Landing() {
 						<div
 							key={c.id}
 							onMouseEnter={() => setHoveredCard(c)}
-							onMouseLeave={() => setHoveredCard(null)}
 							style={{
 								marginLeft: idx === 0 ? 0 : -overlap,
 								zIndex: idx + 1,
@@ -217,7 +216,6 @@ function Landing() {
 						<div
 							key={c.id}
 							onMouseEnter={() => setHoveredCard(c)}
-							onMouseLeave={() => setHoveredCard(null)}
 							style={{
 								marginLeft: idx === 0 ? 0 : -overlap,
 								zIndex: idx + 1,

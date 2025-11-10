@@ -66,12 +66,11 @@ export default function CourseCurriculum({ modules }) {
 												{lessonIcon[lesson.type]}
 												<span>{lesson.title}</span>
 											</div>
-											{lesson.duration && (
-												<div className="flex items-center gap-1 text-xs text-gray-500">
-													<Clock className="w-3.5 h-3.5" />
-													{lesson.duration}
-												</div>
-											)}
+
+											<div className="flex items-center gap-1 text-xs text-gray-500">
+												<Clock className="w-3.5 h-3.5" />
+												{lesson.duration}
+											</div>
 										</li>
 									))}
 								</ul>
