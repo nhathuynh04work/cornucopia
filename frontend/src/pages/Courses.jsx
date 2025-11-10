@@ -1,8 +1,13 @@
 import CourseList from "@/components/Courses/CourseList";
 import CreateCourseCard from "@/components/Courses/CreateCourseCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCoursesQuery, useEnrolledCourses, useMyCourses } from "@/hooks/useCourseQuery";
+import {
+	useCoursesQuery,
+	useEnrolledCourses,
+	useMyCourses,
+} from "@/hooks/useCourseQuery";
 import { useFilteredCourses } from "@/hooks/useFilteredCourses";
+import { Role } from "@/lib/constants";
 import { Navigate } from "react-router";
 
 export function AllCourses() {
@@ -41,7 +46,7 @@ export function MyCourses() {
 	const { filteredCourses, isPending, searchTerm } =
 		useFilteredCourses(useMyCourses);
 
-	if (role !== "admin") return <Navigate to="/courses/all" replace />;
+	if (role !== Role.ADMIN) return <Navigate to="/courses/all" replace />;
 
 	return (
 		<CourseList
