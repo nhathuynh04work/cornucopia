@@ -1,4 +1,3 @@
-// services/rag/summarizer.service.js
 import { cleanFragment } from "./utils.js";
 
 let genAI = null;

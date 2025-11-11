@@ -1,7 +1,5 @@
-// services/rag/retriever.service.js
-import * as ragRepo from "../../repositories/rag.repository.js";
+import * as ragRepo from "./rag.repository.js";
 import { tokenize } from "./tokenizer.js";
-
 export async function retrieve(query, k = 6, filters = {}) {
   const q = String(query || "").trim();
   if (!q) return [];

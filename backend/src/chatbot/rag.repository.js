@@ -1,5 +1,4 @@
 import prisma from "../prisma.js";
-
 // Config
 const MIN_SCORE = 0.05;
 

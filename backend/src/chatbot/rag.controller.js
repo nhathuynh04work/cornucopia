@@ -1,5 +1,4 @@
-import * as ragService from "../services/rag.service.js";
-
+import * as ragService from "./rag.service.js";
 /**
  * GET/POST /rag/chat
  * q, k, filters{ topicIds, topicSlugs }, llm?=0|1

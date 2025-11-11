@@ -2,22 +2,22 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
 import {
-	authRouter,
-	testRouter,
-	optionRouter,
-	itemRouter,
-	postRouter,
-	topicRouter,
-	cardRouter,
-	listRouter,
-	sessionRouter,
-	userRouter,
-	mediaRouter,
+  authRouter,
+  testRouter,
+  optionRouter,
+  itemRouter,
+  postRouter,
+  topicRouter,
+  cardRouter,
+  listRouter,
+  sessionRouter,
+  userRouter,
+  mediaRouter,
+  attemptRouter,
+  courseRouter,
+  moduleRouter,
+  lessonRouter,
   ragRouter,
-	attemptRouter,
-	courseRouter,
-	moduleRouter,
-	lessonRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";

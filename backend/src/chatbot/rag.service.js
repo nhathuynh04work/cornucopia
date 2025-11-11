@@ -1,8 +1,8 @@
-import * as ragRepo from "../repositories/rag.repository.js";
-import { splitText, stripHtml } from "./rag/utils.js";
-import { retrieve } from "./rag/retriever.service.js";
-import { miniRerank } from "./rag/reranker.js";
-import { summarize } from "./rag/summarizer.service.js";
+import * as ragRepo from "./rag.repository.js";
+import { splitText, stripHtml } from "./utils.js";
+import { retrieve } from "./retriever.service.js";
+import { miniRerank } from "./reranker.js";
+import { summarize } from "./summarizer.service.js";
 
 export async function reindexPost(postId, contentHtml, client) {
   const pid = Number(postId);

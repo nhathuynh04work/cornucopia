@@ -1,4 +1,3 @@
-// services/rag/utils.js
 export function stripHtml(html = "") {
   return String(html)
     .replace(/<[^>]*>/g, " ")
