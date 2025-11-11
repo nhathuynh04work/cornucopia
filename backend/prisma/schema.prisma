@@ -189,14 +189,13 @@ model AttemptAnswer {
 model FlashcardList {
     id            Int            @id @default(autoincrement())
     userId        Int            @map("user_id")
-    title         String?
+    title         String
     description   String?
     createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
     user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
     flashcards    Flashcard[]
     studySessions StudySession[]
 
-    @@unique([userId, title], map: "uq_user_title")
     @@map("flashcard_lists")
 }
 

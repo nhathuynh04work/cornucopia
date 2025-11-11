@@ -1,7 +1,7 @@
 import { useParams, useNavigate, useLocation } from "react-router";
 import { toast } from "react-hot-toast";
-import FlashcardResult from "./FlashcardResult";
-import FlashcardStudyCard from "./FlashcardStudyCard";
+import FlashcardResult from "../components/FlashCard/FlashcardResult";
+import FlashcardStudyCard from "../components/FlashCard/FlashcardStudyCard";
 import { X, Check, ArrowLeft } from "lucide-react";
 import { useFlashcardPractice } from "@/hooks/useFlashcardPractice";
 

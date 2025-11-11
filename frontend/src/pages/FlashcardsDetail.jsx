@@ -18,7 +18,6 @@ export default function FlashcardsDetail() {
   const {
     cards,
     title,
-    description,
     loading,
     createCard,
     updateCard,
@@ -31,6 +30,8 @@ export default function FlashcardsDetail() {
   const [editingCard, setEditingCard] = useState(null);
   const [current, setCurrent] = useState(0); // current là 1 vị trí trong mảng
   const [showBulkForm, setShowBulkForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(title);
 
   if (loading) return <LoadingMessage text="⏳ Đang tải..." />;
 
@@ -97,33 +98,86 @@ export default function FlashcardsDetail() {
     }
   }
 
+  // ✅ Hàm xóa danh sách
+  async function handleDeleteList() {
+    await api.delete(`/lists/${listId}`);
+    navigate("/flashcards"); // hoặc trang danh sách chính
+  }
+
+  // ✅ Hàm cập nhật danh sách
+  async function handleUpdateList() {
+    if (!editedTitle.trim()) return;
+
+    await api.put(`/lists/${listId}`, { title: editedTitle });
+    setIsEditing(false);
+    window.location.reload();
+  }
+
   if (!cards) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-24">
-
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-blue-700 mb-2">
-          {title?.replace(/\s*\([^)]*\)\s*/g, "").trim()}
-        </h2>
-        <p className="text-gray-500">{description}</p>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-24 mx-auto">
+      <div className="flex justify-between items-start w-full max-w-3xl mb-8 -mt-10">
+        {isEditing ? (
+          <div className="flex items-center gap-2 w-full justify-between">
+            <input
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              defaultValue={editedTitle}
+              className="border border-gray-300 rounded-lg px-3 py-1 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleUpdateList}
+                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+              >
+                Lưu
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditedTitle(title);
+                }}
+                className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
+              >
+                Hủy
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-3xl font-bold text-blue-700 flex-1">{title}</h2>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 shadow"
+              >
+                <Pencil className="w-4 h-4" /> Sửa danh sách
+              </button>
+              <button
+                onClick={handleDeleteList}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow"
+              >
+                <Trash2 className="w-4 h-4" /> Xóa danh sách
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {cards.length === 0 ? (
-        <div className="text-center">
-          <p className="text-lg text-gray-600 mb-4">
-            Chưa có flashcard nào trong danh sách này.
-          </p>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow"
+        <div className="w-1/2 flex flex-col items-center justify-center mt-10">
+          <div
+            onClick={() => setShowBulkForm(true)}
+            className="w-full flex items-center justify-center h-64 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:bg-gray-100"
           >
-            <PlusCircle className="inline-block" /> Tạo Flashcard
-          </button>
+            <PlusCircle className="w-12 h-12 text-gray-500" />
+          </div>
         </div>
       ) : (
         <>
-          <FlashcardView card={card} />
+          <FlashcardView card={card} className="w-full max-w-3xl" />
           <CardNavigator
             current={current}
             total={cards.length}
@@ -137,7 +191,9 @@ export default function FlashcardsDetail() {
             onStart={async () => {
               const session = await startSession();
               if (session)
-                navigate(`/lists/${listId}/practice?session=${session.id}`);
+                navigate(
+                  `/flashcards/${listId}/practice?session=${session.id}`
+                );
             }}
             onEdit={() => {
               setEditingCard(card);
