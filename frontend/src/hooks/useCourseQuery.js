@@ -1,5 +1,6 @@
 import * as courseApi from "@/apis/courseApi";
 import { useAuth } from "@/contexts/AuthContext";
+import { Role } from "@/lib/constants";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -74,11 +75,11 @@ export function useEnrolledCourses() {
 }
 
 export function useMyCourses() {
-	const { user } = useAuth();
+	const { user, role } = useAuth();
 
 	return useQuery({
 		queryKey: ["courses", "my-courses", user?.id],
 		queryFn: courseApi.getMyCourses,
-		enabled: !!user,
+		enabled: !!user && role !== Role.USER,
 	});
 }
