@@ -1,11 +1,8 @@
 import { Router } from "express";
-import {
-  chatController,
-  reindexController,
-} from "../controllers/rag.controller.js";
-import { validateSchema } from "../middlewares/validateSchema.js";
-import { RagChatSchema, RagReindexSchema } from "../schemas/rag.schema.js";
+import { chatController, reindexController } from "./rag.controller.js";
 import { ipLimiter } from "../middlewares/ipLimiter.js";
+import { validateSchema } from "../middlewares/validateSchema.js";
+import { RagChatSchema, RagReindexSchema } from "./rag.schema.js";
 
 const router = Router();
 router.post("/chat", ipLimiter, validateSchema(RagChatSchema), chatController);

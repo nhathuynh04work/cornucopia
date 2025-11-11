@@ -1,6 +1,4 @@
-// services/rag/reranker.js
 import { tokenize, toLC } from "./tokenizer.js";
-
 /**
  * Tổng hợp lại reranker với logic tổng quát:
  * - Ưu tiên các đoạn có giao cắt nhiều token query
