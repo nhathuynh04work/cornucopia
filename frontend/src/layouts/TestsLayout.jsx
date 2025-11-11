@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import TabsSearchbarLayout from "./TabSearchbarLayout";
+import { Role } from "@/lib/constants";
 
 const TABS = {
 	ALL: { title: "All Tests", key: "all", path: "/tests/all" },
@@ -13,16 +14,16 @@ const TABS = {
 };
 
 function TestsLayout() {
-	const { role } = useAuth(); 
+	const { role } = useAuth();
 
 	const visibleTabs = useMemo(() => {
 		// For admin/creator
-		if (role === "admin" || role === "creator") {
+		if (role === Role.ADMIN || role === Role.CREATOR) {
 			return [TABS.ALL, TABS.ATTEMPTED, TABS.MY_TESTS];
 		}
 
 		// For a logged-in user
-		if (role === "user") {
+		if (role === Role.USER) {
 			return [TABS.ALL, TABS.ATTEMPTED];
 		}
 

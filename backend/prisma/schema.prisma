@@ -11,6 +11,7 @@ datasource db {
 model User {
     id                     Int                     @id @default(autoincrement())
     email                  String                  @unique @db.VarChar(255)
+    role                   Role                    @default(USER)
     name                   String?                 @db.VarChar(255)
     avatarUrl              String?                 @map("avatar_url") @db.VarChar(255)
     isActive               Boolean?                @default(false) @map("is_active")
@@ -18,7 +19,6 @@ model User {
     updatedAt              DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
     authentication         Authentication[]
     emailVerificationToken EmailVerificationToken?
-    userRole               UserRole?
     flashcardLists         FlashcardList[]
     posts                  Post[]
     studySessions          StudySession[]
@@ -31,21 +31,16 @@ model User {
     @@map("users")
 }
 
-model UserRole {
-    id        Int      @id @default(autoincrement())
-    userId    Int      @unique @map("user_id")
-    role      String   @db.VarChar(50)
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@map("user_roles")
+enum Role {
+    USER
+    CREATOR
+    ADMIN
 }
 
 model Authentication {
     id           Int      @id @default(autoincrement())
     userId       Int      @map("user_id")
-    provider     String   @db.VarChar(50)
+    provider     Provider
     providerId   String?  @map("provider_id") @db.VarChar(255)
     passwordHash String?  @map("password_hash") @db.VarChar(255)
     createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -55,6 +50,11 @@ model Authentication {
     @@unique([provider, providerId], map: "authentication_provider_provider_id")
     @@unique([provider, userId], map: "authentication_provider_user_id")
     @@map("authentication")
+}
+
+enum Provider {
+    LOCAL
+    GOOGLE
 }
 
 model EmailVerificationToken {

@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Play, Edit } from "lucide-react";
 import NavButton from "../NavButton";
+import { Role } from "@/lib/constants";
 
 function ActionButtons({ test }) {
 	const { user, role } = useAuth();
@@ -28,7 +29,7 @@ function ActionButtons({ test }) {
 				</NavButton>
 			)}
 
-			{role === "admin" && (
+			{role === Role.ADMIN && (
 				<NavButton
 					to={`/tests/${test.id}/edit`}
 					className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 border !border-purple-300 rounded-md hover:bg-purple-200">

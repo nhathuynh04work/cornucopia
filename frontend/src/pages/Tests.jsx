@@ -8,6 +8,7 @@ import {
 } from "@/hooks/useTestQuery";
 import { useFilteredTests } from "@/hooks/useFilteredTests";
 import TestList from "@/components/Tests/TestList";
+import { Role } from "@/lib/constants";
 
 export function AllTests() {
 	const { filteredTests, isPending, searchTerm } =
@@ -45,7 +46,7 @@ export function MyTests() {
 	const { filteredTests, isPending, searchTerm } =
 		useFilteredTests(useMyTests);
 
-	if (role !== "admin") return <Navigate to="/tests/all" replace />;
+	if (role !== Role.ADMIN) return <Navigate to="/tests/all" replace />;
 
 	return (
 		<TestList
@@ -54,7 +55,7 @@ export function MyTests() {
 			searchTerm={searchTerm}
 			emptyMessage="You have not created any tests."
 			searchEmptyMessage="No tests match your search."
-			prependItem={<CreateTestCard />} 
+			prependItem={<CreateTestCard />}
 		/>
 	);
 }

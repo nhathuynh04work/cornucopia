@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
 				setIsInitialLoading(false);
 			}
 		}
-        
+
 		fetchUser();
 	}, []);
 
@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
 	}
 
 	const value = {
-		role: user?.userRole.role,
+		role: user?.role,
 		user,
 		isInitialLoading,
 		login,
