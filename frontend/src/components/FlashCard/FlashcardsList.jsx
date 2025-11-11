@@ -40,9 +40,9 @@ export default function FlashcardsList() {
   async function handleCreateList(title) {
     const { data } = await api.post("/lists", {
       userId: user.id,
-      title: `${title} (${Date.now()})`,
+      title: title
     });
-    navigate(`/lists/${data.list.id}/edit`);
+    navigate(`/flashcards/${data.list.id}/edit`);
   }
 
   async function handleUpdateList(listId, newTitle) {

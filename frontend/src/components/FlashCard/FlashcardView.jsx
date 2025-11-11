@@ -15,7 +15,7 @@ export default function FlashcardView({ card }) {
 
   return (
     <div
-      className="relative w-[600px] h-[350px] cursor-pointer [perspective:1000px]"
+      className="relative w-[770px] h-[400px] cursor-pointer [perspective:1000px]"
       onClick={() => setFlipped(!flipped)}
     >
       <div

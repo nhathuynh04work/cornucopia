@@ -18,12 +18,6 @@ export async function updateEndtimeController(req, res) {
   res.status(200).json({ startTime, endTime });
 }
 
-export async function getStudyStatistic(req, res) {
-  const userId = req.user.id;
-  const stats = await sessionService.getStudyStatisticService(userId);
-  res.status(200).json({ stats });
-}
-
 export async function getYearlyStudyStatistic(req, res) {
   try {
     const userId = req.user.id;

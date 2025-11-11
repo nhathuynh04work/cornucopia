@@ -20,7 +20,7 @@ import AuthCallback from "./pages/AuthCallback";
 import TestEdit from "./pages/TestEdit";
 import TestAttempt from "./pages/TestAttempt";
 import AttemptResult from "./pages/AttemptResult";
-import FlashcardPractice from "./components/FlashCard/FlashcardPractice";
+import FlashcardPractice from "./pages/FlashcardPractice";
 import CourseInfo from "./pages/CourseInfo";
 import CourseEdit from "./pages/CourseEdit";
 import CourseLearn from "./pages/CourseLearn";
@@ -72,11 +72,11 @@ function App() {
 					{/* Flashcard Routes */}
 					<Route path="flashcards" element={<Flashcards />} />
 					<Route
-						path="lists/:listId/edit"
+						path="flashcards/:listId/edit"
 						element={<FlashcardsDetail />}
 					/>
 					<Route
-						path="lists/:listId/practice"
+						path="flashcards/:listId/practice"
 						element={<FlashcardPractice />}
 					/>
 
