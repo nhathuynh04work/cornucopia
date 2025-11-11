@@ -1,6 +1,5 @@
 import { Toaster } from "react-hot-toast";
-import { Route, Routes } from "react-router";
-import Home from "./pages/Home";
+import { Navigate, Route, Routes } from "react-router";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Confirm from "./pages/Confirm";
@@ -12,11 +11,9 @@ import Blog from "./pages/Blog";
 import BlogEditor from "./pages/BlogEditor";
 import BlogDetail from "./pages/BlogDetail";
 import TopicPage from "./pages/TopicPage";
-import Tests from "./pages/Tests";
 import TestInfo from "./pages/TestInfo";
 import Flashcards from "./pages/Flashcards";
 import FlashcardsDetail from "./pages/FlashcardsDetail";
-import Courses from "./pages/Courses";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
@@ -27,6 +24,12 @@ import FlashcardPractice from "./pages/FlashcardPractice";
 import CourseInfo from "./pages/CourseInfo";
 import CourseEdit from "./pages/CourseEdit";
 import CourseLearn from "./pages/CourseLearn";
+import CoursesLayout from "./layouts/CoursesLayout";
+import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
+import TestsLayout from "./layouts/TestsLayout";
+import { AllCourses, EnrolledCourses, MyCourses } from "./pages/Courses";
+import { AllTests, AttemptedTests, MyTests } from "./pages/Tests";
 
 function App() {
 	return (
@@ -34,7 +37,9 @@ function App() {
 			<Routes>
 				{/* --- Routes Inside Main Layout --- */}
 				<Route element={<Layout />}>
-					<Route index element={<Home />} />
+					<Route index element={<Navigate to="dashboard" />} />
+					<Route path="landing" element={<Landing />} />
+					<Route path="dashboard" element={<Dashboard />} />
 					<Route path="signup" element={<Signup />} />
 					<Route path="login" element={<Login />} />
 
@@ -56,7 +61,12 @@ function App() {
 					<Route path="topics/:slug" element={<TopicPage />} />
 
 					{/* Test Routes */}
-					<Route path="tests" element={<Tests />} />
+					<Route path="/tests" element={<TestsLayout />}>
+						<Route index element={<Navigate to="all" replace />} />
+						<Route path="all" element={<AllTests />} />
+						<Route path="attempted" element={<AttemptedTests />} />
+						<Route path="admin" element={<MyTests />} />
+					</Route>
 					<Route path="tests/:id" element={<TestInfo />} />
 
 					{/* Flashcard Routes */}
@@ -71,9 +81,13 @@ function App() {
 					/>
 
 					{/* Courses Routes */}
-					<Route path="courses" element={<Courses />} />
+					<Route path="/courses" element={<CoursesLayout />}>
+						<Route index element={<Navigate to="all" replace />} />
+						<Route path="all" element={<AllCourses />} />
+						<Route path="enrolled" element={<EnrolledCourses />} />
+						<Route path="admin" element={<MyCourses />} />
+					</Route>
 					<Route path="courses/:id" element={<CourseInfo />} />
-					<Route path="courses/:id/edit" element={<CourseEdit />} />
 
 					{/* Other Routes */}
 					<Route path="attempts/:id" element={<AttemptResult />} />
@@ -83,8 +97,11 @@ function App() {
 				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="tests/:id/attempt" element={<TestAttempt />} />
 				<Route path="courses/:id/learn" element={<CourseLearn />} />
+				<Route path="courses/:id/edit" element={<CourseEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
+
+				<Route path="*" element={<Navigate to="/" />} />
 			</Routes>
 
 			{/* Toaster should be outside <Routes> */}

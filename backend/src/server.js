@@ -13,10 +13,12 @@ import {
 	sessionRouter,
 	userRouter,
 	mediaRouter,
+	ragRouter,
 	attemptRouter,
 	courseRouter,
 	moduleRouter,
 	lessonRouter,
+	checkoutRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -30,6 +32,8 @@ app.use(
 		credentials: true,
 	})
 );
+
+app.use("/checkout", checkoutRouter);
 
 // tăng giới hạn body cho JSON & form
 app.use(express.json({ limit: "10mb" }));
@@ -49,6 +53,7 @@ app.use("/tests", testRouter);
 app.use("/items", itemRouter);
 app.use("/options", optionRouter);
 app.use("/sessions", sessionRouter);
+app.use("/rag", ragRouter);
 app.use("/users", userRouter);
 app.use("/attempts", attemptRouter);
 app.use("/courses", courseRouter);

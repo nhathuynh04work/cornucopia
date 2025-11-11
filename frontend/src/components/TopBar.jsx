@@ -4,11 +4,11 @@ import NavMenu from "./NavMenu";
 import UserMenu from "./UserMenu";
 import NavButton from "./NavButton";
 
-function NavBar() {
+function TopBar() {
 	const { user } = useAuth();
 
 	return (
-		<div className="flex justify-between items-center px-6 py-3 bg-white border-b border-gray-200 shadow-sm">
+		<div className="flex justify-between items-center px-6 py-3 bg-white shadow-sm h-16 border-b">
 			{/* Logo / App name */}
 			<div className="min-w-[180px]">
 				<Logo />
@@ -42,4 +42,4 @@ function NavBar() {
 	);
 }
 
-export default NavBar;
+export default TopBar;

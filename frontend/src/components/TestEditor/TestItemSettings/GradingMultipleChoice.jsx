@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { debounce } from "lodash";
 import ScoreInput from "./ScoreInput";
-import { useUpdateItem, useUpdateOption } from "@/hooks/useTestEditorMutation";
+import { useUpdateItem, useUpdateOption } from "@/hooks/useTestMutation";
 
 // Helper function
 function findCorrectOptionId(options) {

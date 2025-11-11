@@ -37,11 +37,6 @@ export const errorMessage = {
 	MEDIA_ORPHAN: "Media is orphan",
 };
 
-export const providers = {
-	local: "local",
-	google: "google",
-};
-
 export const defaultPost = {
 	title: "Bài viết mặc định",
 	content: "<p>Nội dung mặc định</p>",

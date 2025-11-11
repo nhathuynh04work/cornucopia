@@ -1,5 +1,6 @@
 import { useTestEditorStore } from "@/store/testEditorStore";
 import { ItemTypeIcon } from "./ItemTypeIcon";
+import { itemTypeEnum } from "@/lib/item.config";
 
 function ItemIndex({ item }) {
 	const getQuestionNumber = useTestEditorStore((s) => s.getQuestionNumber);
@@ -12,7 +13,7 @@ function ItemIndex({ item }) {
 
 	// -----------------------------------------------------
 	// Getting the display index
-	const isGroup = item.type === "group";
+	const isGroup = item.type === itemTypeEnum.GROUP;
 	const value = isGroup
 		? getGroupNumberRange(item.id)
 		: getQuestionNumber(item.id);

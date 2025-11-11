@@ -1,4 +1,6 @@
 import * as courseApi from "@/apis/courseApi";
+import { useAuth } from "@/contexts/AuthContext";
+import { Role } from "@/lib/constants";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -10,13 +12,26 @@ export function useCoursesQuery() {
 	});
 }
 
-export function usePublicCourseQuery(courseId) {
+export function useCourseInfoView(courseId) {
+	const { user } = useAuth();
 	const numericCourseId = Number(courseId);
 
 	return useQuery({
-		queryKey: ["course", numericCourseId, "public"],
-		queryFn: () => courseApi.getPublicCourseDetails(numericCourseId),
+		queryKey: ["course", numericCourseId, "info-view", user?.id],
+		queryFn: () => courseApi.getCourseForInfoView(numericCourseId),
 		enabled: !!numericCourseId,
+	});
+}
+
+export function useEnrollmentStatus(courseId) {
+	const { user } = useAuth();
+	const numericCourseId = Number(courseId);
+
+	return useQuery({
+		queryKey: ["course", numericCourseId, "enrollment", user?.id],
+		queryFn: () => courseApi.getEnrollmentStatus(numericCourseId),
+		enabled: !!numericCourseId && !!user,
+		staleTime: 1000 * 60 * 5,
 	});
 }
 
@@ -30,7 +45,6 @@ export function useCourseEditorQuery(courseId) {
 		enabled: !!numericCourseId,
 	});
 
-	// Hydrate store when query resolves
 	useEffect(() => {
 		if (query.data) {
 			setCourse(query.data);
@@ -47,5 +61,25 @@ export function useCourseLearnQuery(courseId) {
 		queryKey: ["course", numericCourseId, "learn"],
 		queryFn: () => courseApi.getCourseForLearning(numericCourseId),
 		enabled: !!numericCourseId,
+	});
+}
+
+export function useEnrolledCourses() {
+	const { user } = useAuth();
+
+	return useQuery({
+		queryKey: ["courses", "enrolled", user?.id],
+		queryFn: courseApi.getEnrolledCourses,
+		enabled: !!user,
+	});
+}
+
+export function useMyCourses() {
+	const { user, role } = useAuth();
+
+	return useQuery({
+		queryKey: ["courses", "my-courses", user?.id],
+		queryFn: courseApi.getMyCourses,
+		enabled: !!user && role !== Role.USER,
 	});
 }

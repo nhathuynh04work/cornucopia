@@ -1,7 +1,8 @@
 export const SETTINGS_TABS = {
 	GENERAL: "general",
-	GRADING: "grading",
+	RULES: "rules",
 	MEDIA: "media",
+	STATUS: "status",
 };
 
 export const settingsMenu = [
@@ -10,11 +11,15 @@ export const settingsMenu = [
 		label: "General",
 	},
 	{
-		key: SETTINGS_TABS.GRADING,
-		label: "Grading",
+		key: SETTINGS_TABS.RULES,
+		label: "Rules",
 	},
 	{
 		key: SETTINGS_TABS.MEDIA,
 		label: "Media",
+	},
+	{
+		key: SETTINGS_TABS.STATUS,
+		label: "Status",
 	},
 ];

@@ -34,10 +34,12 @@ export function useTestEditorMutation({
 				toast.success(successMessage);
 			}
 
-			// This is the key: automatically refetch the test data,
-			// which then updates the Zustand store via useTestEditorQuery.
+			// Automatically refetch the test data
 			queryClient.invalidateQueries({
-				queryKey: ["tests", testId, "full"],
+				queryKey: ["tests"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["test", testId],
 			});
 		},
 
@@ -95,6 +97,17 @@ export function useUpdateTest({ disableToast = true } = {}) {
 		mutationFn: (changes) => testApi.update(testId, changes),
 		successMessage: "Test settings updated",
 		errorMessagePrefix: "Failed to update settings",
+		disableToast,
+	});
+}
+
+export function useDeleteTest({ disableToast = true } = {}) {
+	const testId = useTestEditorStore((s) => s.test?.id);
+
+	return useTestEditorMutation({
+		mutationFn: () => testApi.remove(testId),
+		successMessage: "Test deleted",
+		errorMessagePrefix: "Failed to delete test",
 		disableToast,
 	});
 }

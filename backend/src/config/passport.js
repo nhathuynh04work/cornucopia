@@ -4,7 +4,7 @@ import { env } from "../config/env.js";
 import * as authRepo from "../repositories/auth.repository.js";
 import * as userRepo from "../repositories/user.repository.js";
 import prisma from "../prisma.js";
-import { providers } from "../utils/constants.js";
+import { Provider } from "../generated/prisma/index.js";
 
 passport.use(
 	new GoogleStrategy(
@@ -19,7 +19,7 @@ passport.use(
 			const name = profile.displayName;
 
 			const auth = await authRepo.getOAuthInfo(
-				providers.google,
+				Provider.GOOGLE,
 				googleId
 			);
 			let user = auth?.user;
@@ -37,7 +37,7 @@ passport.use(
 					}
 
 					await authRepo.linkOAuth(user.id, {
-						provider: providers.google,
+						provider: Provider.GOOGLE,
 						providerId: googleId,
 					});
 				});

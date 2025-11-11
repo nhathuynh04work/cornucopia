@@ -1,8 +1,11 @@
 import z from "zod";
-import { itemTypeEnum, mediaLayouts } from "../utils/constants.js";
+import {
+	TestItemMediaLayout,
+	TestItemType,
+} from "../generated/prisma/index.js";
 
-const ItemType = z.enum(Object.values(itemTypeEnum));
-const ItemMediaLayout = z.enum(Object.values(mediaLayouts));
+const ItemType = z.enum(TestItemType);
+const ItemMediaLayout = z.enum(TestItemMediaLayout);
 
 export const CreateItemSchema = z.object({
 	type: ItemType,

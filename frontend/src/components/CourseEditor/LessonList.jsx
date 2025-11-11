@@ -1,9 +1,9 @@
-import { useAddLessonMutation } from "@/hooks/useModuleMutation";
+import { useAddLesson } from "@/hooks/useModuleMutation";
 import { Plus } from "lucide-react";
 import LessonItem from "./LessonItem";
 
 export default function LessonList({ module }) {
-	const { mutate: addLesson, isPending } = useAddLessonMutation(module.id);
+	const { mutate: addLesson, isPending } = useAddLesson(module.id);
 
 	const lessons = module.lessons.sort((a, b) => a.sortOrder - b.sortOrder);
 

@@ -8,7 +8,7 @@ function Logo({ isLink = true }) {
 	}
 
 	return (
-		<Link to="/" className={tailwindClasses}>
+		<Link to="/dashboard" className={tailwindClasses}>
 			Cornucopia
 		</Link>
 	);

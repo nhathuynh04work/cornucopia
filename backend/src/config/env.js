@@ -20,4 +20,6 @@ export const env = {
 	AWS_REGION: process.env.AWS_REGION,
 	S3_BUCKET: process.env.S3_BUCKET,
 	BUCKET_URL: process.env.S3_BUCKET_URL,
+	STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+	STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
 };

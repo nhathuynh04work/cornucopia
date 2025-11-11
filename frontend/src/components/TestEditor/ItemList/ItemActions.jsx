@@ -2,7 +2,7 @@ import { Plus, Trash2 } from "lucide-react";
 import AddItemModal from "./AddItemModal";
 import { useTestEditorStore } from "@/store/testEditorStore";
 import { itemTypeEnum } from "@/lib/item.config";
-import { useAddItem, useDeleteItem } from "@/hooks/useTestEditorMutation";
+import { useAddItem, useDeleteItem } from "@/hooks/useTestMutation";
 
 function ItemActions({ item }) {
 	const { mutate: deleteItem } = useDeleteItem(item.id);

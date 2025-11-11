@@ -1,7 +1,7 @@
 import React from "react";
 import { LayoutPanelLeft, LayoutPanelTop, LayoutList } from "lucide-react";
 import { mediaLayouts } from "@/lib/item.config";
-import { useUpdateItem } from "@/hooks/useTestEditorMutation";
+import { useUpdateItem } from "@/hooks/useTestMutation";
 
 export default function ItemMediaLayoutSwitch({ currentItem }) {
 	const { mutate: updateItem } = useUpdateItem(currentItem.id);

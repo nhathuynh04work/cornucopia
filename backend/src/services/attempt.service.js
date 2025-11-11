@@ -1,10 +1,10 @@
 import * as attemptRepo from "../repositories/attempt.repository.js";
-import * as testRepo from "../repositories/test.repository.js";
 import * as testService from "../services/test.service.js";
 import { NotFoundError } from "../utils/AppError.js";
-import { errorMessage, itemTypeEnum } from "../utils/constants.js";
+import { errorMessage } from "../utils/constants.js";
 import { areSetsEqual } from "../utils/compare.js";
 import { GetAttemptsSchema } from "../schemas/attempt.schema.js";
+import { TestItemType } from "../generated/prisma/index.js";
 
 // data: { userId, testId, time, answers }
 export async function createAttempt(data) {
@@ -59,7 +59,7 @@ export async function getResult(id) {
 	const attempt = await attemptRepo.findById(id);
 	if (!attempt) throw new NotFoundError(errorMessage.ATTEMPT_NOT_FOUND);
 
-	const test = await testRepo.getTestWithoutAnswer(attempt.testId);
+	const test = await testService.getTestWithoutAnswer(attempt.testId);
 	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
 
 	const answerKey = await testService.getAnswersKey(attempt.testId);
@@ -121,20 +121,20 @@ export async function getResult(id) {
 export async function getUserAttemptsOnTest(testId, userId) {
 	const { testId: validTestId, userId: validUserId } =
 		GetAttemptsSchema.parse({ testId, userId });
-        
+
 	return attemptRepo.findManyByTestIdAndUserId(validTestId, validUserId);
 }
 
 function gradeAnswer(submittedAnswer, correctAnswer) {
 	const { type } = correctAnswer;
 
-	if (type === itemTypeEnum.SHORT_ANSWER) {
+	if (type === TestItemType.SHORT_ANSWER) {
 		const submitted = submittedAnswer.text?.trim().toLowerCase();
 		const correct = correctAnswer.answer?.trim().toLowerCase();
 		return submitted === correct;
 	}
 
-	if (type === itemTypeEnum.MULTIPLE_CHOICE) {
+	if (type === TestItemType.MULTIPLE_CHOICE) {
 		const submittedSet = new Set(submittedAnswer.optionIds);
 		const correctSet = new Set(correctAnswer.optionIds);
 		return areSetsEqual(submittedSet, correctSet);

@@ -4,9 +4,14 @@ import * as tokenRepo from "../repositories/token.repository.js";
 import * as authRepo from "../repositories/auth.repository.js";
 import { createEmailToken, sendConfirmationEmail } from "../utils/email.js";
 import { createJWT } from "../utils/jwt.js";
-import { BadRequestError, ForbiddenError, NotFoundError } from "../utils/AppError.js";
+import {
+	BadRequestError,
+	ForbiddenError,
+	NotFoundError,
+} from "../utils/AppError.js";
 import prisma from "../prisma.js";
-import { errorMessage, providers } from "../utils/constants.js";
+import { errorMessage } from "../utils/constants.js";
+import { Provider } from "../generated/prisma/index.js";
 
 export async function localSignup({ email, name, password }) {
 	const existing = await userRepo.findByEmail(email);
@@ -18,7 +23,7 @@ export async function localSignup({ email, name, password }) {
 	await prisma.$transaction(async (tx) => {
 		const user = await userRepo.create(
 			{ name, email },
-			{ passwordHash, provider: providers.local },
+			{ passwordHash, provider: Provider.LOCAL },
 			tx
 		);
 		await tokenRepo.create({ ...result, userId: user.id }, tx);
@@ -71,7 +76,11 @@ export async function localLogin({ email, password }) {
 	const isMatch = await bcrypt.compare(password, auth.passwordHash);
 	if (!isMatch) throw new BadRequestError(errorMessage.INVALID_PASSWORD);
 
-	return createJWT({ sub: user.id, email: user.email });
+	return createJWT({
+		sub: user.id,
+		email: user.email,
+		role: user.role,
+	});
 }
 
 async function getConfirmationToken(user) {

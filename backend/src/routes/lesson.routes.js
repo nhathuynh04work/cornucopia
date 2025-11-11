@@ -12,6 +12,7 @@ const router = Router();
 
 router.patch(
 	"/:id",
+	authenticateJWT,
 	validateParams(["id"]),
 	validateSchema(UpdateLessonSchema),
 	lessonController.updateLesson
