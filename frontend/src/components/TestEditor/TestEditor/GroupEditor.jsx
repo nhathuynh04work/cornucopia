@@ -5,7 +5,7 @@ import ItemIndex from "../ItemList/ItemIndex";
 import MediaList from "@/components/Media/MediaList";
 import EditorLayout from "./EditorLayout";
 import { mediaLayouts } from "@/lib/item.config";
-import { useUpdateItem } from "@/hooks/useTestEditorMutation";
+import { useUpdateItem } from "@/hooks/useTestMutation";
 
 function GroupEditor({ item }) {
 	const { mutate: updateItem } = useUpdateItem(item.id);

@@ -1,16 +1,17 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+    provider = "prisma-client-js"
+    output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DB_URL")
+    provider = "postgresql"
+    url      = env("DB_URL")
 }
 
 model User {
     id                     Int                     @id @default(autoincrement())
     email                  String                  @unique @db.VarChar(255)
+    role                   Role                    @default(USER)
     name                   String?                 @db.VarChar(255)
     avatarUrl              String?                 @map("avatar_url") @db.VarChar(255)
     isActive               Boolean?                @default(false) @map("is_active")
@@ -18,54 +19,55 @@ model User {
     updatedAt              DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
     authentication         Authentication[]
     emailVerificationToken EmailVerificationToken?
-    userRole               UserRole?
     flashcardLists         FlashcardList[]
     posts                  Post[]
     studySessions          StudySession[]
     attempts               Attempt[]
     courses                Course[]
     lessonProgress         UserLessonProgress[]
+    enrollments            UserCourseEnrollment[]
+    tests                  Test[]
 
     @@map("users")
 }
 
-model UserRole {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique @map("user_id")
-  role      String   @db.VarChar(50)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_roles")
+enum Role {
+    USER
+    CREATOR
+    ADMIN
 }
 
 model Authentication {
-  id           Int      @id @default(autoincrement())
-  userId       Int      @map("user_id")
-  provider     String   @db.VarChar(50)
-  providerId   String?  @map("provider_id") @db.VarChar(255)
-  passwordHash String?  @map("password_hash") @db.VarChar(255)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           Int      @id @default(autoincrement())
+    userId       Int      @map("user_id")
+    provider     Provider
+    providerId   String?  @map("provider_id") @db.VarChar(255)
+    passwordHash String?  @map("password_hash") @db.VarChar(255)
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerId], map: "authentication_provider_provider_id")
-  @@unique([provider, userId], map: "authentication_provider_user_id")
-  @@map("authentication")
+    @@unique([provider, providerId], map: "authentication_provider_provider_id")
+    @@unique([provider, userId], map: "authentication_provider_user_id")
+    @@map("authentication")
+}
+
+enum Provider {
+    LOCAL
+    GOOGLE
 }
 
 model EmailVerificationToken {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique @map("user_id")
-  token     String   @unique @db.VarChar(255)
-  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
-  used      Boolean? @default(false)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id        Int      @id @default(autoincrement())
+    userId    Int      @unique @map("user_id")
+    token     String   @unique @db.VarChar(255)
+    expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+    used      Boolean? @default(false)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("email_verification_tokens")
+    @@map("email_verification_tokens")
 }
 
 model Media {
@@ -89,15 +91,24 @@ model Media {
 model Test {
     id          Int        @id @default(autoincrement())
     title       String
+    userId      Int
+    status      TestStatus @default(DRAFT)
     description String?
-    timeLimit   Int?       @map("time_limit")
+    timeLimit   Int        @default(1800) @map("time_limit")
     createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
     items       TestItem[]
     media       Media[]    @relation("TestToMedia")
     attempts    Attempt[]
 
-  @@map("tests")
+    @@map("tests")
+}
+
+enum TestStatus {
+    DRAFT
+    PUBLIC
+    ARCHIVED
 }
 
 model TestItem {
@@ -134,26 +145,26 @@ model AnswerOption {
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
     item      TestItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
-  @@map("answer_options")
+    @@map("answer_options")
 }
 
 enum TestItemType {
-  group
-  multiple_choice
-  short_answer
+    GROUP
+    MULTIPLE_CHOICE
+    SHORT_ANSWER
 
-  @@map("enum_test_items_type")
+    @@map("enum_test_items_type")
 }
 
 enum TestItemMediaLayout {
-  // Layout 1: Text, Media, Questions stacked vertically
-  FULL_WIDTH_STACKED
+    // Layout 1: Text, Media, Questions stacked vertically
+    FULL_WIDTH_STACKED
 
-  // Layout 2: [Text + Media] on left, [Questions] on right
-  LEFT_STACKED
+    // Layout 2: [Text + Media] on left, [Questions] on right
+    LEFT_STACKED
 
-  // Layout 3: [Text] on top, [Media] on left, [Questions] on right
-  TEXT_TOP_MEDIA_LEFT
+    // Layout 3: [Text] on top, [Media] on left, [Questions] on right
+    TEXT_TOP_MEDIA_LEFT
 }
 
 model Attempt {
@@ -187,142 +198,146 @@ model AttemptAnswer {
 }
 
 model FlashcardList {
-  id            Int            @id @default(autoincrement())
-  userId        Int            @map("user_id")
-  title         String?
-  description   String?
-  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcards    Flashcard[]
-  studySessions StudySession[]
+    id            Int            @id @default(autoincrement())
+    userId        Int            @map("user_id")
+    title         String
+    description   String?
+    createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+    user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    flashcards    Flashcard[]
+    studySessions StudySession[]
 
-  @@unique([userId, title], map: "uq_user_title")
-  @@map("flashcard_lists")
+    @@map("flashcard_lists")
 }
 
 model Flashcard {
-  id             Int             @id @default(autoincrement())
-  listId         Int             @map("list_id")
-  term           String?
-  definition     String?
-  example        String?
-  imageUrl       String?         @map("image_url")
-  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  list           FlashcardList   @relation(fields: [listId], references: [id], onDelete: Cascade)
-  sessionAnswers SessionAnswer[]
+    id             Int             @id @default(autoincrement())
+    listId         Int             @map("list_id")
+    term           String?
+    definition     String?
+    example        String?
+    imageUrl       String?         @map("image_url")
+    createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    list           FlashcardList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+    sessionAnswers SessionAnswer[]
 
-  @@map("flashcards")
+    @@map("flashcards")
 }
 
 model Topic {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique
-  slug        String      @unique
-  description String?
-  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  posts       PostTopic[]
+    id          Int         @id @default(autoincrement())
+    name        String      @unique
+    slug        String      @unique
+    description String?
+    createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+    posts       PostTopic[]
 
-  @@map("topics")
+    @@map("topics")
 }
 
 model Post {
-  id          Int       @id @default(autoincrement())
-  authorId    Int       @map("author_id")
-  title       String
-  slug        String    @unique
-  content     String
-  status      String    @default("draft") @db.VarChar(20)
-  publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  coverUrl    String?   @map("cover_url")
+    id          Int       @id @default(autoincrement())
+    authorId    Int       @map("author_id")
+    title       String
+    slug        String    @unique
+    content     String
+    status      String    @default("draft") @db.VarChar(20)
+    publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+    createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+    coverUrl    String?   @map("cover_url")
 
-  author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  topics PostTopic[]
-  // Quan hệ ngược Post -> PostChunk
-  chunks PostChunk[] @relation("PostToChunks")
+    author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    topics PostTopic[]
+    // Quan hệ ngược Post -> PostChunk
+    chunks PostChunk[] @relation("PostToChunks")
 
-  @@map("posts")
+    @@map("posts")
 }
 
 model PostTopic {
-  postId     Int      @map("post_id")
-  topicId    Int      @map("topic_id")
-  assignedAt DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
+    postId     Int      @map("post_id")
+    topicId    Int      @map("topic_id")
+    assignedAt DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
 
-  post  Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+    post  Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+    topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  @@id([postId, topicId])
-  @@map("post_topics")
+    @@id([postId, topicId])
+    @@map("post_topics")
 }
 
 model StudySession {
-  id        Int       @id @default(autoincrement())
-  userId    Int       @map("user_id")
-  listId    Int       @map("list_id")
-  startTime DateTime  @map("start_time") @db.Timestamptz(6)
-  endTime   DateTime? @map("end_time") @db.Timestamptz(6)
+    id        Int       @id @default(autoincrement())
+    userId    Int       @map("user_id")
+    listId    Int       @map("list_id")
+    startTime DateTime  @map("start_time") @db.Timestamptz(6)
+    endTime   DateTime? @map("end_time") @db.Timestamptz(6)
 
-  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  list    FlashcardList   @relation(fields: [listId], references: [id], onDelete: Cascade)
-  answers SessionAnswer[]
+    user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    list    FlashcardList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+    answers SessionAnswer[]
 
-  @@map("study_sessions")
+    @@map("study_sessions")
 }
 
 model SessionAnswer {
-  id          Int      @id @default(autoincrement())
-  sessionId   Int      @map("session_id")
-  flashcardId Int      @map("flashcard_id")
-  needRevise  Boolean  @map("need_revise")
-  answerTime  DateTime @default(now()) @map("answer_time") @db.Timestamptz(6)
+    id          Int      @id @default(autoincrement())
+    sessionId   Int      @map("session_id")
+    flashcardId Int      @map("flashcard_id")
+    needRevise  Boolean  @map("need_revise")
+    answerTime  DateTime @default(now()) @map("answer_time") @db.Timestamptz(6)
 
-  session   StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  flashcard Flashcard    @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+    session   StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+    flashcard Flashcard    @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
 
-  @@map("session_answers")
+    @@map("session_answers")
 }
 
 model PostChunk {
-  id        Int      @id @default(autoincrement())
-  postId    Int      @map("post_id")
-  content   String
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-  tsv       Unsupported("tsvector")
+    id        Int                     @id @default(autoincrement())
+    postId    Int                     @map("post_id")
+    content   String
+    createdAt DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
+    tsv       Unsupported("tsvector")
 
-  // Cùng tên quan hệ với phía Post
-  post Post @relation("PostToChunks", fields: [postId], references: [id], onDelete: Cascade)
+    // Cùng tên quan hệ với phía Post
+    post Post @relation("PostToChunks", fields: [postId], references: [id], onDelete: Cascade)
 
-  @@index([postId])
-  @@map("post_chunks")
+    @@index([postId])
+    @@map("post_chunks")
 }
 
 model Course {
-    id          Int      @id @default(autoincrement())
-    userId      Int      @map("user_id")
+    id          Int                    @id @default(autoincrement())
+    userId      Int                    @map("user_id")
     name        String
     description String?
     price       Int
-    coverUrl    String?  @map("cover_url")
-    createdAt   DateTime @default(now()) @map("created_at")
-    updatedAt   DateTime @updatedAt @map("updated_at")
-    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    coverUrl    String?                @map("cover_url")
+    status      CourseStatus           @default(DRAFT)
+    createdAt   DateTime               @default(now()) @map("created_at")
+    updatedAt   DateTime               @updatedAt @map("updated_at")
+    user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
     modules     Module[]
+    enrollments UserCourseEnrollment[]
 
+    @@index([status])
     @@map("courses")
 }
 
 model Module {
-    id        Int      @id @default(autoincrement())
-    courseId  Int      @map("course_id")
+    id        Int           @id @default(autoincrement())
+    courseId  Int           @map("course_id")
     title     String
-    sortOrder Int?     @map("sort_order")
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-    course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    sortOrder Int?          @map("sort_order")
+    status    ContentStatus @default(DRAFT)
+    createdAt DateTime      @default(now()) @map("created_at")
+    updatedAt DateTime      @updatedAt @map("updated_at")
+    course    Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
     lessons   Lesson[]
 
+    @@index([status])
     @@map("modules")
 }
 
@@ -335,11 +350,13 @@ model Lesson {
     textContent String?              @map("text_content")
     videoUrl    String?              @map("video_url")
     sortOrder   Int?                 @map("sort_order")
+    status      ContentStatus        @default(DRAFT)
     createdAt   DateTime             @default(now()) @map("created_at")
     updatedAt   DateTime             @updatedAt @map("updated_at")
     module      Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
     progress    UserLessonProgress[]
 
+    @@index([status])
     @@map("lessons")
 }
 
@@ -360,4 +377,28 @@ model UserLessonProgress {
 
     @@unique([userId, lessonId])
     @@map("user_lesson_progress")
+}
+
+enum CourseStatus {
+    DRAFT
+    PUBLIC
+    UNLISTED
+}
+
+enum ContentStatus {
+    DRAFT
+    PUBLIC
+}
+
+model UserCourseEnrollment {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @map("user_id")
+    courseId  Int      @map("course_id")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, courseId])
+    @@map("user_course_enrollments")
 }

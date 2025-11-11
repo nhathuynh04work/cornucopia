@@ -1,5 +1,5 @@
+import { Provider } from "../generated/prisma/index.js";
 import prisma from "../prisma.js";
-import { providers } from "../utils/constants.js";
 
 export async function create(data, client = prisma) {
 	return client.authentication.create({ data });
@@ -9,7 +9,7 @@ export async function findLocalAuth(userId, client = prisma) {
 	return client.authentication.findUnique({
 		where: {
 			provider_userId: {
-				provider: providers.local,
+				provider: Provider.LOCAL,
 				userId: userId,
 			},
 		},

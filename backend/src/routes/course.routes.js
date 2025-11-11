@@ -12,10 +12,14 @@ const router = Router();
 
 router.get("/", courseController.getCourses);
 
+router.get("/enrolled", authenticateJWT, courseController.getEnrolledCourses);
+
+router.get("/my-courses", authenticateJWT, courseController.getMyCourses);
+
 router.get(
-	"/:id/public",
+	"/:id/info",
 	validateParams(["id"]),
-	courseController.getPublicCourseDetails
+	courseController.getCourseForInfoView
 );
 
 router.get(
@@ -32,6 +36,13 @@ router.get(
 	courseController.getCourseForLearning
 );
 
+router.get(
+	"/:id/enrollment",
+	authenticateJWT,
+	validateParams(["id"]),
+	courseController.getUserCourseEnrollment
+);
+
 router.post(
 	"/",
 	authenticateJWT,
@@ -44,6 +55,13 @@ router.patch(
 	validateParams(["id"]),
 	validateSchema(UpdateCourseSchema),
 	courseController.updateCourse
+);
+
+router.delete(
+	"/:id",
+	authenticateJWT,
+	validateParams(["id"]),
+	courseController.deleteCourse
 );
 
 router.post("/:id/modules", validateParams(["id"]), courseController.addModule);

@@ -4,7 +4,7 @@ function ModalContentGeneral() {
 	const { register } = useFormContext();
 
 	return (
-		<div className="flex-1 p-6 bg-[#f7f7f8] rounded-l-2xl overflow-y-auto text-gray-700 text-sm space-y-6">
+		<div className="flex-1 p-6 bg-[#f7f7f8] rounded-l-2xl overflow-y-auto text-gray-700 text-sm space-y-8">
 			{/* Title field */}
 			<div>
 				<label
@@ -17,7 +17,7 @@ function ModalContentGeneral() {
 					type="text"
 					placeholder="Enter your test title"
 					{...register("title")}
-					className="w-full px-3 py-2 rounded-md border border-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-sm bg-[#f7f7f8]"
+					className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-sm bg-white shadow-sm"
 				/>
 			</div>
 
@@ -33,7 +33,7 @@ function ModalContentGeneral() {
 					rows={5}
 					placeholder="Write a brief description of the test..."
 					{...register("description")}
-					className="w-full px-3 py-2 rounded-md border border-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-sm resize-none bg-[#f7f7f8]"
+					className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-sm resize-none bg-white shadow-sm"
 				/>
 			</div>
 		</div>

@@ -2,7 +2,7 @@ import { useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { debounce } from "lodash";
 import ScoreInput from "./ScoreInput";
-import { useUpdateItem } from "@/hooks/useTestEditorMutation";
+import { useUpdateItem } from "@/hooks/useTestMutation";
 
 export default function GradingShortAnswer({ currentItem }) {
 	const { mutate } = useUpdateItem(currentItem.id);

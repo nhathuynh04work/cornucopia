@@ -5,7 +5,7 @@ import ItemIndex from "../ItemList/ItemIndex";
 import { itemTypeEnum, mediaLayouts } from "@/lib/item.config";
 import MediaList from "@/components/Media/MediaList";
 import EditorLayout from "./EditorLayout"; 
-import { useAddOption, useUpdateItem } from "@/hooks/useTestEditorMutation";
+import { useAddOption, useUpdateItem } from "@/hooks/useTestMutation";
 
 function ItemEditor({ item }) {
 	const { mutate: addOption } = useAddOption(item.id);

@@ -1,40 +1,42 @@
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import * as moduleApi from "../apis/moduleApi";
-import { useMutation } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function useAddLessonMutation(moduleId) {
-	const addLesson = useCourseEditorStore((s) => s.addLesson);
+export function useAddLesson(moduleId) {
+	const queryClient = useQueryClient();
+	const courseId = useCourseEditorStore((s) => s.course.id);
 
 	return useMutation({
 		mutationFn: () => moduleApi.addLesson(moduleId),
-		onSuccess: (lesson) => {
-			toast.success("Lesson added");
-			addLesson(lesson);
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["courses"] });
+			queryClient.invalidateQueries({ queryKey: ["course", courseId] });
 		},
 	});
 }
 
-export function useUpdateModuleMutation(moduleId) {
-	const updateModule = useCourseEditorStore((s) => s.updateModule);
+export function useUpdateModule(moduleId) {
+	const queryClient = useQueryClient();
+	const courseId = useCourseEditorStore((s) => s.course.id);
 
 	return useMutation({
 		mutationFn: (data) => moduleApi.update(moduleId, data),
-		onSuccess: (module) => {
-			toast.success("Module updated");
-			updateModule(module);
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["courses"] });
+			queryClient.invalidateQueries({ queryKey: ["course", courseId] });
 		},
 	});
 }
 
-export function useDeleteModuleMutation(moduleId) {
-	const removeModule = useCourseEditorStore((s) => s.removeModule);
+export function useDeleteModule(moduleId) {
+	const queryClient = useQueryClient();
+	const courseId = useCourseEditorStore((s) => s.course.id);
 
 	return useMutation({
 		mutationFn: () => moduleApi.remove(moduleId),
 		onSuccess: () => {
-			toast.success("Module deleted");
-			removeModule(moduleId);
+			queryClient.invalidateQueries({ queryKey: ["courses"] });
+			queryClient.invalidateQueries({ queryKey: ["course", courseId] });
 		},
 	});
 }

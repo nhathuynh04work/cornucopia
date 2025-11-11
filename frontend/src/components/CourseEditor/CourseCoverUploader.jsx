@@ -3,11 +3,7 @@ import { usePropertyUploader } from "@/hooks/usePropertyUploader";
 import MediaUploader from "../Media/MediaUploader";
 import MediaUploadPreview from "../Media/MediaUploadPreview";
 
-/**
- * A specific component for uploading a Course Cover Image.
- * All logic is handled by the usePropertyUploader hook.
- */
-export default function CourseCoverUploader({ course, onSuccess }) {
+export default function CourseCoverUploader({ course }) {
 	const {
 		isBusy,
 		isUploading,
@@ -19,7 +15,6 @@ export default function CourseCoverUploader({ course, onSuccess }) {
 	} = usePropertyUploader({
 		entityType: "course",
 		entityId: course.id,
-		onSuccessCallback: onSuccess,
 	});
 
 	return (

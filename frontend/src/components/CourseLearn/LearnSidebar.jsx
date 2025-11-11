@@ -20,7 +20,6 @@ function LearnSidebar({
 			}}>
 			<div>
 				{course.modules?.map((module, index) => {
-					// --- 1. Calculate Real Data from Backend ---
 					const totalLessons = module.lessons?.length || 0;
 
 					// Count completed lessons from the 'progress' array
@@ -33,6 +32,7 @@ function LearnSidebar({
 						(acc, l) => acc + (l.duration || 0),
 						0
 					);
+
 					// Convert to minutes
 					const totalTime = Math.round(totalSeconds / 60);
 
@@ -42,14 +42,13 @@ function LearnSidebar({
 						<div
 							key={module.id}
 							className="border-b border-gray-300 last:border-b-0">
-							{/* --- 2. Pass Real Data to ModuleHeader --- */}
 							<ModuleHeader
 								module={module}
 								index={index}
 								isOpen={isOpen}
 								checkedCount={checkedCount}
 								totalLessons={totalLessons}
-								totalTime={totalTime} // Pass total minutes
+								totalTime={totalTime}
 								onClick={() => toggleModule(module.id)}
 							/>
 
@@ -61,7 +60,6 @@ function LearnSidebar({
 											lesson.id
 										);
 
-										// 3. Get Real Completion Status
 										const isCompleted =
 											lesson.progress?.[0]?.isCompleted ??
 											false;
@@ -72,7 +70,7 @@ function LearnSidebar({
 										return (
 											<LessonItem
 												key={lesson.id}
-												courseId={course.id} // 4. Pass courseId for mutation
+												courseId={course.id} 
 												lesson={lesson}
 												lessonNumber={lessonNumber}
 												isCompleted={isCompleted}

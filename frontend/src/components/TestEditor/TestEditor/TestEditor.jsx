@@ -1,6 +1,7 @@
 import ItemEditor from "./ItemEditor";
 import GroupEditor from "./GroupEditor";
 import { useTestEditorStore } from "@/store/testEditorStore";
+import { itemTypeEnum } from "@/lib/item.config";
 
 function TestEditor() {
 	const currentItem = useTestEditorStore((s) => s.getCurrentItem());
@@ -15,7 +16,7 @@ function TestEditor() {
 
 	return (
 		<div className="h-[70%] w-full rounded-xl border bg-gray-50/50 py-14 px-14 overflow-y-auto scroll-container">
-			{currentItem.type === "group" ? (
+			{currentItem.type === itemTypeEnum.GROUP ? (
 				<GroupEditor item={currentItem} />
 			) : (
 				<ItemEditor item={currentItem} />
