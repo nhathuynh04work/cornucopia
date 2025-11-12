@@ -1,4 +1,4 @@
-import { ForbiddenError, UnauthorizedError } from "../utils/AppError";
+import { ForbiddenError, UnauthorizedError } from "../utils/AppError.js";
 
 export function requireRole(...allowedRoles) {
 	return (req, res, next) => {
@@ -9,9 +9,11 @@ export function requireRole(...allowedRoles) {
 		}
 
 		if (!allowedRoles.includes(user.role)) {
-			throw new ForbiddenError("Forbidden");
+			throw new ForbiddenError(
+				"You don't have the privilege to execute this action"
+			);
 		}
-        
+
 		next();
 	};
 }
