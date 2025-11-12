@@ -46,7 +46,7 @@ export function MyTests() {
 	const { filteredTests, isPending, searchTerm } =
 		useFilteredTests(useMyTests);
 
-	if (role !== Role.ADMIN) return <Navigate to="/tests/all" replace />;
+	if (role == Role.USER) return <Navigate to="/tests/all" replace />;
 
 	return (
 		<TestList

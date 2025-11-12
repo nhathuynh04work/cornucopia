@@ -46,7 +46,7 @@ export function MyCourses() {
 	const { filteredCourses, isPending, searchTerm } =
 		useFilteredCourses(useMyCourses);
 
-	if (role !== Role.ADMIN) return <Navigate to="/courses/all" replace />;
+	if (role === Role.USER) return <Navigate to="/courses/all" replace />;
 
 	return (
 		<CourseList
