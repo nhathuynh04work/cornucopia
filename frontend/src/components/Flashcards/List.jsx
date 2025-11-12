@@ -20,7 +20,10 @@ export default function List({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid 
+    grid-cols-[repeat(auto-fill,minmax(15rem,15rem))]
+    justify-start
+    gap-[0.5rem]">
       {prependItem}
       {lists.map((list) => (
         <ListCard key={list.id} list={list} />
