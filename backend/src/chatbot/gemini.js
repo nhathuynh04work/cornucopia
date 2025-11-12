@@ -2,7 +2,7 @@ import "dotenv/config";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const apiKey = process.env.GEMINI_API_KEY;
-const preferredModel = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+const preferredModel = process.env.GEMINI_MODEL || "gemini-2.0-flash-lite";
 
 // danh sách fallback: 2.0-flash -> 2.5-flash -> 1.5-flash-002 -> 1.5-pro-002
 const FALLBACK_MODELS = [
@@ -17,8 +17,8 @@ const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 function toPrompt(query, contextBullets = []) {
   const ctx = contextBullets.filter(Boolean).join("\n- ");
   const guide =
-    "Bạn là trợ lý trích rút từ blog. Trả lời ngắn gọn, đúng trọng tâm. " +
-    "Nếu context không phù hợp với câu hỏi, nói rõ 'không tìm thấy trong Blog/Topic'. (đừng bịa).";
+    "Bạn là trợ lý trích rút từ blog/course của web Cornucopia. Trả lời ngắn gọn, đúng trọng tâm. " +
+    "Nếu context không phù hợp với câu hỏi, nói rõ 'không tìm thấy trong Blog/Course'. (đừng bịa).";
   return [
     guide,
     `Câu hỏi: ${query}`,
@@ -72,22 +72,14 @@ export async function askGemini(query, contextBullets = []) {
   if (!apiKey || !genAI) throw new Error("Missing GEMINI_API_KEY");
   const prompt = toPrompt(query, contextBullets);
 
-  const cacheKey =
-    opts.cacheKey ||
-    `gem:${preferredModel}:${query}:${contextBullets.join("|").slice(0, 512)}`;
-  const cached = getCache(cacheKey);
-  if (cached) return cached;
-
   const errors = [];
   for (const m of FALLBACK_MODELS) {
     try {
       const text = await callOnce(m, prompt);
-      setCache(cacheKey, out);
       return { text, model: m };
     } catch (e) {
       errors.push(`${m}: ${e.message}`);
-      // nếu là fatal 404 thì chuyển ngay model khác, không retry thêm
-      continue;
+      continue; // 404/429 đã xử lý bên trong
     }
   }
   throw new Error(`[Gemini failed] ${errors.join(" | ")}`);

@@ -9,6 +9,8 @@ import { useChat } from "../../hooks/useChat.js";
  *
  * Props:
  * - selectedTopic?: string
+ * - selectedCourseId?: number|string
+ * - selectedCourseName?: string
  * - defaultOpen?: boolean
  * - position?: "right" | "left"
  * - zIndex?: number
@@ -21,6 +23,8 @@ import { useChat } from "../../hooks/useChat.js";
  */
 export default function ChatWidget({
   selectedTopic = "",
+  selectedCourseId,
+  selectedCourseName,
   defaultOpen = false,
   position = "right",
   zIndex = 50,
@@ -55,7 +59,7 @@ export default function ChatWidget({
   useEffect(() => save("useLLM", useLLM), [useLLM]);
 
   const { messages, q, setQ, loading, canSend, ask, inputRef, endRef } =
-    useChat({ selectedTopic, useLLM });
+    useChat({ selectedTopic, selectedCourseId, selectedCourseName, useLLM });
 
   // đóng/mở
   const toggle = useCallback(() => {
@@ -92,6 +96,7 @@ export default function ChatWidget({
   };
 
   const sideClass = position === "left" ? "left-4" : "right-4";
+  const hasCourseCtx = !!(selectedCourseId || selectedCourseName);
 
   return (
     <>
@@ -118,7 +123,10 @@ export default function ChatWidget({
               <div className="h-7 w-7 rounded-lg bg-blue-600 text-white flex items-center justify-center">
                 <ChatButtonIcon className="h-4 w-4" />
               </div>
-              <h3 className="font-semibold">{title}</h3>
+              <h3 className="font-semibold">
+                {title}
+                {hasCourseCtx ? " + Course" : ""}
+              </h3>
             </div>
 
             <div className="flex items-center gap-3">
@@ -148,11 +156,24 @@ export default function ChatWidget({
           <div className="px-3 pt-3 pb-2 overflow-y-auto space-y-3 flex-1">
             {messages.length === 0 && (
               <div className="text-sm text-gray-500 px-1">
-                Hỏi về nội dung đã có trong Blog/Topic. Ví dụ:
-                <ul className="list-disc ml-5 mt-1">
-                  <li>“IELTS là gì và gồm mấy kỹ năng?”</li>
-                  <li>“Skimming khác Scanning thế nào?”</li>
-                </ul>
+                {hasCourseCtx ? (
+                  <>
+                    Hỏi về nội dung trong Blog/Topic hoặc khoá học hiện tại. Ví
+                    dụ:
+                    <ul className="list-disc ml-5 mt-1">
+                      <li>“IELTS là gì và gồm mấy kỹ năng?”</li>
+                      <li>“Skimming khác Scanning thế nào?”</li>
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    Hỏi về nội dung đã có trong Blog/Topic. Ví dụ:
+                    <ul className="list-disc ml-5 mt-1">
+                      <li>“IELTS là gì và gồm mấy kỹ năng?”</li>
+                      <li>“Skimming khác Scanning thế nào?”</li>
+                    </ul>
+                  </>
+                )}
               </div>
             )}
 
@@ -172,7 +193,7 @@ export default function ChatWidget({
 
             {loading && (
               <div className="text-xs text-gray-500 px-1">
-                Đang tìm trong blog…
+                Đang tìm trong {hasCourseCtx ? "blog/khoá học…" : "blog…"}
               </div>
             )}
             <div ref={endRef} />
@@ -188,7 +209,11 @@ export default function ChatWidget({
                 onKeyDown={onKeyDown}
                 onInput={onInput}
                 rows={1}
-                placeholder="Nhập câu hỏi… (Enter để gửi)"
+                placeholder={
+                  hasCourseCtx
+                    ? "Nhập câu hỏi… (ưu tiên nội dung khoá học hiện tại). Enter để gửi"
+                    : "Nhập câu hỏi… (Enter để gửi)"
+                }
                 className="flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 disabled={loading}
               />
