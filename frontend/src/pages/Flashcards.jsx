@@ -1,4 +1,4 @@
-import { getListsOfUser } from "@/apis/listApi";
+import { getListsOfUser, getExploreLists } from "@/apis/listApi";
 import CreateListButton from "@/components/Flashcards/CreateListButton";
 import FlashcardsListsList from "@/components/Flashcards/FlashcardsListsList";
 import { useQuery } from "@tanstack/react-query";
@@ -19,10 +19,10 @@ export function MyFlashcards() {
 		);
 	}
 
-	return (
+  return (
 		<FlashcardsListsList
 			prependItem={<CreateListButton />}
-			lists={lists || []}
+			lists={lists}
 			isPending={isPending}
 			emptyMessage="Bạn chưa có danh sách nào."
 			searchEmptyMessage="Không tìm thấy danh sách phù hợp."
@@ -31,5 +31,25 @@ export function MyFlashcards() {
 }
 
 export function Explore() {
-	return <div>Explore</div>;
+  const {
+    data: lists,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ["lists", "explore"],
+    queryFn: getExploreLists,
+  });
+
+  if (isError) {
+    return <p className="text-center text-red-500">Lỗi khi tải danh sách.</p>;
+  }
+
+  return (
+    <FlashcardsListsList
+      lists={lists}
+      isPending={isPending}
+      emptyMessage="Chưa có danh sách nào từ creator hoặc admin."
+      searchEmptyMessage="Không tìm thấy danh sách phù hợp."
+    />
+  );
 }
