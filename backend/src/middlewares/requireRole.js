@@ -1,4 +1,4 @@
-import { ForbiddenError, UnauthorizedError } from "../utils/AppError";
+import { ForbiddenError, UnauthorizedError } from "../utils/AppError.js";
 
 export function requireRole(...allowedRoles) {
 	return (req, res, next) => {

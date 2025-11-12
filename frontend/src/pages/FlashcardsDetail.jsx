@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFlashcardsDetail } from "../hooks/useFlashcardsDetail";
-import FlashcardView from "../components/FlashCard/FlashcardView.jsx";
-import CardNavigator from "../components/FlashCard/FlashcardNavigator.jsx";
-import CardActions from "../components/FlashCard/FlashcardActions.jsx";
-import CreateCardModal from "../components/FlashCard/CreateCardModal.jsx";
-import EditCardModal from "../components/FlashCard/EditCardModal.jsx";
+import FlashcardView from "../components/FlashcardDetails/FlashcardView.jsx";
+import CardNavigator from "../components/FlashcardDetails/FlashcardNavigator.jsx";
+import CardActions from "../components/FlashcardDetails/FlashcardActions.jsx";
+import CreateCardModal from "../components/FlashcardDetails/CreateCardModal.jsx";
+import EditCardModal from "../components/FlashcardDetails/EditCardModal.jsx";
 import LoadingMessage from "../components/LoadingMessage.jsx";
-import CreateCardBulkModal from "../components/FlashCard/CreateCardBulkModal.jsx";
+import CreateCardBulkModal from "../components/FlashcardDetails/CreateCardBulkModal.jsx";
 import { api } from "../apis/axios";
 import { PlusCircle, ArrowLeft, Pencil, Trash2, Volume2 } from "lucide-react";
 
@@ -32,6 +32,10 @@ export default function FlashcardsDetail() {
   const [showBulkForm, setShowBulkForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
+
+  useEffect(() => {
+    setEditedTitle(title);
+  }, [title]);
 
   if (loading) return <LoadingMessage text="⏳ Đang tải..." />;
 
