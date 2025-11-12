@@ -1,4 +1,3 @@
-// services/rag/summarizer.service.js
 import { cleanFragment } from "./utils.js";
 
 let genAI = null;
@@ -33,26 +32,52 @@ export async function summarize(hits, query, opts = {}) {
   if (!Array.isArray(hits) || hits.length === 0) {
     return {
       answer:
-        "Mình chưa thấy nội dung phù hợp trong Blog/Topic để trả lời câu này.",
+        "Mình chưa thấy nội dung phù hợp trong Blog/Course để trả lời câu này.",
       citations: [],
     };
   }
 
   // Chuẩn bị danh sách citation & nội dung tóm tắt
-  const citations = hits.slice(0, 4).map((h) => ({
-    postId: h.postId,
-    title: h.title,
-    slug: h.slug,
-    snippet: cleanFragment(h.fragment || h.content || "").slice(0, 200),
-    url: `/blog/${h.postId}`,
-  }));
+  const citations = hits.slice(0, 4).map((h) => {
+    // Course
+    if (h.source === "course") {
+      const url = h.lessonId
+        ? `/courses/${h.courseId}/learn?lesson=${h.lessonId}`
+        : `/courses/${h.courseId}/learn`;
+      const title = h.title || "Bài học";
+      return {
+        source: "course",
+        courseId: h.courseId,
+        moduleId: h.moduleId ?? null,
+        lessonId: h.lessonId ?? null,
+        title,
+        snippet: cleanFragment(h.fragment || h.content || "").slice(0, 200),
+        url,
+      };
+    }
+    // Blog mặc định
+    return {
+      source: "blog",
+      postId: h.postId,
+      title: h.title,
+      slug: h.slug,
+      snippet: cleanFragment(h.fragment || h.content || "").slice(0, 200),
+      url: `/blog/${h.postId}`,
+    };
+  });
 
   // Nếu nội dung trích dẫn quá yếu → coi như không đủ thông tin
-  const weak = citations.every((c) => (c.snippet || "").length < 25);
+  const weak = citations.every((c) => {
+    const len = (c.snippet || "").length;
+    // Nếu là nguồn course thì không coi là yếu khi len >= 5
+    if (c.source === "course") return len < 5;
+    // Blog giữ ngưỡng 20 cho an toàn
+    return len < 20;
+  });
   if (weak) {
     return {
       answer:
-        "Mình chưa thấy nội dung phù hợp trong Blog/Topic để trả lời câu này.",
+        "Mình chưa thấy nội dung phù hợp trong Blog/Course để trả lời câu này.",
       citations: [],
     };
   }
@@ -84,10 +109,10 @@ export async function summarize(hits, query, opts = {}) {
       .join("\n");
 
     const prompt = `
-Bạn là trợ lý học tập AI. Trả lời ngắn gọn, đúng trọng tâm,
+Bạn là trợ lý học tập AI của web Cornucopia. Trả lời ngắn gọn, đúng trọng tâm,
 Câu hỏi: ${query}
 
-Dưới đây là nội dung liên quan từ blog:
+Dưới đây là nội dung liên quan từ Cornucopia Blog và Courses:
 ${contextBullets}
 
 Hãy viết lại câu trả lời tự nhiên bằng tiếng Việt (2–5 câu), súc tích, không chèn HTML, không lặp lại nguyên văn.

@@ -43,4 +43,6 @@ router.get(
 	getYearlyStudyStatistic
 );
 
+router.patch("/basic-infos", authenticateJWT, updateUserBasicInfo);
+
 export default router;

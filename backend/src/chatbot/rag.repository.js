@@ -1,5 +1,4 @@
 import prisma from "../prisma.js";
-
 // Config
 const MIN_SCORE = 0.05;
 
@@ -141,4 +140,131 @@ export async function searchChunksILIKE(patterns = [], limit, topicIds = []) {
     ...(topicIds.length ? [patterns, limit, topicIds] : [patterns, limit])
   );
   return normalize(rows);
+}
+
+// ===== Course helpers =====
+export async function findCourseIdsByNames(names = []) {
+  if (!names?.length) return [];
+  const pats = names.map((n) => `%${n}%`);
+  const rows = await prisma.$queryRawUnsafe(
+    `SELECT id FROM courses WHERE unaccent(name) ILIKE ANY($1) LIMIT 20;`,
+    pats
+  );
+  return (rows || []).map((r) => r.id);
+}
+
+function courseSelectCols() {
+  return `
+    cc.id, cc.course_id, cc.module_id, cc.lesson_id, cc.content,
+    (
+      ts_rank(cc.tsv, websearch_to_tsquery('simple', unaccent($1)))
+      + CASE WHEN unaccent(c.name)    ILIKE '%'||unaccent($1)||'%' THEN 0.08 ELSE 0 END
+      + CASE WHEN unaccent(cc.content) ILIKE '%'||unaccent($1)||'%' THEN 0.12 ELSE 0 END
+    ) AS score,
+    ts_headline(
+      'simple',
+      cc.content,
+      websearch_to_tsquery('simple', unaccent($1)),
+      'StartSel="", StopSel="", MaxFragments=2, MinWords=6, MaxWords=18'
+    ) AS fragment,
+    c.name AS course_name,
+    m.title AS module_title,
+    l.title AS lesson_title
+  `;
+}
+
+function normalizeCourse(rows = []) {
+  return (rows || [])
+    .map((r) => ({
+      source: "course",
+      courseId: r.course_id,
+      moduleId: r.module_id ?? null,
+      lessonId: r.lesson_id ?? null,
+      title: r.lesson_title || r.module_title || r.course_name || "(Course)",
+      slug: null,
+      content: String(r.content || ""),
+      fragment: String(r.fragment || ""),
+      score: Number(r.score || 0),
+    }))
+    .filter((r) => r.score >= 0.05)
+    .sort((a, b) => b.score - a.score);
+}
+
+function courseFilterSQL(courseIds) {
+  return courseIds?.length ? `AND cc.course_id = ANY($3)` : ``;
+}
+
+export async function searchCourseChunksFT(query, limit, courseIds = []) {
+  const rows = await prisma.$queryRawUnsafe(
+    `
+    SELECT ${courseSelectCols()}
+    FROM course_chunks cc
+    JOIN courses c ON c.id = cc.course_id
+    LEFT JOIN modules m ON m.id = cc.module_id
+    LEFT JOIN lessons l ON l.id = cc.lesson_id
+    WHERE cc.tsv @@ websearch_to_tsquery('simple', unaccent($1))
+    ${courseFilterSQL(courseIds)}
+    ORDER BY score DESC, cc.id DESC
+    LIMIT $2;
+    `,
+    ...(courseIds.length ? [query, limit, courseIds] : [query, limit])
+  );
+  return normalizeCourse(rows);
+}
+
+export async function searchCourseChunksFT_OR(
+  tokens = [],
+  limit,
+  courseIds = []
+) {
+  const orQ = tokens.join(" OR ");
+  const rows = await prisma.$queryRawUnsafe(
+    `
+    SELECT ${courseSelectCols()}
+    FROM course_chunks cc
+    JOIN courses c ON c.id = cc.course_id
+    LEFT JOIN modules m ON m.id = cc.module_id
+    LEFT JOIN lessons l ON l.id = cc.lesson_id
+    WHERE cc.tsv @@ websearch_to_tsquery('simple', unaccent($1))
+    ${courseFilterSQL(courseIds)}
+    ORDER BY score DESC, cc.id DESC
+    LIMIT $2;
+    `,
+    ...(courseIds.length ? [orQ, limit, courseIds] : [orQ, limit])
+  );
+  return normalizeCourse(rows);
+}
+
+export async function searchCourseChunksILIKE(
+  patterns = [],
+  limit,
+  courseIds = []
+) {
+  const rows = await prisma.$queryRawUnsafe(
+    `
+    WITH hit AS (
+      SELECT
+        cc.id, cc.course_id, cc.module_id, cc.lesson_id, cc.content,
+        (
+          (SELECT COUNT(*) FROM unnest($1::text[]) tok WHERE unaccent(cc.content) ILIKE tok)*0.02
+        + (SELECT COUNT(*) FROM unnest($1::text[]) tok WHERE unaccent(c.name)   ILIKE tok)*0.03
+        ) AS score,
+        NULL::text AS fragment,
+        c.name AS course_name, m.title AS module_title, l.title AS lesson_title
+      FROM course_chunks cc
+      JOIN courses c ON c.id = cc.course_id
+      LEFT JOIN modules m ON m.id = cc.module_id
+      LEFT JOIN lessons l ON l.id = cc.lesson_id
+      WHERE EXISTS (SELECT 1 FROM unnest($1::text[]) tok WHERE unaccent(cc.content) ILIKE tok)
+         OR EXISTS (SELECT 1 FROM unnest($1::text[]) tok WHERE unaccent(c.name)   ILIKE tok)
+      ${courseFilterSQL(courseIds)}
+    ),
+    agg AS (SELECT course_id FROM hit GROUP BY course_id HAVING COUNT(*) >= 2)
+    SELECT h.* FROM hit h JOIN agg a ON a.course_id = h.course_id
+    ORDER BY h.score DESC, h.id DESC
+    LIMIT $2;
+    `,
+    ...(courseIds.length ? [patterns, limit, courseIds] : [patterns, limit])
+  );
+  return normalizeCourse(rows);
 }

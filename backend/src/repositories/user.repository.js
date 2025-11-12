@@ -28,5 +28,5 @@ export async function activate(id, client = prisma) {
 }
 
 export async function update(id, data, client = prisma) {
-	return client.update({ where: { id }, data });
+	return client.user.update({ where: { id }, data });
 }
