@@ -1,14 +1,33 @@
-import StudyHeatmapContainer from "../components/StudyHeatmapContainer";
-import FlashcardsList from "../components/FlashCard/FlashcardsList";
+import { getListsOfUser } from "@/apis/listApi";
+import CreateCard from "@/components/Flashcards/CreateCard";
+import List from "@/components/Flashcards/List";
+import { useQuery } from "@tanstack/react-query";
 
-function Flashcards() {
+export function MyFlashcards() {
+  const {
+    data: lists,
+    isPending,
+    isError,
+  } = useQuery({
+    queryFn: getListsOfUser,
+    queryKey: ["lists"],
+  });
+
+  if (isError) {
+    return <p className="text-center text-red-500">Lỗi khi tải danh sách.</p>;
+  }
+
   return (
-    <div className="p-6 flex flex-col gap-8 max-w-6xl mx-auto">
-        {/* Biểu đồ HeatMap */}
-        <StudyHeatmapContainer />
-        <FlashcardsList />
-    </div>
+    <List
+    prependItem={<CreateCard/>}
+      lists={lists || []}
+      isPending={isPending}
+      emptyMessage="Bạn chưa có danh sách nào."
+      searchEmptyMessage="Không tìm thấy danh sách phù hợp."
+    />
   );
 }
 
-export default Flashcards;
+export function Explore() {
+  return <div>Explore</div>;
+}
