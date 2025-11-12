@@ -1,4 +1,6 @@
+import { useAuth } from "@/contexts/AuthContext";
 import NavButton from "./NavButton";
+import { Role } from "@/lib/constants";
 
 const navItems = [
 	{ name: "Tests", path: "/tests" },
@@ -8,9 +10,16 @@ const navItems = [
 ];
 
 function NavMenu() {
+	const { role } = useAuth();
+
+	const visible =
+		role === Role.ADMIN
+			? [...navItems, { name: "Users", path: "/users" }]
+			: navItems;
+
 	return (
 		<nav className="flex items-center space-x-6">
-			{navItems.map((item) => (
+			{visible.map((item) => (
 				<NavButton
 					key={item.name}
 					to={item.path}

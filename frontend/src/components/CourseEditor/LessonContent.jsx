@@ -6,7 +6,7 @@ import { getReadingTime } from "@/lib/getReadingTime";
 import LessonVideoUploader from "./LessonVideoUploader";
 import LessonTextEditor from "./LessonTextEditor";
 import LessonTypePicker from "./LessonTypePicker";
-import ConfirmationModal from "./ConfirmationModal";
+import ConfirmationModal from "../ConfirmationModal";
 
 export default function LessonContent({ lesson }) {
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
