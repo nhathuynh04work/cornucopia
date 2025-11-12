@@ -1,8 +1,4 @@
 import { Router } from "express";
-import {
-	getStudyStatistic,
-	getYearlyStudyStatistic,
-} from "../controllers/session.controller.js";
 import * as userController from "../controllers/user.controller.js";
 import { authenticateJWT } from "../middlewares/authMiddleware.js";
 import { requireRole } from "../middlewares/requireRole.js";
@@ -35,14 +31,5 @@ router.patch(
 	validateSchema(UpdateRoleSchema),
 	userController.updateRole
 );
-
-router.get("/study-statistics", authenticateJWT, getStudyStatistic);
-router.get(
-	"/study-statistics/yearly",
-	authenticateJWT,
-	getYearlyStudyStatistic
-);
-
-router.patch("/basic-infos", authenticateJWT, updateUserBasicInfo);
 
 export default router;
