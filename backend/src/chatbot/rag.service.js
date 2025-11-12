@@ -36,7 +36,7 @@ export async function chat(query, k = 6, filters = {}, opts = {}) {
   if (!hits.length) {
     return {
       answer:
-        "Mình chưa thấy nội dung phù hợp trong Blog/Topic để trả lời câu này.",
+        "Mình chưa thấy nội dung phù hợp trong Blog/Course để trả lời câu này.",
       citations: [],
     };
   }

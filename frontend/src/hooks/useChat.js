@@ -1,7 +1,12 @@
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { api } from "../apis/axios";
 
-export function useChat({ selectedTopic, useLLM }) {
+export function useChat({
+  selectedTopic,
+  selectedCourseId,
+  selectedCourseName,
+  useLLM,
+}) {
   const [messages, setMessages] = useState([]); // {role, content, citations?}
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,11 +45,19 @@ export function useChat({ selectedTopic, useLLM }) {
     setLoading(true);
 
     try {
+      const filters = {};
+      if (selectedTopic) filters.topicSlugs = [selectedTopic];
+
+      // NEW: ưu tiên Course hiện tại
+      if (selectedCourseId) filters.courseIds = [Number(selectedCourseId)];
+      if (selectedCourseName)
+        filters.courseNames = [String(selectedCourseName)];
+
       const body = {
-        query,
+        q: query,
         k: 6,
         llm: useLLM ? 1 : 0,
-        ...(selectedTopic ? { filters: { topicSlugs: [selectedTopic] } } : {}),
+        ...(Object.keys(filters).length ? { filters } : {}),
       };
 
       const { data } = await api.post("/rag/chat", body);
@@ -64,14 +77,24 @@ export function useChat({ selectedTopic, useLLM }) {
         (serverMsg ? `Server: ${serverMsg}\n` : "") +
         `${e?.message || ""}\n` +
         (status === 404
-          ? "Gợi ý: Sai endpoint. Backend hiện mount POST /rag/chat (hoặc /api/rag/chat nếu dùng proxy)."
-          : "Kiểm tra server có chạy đúng cổng, axios.baseURL và CORS/proxy.");
+          ? "Gợi ý: Sai endpoint. Backend mount POST /rag/chat."
+          : "Kiểm tra server/cổng, axios.baseURL và CORS/proxy.");
       pushError(msg);
     } finally {
       setLoading(false);
       inputRef.current?.focus();
     }
-  }, [q, loading, selectedTopic, useLLM, pushAssistant, pushError, pushUser]);
+  }, [
+    q,
+    loading,
+    selectedTopic,
+    selectedCourseId,
+    selectedCourseName,
+    useLLM,
+    pushAssistant,
+    pushError,
+    pushUser,
+  ]);
 
   const canSend = useMemo(() => !!q.trim() && !loading, [q, loading]);
 
