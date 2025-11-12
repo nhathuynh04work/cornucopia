@@ -5,7 +5,10 @@ import { authenticateJWT } from "../middlewares/authMiddleware.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
 import { CreateCardSchema, UpdateCardSchema } from "../schemas/card.schema.js";
 import { CreateListSchema, UpdateListSchema } from "../schemas/list.schema.js";
+
 const router = Router();
+
+router.get("/explore", listController.getExploreLists);
 
 router.post(
   "/",
@@ -13,8 +16,11 @@ router.post(
   validateSchema(CreateListSchema),
   listController.createList
 );
+
 router.get("/:listId", validateParams(["listId"]), listController.getListInfo);
+
 router.get("/", authenticateJWT, listController.getListsOfUser);
+
 router.delete(
   "/:listId",
   validateParams(["listId"]),
@@ -50,5 +56,6 @@ router.post(
   validateParams(["listId"]),
   listController.createCardsBulk
 );
+
 
 export default router;

@@ -1,3 +1,5 @@
+import { Role } from "../generated/prisma/index.js";
+import prisma from "../prisma.js";
 import * as cardRepo from "../repositories/card.repository.js";
 import * as listRepo from "../repositories/list.repository.js";
 import * as sessionRepo from "../repositories/session.repository.js";
@@ -38,3 +40,17 @@ export async function startSession(listId, userId) {
   return await sessionRepo.startSession(listId, userId);
 }
 
+export async function getExploreLists() {
+  const lists = await prisma.flashcardList.findMany({
+    where: {
+      user: {
+        role: { not: Role.USER },
+      },
+    },
+    include: {
+      user: true,
+      _count: { select: { flashcards: true } },
+    },
+  });
+  return lists;
+}

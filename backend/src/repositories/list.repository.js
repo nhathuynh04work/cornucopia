@@ -40,3 +40,17 @@ export async function updateList(id, data, client = prisma) {
     data,
   });
 }
+
+export async function findListsOfCreatorsAndAdmins(client = prisma) {
+  return client.flashcardList.findMany({
+    where: {
+      user: {
+        role: { in: ["CREATOR", "ADMIN"] },
+      },
+    },
+    include: {
+      user: false,
+    },
+  });
+}
+
