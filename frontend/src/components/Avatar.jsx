@@ -1,4 +1,5 @@
 const avatarSizes = {
+	xs: "w-4 h-4",
 	small: "w-8 h-8",
 	medium: "w-16 h-16",
 	large: "w-32 h-32",
