@@ -30,6 +30,8 @@ import Dashboard from "./pages/Dashboard";
 import TestsLayout from "./layouts/TestsLayout";
 import { AllCourses, EnrolledCourses, MyCourses } from "./pages/Courses";
 import { AllTests, AttemptedTests, MyTests } from "./pages/Tests";
+import UsersLayout from "./layouts/UsersLayout";
+import { Admins, Creators, Stats, Users } from "./pages/Users";
 
 function App() {
 	return (
@@ -88,6 +90,14 @@ function App() {
 						<Route path="admin" element={<MyCourses />} />
 					</Route>
 					<Route path="courses/:id" element={<CourseInfo />} />
+
+					<Route path="/users" element={<UsersLayout />}>
+						<Route index element={<Navigate to="normal" />} />
+						<Route path="normal" element={<Users />} />
+						<Route path="creators" element={<Creators />} />
+						<Route path="admins" element={<Admins />} />
+						<Route path="stats" element={<Stats />} />
+					</Route>
 
 					{/* Other Routes */}
 					<Route path="attempts/:id" element={<AttemptResult />} />
