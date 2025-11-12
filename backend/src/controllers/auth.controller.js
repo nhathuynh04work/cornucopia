@@ -30,6 +30,10 @@ export async function localLogin(req, res) {
 // Google callback
 export async function googleCallback(req, res) {
 	const user = req.user;
-	const token = createJWT({ sub: user.id, email: user.email });
+	const token = createJWT({
+		sub: user.id,
+		email: user.email,
+		role: user.role,
+	});
 	res.redirect(`${env.FRONTEND_URL}/auth/callback?token=${token}`);
 }

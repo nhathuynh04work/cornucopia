@@ -1,4 +1,5 @@
 import { Role } from "../generated/prisma/index.js";
+import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
 
 export async function getUsers({
 	role = Role.USER,
@@ -37,4 +38,17 @@ export async function getUsers({
 		page: Number(page),
 		totalPages: Math.ceil(total / Number(limit)),
 	};
+}
+
+export async function updateRole({ userId, role }) {
+	const user = await prisma.user.findUnique({ where: { id: userId } });
+	if (!user) throw new NotFoundError("User not found");
+
+	if (user.role === Role.ADMIN)
+		throw new ForbiddenError("Cannot change role of an admin");
+
+	return prisma.user.update({
+		where: { id: userId },
+		data: { role },
+	});
 }
