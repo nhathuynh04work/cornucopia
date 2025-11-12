@@ -1,13 +1,35 @@
 import { Router } from "express";
-import { getYearlyStudyStatistic } from "../controllers/session.controller.js";
+import * as userController from "../controllers/user.controller.js";
 import { authenticateJWT } from "../middlewares/authMiddleware.js";
-import { updateUserBasicInfo } from "../controllers/user.controller.js";
+import { requireRole } from "../middlewares/requireRole.js";
+import { validateParams } from "../middlewares/validateParams.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
+import { Role } from "../generated/prisma/index.js";
+import { UpdateRoleSchema } from "../schemas/user.schema.js";
 
 const router = Router();
 
-router.get("/study-statistics/yearly", authenticateJWT, getYearlyStudyStatistic);
+router.get(
+	"/",
+	authenticateJWT,
+	requireRole(Role.ADMIN),
+	userController.getUsers
+);
 
-router.patch("/basic-infos", authenticateJWT, updateUserBasicInfo);
+router.get(
+	"/stats",
+	authenticateJWT,
+	requireRole(Role.ADMIN),
+	userController.getUserStats
+);
+
+router.patch(
+	"/:id",
+	authenticateJWT,
+	requireRole(Role.ADMIN),
+	validateParams(["id"]),
+	validateSchema(UpdateRoleSchema),
+	userController.updateRole
+);
 
 export default router;

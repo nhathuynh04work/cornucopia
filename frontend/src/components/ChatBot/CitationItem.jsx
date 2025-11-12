@@ -2,38 +2,65 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 export default function CitationItem({ c, idx }) {
+  const source = c?.source || (c?.postId ? "blog" : undefined);
   const isExternal = typeof c?.url === "string" && /^https?:\/\//i.test(c.url);
-  const label =
-    c?.title || (c?.postId ? `Bài viết #${c.postId}` : c?.url || "Nguồn");
+
+  // Fallback URL nếu thiếu
+  let href = c?.url || "#";
+  if (!c?.url && source === "blog" && c?.postId) {
+    href = `/blog/${c.postId}`;
+  }
+  if (!c?.url && source === "course" && c?.courseId) {
+    href = `/courses/${c.courseId}/learn${
+      c?.lessonId ? `?lesson=${c.lessonId}` : ""
+    }`;
+  }
+
+  // Nhãn hiển thị
+  const baseLabel =
+    c?.title ||
+    (source === "blog" && c?.postId ? `Bài viết #${c.postId}` : undefined) ||
+    (source === "course" && c?.lessonId
+      ? `Bài học #${c.lessonId}`
+      : source === "course"
+      ? `Khoá học #${c.courseId}`
+      : undefined) ||
+    c?.url ||
+    "Nguồn";
+
+  const prefix = source === "course" ? "📘 Course" : "📝 Blog";
+  const label = `${prefix} (${idx + 1}): ${baseLabel}`;
+
+  const snippet = c?.snippet ? String(c.snippet) : "";
 
   return (
     <div className="flex items-start gap-2">
-      <span className="opacity-60">[{idx + 1}]</span>
+      {/* đánh số đã có trong label */}
       {isExternal ? (
         <a
-          href={c.url}
+          href={href}
           target="_blank"
           rel="noreferrer"
           className="text-blue-600 hover:underline"
-          title={label}
+          title={baseLabel}
         >
           {label}
         </a>
       ) : (
         <Link
-          to={c.url || (c.postId ? `/blog/${c.postId}` : "#")}
+          to={href}
           className="text-blue-600 hover:underline"
-          title={label}
+          title={baseLabel}
         >
           {label}
         </Link>
       )}
-      {c?.snippet ? (
+      {snippet && (
         <>
           <span className="opacity-60">—</span>
-          <span className="line-clamp-1">{c.snippet}</span>
+          <span className="line-clamp-1">{snippet}</span>
         </>
-      ) : null}
+      )}
     </div>
   );
 }

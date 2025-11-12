@@ -3,6 +3,7 @@ import { NotFoundError } from "../utils/AppError.js";
 import { defaultPost } from "../utils/constants.js";
 import * as postRepo from "../repositories/post.repository.js";
 import * as ragService from "../chatbot/rag.service.js";
+
 export async function createDefaultPost(authorId) {
   const slug = `default-post-${Date.now()}`;
   const post = await postRepo.createPost({ ...defaultPost, authorId, slug });
