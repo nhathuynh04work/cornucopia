@@ -1,5 +1,7 @@
 import { api } from "@/apis/axios";
-import UserDashboard from "@/components/Dashboard/UserDashboard";
+import AdminDashboard from "@/components/Dashboard/AdminDashboard/AdminDashboard";
+import CreatorDashboard from "@/components/Dashboard/CreatorDashboard/CreatorDashboard";
+import UserDashboard from "@/components/Dashboard/UserDashboard/UserDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Role } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
@@ -47,8 +49,8 @@ function Dashboard() {
 		);
 	}
 
-	if (role === Role.ADMIN) return <p>Implement later</p>;
-	if (role === Role.CREATOR) return <p>Implement later</p>;
+	if (role === Role.ADMIN) return <AdminDashboard data={data} />;
+	if (role === Role.CREATOR) return <CreatorDashboard data={data} />;
 
 	return <UserDashboard data={data} />;
 }

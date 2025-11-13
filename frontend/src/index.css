@@ -65,7 +65,6 @@ button:disabled {
 
 /* Scroll container that shows scrollbar above content, not beside it */
 .scroll-container {
-  display: block;
   overflow-y: auto;
   scrollbar-gutter: stable overlay !important; /* overlay scrollbar that doesn't shift layout */
   scrollbar-width: thin;
