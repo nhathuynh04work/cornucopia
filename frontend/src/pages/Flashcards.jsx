@@ -1,9 +1,11 @@
 import { getListsOfUser, getExploreLists } from "@/apis/listApi";
 import CreateListButton from "@/components/Flashcards/CreateListButton";
 import FlashcardsListsList from "@/components/Flashcards/FlashcardsListsList";
+import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 
 export function MyFlashcards() {
+  const {user} = useAuth();
 	const {
 		data: lists,
 		isPending,
@@ -11,7 +13,10 @@ export function MyFlashcards() {
 	} = useQuery({
 		queryFn: getListsOfUser,
 		queryKey: ["lists"],
+    enabled: !!user 
 	});
+
+  if(!user) return <p className="text-center text-500">Vui lòng đăng nhập để có thể tạo danh sách</p>
 
 	if (isError) {
 		return (
