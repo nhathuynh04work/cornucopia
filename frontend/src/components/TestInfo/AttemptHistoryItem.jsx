@@ -1,30 +1,8 @@
+import { formatTime, formatVNDateTime } from "@/lib/text";
 import { Clock, CheckCircle, ExternalLink } from "lucide-react";
 import { Link } from "react-router";
 
-// Helper function to format time
-const formatTime = (totalSeconds) => {
-	if (totalSeconds === null || totalSeconds === undefined) return "N/A";
-	const minutes = Math.floor(totalSeconds / 60);
-	const seconds = totalSeconds % 60;
-	return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-};
-
-// Helper function to format the date
-const formatDate = (dateString) => {
-	const date = new Date(dateString);
-	return date
-		.toLocaleString("en-US", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "numeric",
-			minute: "2-digit",
-			hour12: true,
-		})
-		.replace(",", " at");
-};
-
-function AttemptHistoryItem({ attempt, index }) {
+function AttemptHistoryItem({ attempt }) {
 	const correct = attempt.correctCount ?? 0;
 	const wrong = attempt.wrongCount ?? 0;
 	const unanswered = attempt.unansweredCount ?? 0;
@@ -38,7 +16,7 @@ function AttemptHistoryItem({ attempt, index }) {
 			{/* Top row: Attempt # and Open Icon */}
 			<div className="flex justify-between items-center mb-3">
 				<p className="text-sm font-semibold text-purple-700">
-					Attempt {index}
+					{attempt.test.title}
 				</p>
 				<ExternalLink className="w-4 h-4 text-gray-500" />
 			</div>
@@ -60,7 +38,7 @@ function AttemptHistoryItem({ attempt, index }) {
 
 			{/* Date row */}
 			<p className="text-xs text-gray-500">
-				{formatDate(attempt.createdAt)}
+				{formatVNDateTime(attempt.createdAt)}
 			</p>
 		</Link>
 	);

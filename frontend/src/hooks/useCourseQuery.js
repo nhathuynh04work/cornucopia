@@ -1,6 +1,7 @@
 import * as courseApi from "@/apis/courseApi";
 import { useAuth } from "@/contexts/AuthContext";
 import { Role } from "@/lib/constants";
+import { queryDefaults } from "@/lib/react-query.config";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -9,6 +10,7 @@ export function useCoursesQuery() {
 	return useQuery({
 		queryKey: ["courses"],
 		queryFn: courseApi.getCourses,
+		...queryDefaults,
 	});
 }
 
@@ -20,6 +22,7 @@ export function useCourseInfoView(courseId) {
 		queryKey: ["course", numericCourseId, "info-view", user?.id],
 		queryFn: () => courseApi.getCourseForInfoView(numericCourseId),
 		enabled: !!numericCourseId,
+		...queryDefaults,
 	});
 }
 
@@ -31,7 +34,7 @@ export function useEnrollmentStatus(courseId) {
 		queryKey: ["course", numericCourseId, "enrollment", user?.id],
 		queryFn: () => courseApi.getEnrollmentStatus(numericCourseId),
 		enabled: !!numericCourseId && !!user,
-		staleTime: 1000 * 60 * 5,
+		...queryDefaults,
 	});
 }
 
@@ -43,6 +46,7 @@ export function useCourseEditorQuery(courseId) {
 		queryKey: ["course", numericCourseId, "edit"],
 		queryFn: () => courseApi.getCourseForEditor(numericCourseId),
 		enabled: !!numericCourseId,
+		...queryDefaults,
 	});
 
 	useEffect(() => {
@@ -61,6 +65,7 @@ export function useCourseLearnQuery(courseId) {
 		queryKey: ["course", numericCourseId, "learn"],
 		queryFn: () => courseApi.getCourseForLearning(numericCourseId),
 		enabled: !!numericCourseId,
+		...queryDefaults,
 	});
 }
 
@@ -71,6 +76,7 @@ export function useEnrolledCourses() {
 		queryKey: ["courses", "enrolled", user?.id],
 		queryFn: courseApi.getEnrolledCourses,
 		enabled: !!user,
+		...queryDefaults,
 	});
 }
 
@@ -81,5 +87,6 @@ export function useMyCourses() {
 		queryKey: ["courses", "my-courses", user?.id],
 		queryFn: courseApi.getMyCourses,
 		enabled: !!user && role !== Role.USER,
+		...queryDefaults,
 	});
 }

@@ -35,66 +35,66 @@ import UsersLayout from "./layouts/UsersLayout";
 import { Admins, Creators, Stats, Users } from "./pages/Users";
 
 function App() {
-  return (
-    <>
-      <Routes>
-        {/* --- Routes Inside Main Layout --- */}
-        <Route element={<Layout />}>
-          <Route index element={<Navigate to="dashboard" />} />
-          <Route path="landing" element={<Landing />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="signup" element={<Signup />} />
-          <Route path="login" element={<Login />} />
+	return (
+		<>
+			<Routes>
+				{/* --- Routes Inside Main Layout --- */}
+				<Route element={<Layout />}>
+					<Route index element={<Navigate to="dashboard" />} />
+					<Route path="landing" element={<Landing />} />
+					<Route path="dashboard" element={<Dashboard />} />
+					<Route path="signup" element={<Signup />} />
+					<Route path="login" element={<Login />} />
 
-          {/* Profile Routes */}
-          <Route path="profile" element={<Profile />}>
-            <Route index element={<ProfileInfo />} />
-            <Route path="edit" element={<ProfileEdit />} />
-            <Route path="security" element={<ProfileSecurity />} />
-            <Route path="stats" element={<ProfileStats />} />
-          </Route>
+					{/* Profile Routes */}
+					<Route path="profile" element={<Profile />}>
+						<Route index element={<ProfileInfo />} />
+						<Route path="edit" element={<ProfileEdit />} />
+						<Route path="security" element={<ProfileSecurity />} />
+						<Route path="stats" element={<ProfileStats />} />
+					</Route>
 
-          {/* Blog Routes */}
-          <Route path="blog" element={<Blog />} />
-          <Route path="blog/:id" element={<BlogDetail />} />
-          <Route path="blog/:id/:slug" element={<BlogDetail />} />
-          <Route path="blog/:id/edit" element={<BlogEditor />} />
+					{/* Blog Routes */}
+					<Route path="blog" element={<Blog />} />
+					<Route path="blog/:id" element={<BlogDetail />} />
+					<Route path="blog/:id/:slug" element={<BlogDetail />} />
+					<Route path="blog/:id/edit" element={<BlogEditor />} />
 
-          {/* Topic Routes */}
-          <Route path="topics/:slug" element={<TopicPage />} />
+					{/* Topic Routes */}
+					<Route path="topics/:slug" element={<TopicPage />} />
 
-          {/* Test Routes */}
-          <Route path="/tests" element={<TestsLayout />}>
-            <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<AllTests />} />
-            <Route path="attempted" element={<AttemptedTests />} />
-            <Route path="admin" element={<MyTests />} />
-          </Route>
-          <Route path="tests/:id" element={<TestInfo />} />
+					{/* Test Routes */}
+					<Route path="/tests" element={<TestsLayout />}>
+						<Route index element={<Navigate to="all" replace />} />
+						<Route path="all" element={<AllTests />} />
+						<Route path="attempted" element={<AttemptedTests />} />
+						<Route path="admin" element={<MyTests />} />
+					</Route>
+					<Route path="tests/:id" element={<TestInfo />} />
 
-          {/* Flashcard Routes */}
-          <Route path="flashcards" element={<FlashcardsLayout />}>
-            <Route index element={<Navigate to="my" replace />} />
-            <Route path="my" element={<MyFlashcards />} />
-            <Route path="explore" element={<Explore />} />
-          </Route>
-          <Route
-            path="flashcards/:listId/edit"
-            element={<FlashcardsDetail />}
-          />
-          <Route
-            path="flashcards/:listId/practice"
-            element={<FlashcardPractice />}
-          />
+					{/* Flashcard Routes */}
+					<Route path="flashcards" element={<FlashcardsLayout />}>
+						<Route index element={<Navigate to="my" replace />} />
+						<Route path="my" element={<MyFlashcards />} />
+						<Route path="explore" element={<Explore />} />
+					</Route>
+					<Route
+						path="flashcards/:listId/edit"
+						element={<FlashcardsDetail />}
+					/>
+					<Route
+						path="flashcards/:listId/practice"
+						element={<FlashcardPractice />}
+					/>
 
-          {/* Courses Routes */}
-          <Route path="/courses" element={<CoursesLayout />}>
-            <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<AllCourses />} />
-            <Route path="enrolled" element={<EnrolledCourses />} />
-            <Route path="admin" element={<MyCourses />} />
-          </Route>
-          <Route path="courses/:id" element={<CourseInfo />} />
+					{/* Courses Routes */}
+					<Route path="/courses" element={<CoursesLayout />}>
+						<Route index element={<Navigate to="all" replace />} />
+						<Route path="all" element={<AllCourses />} />
+						<Route path="enrolled" element={<EnrolledCourses />} />
+						<Route path="admin" element={<MyCourses />} />
+					</Route>
+					<Route path="courses/:id" element={<CourseInfo />} />
 
 					<Route path="/users" element={<UsersLayout />}>
 						<Route index element={<Navigate to="normal" />} />
@@ -108,21 +108,21 @@ function App() {
 					<Route path="attempts/:id" element={<AttemptResult />} />
 				</Route>
 
-        {/* --- Routes Outside Main Layout --- */}
-        <Route path="tests/:id/edit" element={<TestEdit />} />
-        <Route path="tests/:id/attempt" element={<TestAttempt />} />
-        <Route path="courses/:id/learn" element={<CourseLearn />} />
-        <Route path="courses/:id/edit" element={<CourseEdit />} />
-        <Route path="confirm" element={<Confirm />} />
-        <Route path="auth/callback" element={<AuthCallback />} />
+				{/* --- Routes Outside Main Layout --- */}
+				<Route path="tests/:id/edit" element={<TestEdit />} />
+				<Route path="tests/:id/attempt" element={<TestAttempt />} />
+				<Route path="courses/:id/learn" element={<CourseLearn />} />
+				<Route path="courses/:id/edit" element={<CourseEdit />} />
+				<Route path="confirm" element={<Confirm />} />
+				<Route path="auth/callback" element={<AuthCallback />} />
 
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+				<Route path="*" element={<Navigate to="/" />} />
+			</Routes>
 
-      {/* Toaster should be outside <Routes> */}
-      <Toaster position="bottom-center" />
-    </>
-  );
+			{/* Toaster should be outside <Routes> */}
+			<Toaster position="bottom-center" />
+		</>
+	);
 }
 
 export default App;

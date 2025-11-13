@@ -22,13 +22,3 @@ export async function findById(id, client = prisma) {
 	});
 }
 
-export async function findManyByTestIdAndUserId(
-	testId,
-	userId,
-	client = prisma
-) {
-	return client.attempt.findMany({
-		where: { testId, userId },
-		orderBy: { createdAt: "desc" },
-	});
-}

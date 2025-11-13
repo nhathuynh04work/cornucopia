@@ -3,7 +3,7 @@ import { Role } from "../generated/prisma/index.js";
 
 const RoleSchema = z.enum(Role);
 
-const UserSchema = z.object({
+export const UserSchema = z.object({
 	email: z.email(),
 	name: z.string().optional(),
 	role: RoleSchema,
@@ -11,6 +11,10 @@ const UserSchema = z.object({
 	isActive: z.boolean(),
 });
 
-export const UpdateUserInfoSchema = UserSchema.omit({ role: true }).partial();
+export const UpdateUserInfoSchema = z.object({
+	name: z.string().max(100).optional(),
+});
 
-export const UpdateRoleSchema = UserSchema.pick({ role: true });
+export const UpdateRoleSchema = z.object({
+	role: RoleSchema,
+});
