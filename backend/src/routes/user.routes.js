@@ -16,6 +16,8 @@ router.get(
 	userController.getUsers
 );
 
+router.get("/me/dashboard", authenticateJWT, userController.getDashboardData);
+
 router.get(
 	"/stats",
 	authenticateJWT,
@@ -25,6 +27,14 @@ router.get(
 
 router.patch(
 	"/:id",
+	authenticateJWT,
+	validateParams(["id"]),
+	validateSchema(UpdateRoleSchema),
+	userController.updateRole
+);
+
+router.patch(
+	"/:id/role",
 	authenticateJWT,
 	requireRole(Role.ADMIN),
 	validateParams(["id"]),

@@ -2,7 +2,6 @@ import { randomUUID } from "crypto";
 import { getUploadURL } from "../config/s3.js";
 import * as mediaRepo from "../repositories/media.repository.js";
 import * as userRepo from "../repositories/user.repository.js";
-import * as courseRepo from "../repositories/course.repository.js";
 import * as lessonRepo from "../repositories/lesson.repository.js";
 import * as s3 from "../config/s3.js";
 import { entityEnum } from "../schemas/media.schema.js";
@@ -13,6 +12,7 @@ import {
 } from "../utils/AppError.js";
 import { errorMessage } from "../utils/constants.js";
 import { env } from "../config/env.js";
+import prisma from "../prisma.js";
 
 function urlToS3Key(url) {
 	if (!url) return null;
@@ -60,9 +60,14 @@ export async function setEntityProperty({
 		if (entityType === entityEnum.COURSE) {
 			// FIX ME: ownership check
 
-			const course = await courseRepo.findById(entityId);
+			const course = await prisma.course.findUnique({
+				where: { id: entityId },
+			});
 			oldKey = urlToS3Key(course.coverUrl);
-			await courseRepo.update(entityId, { coverUrl: url });
+			await prisma.course.update({
+				where: { id: entityId },
+				data: { coverUrl: url },
+			});
 		}
 
 		// CASE: lesson

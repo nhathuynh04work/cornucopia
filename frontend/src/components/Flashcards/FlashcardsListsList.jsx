@@ -1,12 +1,13 @@
 import FlashcardsListCard from "./FlashcardsListCard";
 
-export default function List({
+export default function FlashcardsListsList({
 	lists,
 	isPending,
 	searchTerm,
 	emptyMessage,
 	searchEmptyMessage,
 	prependItem,
+	className,
 }) {
 	if (isPending) {
 		return (
@@ -22,7 +23,12 @@ export default function List({
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+		<div
+			className={`${
+				className
+					? className
+					: "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"
+			}`}>
 			{prependItem}
 			{lists.map((list) => (
 				<FlashcardsListCard key={list.id} list={list} />

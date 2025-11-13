@@ -5,6 +5,13 @@ export async function getUsers(req, res) {
 	res.status(200).json(result);
 }
 
+export async function getDashboardData(req, res) {
+	const userId = req.user.id;
+	const data = await userService.getDashboardData({ userId });
+
+	res.status(200).json(data);
+}
+
 export async function updateRole(req, res) {
 	const userId = req.params.id;
 	const role = req.body.role;

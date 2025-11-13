@@ -14,6 +14,7 @@ export default function CourseCard({ course }) {
 
 	const enrollments = course._count?.enrollments || 0;
 	const instructor = course.user;
+	const isEnrolled = typeof course.progress === "number";
 
 	return (
 		<Link
@@ -30,7 +31,6 @@ export default function CourseCard({ course }) {
 					alt={course.name}
 					className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
 				/>
-
 				{isAdmin && (
 					<div className="absolute top-2 left-3">
 						<StatusBadge status={course.status} size="xs" />
@@ -53,10 +53,20 @@ export default function CourseCard({ course }) {
 				</p>
 
 				<div className="flex justify-between items-center mt-3 pt-2">
-					<p className="text-xs font-semibold text-gray-900">
-						${(course.price / 100).toFixed(2)}
-					</p>
-					<div className="flex items-center gap-1 text-gray-500">
+					{isEnrolled ? (
+						<div className="w-1/2 bg-gray-100 h-1 rounded-full overflow-hidden mr-2">
+							<div
+								className="bg-purple-500 h-1 rounded-full transition-all duration-500"
+								style={{ width: `${course.progress}%` }}
+							/>
+						</div>
+					) : (
+						<p className="text-xs font-semibold text-gray-900 mr-2">
+							${(course.price / 100).toFixed(2)}
+						</p>
+					)}
+
+					<div className="flex items-center gap-1 text-gray-500 flex-shrink-0">
 						<Users className="w-3.5 h-3.5" />
 						<span className="text-xs font-medium">
 							{enrollments}
