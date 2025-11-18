@@ -11,9 +11,6 @@ export default function AdminActions() {
 					Manage Users
 				</button>
 				<button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-4 rounded-lg text-md">
-					Manage Topics (Tags)
-				</button>
-				<button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-4 rounded-lg text-md">
 					Manage Creators
 				</button>
 			</div>

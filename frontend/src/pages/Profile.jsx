@@ -41,7 +41,7 @@ function Profile() {
 			<div className="w-5/6 mx-auto grid grid-cols-10 grid-rows-3 border border-gray-300">
 				<div className="col-span-2 row-span-3 flex flex-col items-center border-r border-gray-300">
 					<div className="p-4 flex flex-col items-center space-y-2">
-						<Avatar size="large" />
+						<Avatar size="lg" />
 						<span className="font-semibold text-lg">
 							{user.name}
 						</span>

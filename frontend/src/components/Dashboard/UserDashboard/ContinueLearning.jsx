@@ -1,23 +1,22 @@
-import React from "react";
-import CourseProgressCard from "./CourseProgressCard";
+import CourseCard from "@/components/Courses/CourseCard";
 
-export default function ContinueLearning({ courses, onResume }) {
+export default function ContinueLearning({ courses }) {
 	return (
 		<section>
 			<h2 className="text-xl font-semibold text-gray-700 mb-5">
 				Continue Learning
 			</h2>
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-1 pr-2">
+			<div className="flex gap-6 p-1 pb-4 snap-x scroll-container">
 				{courses?.length > 0 ? (
 					courses.map((course) => (
-						<CourseProgressCard
+						<div
 							key={course.id}
-							course={course}
-							onResume={onResume}
-						/>
+							className="w-[300px] flex-shrink-0 snap-start">
+							<CourseCard course={course} />
+						</div>
 					))
 				) : (
-					<p className="text-gray-500 col-span-2">
+					<p className="text-gray-500">
 						You are not enrolled in any courses yet.
 					</p>
 				)}

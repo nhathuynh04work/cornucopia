@@ -4,12 +4,16 @@ import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function ActivityChart({ attemptsData = [] }) {
-	const passing = attemptsData.filter((a) => a.score >= 80).length;
-	const improving = attemptsData.filter(
+export default function ActivityChart({ attempts = [] }) {
+	const processed = attempts.map((attempt) => ({
+		score: (attempt.scoredPoints / attempt.totalPossiblePoints) * 100,
+	}));
+
+	const passing = processed.filter((a) => a.score >= 80).length;
+	const improving = processed.filter(
 		(a) => a.score >= 50 && a.score < 80
 	).length;
-	const needsReview = attemptsData.filter((a) => a.score < 50).length;
+	const needsReview = processed.filter((a) => a.score < 50).length;
 
 	const data = {
 		labels: [

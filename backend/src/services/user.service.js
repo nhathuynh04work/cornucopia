@@ -1,6 +1,12 @@
 import prisma from "../prisma.js";
-import { ContentStatus, Role, TestStatus } from "../generated/prisma/index.js";
+import {
+	ContentStatus,
+	CourseStatus,
+	Role,
+	TestStatus,
+} from "../generated/prisma/index.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
+import { calculateCourseProgress } from "../utils/calculate.js";
 
 export async function getUsers({
 	role = Role.USER,
@@ -55,133 +61,155 @@ export async function getDashboardData({ userId }) {
 }
 
 export async function getDashboardDataForUser({ userId }) {
-	// We run all queries in parallel using a transaction
 	const [
-		enrollmentData,
-		lessonProgressData,
-		recentAttemptsData,
-		myFlashcardListsData,
+		enrolledCoursesData,
+		recentTestAttempts,
+		myFlashcardLists,
 		discoverCoursesData,
 		discoverTestsData,
 		discoverBlogPostsData,
 		discoverFlashcardsData,
 	] = await prisma.$transaction([
-		// 1. Get user's enrolled courses (limited to 5)
-		prisma.userCourseEnrollment.findMany({
-			where: { userId },
-			take: 5,
-			orderBy: { createdAt: "desc" },
+		// ENROLLED COURSES
+		prisma.course.findMany({
+			where: {
+				enrollments: {
+					some: {
+						userId: userId,
+					},
+				},
+			},
 			include: {
-				course: {
-					include: {
-						user: {
-							// The course creator
-							select: { name: true },
-						},
-						modules: {
-							// Get all modules and lessons in order
-							orderBy: { sortOrder: "asc" },
-							include: {
-								lessons: {
-									orderBy: { sortOrder: "asc" },
-									select: { id: true, title: true },
+				user: {
+					select: {
+						id: true,
+						name: true,
+						avatarUrl: true,
+					},
+				},
+				modules: {
+					where: { status: ContentStatus.PUBLIC },
+					select: {
+						lessons: {
+							where: { status: ContentStatus.PUBLIC },
+							select: {
+								id: true,
+								progress: {
+									where: { userId },
+									select: { isCompleted: true },
 								},
 							},
 						},
 					},
 				},
+				_count: {
+					select: { enrollments: true },
+				},
 			},
 		}),
 
-		// 2. Get all of the user's completed lesson IDs for progress calculation
-		prisma.userLessonProgress.findMany({
-			where: {
-				userId,
-				isCompleted: true,
-			},
-			select: { lessonId: true },
-		}),
-
-		// 3. Get user's 6 most recent test attempts
+		// ATTEMPTS
 		prisma.attempt.findMany({
 			where: { userId },
-			take: 6, // For a 2 or 3-col grid
+			take: 2,
 			orderBy: { createdAt: "desc" },
-			select: {
-				id: true,
-				createdAt: true,
-				scoredPoints: true,
-				totalPossiblePoints: true,
+			include: {
 				test: {
 					select: { title: true },
 				},
 			},
 		}),
 
-		// 4. Get user's 6 most recent personal flashcard lists
+		// FLASHCARD LISTS
 		prisma.flashcardList.findMany({
 			where: { userId },
-			take: 6,
+			take: 4,
 			orderBy: { createdAt: "desc" },
 			select: {
 				id: true,
 				title: true,
+				user: true,
 				_count: {
 					select: { flashcards: true },
 				},
 			},
 		}),
 
-		// 5. Discover: New Courses (that user is NOT enrolled in)
+		// DISCOVER: COURSES
 		prisma.course.findMany({
 			where: {
-				status: "PUBLIC",
+				status: CourseStatus.PUBLIC,
 				NOT: {
 					enrollments: {
 						some: { userId },
 					},
 				},
 			},
-			take: 3,
+			take: 8,
 			orderBy: { createdAt: "desc" },
 			select: {
 				id: true,
 				name: true,
-				user: { select: { name: true } }, // Creator
-				modules: {
-					// Need this to count lessons
+				coverUrl: true,
+				price: true,
+				status: true,
+				user: {
 					select: {
-						_count: { select: { lessons: true } },
+						name: true,
+						avatarUrl: true,
+					},
+				},
+				_count: {
+					select: { enrollments: true },
+				},
+			},
+		}),
+
+		// DISCOVER: TESTS
+		prisma.test.findMany({
+			where: { status: TestStatus.PUBLIC },
+			take: 10,
+			orderBy: { createdAt: "desc" },
+			select: {
+				id: true,
+				title: true,
+				status: true,
+				timeLimit: true,
+				user: {
+					select: {
+						name: true,
+						avatarUrl: true,
+					},
+				},
+				_count: {
+					select: {
+						attempts: true,
+						items: true,
 					},
 				},
 			},
 		}),
 
-		// 6. Discover: New Public Tests
-		prisma.test.findMany({
-			where: { status: "PUBLIC" },
-			take: 3,
-			orderBy: { createdAt: "desc" },
-			select: {
-				id: true,
-				title: true,
-				user: { select: { name: true } }, // Creator
-			},
-		}),
-
-		// 7. Discover: New Blog Posts
+		// DISCOVER: POSTS
 		prisma.post.findMany({
 			where: { status: "PUBLIC" },
-			take: 3,
+			take: 8,
 			orderBy: { publishedAt: "desc" },
 			select: {
 				id: true,
 				title: true,
 				slug: true,
-				author: { select: { name: true } },
+				publishedAt: true,
+				createdAt: true,
+				coverUrl: true,
+				author: {
+					select: {
+						name: true,
+						avatarUrl: true,
+					},
+				},
 				topics: {
-					take: 3, // Limit tags per post
-					include: {
+					select: {
 						topic: {
 							select: { name: true },
 						},
@@ -190,7 +218,7 @@ export async function getDashboardDataForUser({ userId }) {
 			},
 		}),
 
-		// 8. Discover: Public Flashcards (from Creators/Admins)
+		// DISCOVER: FLASHCARD LISTS
 		prisma.flashcardList.findMany({
 			where: {
 				user: {
@@ -199,12 +227,17 @@ export async function getDashboardDataForUser({ userId }) {
 					},
 				},
 			},
-			take: 3,
+			take: 10,
 			orderBy: { createdAt: "desc" },
 			select: {
 				id: true,
 				title: true,
-				user: { select: { name: true } },
+				user: {
+					select: {
+						name: true,
+						avatarUrl: true,
+					},
+				},
 				_count: {
 					select: { flashcards: true },
 				},
@@ -212,132 +245,25 @@ export async function getDashboardDataForUser({ userId }) {
 		}),
 	]);
 
-	// --- 1. Process Enrolled Courses ---
-	const completedLessonIds = new Set(
-		lessonProgressData.map((p) => p.lessonId)
-	);
-
-	const enrolledCourses = enrollmentData.map((enrollment) => {
-		const { course } = enrollment;
-		const allLessons = course.modules.flatMap((module) => module.lessons);
-		const totalLessons = allLessons.length;
-
-		let completedLessons = 0;
-		let lastCompletedLesson = null;
-
-		// Find progress and last completed lesson
-		for (const lesson of allLessons) {
-			if (completedLessonIds.has(lesson.id)) {
-				completedLessons++;
-				lastCompletedLesson = lesson;
-			}
-		}
-
-		// Determine the next lesson
-		let nextLesson = null;
-		if (lastCompletedLesson) {
-			const lastCompletedIndex = allLessons.findIndex(
-				(l) => l.id === lastCompletedLesson.id
-			);
-			// Check if there is a lesson after the last completed one
-			if (
-				lastCompletedIndex > -1 &&
-				lastCompletedIndex + 1 < allLessons.length
-			) {
-				nextLesson = allLessons[lastCompletedIndex + 1];
-			}
-		} else if (allLessons.length > 0) {
-			// If no lessons are completed, the first lesson is the next one
-			nextLesson = allLessons[0];
-		}
-
-		// Determine the "next lesson" title
-		let nextLessonTitle = "Start Course";
-		if (completedLessons === totalLessons && totalLessons > 0) {
-			nextLessonTitle = "Course Completed";
-		} else if (nextLesson) {
-			nextLessonTitle = nextLesson.title;
-		}
-
-		return {
-			id: course.id,
-			title: course.name,
-			creator: course.user?.name || "Unknown Creator",
-			progress: {
-				completed: completedLessons,
-				total: totalLessons,
-			},
-			nextLesson: nextLessonTitle,
-		};
-	});
-
-	// --- 2. Process Recent Attempts ---
-	const recentTestAttempts = recentAttemptsData.map((attempt) => {
-		const score =
-			attempt.totalPossiblePoints && attempt.scoredPoints != null
-				? Math.round(
-						(attempt.scoredPoints / attempt.totalPossiblePoints) *
-							100
-				  )
-				: 0;
-
-		return {
-			id: attempt.id,
-			testName: attempt.test.title,
-			score: score,
-			date: attempt.createdAt,
-		};
-	});
-
-	// --- 3. Process My Flashcard Lists ---
-	const myFlashcardLists = myFlashcardListsData.map((list) => ({
-		id: list.id,
-		name: list.title,
-		cards: list._count.flashcards,
-	}));
-
-	// --- 4. Process Discovery Data ---
-	const discoverCourses = discoverCoursesData.map((course) => ({
-		id: course.id,
-		title: course.name,
-		creator: course.user?.name || "Unknown Creator",
-		lessons: course.modules.reduce(
-			(sum, module) => sum + module._count.lessons,
-			0
-		),
-	}));
-
-	const discoverTests = discoverTestsData.map((test) => ({
-		id: test.id,
-		title: test.title,
-		creator: test.user?.name || "Unknown Creator",
+	const enrolledCourses = enrolledCoursesData.map((course) => ({
+		...course,
+		progress: calculateCourseProgress(course),
 	}));
 
 	const discoverBlogPosts = discoverBlogPostsData.map((post) => ({
-		id: post.id,
-		title: post.title,
-		slug: post.slug,
-		creator: post.author?.name || "Unknown Creator",
+		...post,
 		tags: post.topics.map((t) => t.topic.name),
 	}));
 
-	const discoverFlashcards = discoverFlashcardsData.map((list) => ({
-		id: list.id,
-		name: list.title,
-		creator: list.user?.name || "Unknown Creator",
-		cards: list._count.flashcards,
-	}));
-
-	// --- Return final structured object ---
 	return {
 		enrolledCourses,
 		recentTestAttempts,
 		myFlashcardLists,
 		discover: {
-			courses: discoverCourses,
-			tests: discoverTests,
+			courses: discoverCoursesData,
+			tests: discoverTestsData,
 			blogPosts: discoverBlogPosts,
-			flashcards: discoverFlashcards,
+			flashcards: discoverFlashcardsData,
 		},
 	};
 }
