@@ -1,10 +1,9 @@
 const formatValue = (value, isCurrency = false) => {
 	if (isCurrency) {
-		// Assumes value is in cents
 		return (value / 100).toLocaleString("en-US", {
 			style: "currency",
-			currency: "USD",
-			maximumFractionDigits: 0, // No cents
+			currency: "VND",
+			maximumFractionDigits: 0,
 		});
 	}
 	return value.toLocaleString("en-US");
@@ -17,7 +16,6 @@ export default function StatCard({ title, value, isCurrency }) {
 			<p className="text-3xl font-bold text-gray-800 mt-1">
 				{formatValue(value, isCurrency)}
 			</p>
-			{/* "Change" was removed as it's complex to query */}
 		</div>
 	);
 }
