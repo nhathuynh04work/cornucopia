@@ -1,35 +1,38 @@
-import TopBar from "../components/TopBar";
+
 import { Outlet, useLocation } from "react-router";
 import ChatWidget from "../components/ChatBot/ChatWidget";
+import Footer from "./Footer";
+import TopBar from "./TopBar";
 
 function Layout() {
-  const location = useLocation();
+	const location = useLocation();
 
-  // Lấy courseId từ URL dạng /courses/:id/...
-  const courseMatch = location.pathname.match(/^\/courses\/(\d+)/);
-  const currentCourseId = courseMatch ? Number(courseMatch[1]) : undefined;
-  return (
-    <div className="flex flex-col min-h-screen overflow-hidden">
-      {/* TopBar */}
-      <TopBar />
+	// Lấy courseId từ URL dạng /courses/:id/...
+	const courseMatch = location.pathname.match(/^\/courses\/(\d+)/);
+	const currentCourseId = courseMatch ? Number(courseMatch[1]) : undefined;
+	return (
+		<div className="flex flex-col min-h-screen overflow-hidden">
+			{/* TopBar */}
+			<TopBar />
 
-      {/* Page content */}
-      <main className="h-[calc(100vh-64px)] overflow-y-auto">
-        <Outlet />
+			{/* Page content */}
+			<main className="h-[calc(100vh-64px)] overflow-y-auto">
+				<Outlet />
 
-        {/* Floating Chat – hiện toàn site */}
-        <ChatWidget
-          selectedTopic=""
-          selectedCourseId={currentCourseId}
-          defaultOpen={false}
-          position="right"
-          zIndex={50}
-          showLLMToggle={true}
-          title="Chat Blog/Topic + Course"
-        />
-      </main>
-    </div>
-  );
+				{/* Floating Chat – hiện toàn site */}
+				<ChatWidget
+					selectedTopic=""
+					selectedCourseId={currentCourseId}
+					defaultOpen={false}
+					position="right"
+					zIndex={50}
+					showLLMToggle={true}
+					title="Chat Blog/Topic + Course"
+				/>
+				<Footer />
+			</main>
+		</div>
+	);
 }
 
 export default Layout;
