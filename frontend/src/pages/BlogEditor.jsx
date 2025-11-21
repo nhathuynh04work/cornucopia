@@ -12,7 +12,12 @@ import { useBlogEditorState } from "../hooks/useBlogEditorState";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { toPlainText } from "../lib/editor";
 
+import { useAuth } from "@/contexts/AuthContext";
+import { Role } from "@/lib/constants";
+
 export default function BlogEditor() {
+  const { role } = useAuth();
+  const canManageTopics = role === Role.ADMIN;
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -117,9 +122,12 @@ export default function BlogEditor() {
           allTopics={topics}
           selectedTopicIds={selectedTopicIds}
           setSelectedTopicIds={setSelectedTopicIds}
-          onCreate={createTopicInline}
-          onDeleteTopic={handleDeleteTopic}
-          onOpenCreate={() => setOpenCreateTopic(true)}
+          onCreate={canManageTopics ? createTopicInline : undefined}
+          onDeleteTopic={canManageTopics ? handleDeleteTopic : undefined}
+          onOpenCreate={
+            canManageTopics ? () => setOpenCreateTopic(true) : undefined
+          }
+          canManage={canManageTopics}
         />
 
         <TopicCreateModal

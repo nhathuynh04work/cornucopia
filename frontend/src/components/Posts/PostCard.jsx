@@ -1,10 +1,7 @@
 import { Link } from "react-router";
-import { useAuth } from "@/contexts/AuthContext";
-import { Role } from "@/lib/constants";
 import { formatVNDateTime } from "@/lib/text";
 
-export default function BlogListItem({ post = {} }) {
-  const { role } = useAuth();
+export default function PostCard({ post = {} }) {
   const {
     id,
     slug,
@@ -17,7 +14,6 @@ export default function BlogListItem({ post = {} }) {
     author,
     author_name,
     excerpt,
-    onDelete,
   } = post;
 
   const postTo = slug ? `/blog/${id}/${slug}` : `/blog/${id}`;
@@ -78,7 +74,7 @@ export default function BlogListItem({ post = {} }) {
           <p className="mt-2 text-gray-700 leading-7 line-clamp-3">{excerpt}</p>
         )}
 
-        {/* Thông tin phụ */}
+        {/* Info + actions */}
         <div className="mt-3 text-sm text-gray-500 flex items-center gap-3">
           {displayDate ? (
             <span>{displayDate}</span>
@@ -94,26 +90,6 @@ export default function BlogListItem({ post = {} }) {
               <span>bởi {authorName}</span>
             </>
           )}
-
-          <span className="ml-auto flex items-center gap-3">
-            {role === Role.ADMIN && (
-              <>
-                <Link
-                  to={`/blog/${id}/edit`}
-                  className="text-blue-600 hover:underline"
-                >
-                  Edit
-                </Link>
-                <button
-                  onClick={() => onDelete?.(id)}
-                  className="text-red-600 hover:underline"
-                  type="button"
-                >
-                  Delete
-                </button>
-              </>
-            )}
-          </span>
         </div>
       </div>
     </article>

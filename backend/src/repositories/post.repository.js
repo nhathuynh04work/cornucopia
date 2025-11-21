@@ -1,42 +1,8 @@
-/* 
-Hàm này dùng để chuẩn hoá dữ liệu `topics` của một bài viết (Post) để frontend luôn nhận được dạng thống nhất: mảng Topic[] thuần tuý.
-Vì trong Prisma schema, mối quan hệ giữa Post và Topic là nhiều–nhiều (M:N) thông qua bảng trung gian PostTopic
+import prisma from "../prisma.js";
 
-⚙️ Dữ liệu TRƯỚC khi chuẩn hoá (khi Prisma truy vấn với `include: { topics: { include: { topic: true } } }`)
- *
- *  {
- *    id: 1,
- *    title: "Giới thiệu về AI",
- *    topics: [
- *      { topic: { id: 2, name: "AI", slug: "ai" } },
- *      { topic: { id: 5, name: "Machine Learning", slug: "machine-learning" } }
- *    ]
- *  }
- *
- * 👉 Ở đây: `topics` là mảng các bản ghi **trung gian PostTopic**,
- *     mỗi phần tử có thuộc tính `topic` (chứa dữ liệu thật của Topic).
- *
- * ---
- * ✅ Dữ liệu SAU khi chuẩn hoá (kết quả sau khi gọi normalizePostTopics)
- *
- *  {
- *    id: 1,
- *    title: "Giới thiệu về AI",
- *    topics: [
- *      { id: 2, name: "AI", slug: "ai" },
- *      { id: 5, name: "Machine Learning", slug: "machine-learning" }
- *    ]
- *  }
- *
- * 👉 Sau khi chuẩn hoá: `topics` trở thành mảng các đối tượng Topic thuần túy,
- *     không còn wrapper `topic:` bên trong.
- * Trước chuẩn hoá: topics = [{ topic: Topic }, { topic: Topic }]
- * Sau chuẩn hoá: topics = [Topic, Topic]
- * 🧠 Lợi ích:
- * - Giúp frontend chỉ cần xử lý `post.topics` như mảng `Topic[]`.
- * - Tránh lỗi khi phải check `t.topic` hay `t.id`.
- * - Dữ liệu đồng nhất dù truy vấn Prisma khác nhau (`include topic` hoặc `select topic`).
-*/
+/*
+ * Chuẩn hoá topics: PostTopic[] -> Topic[]
+ */
 function normalizePostTopics(p) {
   if (!p) return p;
   const topics =
@@ -48,8 +14,7 @@ function normalizePostTopics(p) {
   return { ...p, topics };
 }
 
-/* Tạo mới một bài viết (Post)
- * Trả về bài viết kèm thông tin tác giả (author) và danh sách chủ đề (topics: Topic[]) */
+/* Tạo mới một bài viết (Post) */
 export async function createPost(data, client = prisma) {
   return client.post.create({ data });
 }
@@ -57,7 +22,7 @@ export async function createPost(data, client = prisma) {
 /* Lấy thông tin một bài viết theo ID (include author + topics) */
 export async function findById(id, client = prisma) {
   const row = await client.post.findUnique({
-    where: { id },
+    where: { id: Number(id) },
     include: {
       author: true,
       topics: {
@@ -69,9 +34,25 @@ export async function findById(id, client = prisma) {
   return normalizePostTopics(row);
 }
 
-/* Lấy tất cả các bài viết (order by publishedAt desc, createdAt desc) */
+/* Lấy tất cả bài viết PUBLIC (status = 'published') */
 export async function getAllPosts(client = prisma) {
   const rows = await client.post.findMany({
+    where: { status: "published" },
+    include: {
+      author: true,
+      topics: {
+        include: { topic: { select: { id: true, name: true, slug: true } } },
+      },
+    },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+  });
+  return rows.map(normalizePostTopics);
+}
+
+/* Lấy tất cả bài viết của 1 author */
+export async function getPostsByAuthor(authorId, client = prisma) {
+  const rows = await client.post.findMany({
+    where: { authorId: Number(authorId) },
     include: {
       author: true,
       topics: {
@@ -85,12 +66,12 @@ export async function getAllPosts(client = prisma) {
 
 /* Xóa bài viết theo ID */
 export async function deletePostById(id, client = prisma) {
-  await client.post.delete({ where: { id } });
+  await client.post.delete({ where: { id: Number(id) } });
 }
 
 export async function updatePostBase(id, data, client = prisma) {
   return client.post.update({
-    where: { id },
+    where: { id: Number(id) },
     data,
   });
 }
@@ -98,7 +79,7 @@ export async function updatePostBase(id, data, client = prisma) {
 // Thay toàn bộ topics của post = topicIds (đã chuẩn hoá)
 export async function replacePostTopics(id, topicIds, client = prisma) {
   return client.post.update({
-    where: { id },
+    where: { id: Number(id) },
     data: {
       topics: {
         deleteMany: {}, // xoá toàn bộ liên kết cũ
@@ -116,7 +97,7 @@ export async function replacePostTopics(id, topicIds, client = prisma) {
   });
 }
 
-/*Lấy danh sách bài viết theo slug của topic*/
+/* Lấy danh sách bài viết theo slug của topic */
 export async function listPostsByTopicSlug(
   { slug, offset = 0, limit = 50 },
   client = prisma
@@ -138,8 +119,6 @@ export async function listPostsByTopicSlug(
   // 🔁 Normalize: PostTopic[] -> Topic[]
   return rows.map((p) => ({
     ...p,
-    topics: Array.isArray(p.topics)
-      ? p.topics.map((pt) => pt.topic) // chỉ còn Topic[]
-      : [],
+    topics: Array.isArray(p.topics) ? p.topics.map((pt) => pt.topic) : [],
   }));
 }
