@@ -7,6 +7,7 @@ export default function CourseList({
 	emptyMessage,
 	searchEmptyMessage,
 	prependItem,
+	className,
 }) {
 	if (isPending) {
 		return (
@@ -20,7 +21,12 @@ export default function CourseList({
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+		<div
+			className={`${
+				className
+					? className
+					: "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"
+			}`}>
 			{prependItem}
 			{courses.map((course) => (
 				<CourseCard key={course.id} course={course} />

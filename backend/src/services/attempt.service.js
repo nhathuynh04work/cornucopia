@@ -119,10 +119,11 @@ export async function getResult(id) {
 }
 
 export async function getUserAttemptsOnTest(testId, userId) {
-	const { testId: validTestId, userId: validUserId } =
-		GetAttemptsSchema.parse({ testId, userId });
-
-	return attemptRepo.findManyByTestIdAndUserId(validTestId, validUserId);
+	return prisma.attempt.findMany({
+		where: { testId, userId },
+		include: { test: { select: { title: true } } },
+		orderBy: { createdAt: "desc" },
+	});
 }
 
 function gradeAnswer(submittedAnswer, correctAnswer) {

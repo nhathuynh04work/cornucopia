@@ -12,7 +12,17 @@ function EditCardModal({ card, onClose, onSubmit }) {
   }, [card]);
 
   const handleSubmit = () => {
-    onSubmit(card.id, term, definition);
+    const payload = {
+      cardId: card.id,
+      term: term,
+      definition: definition,
+    };
+
+    onSubmit(payload, {
+      onSuccess: () => {
+        onClose(); 
+      },
+    });
   };
 
   return (

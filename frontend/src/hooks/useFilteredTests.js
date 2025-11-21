@@ -10,7 +10,7 @@ export function useFilteredTests(useQueryHook) {
 		if (!searchTerm) return tests;
 
 		return tests.filter((test) =>
-			test.name.toLowerCase().includes(searchTerm.toLowerCase())
+			test.title.toLowerCase().includes(searchTerm.toLowerCase())
 		);
 	}, [tests, searchTerm]);
 

@@ -403,20 +403,18 @@ model UserCourseEnrollment {
     @@map("user_course_enrollments")
 }
 
-
-//Chatbot course
 model CourseChunk {
-  id        Int       @id @default(autoincrement())
-  courseId  Int       @map("course_id")
-  moduleId  Int?      @map("module_id")
-  lessonId  Int?      @map("lesson_id")
-  content   String
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+    id        Int      @id @default(autoincrement())
+    courseId  Int      @map("course_id")
+    moduleId  Int?     @map("module_id")
+    lessonId  Int?     @map("lesson_id")
+    content   String
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  /// cột tsvector Prisma không map kiểu → dùng Unsupported
-  tsv      Unsupported("tsvector")?
+    /// cột tsvector Prisma không map kiểu → dùng Unsupported
+    tsv Unsupported("tsvector")?
 
-  @@index([courseId])
-  @@index([lessonId])
-  @@map("course_chunks")
+    @@index([courseId])
+    @@index([lessonId])
+    @@map("course_chunks")
 }

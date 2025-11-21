@@ -4,11 +4,13 @@ import { useTestEditorStore } from "../store/testEditorStore.js";
 import { useEffect } from "react";
 import { useTestAttemptStore } from "@/store/testAttemptStore";
 import { useAuth } from "@/contexts/AuthContext";
+import { queryDefaults } from "@/lib/react-query.config";
 
 export function useTestsQuery() {
 	return useQuery({
 		queryKey: ["tests"],
 		queryFn: testApi.getTests,
+		...queryDefaults,
 	});
 }
 
@@ -16,6 +18,7 @@ export function useAttemptedTests() {
 	return useQuery({
 		queryKey: ["tests", "attempted"],
 		queryFn: testApi.getAttemptedTests,
+		...queryDefaults,
 	});
 }
 
@@ -23,6 +26,7 @@ export function useMyTests() {
 	return useQuery({
 		queryKey: ["tests", "admin"],
 		queryFn: testApi.getMyTests,
+		...queryDefaults,
 	});
 }
 
@@ -33,6 +37,7 @@ export function useTestInfoQuery(id) {
 		queryKey: ["test", numericId, "info"],
 		queryFn: () => testApi.getTestForInfoView(numericId),
 		enabled: !!numericId,
+		...queryDefaults,
 	});
 }
 
@@ -44,6 +49,7 @@ export function useTestEditQuery(id) {
 		queryKey: ["test", numericId, "edit"],
 		queryFn: () => testApi.getTestForEdit(numericId),
 		enabled: !!numericId,
+		...queryDefaults,
 	});
 
 	// Hydrate store when query resolves
@@ -65,6 +71,7 @@ export function useTestAttemptQuery(id) {
 		queryKey: ["test", numericId, "attempt"],
 		queryFn: () => testApi.getTestForAttempt(numericId),
 		enabled: !!numericId,
+		...queryDefaults,
 	});
 
 	useEffect(() => {
@@ -84,5 +91,6 @@ export function useAttemptHistoryQuery(testId) {
 		queryKey: ["attempts-history", numericTestId],
 		queryFn: () => testApi.getAttemptHistory(numericTestId),
 		enabled: !!numericTestId && !!user,
+		...queryDefaults,
 	});
 }

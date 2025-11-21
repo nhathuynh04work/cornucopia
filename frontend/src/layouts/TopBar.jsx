@@ -1,14 +1,14 @@
+import Logo from "@/components/Logo";
 import { useAuth } from "../contexts/AuthContext";
-import Logo from "./Logo";
-import NavMenu from "./NavMenu";
-import UserMenu from "./UserMenu";
-import NavButton from "./NavButton";
+import NavMenu from "@/components/NavMenu";
+import UserMenu from "@/components/UserMenu";
+import NavButton from "@/components/NavButton";
 
 function TopBar() {
 	const { user } = useAuth();
 
 	return (
-		<div className="flex justify-between items-center px-6 py-3 bg-white shadow-sm h-16 border-b">
+		<div className="flex justify-between items-center px-6 py-3 bg-white h-16 border-b">
 			{/* Logo / App name */}
 			<div className="min-w-[180px]">
 				<Logo />

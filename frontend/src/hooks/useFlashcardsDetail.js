@@ -1,62 +1,90 @@
-// src/hooks/useFlashcardsDetail.js
-import { useState, useEffect } from "react";
+/* eslint-disable no-unused-vars */
 import { api } from "../apis/axios";
 import { toast } from "react-hot-toast";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as listApi from "@/apis/listApi";
 
 export function useFlashcardsDetail(listId) {
-  const [cards, setCards] = useState([]);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    async function fetchList() {
-      try {
-        setLoading(true);
-        const { data } = await api.get(`/lists/${listId}`);
-        const { list } = data;
-        setTitle(list.title);
-        setDescription(list.description);
-        setCards(list.flashcards);
-      } catch (error) {
-        console.error("Lỗi khi tải danh sách:", error);
-        toast.error("Không thể tải danh sách!");
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (listId) fetchList();
-  }, [listId]);
+  const { data: list, isPending: isLoading } = useQuery({
+    queryFn: () => listApi.getListDetail(listId),
+    queryKey: ["list", Number(listId)],
+  });
 
-  async function createCard(term, definition) {
-    try {
-      const { data } = await api.post(`/lists/${listId}/cards`, { term, definition });
-      setCards((prev) => [...prev, data.card]);
-      toast.success("Đã tạo flashcard!");
-    } catch {
-      toast.error("Không thể tạo thẻ!");
-    }
-  }
+  const {
+    mutate: createCard,
+    isPending: isCreatingCard,
+    isError: isCreateCardError,
+  } = useMutation({
+    mutationFn: ({ term, definition }) =>
+      listApi.createCard({ listId, term, definition }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["lists"]);
+      queryClient.invalidateQueries(["list", Number(listId)]);
+    },
+  });
 
-  async function updateCard(cardId, term, definition) {
-    try {
-      const { data } = await api.put(`/lists/${listId}/cards/${cardId}`, { term, definition });
-      setCards((prev) => prev.map((c) => (c.id === cardId ? data.card : c)));
-      toast.success("Đã cập nhật flashcard!");
-    } catch {
-      toast.error("Không thể cập nhật thẻ!");
-    }
-  }
+  const {
+    mutate: updateCard,
+    isPending: isUpdatingCard,
+    isError: isUpdateCardError,
+  } = useMutation({
+    mutationFn: ({ cardId, term, definition }) =>
+      listApi.updateCard( Number(listId), cardId, term, definition ),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["list", Number(listId)]);
+    },
+  });
 
-  async function deleteCard(cardId) {
-    try {
-      await api.delete(`/cards/${cardId}`);
-      setCards((prev) => prev.filter((c) => c.id !== cardId));
-      toast.success("Đã xoá flashcard!");
-    } catch {
-      toast.error("Không thể xoá flashcard!");
-    }
-  }
+  const {
+    mutate: deleteCard,
+    isPending: isDeletingCard,
+    isError: isDeleteCardError,
+  } = useMutation({
+    mutationFn: ({ cardId }) => listApi.deleteCard( cardId ),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["lists"]);
+      queryClient.invalidateQueries(["list", Number(listId)]);
+    },
+  });
+
+  const {
+    mutate: createCardsBulk,
+    isPending: isCreatingBulk,
+    isError: isCreateBulkError,
+  } = useMutation({
+    mutationFn: ({ cardsArray }) =>
+      listApi.createCardsBulk({ listId, cardsArray }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["lists"]);
+      queryClient.invalidateQueries(["list", Number(listId)]);
+    },
+  });
+
+  const {
+    mutate: updateList,
+    isPending: isUpdatingList,
+    isError: isUpdateListError,
+  } = useMutation({
+    mutationFn: (payload) => listApi.updateList({ listId, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["lists"]);
+      queryClient.invalidateQueries(["list", Number(listId)]);
+    },
+  });
+
+  const {
+    mutate: deleteList,
+    isPending: isDeletingList,
+    isError: isDeleteListError,
+  } = useMutation({
+    mutationFn: () => listApi.deleteList(listId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["lists"]);
+      queryClient.invalidateQueries(["list", Number(listId)]);
+    },
+  });
 
   async function startSession() {
     try {
@@ -70,14 +98,14 @@ export function useFlashcardsDetail(listId) {
   }
 
   return {
-    cards,
-    title,
-    description,
-    loading,
+    list,
+    isLoading,
+    updateList,
+    deleteList,
     createCard,
+    createCardsBulk,
     updateCard,
     deleteCard,
     startSession,
-    setCards,
   };
 }

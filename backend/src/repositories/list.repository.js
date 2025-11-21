@@ -23,6 +23,7 @@ export async function getListsOfUser(userId, client = prisma) {
   return await client.flashcardList.findMany({
     where: { userId },
     include: {
+      user: true,
       _count: {
         select: { flashcards: true },
       },
@@ -38,5 +39,18 @@ export async function updateList(id, data, client = prisma) {
   return await client.flashcardList.update({
     where: { id },
     data,
+  });
+}
+
+export async function findListsOfCreatorsAndAdmins(client = prisma) {
+  return client.flashcardList.findMany({
+    where: {
+      user: {
+        role: { in: ["CREATOR", "ADMIN"] },
+      },
+    },
+    include: {
+      user: false,
+    },
   });
 }

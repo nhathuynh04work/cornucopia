@@ -8,10 +8,12 @@ export function requireRole(...allowedRoles) {
       throw new UnauthorizedError("Unauthorized");
     }
 
-    if (!allowedRoles.includes(user.role)) {
-      throw new ForbiddenError("Forbidden");
-    }
+		if (!allowedRoles.includes(user.role)) {
+			throw new ForbiddenError(
+				"You don't have the privilege to execute this action"
+			);
+		}
 
-    next();
-  };
+		next();
+	};
 }

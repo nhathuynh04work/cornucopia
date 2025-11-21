@@ -66,3 +66,8 @@ export async function createCardsBulk(req, res) {
     count: result.count,
   });
 }
+
+export async function getExploreLists(req, res) {
+  const lists = await listService.getExploreLists();
+  res.status(200).json({ lists });
+}

@@ -1,3 +1,4 @@
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Users } from "lucide-react";
 import StatusBadge from "../StatusBadge";
@@ -9,28 +10,31 @@ export default function CourseCard({ course }) {
 	const coverImage =
 		course.coverUrl ||
 		`https://placehold.co/600x400/e2e8f0/64748b?text=${encodeURIComponent(
-			course.name
+			course.name || "Course"
 		)}`;
 
 	const enrollments = course._count?.enrollments || 0;
 	const instructor = course.user;
+	const isEnrolled = typeof course.progress === "number";
+
+	let destination = `/courses/${course.id}`;
+	if (course.status === "DRAFT") {
+		destination = `/courses/${course.id}/edit`;
+	} else if (isEnrolled) {
+		destination = `/courses/${course.id}/learn`;
+	}
 
 	return (
 		<Link
-			to={
-				course.status === "DRAFT"
-					? `/courses/${course.id}/edit`
-					: `/courses/${course.id}`
-			}
-			className="group relative block rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-purple-300 hover:translate-y-[-2px] focus:outline-none focus:ring-2 focus:ring-purple-500">
+			to={destination}
+			className="group relative rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-purple-300 hover:translate-y-[-2px] focus:outline-none focus:ring-2 focus:ring-purple-500 h-full flex flex-col">
 			{/* Cover image */}
-			<div className="relative w-full h-40 overflow-hidden">
+			<div className="relative w-full h-40 overflow-hidden flex-shrink-0">
 				<img
 					src={coverImage}
 					alt={course.name}
 					className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
 				/>
-
 				{isAdmin && (
 					<div className="absolute top-2 left-3">
 						<StatusBadge status={course.status} size="xs" />
@@ -39,24 +43,36 @@ export default function CourseCard({ course }) {
 			</div>
 
 			{/* Info */}
-			<div className="p-4">
-				<h2
-					className="text-sm font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors"
-					title={course.name}>
-					{course.name}
-				</h2>
+			<div className="p-4 flex flex-col flex-grow justify-between">
+				<div>
+					<h2
+						className="text-sm font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors"
+						title={course.name}>
+						{course.name}
+					</h2>
 
-				<p
-					className="text-xs text-gray-500 mt-1 truncate"
-					title={instructor?.name || "N/A"}>
-					{instructor?.name || "N/A"}
-				</p>
+					<p
+						className="text-xs text-gray-500 mt-1 truncate"
+						title={instructor?.name || "N/A"}>
+						{instructor?.name || "N/A"}
+					</p>
+				</div>
 
 				<div className="flex justify-between items-center mt-3 pt-2">
-					<p className="text-xs font-semibold text-gray-900">
-						${(course.price / 100).toFixed(2)}
-					</p>
-					<div className="flex items-center gap-1 text-gray-500">
+					{isEnrolled ? (
+						<div className="w-1/2 bg-gray-100 h-1 rounded-full overflow-hidden mr-2">
+							<div
+								className="bg-purple-500 h-1 rounded-full transition-all duration-500"
+								style={{ width: `${course.progress}%` }}
+							/>
+						</div>
+					) : (
+						<p className="text-xs font-semibold text-gray-900 mr-2">
+							${(course.price / 100).toFixed(2)}
+						</p>
+					)}
+
+					<div className="flex items-center gap-1 text-gray-500 flex-shrink-0">
 						<Users className="w-3.5 h-3.5" />
 						<span className="text-xs font-medium">
 							{enrollments}

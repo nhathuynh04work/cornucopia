@@ -1,4 +1,6 @@
+import { useDebouncedUpdate } from "@/hooks/useDebouncedUpdate";
 import { Search } from "lucide-react";
+import { useCallback } from "react";
 import { NavLink, Outlet, useSearchParams } from "react-router";
 
 export default function TabsSearchbarLayout({
@@ -6,27 +8,33 @@ export default function TabsSearchbarLayout({
 	searchPlaceholder = "Search...",
 }) {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const searchTerm = searchParams.get("q") || "";
+	const initialSearch = searchParams.get("q") || "";
 
-	const handleSearchChange = (e) => {
-		const q = e.target.value;
-		if (q) {
-			setSearchParams({ q }, { replace: true });
-		} else {
-			setSearchParams({}, { replace: true });
-		}
-	};
+	const { value, handleChange, debouncedValue } = useDebouncedUpdate(
+		initialSearch,
+		useCallback(
+			(newValue) => {
+				if (newValue) {
+					setSearchParams({ q: newValue }, { replace: true });
+				} else {
+					setSearchParams({}, { replace: true });
+				}
+			},
+			[setSearchParams]
+		),
+		500
+	);
 
 	return (
 		<div className="p-6 bg-white w-5/6 mx-auto">
 			<Header
 				tabs={tabs}
-				searchTerm={searchTerm}
-				onSearchChange={handleSearchChange}
+				searchTerm={value}
+				onSearchChange={handleChange}
 				searchPlaceholder={searchPlaceholder}
 			/>
-			<div className="mt-6">
-				<Outlet context={{ searchTerm }} />
+			<div className="mt-6 min-h-96">
+				<Outlet context={{ searchTerm: debouncedValue }} />
 			</div>
 		</div>
 	);

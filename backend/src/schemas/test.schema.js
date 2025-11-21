@@ -10,6 +10,9 @@ const TestSchema = z.object({
 	status: TestStatusSchema,
 });
 
-export const CreateTestSchema = TestSchema.omit({ status: true });
+export const CreateTestSchema = TestSchema.omit({
+	status: true,
+	timeLimit: true,
+});
 
 export const UpdateTestSchema = TestSchema.partial();

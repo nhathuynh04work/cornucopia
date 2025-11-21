@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import { Loader2, Globe, Trash2, Archive } from "lucide-react";
 import { useTestEditorStore } from "@/store/testEditorStore";
 import { useDeleteTest, useUpdateTest } from "@/hooks/useTestMutation";
-import ConfirmationModal from "@/components/CourseEditor/ConfirmationModal";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 export default function ModalContentStatus() {
 	const test = useTestEditorStore((s) => s.test);
