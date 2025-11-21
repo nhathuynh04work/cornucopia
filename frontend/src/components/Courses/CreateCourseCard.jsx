@@ -19,9 +19,6 @@ export default function CreateCourseCard() {
 					toast.success("Course created! Let's get started.");
 					navigate(`/courses/${course.id}/edit`);
 				},
-				onError: (err) => {
-					toast.error(err.message || "Failed to create course.");
-				},
 			}
 		);
 	}

@@ -1,27 +1,17 @@
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router";
 import { api } from "@/apis/axios";
-import { useAuth } from "@/contexts/AuthContext";
 
-export default function CreateListButton({ list }) {
+export default function CreateListButton() {
 	const navigate = useNavigate();
-	const { user } = useAuth();
 
-	const handleClick = async () => {
-		try {
-			let listId = list?.id;
-			if (!listId) {
-				const { data } = await api.post("/lists", {
-					userId: user.id,
-					title: "Danh sách chưa được đặt tên",
-				});
-				listId = data.list.id;
-			}
-			navigate(`/flashcards/${listId}/edit`);
-		} catch (err) {
-			console.error("Không thể tạo danh sách:", err);
-		}
-	};
+	async function handleClick() {
+		const { data } = await api.post("/lists", {
+			title: "Danh sách chưa được đặt tên",
+		});
+
+		navigate(`/flashcards/${data.list.id}/edit`);
+	}
 
 	return (
 		<button

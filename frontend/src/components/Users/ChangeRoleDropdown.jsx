@@ -36,7 +36,7 @@ export default function ChangeRoleDropdown({ user }) {
 	}
 
 	if (user.role === Role.ADMIN) {
-		return <StatusBadge status={user.role} size="sm" />;
+		return <StatusBadge status={user.role} size="xs" />;
 	}
 
 	return (
@@ -46,7 +46,7 @@ export default function ChangeRoleDropdown({ user }) {
 					<button
 						disabled={isPending}
 						className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1">
-						<StatusBadge status={user.role} size="sm" />
+						<StatusBadge status={user.role} size="xs" />
 						<ChevronDown className="w-4 h-4 text-gray-400" />
 					</button>
 				</Popover.Trigger>

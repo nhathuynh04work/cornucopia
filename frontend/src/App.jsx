@@ -32,7 +32,7 @@ import FlashcardsLayout from "./layouts/FlashcardsLayout";
 import { AllCourses, EnrolledCourses, MyCourses } from "./pages/Courses";
 import { AllTests, AttemptedTests, MyTests } from "./pages/Tests";
 import UsersLayout from "./layouts/UsersLayout";
-import { Admins, Creators, Stats, Users } from "./pages/Users";
+import { Admins, Creators, Users } from "./pages/Users";
 
 function App() {
 	return (
@@ -101,7 +101,6 @@ function App() {
 						<Route path="normal" element={<Users />} />
 						<Route path="creators" element={<Creators />} />
 						<Route path="admins" element={<Admins />} />
-						<Route path="stats" element={<Stats />} />
 					</Route>
 
 					{/* Other Routes */}

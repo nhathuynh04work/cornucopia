@@ -23,7 +23,7 @@ export default function CourseSidebar({ course, totalModules, totalLessons }) {
 					Instructor
 				</h3>
 				<div className="flex items-center gap-3">
-					<Avatar url={instructor.avatarUrl} size="small" />
+					<Avatar url={instructor.avatarUrl} size="sm" />
 					<div>
 						<p className="text-sm font-medium text-gray-900">
 							{instructor.name || "Unknown Instructor"}

@@ -1,11 +1,9 @@
+import DashboardSection from "../DashboardSection";
 import StatCard from "./StatCard";
 
 export default function PlatformOverview({ stats }) {
 	return (
-		<section>
-			<h2 className="text-xl font-semibold text-gray-700 mb-5">
-				Platform Overview
-			</h2>
+		<DashboardSection title="Platform Overview">
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 				{stats.map((stat) => (
 					<StatCard
@@ -16,6 +14,6 @@ export default function PlatformOverview({ stats }) {
 					/>
 				))}
 			</div>
-		</section>
+		</DashboardSection>
 	);
 }

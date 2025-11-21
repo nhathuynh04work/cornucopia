@@ -10,6 +10,7 @@ import {
 	Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import DashboardSection from "../DashboardSection";
 
 ChartJS.register(
 	CategoryScale,
@@ -59,13 +60,10 @@ export default function EnrollmentChart({ chartData }) {
 	};
 
 	return (
-		<section>
-			<h2 className="text-xl font-semibold text-gray-700 mb-5">
-				Enrollment Activity
-			</h2>
+		<DashboardSection title="Enrollment Activity">
 			<div className="bg-white p-4 rounded-xl border border-gray-200">
 				<Line options={options} data={data} />
 			</div>
-		</section>
+		</DashboardSection>
 	);
 }

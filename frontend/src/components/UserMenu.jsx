@@ -68,7 +68,7 @@ function UserMenu() {
 						to="/profile"
 						onClick={() => setIsOpen(false)} // Close on navigation
 						className="group flex p-4 cursor-pointer w-full space-x-4 hover:bg-gray-50">
-						<Avatar user={user} size="medium" />
+						<Avatar user={user} size="md" />
 						<div className="flex flex-col overflow-hidden space-y-1">
 							<div className="font-semibold group-hover:text-indigo-600 line-clamp-2">
 								{user.name}

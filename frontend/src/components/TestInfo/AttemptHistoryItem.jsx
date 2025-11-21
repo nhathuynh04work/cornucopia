@@ -13,7 +13,7 @@ function AttemptHistoryItem({ attempt }) {
 			key={attempt.id}
 			to={`/attempts/${attempt.id}`}
 			className="block p-4 bg-white rounded-md border border-gray-200 shadow-sm transition-all hover:border-purple-400 hover:shadow-md">
-			{/* Top row: Attempt # and Open Icon */}
+			{/* Top row: Open Icon */}
 			<div className="flex justify-between items-center mb-3">
 				<p className="text-sm font-semibold text-purple-700">
 					{attempt.test.title}

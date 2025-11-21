@@ -9,8 +9,8 @@
 /* -------------------------------------------------------------------------- */
 
 html {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
+	scroll-behavior: smooth;
+	overflow-x: hidden;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -19,13 +19,13 @@ html {
 
 /* Firefox scrollbar behavior and border defaults */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: #9ca3af transparent; /* gray-400 thumb, transparent track */
-  border-color: rgb(229, 231, 235); /* Tailwind gray-200 */
+	scrollbar-width: thin;
+	scrollbar-color: #9ca3af transparent; /* gray-400 thumb, transparent track */
+	border-color: rgb(229, 231, 235); /* Tailwind gray-200 */
 }
 
 .font-anton {
-  font-family: "Anton", sans-serif;
+	font-family: "Anton", sans-serif;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -33,11 +33,11 @@ html {
 /* -------------------------------------------------------------------------- */
 
 button {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 button:disabled {
-  cursor: not-allowed;
+	cursor: not-allowed;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,17 +46,17 @@ button:disabled {
 
 /* Chrome, Edge, Safari scrollbar defaults */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+	width: 6px;
+	height: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #9ca3af; /* gray-400 */
-  border-radius: 9999px;
+	background: #9ca3af; /* gray-400 */
+	border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+	background: transparent;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -65,36 +65,37 @@ button:disabled {
 
 /* Scroll container that shows scrollbar above content, not beside it */
 .scroll-container {
-  overflow-y: auto;
-  scrollbar-gutter: stable overlay !important; /* overlay scrollbar that doesn't shift layout */
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-  transition: scrollbar-color 0.2s ease;
+	overflow-y: auto;
+	overflow-x: auto;
+	scrollbar-gutter: stable overlay !important; /* overlay scrollbar that doesn't shift layout */
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+	transition: scrollbar-color 0.2s ease;
 }
 
 /* Firefox hover scrollbar visibility */
 .scroll-container:hover {
-  scrollbar-color: rgba(156, 163, 175, 0.6) transparent; /* gray-400 w/ opacity */
+	scrollbar-color: rgba(156, 163, 175, 0.6) transparent; /* gray-400 w/ opacity */
 }
 
 /* Chrome, Edge, Safari scrollbar overlay styling */
 .scroll-container::-webkit-scrollbar {
-  width: 6px;
+	width: 6px;
 }
 
 .scroll-container::-webkit-scrollbar-track {
-  background: transparent;
+	background: transparent;
 }
 
 .scroll-container::-webkit-scrollbar-thumb {
-  background-color: transparent;
-  border-radius: 9999px;
-  transition: background-color 0.2s ease;
+	background-color: transparent;
+	border-radius: 9999px;
+	transition: background-color 0.2s ease;
 }
 
 /* Thumb becomes visible on hover */
 .scroll-container:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 163, 175, 0.6);
+	background-color: rgba(156, 163, 175, 0.6);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -103,83 +104,83 @@ button:disabled {
 
 /* Utility class to hide scrollbar entirely */
 .hide-scrollbar::-webkit-scrollbar {
-  display: none;
+	display: none;
 }
 
 /* Hide scrollbar in Firefox and legacy Edge */
 .hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
 }
 
 /* Rich Text Editor*/
 .tiptap h2 {
-  font-size: 1.5em; /* Kích thước H2 */
-  font-weight: bold;
-  margin-top: 1em;
-  margin-bottom: 0.5em;
+	font-size: 1.5em; /* Kích thước H2 */
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
 }
 
 .tiptap h3 {
-  font-size: 1.25em; /* Kích thước H3 */
-  font-weight: bold;
-  margin-top: 1em;
-  margin-bottom: 0.5em;
+	font-size: 1.25em; /* Kích thước H3 */
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
 }
 
 /* Định dạng cơ bản cho Lists */
 .tiptap ul {
-  list-style: disc; /* Dấu chấm tròn */
-  padding-left: 2em;
-  margin: 1em 0;
+	list-style: disc; /* Dấu chấm tròn */
+	padding-left: 2em;
+	margin: 1em 0;
 }
 
 .tiptap ol {
-  list-style: decimal; /* Đánh số */
-  padding-left: 2em;
-  margin: 1em 0;
+	list-style: decimal; /* Đánh số */
+	padding-left: 2em;
+	margin: 1em 0;
 }
 
 .tiptap li {
-  margin-bottom: 0.5em;
+	margin-bottom: 0.5em;
 }
 
 .tiptap:focus {
-  outline: none !important;
-  box-shadow: none !important;
+	outline: none !important;
+	box-shadow: none !important;
 }
 
 .tiptap .ProseMirror:focus {
-  outline: none !important;
-  box-shadow: none !important;
+	outline: none !important;
+	box-shadow: none !important;
 }
 
 .tiptap img.ProseMirror-selectednode {
-  box-shadow: none !important;
-  outline: 2px solid #3b82f6; /* Màu xanh Blue-500 của Tailwind */
-  outline-offset: 2px; /* Khoảng cách giữa ảnh và viền */
-  border-radius: 4px; /* Bo góc nhẹ cho viền */
+	box-shadow: none !important;
+	outline: 2px solid #3b82f6; /* Màu xanh Blue-500 của Tailwind */
+	outline-offset: 2px; /* Khoảng cách giữa ảnh và viền */
+	border-radius: 4px; /* Bo góc nhẹ cho viền */
 }
 
 .react-calendar-heatmap rect {
-  rx: 3px;
-  ry: 3px;
+	rx: 3px;
+	ry: 3px;
 }
 
 /* Hiển thị bảng đẹp mắt trong TipTap */
 .tiptap table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 12px 0;
+	border-collapse: collapse;
+	width: 100%;
+	margin: 12px 0;
 }
 
 .tiptap table td,
 .tiptap table th {
-  border: 1px solid #d1d5db; /* gray-300 */
-  padding: 6px;
+	border: 1px solid #d1d5db; /* gray-300 */
+	padding: 6px;
 }
 
 .tiptap table th {
-  background: #f3f4f6; /* gray-100 */
-  font-weight: 600;
+	background: #f3f4f6; /* gray-100 */
+	font-weight: 600;
 }

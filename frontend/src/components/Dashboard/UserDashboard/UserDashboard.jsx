@@ -15,27 +15,18 @@ export default function UserDashboard({ data }) {
 		flashcardLists: myFlashcardLists?.length || 0,
 	};
 
-	const handleResumeCourse = (courseId, lessonName) => {
-		// Add your navigation logic here
-		console.log(`Resuming course ${courseId} at lesson: ${lessonName}`);
-		// e.g., router.push(`/courses/${courseId}/lessons/${lessonName}`)
-	};
-
 	return (
 		<div className="w-5/6 mx-auto p-6 space-y-8 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-8">
 			{/* Main Content Area */}
 			<div className="lg:col-span-2 space-y-8">
-				<ContinueLearning
-					courses={enrolledCourses}
-					onResume={handleResumeCourse}
-				/>
+				<ContinueLearning courses={enrolledCourses} />
 				<Discovery discoverData={discover} />
 			</div>
 
 			{/* Sidebar */}
 			<div className="lg:col-span-1 space-y-8">
 				<UserStats stats={stats} />
-				<ActivityChart attemptsData={recentTestAttempts} />
+				<ActivityChart attempts={recentTestAttempts} />
 				<MyFlashcardLists lists={myFlashcardLists} />
 				<RecentTestAttempts attempts={recentTestAttempts} />
 			</div>

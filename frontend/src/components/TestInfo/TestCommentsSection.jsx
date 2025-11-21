@@ -1,6 +1,5 @@
 import { MessageCircle } from "lucide-react";
 
-// 1. Using initials and the soft purple palette
 const dummyComments = [
 	{
 		id: "c1",
@@ -60,7 +59,6 @@ function TestCommentsSection() {
 						<div
 							key={comment.id}
 							className="flex gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-100">
-							{/* 3. Using the new soft avatar */}
 							<Avatar initials={comment.initials} />
 							<div className="flex-1">
 								<div className="flex items-center justify-between mb-1">

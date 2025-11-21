@@ -39,3 +39,26 @@ export function formatTime(seconds) {
 	const secs = seconds % 60;
 	return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
+
+// format time relative to now (example: 2 hrs ago)
+export function formatRelativeTime(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const seconds = Math.floor((new Date() - date) / 1000);
+
+    const intervals = {
+        year: 31536000,
+        month: 2592000,
+        day: 86400,
+        hour: 3600,
+        minute: 60
+    };
+
+    for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+        const interval = Math.floor(seconds / secondsInUnit);
+        if (interval >= 1) {
+            return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
+        }
+    }
+    return "Just now";
+};

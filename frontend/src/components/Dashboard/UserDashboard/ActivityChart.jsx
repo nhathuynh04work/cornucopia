@@ -1,15 +1,20 @@
 import React from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import DashboardSection from "../DashboardSection";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function ActivityChart({ attemptsData = [] }) {
-	const passing = attemptsData.filter((a) => a.score >= 80).length;
-	const improving = attemptsData.filter(
+export default function ActivityChart({ attempts = [] }) {
+	const processed = attempts.map((attempt) => ({
+		score: (attempt.scoredPoints / attempt.totalPossiblePoints) * 100,
+	}));
+
+	const passing = processed.filter((a) => a.score >= 80).length;
+	const improving = processed.filter(
 		(a) => a.score >= 50 && a.score < 80
 	).length;
-	const needsReview = attemptsData.filter((a) => a.score < 50).length;
+	const needsReview = processed.filter((a) => a.score < 50).length;
 
 	const data = {
 		labels: [
@@ -58,13 +63,10 @@ export default function ActivityChart({ attemptsData = [] }) {
 	};
 
 	return (
-		<section>
-			<h2 className="text-xl font-semibold text-gray-700 mb-5">
-				Your Activity
-			</h2>
+		<DashboardSection title="Your Activity">
 			<div className="bg-white p-4 rounded-xl border border-gray-200">
 				<Doughnut data={data} options={options} />
 			</div>
-		</section>
+		</DashboardSection>
 	);
 }
