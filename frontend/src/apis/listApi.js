@@ -1,9 +1,7 @@
 import { api } from "./axios";
 
-export async function createList() {
-	const { data } = await api.post("/lists", {
-		title: "Danh sách chưa được đặt tên",
-	});
+export async function createList(payload) {
+	const { data } = await api.post("/lists", payload);
 
 	return data.list;
 }

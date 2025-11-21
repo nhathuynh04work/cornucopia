@@ -271,7 +271,6 @@ export async function getDashboardDataForUser({ userId }) {
 export async function getDashboardDataForCreator({ userId }) {
 	const [creatorContent, allEnrollments, totalTestAttempts] =
 		await prisma.$transaction([
-			// 1. Get all content created by this user
 			prisma.user.findUnique({
 				where: { id: userId },
 				select: {
@@ -279,7 +278,7 @@ export async function getDashboardDataForCreator({ userId }) {
 						orderBy: { createdAt: "desc" },
 						select: {
 							id: true,
-							name: true, // Will be mapped to 'title'
+							name: true,
 							status: true,
 							_count: { select: { enrollments: true } },
 						},
@@ -300,7 +299,6 @@ export async function getDashboardDataForCreator({ userId }) {
 					flashcardLists: {
 						orderBy: { createdAt: "desc" },
 						select: { id: true, title: true },
-						// Note: FlashcardList schema has no 'status' field
 					},
 				},
 			}),
@@ -395,7 +393,6 @@ export async function getDashboardDataForCreator({ userId }) {
 		data: buckets,
 	};
 
-	// --- Return final structured object ---
 	return {
 		stats,
 		content,
@@ -415,7 +412,7 @@ export async function getDashboardDataForAdmin() {
 		totalUsers,
 		totalCreators,
 		totalPublicCourses,
-		allEnrollments, // For total revenue
+		allEnrollments,
 
 		// Growth Metrics Data
 		signupData,
@@ -629,7 +626,6 @@ export async function getDashboardDataForAdmin() {
 		],
 	};
 
-	// --- Return Final Object ---
 	return {
 		platformOverviewStats,
 		growthMetrics,

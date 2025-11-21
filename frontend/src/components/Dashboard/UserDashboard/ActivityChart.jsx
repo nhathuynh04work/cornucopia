@@ -1,6 +1,7 @@
 import React from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import DashboardSection from "../DashboardSection";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -62,13 +63,10 @@ export default function ActivityChart({ attempts = [] }) {
 	};
 
 	return (
-		<section>
-			<h2 className="text-xl font-semibold text-gray-700 mb-5">
-				Your Activity
-			</h2>
+		<DashboardSection title="Your Activity">
 			<div className="bg-white p-4 rounded-xl border border-gray-200">
 				<Doughnut data={data} options={options} />
 			</div>
-		</section>
+		</DashboardSection>
 	);
 }

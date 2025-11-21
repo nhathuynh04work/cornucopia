@@ -1,12 +1,9 @@
+import DashboardSection from "../DashboardSection";
 import EnrollmentItem from "./EnrollmentItem";
 
 export default function RecentEnrollments({ enrollments = [] }) {
 	return (
-		<section>
-			<h2 className="text-xl font-semibold text-gray-700 mb-5">
-				Recent Enrollments
-			</h2>
-			{/* No max-h or scrolling, per user request */}
+		<DashboardSection title="Recent Enrollments">
 			<div className="space-y-3 p-1 pr-2">
 				{enrollments.length > 0 ? (
 					enrollments.map((item) => (
@@ -18,6 +15,6 @@ export default function RecentEnrollments({ enrollments = [] }) {
 					</p>
 				)}
 			</div>
-		</section>
+		</DashboardSection>
 	);
 }

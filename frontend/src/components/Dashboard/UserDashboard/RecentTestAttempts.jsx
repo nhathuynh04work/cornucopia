@@ -1,12 +1,10 @@
 import AttemptHistoryItem from "@/components/TestInfo/AttemptHistoryItem";
+import DashboardSection from "../DashboardSection";
 
 export default function RecentTestAttempts({ attempts = [] }) {
 	return (
-		<section>
-			<h2 className="text-xl font-semibold text-gray-700 mb-5">
-				Recent Test Attempts
-			</h2>
-			<div className={`space-y-3 p-1 pr-2`}>
+		<DashboardSection title="Recent Test Attempts">
+			<div className="space-y-3 p-1 pr-2">
 				{attempts.length > 0 ? (
 					attempts.map((attempt) => (
 						<AttemptHistoryItem
@@ -20,6 +18,6 @@ export default function RecentTestAttempts({ attempts = [] }) {
 					</p>
 				)}
 			</div>
-		</section>
+		</DashboardSection>
 	);
 }

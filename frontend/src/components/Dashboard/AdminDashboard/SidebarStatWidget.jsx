@@ -1,9 +1,8 @@
+import DashboardSection from "../DashboardSection";
+
 export default function SidebarStatWidget({ title, stats }) {
 	return (
-		<section>
-			<h2 className="text-xl font-semibold text-gray-700 mb-5">
-				{title}
-			</h2>
+		<DashboardSection title={title}>
 			<div className="bg-white p-4 rounded-lg border border-gray-200 space-y-3">
 				{stats.map((stat) => (
 					<div
@@ -16,6 +15,6 @@ export default function SidebarStatWidget({ title, stats }) {
 					</div>
 				))}
 			</div>
-		</section>
+		</DashboardSection>
 	);
 }

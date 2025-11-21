@@ -1,11 +1,9 @@
 import CourseCard from "@/components/Courses/CourseCard";
+import DashboardSection from "../DashboardSection";
 
 export default function ContinueLearning({ courses }) {
 	return (
-		<section>
-			<h2 className="text-xl font-semibold text-gray-700 mb-5">
-				Continue Learning
-			</h2>
+		<DashboardSection title="Continue Learning">
 			<div className="flex gap-6 p-1 pb-4 snap-x scroll-container">
 				{courses?.length > 0 ? (
 					courses.map((course) => (
@@ -21,6 +19,6 @@ export default function ContinueLearning({ courses }) {
 					</p>
 				)}
 			</div>
-		</section>
+		</DashboardSection>
 	);
 }

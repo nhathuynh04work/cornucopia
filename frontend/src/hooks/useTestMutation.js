@@ -90,6 +90,20 @@ export function useAddOption(itemId, { disableToast = true } = {}) {
 // 3. TEST MUTATIONS
 // ========================================================================
 
+export function useCreateTest() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (data) => testApi.create(data),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["tests"] });
+		},
+		onError: (err) => {
+			toast.error(err.message || "Failed to create test.");
+		},
+	});
+}
+
 export function useUpdateTest({ disableToast = true } = {}) {
 	const testId = useTestEditorStore((s) => s.test?.id);
 

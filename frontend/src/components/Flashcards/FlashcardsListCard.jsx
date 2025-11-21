@@ -10,7 +10,7 @@ export default function FlashcardsListCard({ list }) {
 	return (
 		<Link
 			to={`/flashcards/${list.id}/edit`}
-			className="group relative block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md hover:translate-y-[-2px] focus:outline-none focus:ring-2 focus:ring-purple-500 p-4">
+			className="h-32 group relative block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md hover:translate-y-[-2px] focus:outline-none focus:ring-2 focus:ring-purple-500 p-4">
 			{/* Info */}
 			<div className="flex flex-col justify-between h-full">
 				<h2
@@ -20,14 +20,12 @@ export default function FlashcardsListCard({ list }) {
 				</h2>
 
 				<div className="flex flex-col gap-3">
-					{!isOwner && (
-						<div className="flex items-center gap-1 mt-1">
-							<Avatar url={list.user.avatarUrl} size="xs" />
-							<span className="text-gray-500 text-xs truncate">
-								{list.user.name}
-							</span>
-						</div>
-					)}
+					<div className="flex items-center gap-1 mt-1">
+						<Avatar url={list.user.avatarUrl} size="xs" />
+						<span className="text-gray-500 text-xs truncate">
+							{!isOwner ? list.user.name : "me"}
+						</span>
+					</div>
 
 					<div className="flex items-center gap-1 text-gray-500 text-xs">
 						<ClipboardList className="w-3.5 h-3.5" />

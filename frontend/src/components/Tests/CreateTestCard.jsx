@@ -1,19 +1,12 @@
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { create } from "@/apis/testApi";
 import { useNavigate } from "react-router";
+import { useCreateTest } from "@/hooks/useTestMutation";
 
 export default function CreateTestCard() {
-	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 
-	const { mutate: createTest, isPending } = useMutation({
-		mutationFn: (data) => create(data),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["tests"] });
-		},
-	});
+	const { mutate: createTest, isPending } = useCreateTest();
 
 	function handleCreate() {
 		createTest(
