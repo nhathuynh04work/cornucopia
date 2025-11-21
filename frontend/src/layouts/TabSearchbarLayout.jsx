@@ -33,7 +33,7 @@ export default function TabsSearchbarLayout({
 				onSearchChange={handleChange}
 				searchPlaceholder={searchPlaceholder}
 			/>
-			<div className="mt-6">
+			<div className="mt-6 min-h-96">
 				<Outlet context={{ searchTerm: debouncedValue }} />
 			</div>
 		</div>
