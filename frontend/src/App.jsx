@@ -7,7 +7,6 @@ import Layout from "./layouts/Layout";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import ProfileInfo from "./pages/ProfileInfo";
-import BlogEditor from "./pages/BlogEditor";
 import BlogDetail from "./pages/BlogDetail";
 import TopicPage from "./pages/TopicPage";
 import TestInfo from "./pages/TestInfo";
@@ -34,6 +33,7 @@ import PostsLayout from "./layouts/PostsLayout";
 import { AllPosts, MyDrafts, MyPosts } from "./pages/Posts";
 import UsersLayout from "./layouts/UsersLayout";
 import { Admins, Creators, Users } from "./pages/Users";
+import BlogEdit from "./pages/BlogEdit";
 
 function App() {
 	return (
@@ -55,19 +55,17 @@ function App() {
 						<Route path="stats" element={<ProfileStats />} />
 					</Route>
 
-          {/* Blog Routes */}
-          <Route path="blog" element={<PostsLayout />}>
-            <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<AllPosts />} />
-            <Route path="my" element={<MyPosts />} />
-            <Route path="draft" element={<MyDrafts />} />
-          </Route>
-          <Route path="blog/:id" element={<BlogDetail />} />
-          <Route path="blog/:id/:slug" element={<BlogDetail />} />
-          <Route path="blog/:id/edit" element={<BlogEditor />} />
+					{/* Blog Routes */}
+					<Route path="posts" element={<PostsLayout />}>
+						<Route index element={<Navigate to="all" replace />} />
+						<Route path="all" element={<AllPosts />} />
+						<Route path="my" element={<MyPosts />} />
+						<Route path="draft" element={<MyDrafts />} />
+					</Route>
+					<Route path="posts/:id" element={<BlogDetail />} />
 
-          {/* Topic Routes */}
-          <Route path="topics/:slug" element={<TopicPage />} />
+					{/* Topic Routes */}
+					<Route path="topics/:id" element={<TopicPage />} />
 
 					{/* Test Routes */}
 					<Route path="/tests" element={<TestsLayout />}>
@@ -114,6 +112,7 @@ function App() {
 				</Route>
 
 				{/* --- Routes Outside Main Layout --- */}
+				<Route path="posts/:id/edit" element={<BlogEdit />} />
 				<Route path="tests/:id/edit" element={<TestEdit />} />
 				<Route path="tests/:id/attempt" element={<TestAttempt />} />
 				<Route path="courses/:id/learn" element={<CourseLearn />} />
