@@ -7,7 +7,6 @@ import Layout from "./layouts/Layout";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import ProfileInfo from "./pages/ProfileInfo";
-import Blog from "./pages/Blog";
 import BlogEditor from "./pages/BlogEditor";
 import BlogDetail from "./pages/BlogDetail";
 import TopicPage from "./pages/TopicPage";
@@ -31,6 +30,8 @@ import TestsLayout from "./layouts/TestsLayout";
 import FlashcardsLayout from "./layouts/FlashcardsLayout";
 import { AllCourses, EnrolledCourses, MyCourses } from "./pages/Courses";
 import { AllTests, AttemptedTests, MyTests } from "./pages/Tests";
+import PostsLayout from "./layouts/PostsLayout";
+import { AllPosts, MyDrafts, MyPosts } from "./pages/Posts";
 
 function App() {
   return (
@@ -53,10 +54,24 @@ function App() {
           </Route>
 
           {/* Blog Routes */}
-          <Route path="blog" element={<Blog />} />
+          <Route path="blog" element={<PostsLayout />}>
+            <Route index element={<Navigate to="all" replace />} />
+            <Route path="all" element={<AllPosts />} />
+            <Route path="my" element={<MyPosts />} />
+            <Route path="draft" element={<MyDrafts />} />
+          </Route>
           <Route path="blog/:id" element={<BlogDetail />} />
           <Route path="blog/:id/:slug" element={<BlogDetail />} />
           <Route path="blog/:id/edit" element={<BlogEditor />} />
+
+          {/* Courses Routes
+          <Route path="/courses" element={<CoursesLayout />}>
+            <Route index element={<Navigate to="all" replace />} />
+            <Route path="all" element={<AllCourses />} />
+            <Route path="enrolled" element={<EnrolledCourses />} />
+            <Route path="admin" element={<MyCourses />} />
+          </Route>
+          <Route path="courses/:id" element={<CourseInfo />} /> */}
 
           {/* Topic Routes */}
           <Route path="topics/:slug" element={<TopicPage />} />

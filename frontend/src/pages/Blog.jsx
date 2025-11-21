@@ -11,8 +11,11 @@ import { stripHtml } from "../lib/text";
 import { FaPlus } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useTopicData } from "../hooks/useTopicData";
+import { useAuth } from "@/contexts/AuthContext";
+import { Role } from "@/lib/constants";
 
 export default function Blog() {
+  const { role } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [search, setSearch] = useState("");
@@ -97,12 +100,14 @@ export default function Blog() {
         <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
           BÀI VIẾT
         </h1>
-        <button
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 font-semibold flex items-center gap-2"
-          onClick={handleCreateNewPost}
-        >
-          <FaPlus /> Tạo bài viết
-        </button>
+        {role === Role.ADMIN && (
+          <button
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 font-semibold flex items-center gap-2"
+            onClick={handleCreateNewPost}
+          >
+            <FaPlus /> Tạo bài viết
+          </button>
+        )}
       </div>
 
       <div className="max-w-7xl mx-auto px-8 mt-10 grid grid-cols-1 md:grid-cols-4 gap-10">
