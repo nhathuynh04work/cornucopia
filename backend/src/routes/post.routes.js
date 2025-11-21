@@ -20,14 +20,14 @@ router.get("/:id", validateParams(["id"]), postController.getPost);
 router.post(
   "/",
   authenticateJWT,
-  requireRole(Role.ADMIN),
+  requireRole(Role.ADMIN, Role.CREATOR),
   postController.createDefaultPost
 );
 
 router.put(
   "/:id",
   authenticateJWT,
-  requireRole(Role.ADMIN),
+  requireRole(Role.ADMIN, Role.CREATOR),
   validateParams(["id"]),
   validateSchema(UpdatePostSchema),
   postController.updatePost
