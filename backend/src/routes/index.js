@@ -2,7 +2,7 @@ export { default as authRouter } from "./auth.routes.js";
 export { default as listRouter } from "./list.routes.js";
 export { default as cardRouter } from "./card.routes.js";
 export { default as postRouter } from "./post.routes.js";
-export { default as topicRouter } from "./topic.routes.js";
+export { default as tagRouter } from "./tag.routes.js";
 export { default as mediaRouter } from "./media.routes.js";
 export { default as testRouter } from "./test.routes.js";
 export { default as itemRouter } from "./item.routes.js";

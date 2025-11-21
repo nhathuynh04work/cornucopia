@@ -37,12 +37,6 @@ export const errorMessage = {
 	MEDIA_ORPHAN: "Media is orphan",
 };
 
-export const defaultPost = {
-	title: "Bài viết mặc định",
-	content: "<p>Nội dung mặc định</p>",
-	status: "draft",
-};
-
 export const itemTypeEnum = {
 	// question types
 	MULTIPLE_CHOICE: "multiple_choice",
@@ -68,10 +62,23 @@ export const expireTime = {
 export const defaults = {
 	QUESTION_TEXT: "This is a question",
 	OPTION_TEXT: "This is an option",
-	POST_INFO: {
-		title: "Bài viết mặc định",
-		content: "<p>Nội dung mặc định</p>",
-		status: "draft",
+	POST: {
+		title: "Welcome to the Community!",
+		excerpt:
+			"This is your first post. Use this space to introduce yourself, share language learning tips, or document your progress for others to see.",
+		content: `
+        <h2>Hello World!</h2>
+        <p>Welcome to your personal learning blog. This is a default post created just for you.</p>
+        
+        <h3>What can you do here?</h3>
+        <ul>
+            <li><strong>Share Tips:</strong> Help others by sharing what works for you.</li>
+            <li><strong>Track Progress:</strong> Write about your daily learning milestones.</li>
+            <li><strong>Ask Questions:</strong> Engage with the community.</li>
+        </ul>
+        
+        <p>You can edit or delete this post at any time. Happy learning!</p>
+    `,
 	},
 	MODULE_INFO: {
 		title: "New module",

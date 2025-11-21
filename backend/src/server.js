@@ -2,23 +2,23 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
 import {
-  authRouter,
-  testRouter,
-  optionRouter,
-  itemRouter,
-  postRouter,
-  topicRouter,
-  cardRouter,
-  listRouter,
-  sessionRouter,
-  userRouter,
-  mediaRouter,
-  attemptRouter,
-  courseRouter,
-  moduleRouter,
-  lessonRouter,
-  ragRouter,
-  checkoutRouter,
+	authRouter,
+	testRouter,
+	optionRouter,
+	itemRouter,
+	postRouter,
+	cardRouter,
+	listRouter,
+	sessionRouter,
+	userRouter,
+	mediaRouter,
+	attemptRouter,
+	courseRouter,
+	moduleRouter,
+	lessonRouter,
+	ragRouter,
+	checkoutRouter,
+	tagRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -47,7 +47,7 @@ app.use("/auth", authRouter);
 app.use("/lists", listRouter);
 app.use("/cards", cardRouter);
 app.use("/posts", postRouter);
-app.use("/topics", topicRouter);
+app.use("/tags", tagRouter);
 app.use("/media", mediaRouter);
 app.use("/tests", testRouter);
 app.use("/items", itemRouter);

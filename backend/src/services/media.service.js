@@ -70,6 +70,22 @@ export async function setEntityProperty({
 			});
 		}
 
+		if (entityType === entityEnum.POST) {
+			// FIX ME: ownership check (ensure user owns post)
+			const post = await prisma.post.findUnique({
+				where: { id: entityId },
+			});
+
+			if (!post) throw new NotFoundError("Post not found");
+
+			oldKey = urlToS3Key(post.coverUrl);
+
+			await prisma.post.update({
+				where: { id: entityId },
+				data: { coverUrl: url },
+			});
+		}
+
 		// CASE: lesson
 		if (entityType === entityEnum.LESSON) {
 			// FIX ME: ownership check

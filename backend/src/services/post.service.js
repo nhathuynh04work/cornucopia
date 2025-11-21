@@ -1,72 +1,105 @@
-// src/services/post.service.js
 import prisma from "../prisma.js";
 import { NotFoundError } from "../utils/AppError.js";
-import { defaultPost } from "../utils/constants.js";
+import { defaults } from "../utils/constants.js";
 import * as postRepo from "../repositories/post.repository.js";
 import * as ragService from "../chatbot/rag.service.js";
+import { PostStatus } from "../generated/prisma/index.js";
 
 export async function createDefaultPost(authorId) {
-  const slug = `default-post-${Date.now()}`;
-  const post = await postRepo.createPost({ ...defaultPost, authorId, slug });
+	const tagName = "chung".toLowerCase();
 
-  // gán topic mặc định (id = 1)
-  await postRepo.replacePostTopics(post.id, [1]);
+	const post = await postRepo.createPost({
+		...defaults.POST,
+		authorId,
+		tags: {
+			connectOrCreate: {
+				where: { name: tagName },
+				create: { name: tagName },
+			},
+		},
+	});
 
-  // ✅ tự index dữ liệu cho chatbot nếu có content
-  if (post?.content) {
-    await ragService.reindexPost(post.id, post.content);
-  }
+	if (post?.content) {
+		await ragService.reindexPost(post.id, post.content);
+	}
 
-  return postRepo.findById(post.id);
+	return post;
 }
 
 export async function getPost(id) {
-  const post = await postRepo.findById(id);
-  if (!post) throw new NotFoundError("Post not found");
-  return post;
+	const post = await prisma.post.findUnique({
+		where: { id },
+		include: { author: true, tags: true },
+	});
+
+	if (!post) {
+		throw new NotFoundError("Post not found.");
+	}
+
+	return post;
 }
 
-/**
- * Lấy danh sách bài viết PUBLIC (dùng cho AllPosts)
- * - chỉ trả status = 'published'
- */
 export async function getPosts() {
-  return postRepo.getAllPosts();
+	const posts = await prisma.post.findMany({
+		where: { status: PostStatus.PUBLIC },
+		include: { author: true, tags: true },
+		orderBy: { createdAt: "desc" },
+	});
+
+	return posts;
 }
 
-/**
- * Lấy tất cả bài viết của user hiện tại (dùng cho /posts/my)
- * - frontend MyPosts/MyDrafts sẽ filter theo status
- */
 export async function getMyPosts(authorId) {
-  return postRepo.getPostsByAuthor(authorId);
+	const posts = await prisma.post.findMany({
+		where: { authorId: authorId },
+		include: { author: true, tags: true },
+		orderBy: { createdAt: "desc" },
+	});
+
+	return posts;
 }
 
 export async function deletePost(id) {
-  const post = await postRepo.findById(id);
-  if (!post) throw new NotFoundError("Post not found");
-  await postRepo.deletePostById(id);
+	const post = await prisma.post.findUnique({
+		where: { id },
+	});
+
+	if (!post) {
+		throw new NotFoundError("Post not found.");
+	}
+
+	await prisma.post.delete({ where: { id } });
 }
 
 export async function updatePost(id, payload) {
-  const post = await postRepo.findById(id);
-  if (!post) throw new NotFoundError("Post not found");
+	const post = await prisma.post.findUnique({
+		where: { id },
+	});
 
-  await prisma.$transaction(async (client) => {
-    const { topicIds, ...rest } = payload;
-    await postRepo.updatePostBase(id, rest, client);
+	if (!post) {
+		throw new NotFoundError("Post not found");
+	}
 
-    if (Array.isArray(topicIds)) {
-      const topicIdsToUse = topicIds.length ? [...topicIds] : [1];
-      await postRepo.replacePostTopics(id, topicIdsToUse, client);
-    }
+	const { tags, ...rest } = payload;
 
-    // ✅ tự index lại sau khi cập nhật nội dung
-    const updated = await postRepo.findById(id, client);
-    if (updated?.content) {
-      await ragService.reindexPost(updated.id, updated.content, client);
-    }
-  });
+	const updateData = { ...rest };
 
-  return postRepo.findById(id);
+	const normalizedTags = tags.map((t) => t.toLowerCase());
+
+	updateData.tags = {
+		set: [],
+
+		connectOrCreate: normalizedTags.map((t) => ({
+			where: { name: t },
+			create: { name: t },
+		})),
+	};
+
+	const updatedPost = await postRepo.updatePost(id, updateData);
+
+	if (updatedPost?.content) {
+		await ragService.reindexPost(updatedPost.id, updatedPost.content);
+	}
+
+	return updatedPost;
 }
