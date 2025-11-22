@@ -1,39 +1,40 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deletePost, createPost } from "@/apis/postApi";
+import { deletePost, createPost, updatePost } from "@/apis/postApi";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router";
 
-export function useDeletePostMutation(onAfterDelete) {
-  const queryClient = useQueryClient();
+export function useUpdatePost() {
+	const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id) => deletePost(id),
-    onSuccess: () => {
-      toast.success("Đã xóa bài viết.");
-      queryClient.invalidateQueries(["posts"]);
-      queryClient.invalidateQueries(["posts", "my"]);
-      onAfterDelete?.();
-    },
-    onError: (err) => {
-      toast.error(err?.message || "Không thể xóa bài viết.");
-    },
-  });
+	return useMutation({
+		mutationFn: ({ postId, payload }) => updatePost(postId, payload),
+		onSuccess: () => {
+			queryClient.invalidateQueries(["posts"]);
+		},
+	});
 }
 
-export function useCreatePostMutation() {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
+export function useDeletePost() {
+	const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: () => createPost(),
-    onSuccess: (post) => {
-      toast.success("Đã tạo bài viết mới.");
-      queryClient.invalidateQueries(["posts"]);
-      queryClient.invalidateQueries(["posts", "my"]);
-      navigate(`/blog/${post.id}/edit`);
-    },
-    onError: (err) => {
-      toast.error(err?.message || "Không thể tạo bài viết.");
-    },
-  });
+	return useMutation({
+		mutationFn: ({ id }) => deletePost(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries(["posts"]);
+		},
+		onError: (err) => {
+			toast.error(err?.message || "Không thể xóa bài viết.");
+		},
+	});
+}
+
+export function useCreatePost() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: () => createPost(),
+		onSuccess: () => {
+			queryClient.invalidateQueries(["posts"]);
+		},
+		onError: () => toast.error("Không thể tạo bài viết."),
+	});
 }

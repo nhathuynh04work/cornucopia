@@ -11,7 +11,7 @@ export function useRequestUploadUrl() {
 	});
 }
 
-export function useSetMediaProperty({ onSuccess, onError }) {
+export function useSetMediaProperty({ onSuccess, onError } = {}) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
@@ -37,6 +37,11 @@ export function useSetMediaProperty({ onSuccess, onError }) {
 			if (variables.entityType === "user") {
 				queryClient.invalidateQueries({
 					queryKey: ["user", variables.entityId],
+				});
+			}
+			if (variables.entityType === "post") {
+				queryClient.invalidateQueries({
+					queryKey: ["posts", variables.entityId],
 				});
 			}
 

@@ -4,7 +4,7 @@ import { Role } from "@/lib/constants";
 
 const navItems = [
 	{ name: "Tests", path: "/tests" },
-	{ name: "Blog", path: "/blog" },
+	{ name: "Blog", path: "/posts" },
 	{ name: "Flashcards", path: "/flashcards" },
 	{ name: "Courses", path: "/courses" },
 ];

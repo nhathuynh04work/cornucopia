@@ -190,7 +190,7 @@ export async function getDashboardDataForUser({ userId }) {
 			},
 		}),
 
-		// DISCOVER: POSTS
+		// DISCOVER: POSTS (UPDATED for TAGS)
 		prisma.post.findMany({
 			where: { status: "PUBLIC" },
 			take: 8,
@@ -198,7 +198,8 @@ export async function getDashboardDataForUser({ userId }) {
 			select: {
 				id: true,
 				title: true,
-				slug: true,
+				excerpt: true, // Added excerpt for dashboard
+				// slug: true, // Removed slug
 				publishedAt: true,
 				createdAt: true,
 				coverUrl: true,
@@ -208,11 +209,9 @@ export async function getDashboardDataForUser({ userId }) {
 						avatarUrl: true,
 					},
 				},
-				topics: {
+				tags: {
 					select: {
-						topic: {
-							select: { name: true },
-						},
+						name: true,
 					},
 				},
 			},
@@ -252,7 +251,9 @@ export async function getDashboardDataForUser({ userId }) {
 
 	const discoverBlogPosts = discoverBlogPostsData.map((post) => ({
 		...post,
-		tags: post.topics.map((t) => t.topic.name),
+		// Updated mapping: flatten tags array of objects to array of strings if needed,
+		// or keep as objects. Here we keep array of { name: "..." } or map to strings:
+		tags: post.tags.map((t) => t.name),
 	}));
 
 	return {
@@ -303,19 +304,17 @@ export async function getDashboardDataForCreator({ userId }) {
 				},
 			}),
 
-			// 2. Get all enrollments for this creator's courses
 			prisma.userCourseEnrollment.findMany({
 				where: {
 					course: { userId: userId },
 				},
 				include: {
-					user: { select: { name: true } }, // The student
+					user: { select: { name: true } },
 					course: { select: { name: true, price: true } },
 				},
 				orderBy: { createdAt: "desc" },
 			}),
 
-			// 3. Get total test attempts on this creator's tests
 			prisma.attempt.count({
 				where: {
 					test: { userId: userId },
@@ -327,7 +326,6 @@ export async function getDashboardDataForCreator({ userId }) {
 		throw new Error("Creator not found");
 	}
 
-	// --- Process Stats ---
 	const totalEnrollments = allEnrollments.length;
 	const totalRevenue = allEnrollments.reduce(
 		(sum, enrollment) => sum + enrollment.course.price,
@@ -335,16 +333,15 @@ export async function getDashboardDataForCreator({ userId }) {
 	);
 
 	const stats = {
-		totalRevenue: totalRevenue, // This is an integer (e.g., 1482050 for $14,820.50)
+		totalRevenue: totalRevenue,
 		totalEnrollments: totalEnrollments,
 		totalTestAttempts: totalTestAttempts,
 	};
 
-	// --- Process Content Lists ---
 	const content = {
 		courses: creatorContent.courses.map((c) => ({
 			...c,
-			title: c.name, // Remap 'name' to 'title'
+			title: c.name,
 			enrollments: c._count.enrollments,
 		})),
 		tests: creatorContent.tests.map((t) => ({
@@ -355,7 +352,6 @@ export async function getDashboardDataForCreator({ userId }) {
 		flashcards: creatorContent.flashcardLists,
 	};
 
-	// --- Process Recent Enrollments (List) ---
 	const recentEnrollments = allEnrollments.slice(0, 5).map((e) => ({
 		id: e.id,
 		userName: e.user.name || "Enrolled User",
@@ -363,12 +359,10 @@ export async function getDashboardDataForCreator({ userId }) {
 		date: e.createdAt,
 	}));
 
-	// --- Process Enrollment Chart Data (Last 30 Days in 5 Buckets) ---
 	const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 	const labels = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5 (Current)"];
-	const buckets = [0, 0, 0, 0, 0]; // 5 buckets for 6-day periods + 1 for current
+	const buckets = [0, 0, 0, 0, 0];
 
-	// Filter enrollments for the last 30 days
 	const recentEnrollmentDates = allEnrollments
 		.map((e) => e.createdAt)
 		.filter((date) => date >= thirtyDaysAgo);
@@ -378,14 +372,11 @@ export async function getDashboardDataForCreator({ userId }) {
 
 	for (const date of recentEnrollmentDates) {
 		const diff = now - date.getTime();
-		if (diff < sixDaysInMillis) buckets[4]++; // 0-6 days ago (Week 5)
-		else if (diff < sixDaysInMillis * 2)
-			buckets[3]++; // 6-12 days ago (Week 4)
-		else if (diff < sixDaysInMillis * 3)
-			buckets[2]++; // 12-18 days ago (Week 3)
-		else if (diff < sixDaysInMillis * 4)
-			buckets[1]++; // 18-24 days ago (Week 2)
-		else if (diff < sixDaysInMillis * 5) buckets[0]++; // 24-30 days ago (Week 1)
+		if (diff < sixDaysInMillis) buckets[4]++;
+		else if (diff < sixDaysInMillis * 2) buckets[3]++;
+		else if (diff < sixDaysInMillis * 3) buckets[2]++;
+		else if (diff < sixDaysInMillis * 4) buckets[1]++;
+		else if (diff < sixDaysInMillis * 5) buckets[0]++;
 	}
 
 	const enrollmentChartData = {
@@ -402,29 +393,21 @@ export async function getDashboardDataForCreator({ userId }) {
 }
 
 export async function getDashboardDataForAdmin() {
-	// Define time ranges
 	const thirtyFiveDaysAgo = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000);
 	const sixMonthsAgo = new Date();
 	sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
 	const [
-		// Platform Overview Stats
 		totalUsers,
 		totalCreators,
 		totalPublicCourses,
 		allEnrollments,
-
-		// Growth Metrics Data
 		signupData,
 		revenueData,
-
-		// Recent Activity Feeds
 		newUsers,
 		newCourses,
 		newTests,
 		newBlogPosts,
-
-		// Sidebar Stats
 		totalTestAttempts,
 		totalStudySessions,
 		totalCourses,
@@ -499,7 +482,6 @@ export async function getDashboardDataForAdmin() {
 		prisma.flashcardList.count(),
 	]);
 
-	// --- 1. Process Platform Overview ---
 	const totalRevenue = allEnrollments.reduce(
 		(sum, e) => sum + (e.course?.price || 0),
 		0
@@ -511,9 +493,6 @@ export async function getDashboardDataForAdmin() {
 		{ title: "Public Courses", value: totalPublicCourses },
 	];
 
-	// --- 2. Process Growth Metrics ---
-
-	// New User Signups Chart (7 buckets, 5 days each)
 	const signupLabels = [
 		"31-35d ago",
 		"26-30d ago",
@@ -538,7 +517,6 @@ export async function getDashboardDataForAdmin() {
 		else signupBuckets[0]++;
 	}
 
-	// Revenue Chart (6 monthly buckets)
 	const monthNames = [
 		"Jan",
 		"Feb",
@@ -574,10 +552,9 @@ export async function getDashboardDataForAdmin() {
 		revenue: {
 			labels: revenueLabels,
 			data: revenueBuckets.map((price) => price / 100),
-		}, // Convert from cents
+		},
 	};
 
-	// --- 3. Process Recent Activity ---
 	const formattedNewContent = [
 		...newCourses.map((c) => ({
 			id: `c-${c.id}`,
@@ -612,7 +589,6 @@ export async function getDashboardDataForAdmin() {
 			.slice(0, 5),
 	};
 
-	// --- 4. Process Sidebar Stats ---
 	const sidebarStats = {
 		engagement: [
 			{ label: "Total Test Attempts", value: totalTestAttempts },

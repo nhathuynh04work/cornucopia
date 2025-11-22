@@ -1,6 +1,4 @@
-import { randomUUID } from "crypto";
 import { getUploadURL } from "../config/s3.js";
-import * as mediaRepo from "../repositories/media.repository.js";
 import * as userRepo from "../repositories/user.repository.js";
 import * as lessonRepo from "../repositories/lesson.repository.js";
 import * as s3 from "../config/s3.js";
@@ -26,7 +24,7 @@ function urlToS3Key(url) {
 }
 
 export async function generateUploadUrl({ fileName, fileType }) {
-	const key = `uploads/${randomUUID()}-${fileName}`;
+	const key = `uploads/${crypto.randomUUID()}-${fileName}`;
 	const uploadUrl = await getUploadURL(key, fileType);
 	const url = `${env.BUCKET_URL}/${key}`;
 
@@ -65,6 +63,23 @@ export async function setEntityProperty({
 			});
 			oldKey = urlToS3Key(course.coverUrl);
 			await prisma.course.update({
+				where: { id: entityId },
+				data: { coverUrl: url },
+			});
+		}
+
+		// CASE: post
+		if (entityType === entityEnum.POST) {
+			// FIX ME: ownership check (ensure user owns post)
+			const post = await prisma.post.findUnique({
+				where: { id: entityId },
+			});
+
+			if (!post) throw new NotFoundError("Post not found");
+
+			oldKey = urlToS3Key(post.coverUrl);
+
+			await prisma.post.update({
 				where: { id: entityId },
 				data: { coverUrl: url },
 			});
@@ -111,18 +126,22 @@ export async function linkMediaToEntity(data) {
 			mediaData.testItemId = entityId;
 			break;
 
+		case entityEnum.POST:
+			mediaData.postId = entityId;
+			break;
+
 		default:
 			throw new BadRequestError(errorMessage.INVALID_INPUT);
 	}
 
 	// Create the record and return the new media object
-	const newMedia = await mediaRepo.create(mediaData);
+	const newMedia = await prisma.media.create({ data: mediaData });
 	return newMedia;
 }
 
 export async function deleteMedia(mediaId) {
-	const media = await mediaRepo.findById(mediaId);
-	if (!media) throw new NotFoundError(errorMessage.MEDIA_NOT_FOUND);
+	const media = await prisma.media.findUnique({ where: { id: mediaId } });
+	if (!media) throw new NotFoundError("Media not found");
 
 	const key = urlToS3Key(media.url);
 
@@ -134,5 +153,5 @@ export async function deleteMedia(mediaId) {
 		console.error(`Could not parse S3 key from URL: ${media.url}`);
 	}
 
-	await mediaRepo.remove(mediaId);
+	await prisma.media.delete({ where: { id: mediaId } });
 }

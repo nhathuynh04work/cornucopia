@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-    url      = env("DB_URL")
 }
 
 model User {
@@ -84,6 +83,10 @@ model Media {
     // Belongs to a TestItem 
     testItemId Int?      @map("test_item_id")
     testItem   TestItem? @relation("TestItemToMedia", fields: [testItemId], references: [id], onDelete: Cascade)
+
+    // Belongs to a Post
+    postId Int?  @map("post_id")
+    post   Post? @relation("PostToMedia", fields: [postId], references: [id], onDelete: Cascade)
 
     @@map("media")
 }
@@ -224,46 +227,38 @@ model Flashcard {
     @@map("flashcards")
 }
 
-model Topic {
-    id          Int         @id @default(autoincrement())
-    name        String      @unique
-    slug        String      @unique
-    description String?
-    createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-    posts       PostTopic[]
+model Tag {
+    id        Int      @id @default(autoincrement())
+    name      String   @unique
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-    @@map("topics")
+    posts Post[]
+
+    @@map("tags")
 }
 
 model Post {
-    id          Int       @id @default(autoincrement())
-    authorId    Int       @map("author_id")
+    id          Int        @id @default(autoincrement())
+    authorId    Int        @map("author_id")
     title       String
-    slug        String    @unique
+    excerpt     String?    @db.Text
     content     String
-    status      String    @default("draft") @db.VarChar(20)
-    publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
-    createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-    coverUrl    String?   @map("cover_url")
+    status      PostStatus @default(DRAFT)
+    publishedAt DateTime?  @map("published_at") @db.Timestamptz(6)
+    createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+    coverUrl    String?    @map("cover_url")
 
     author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    topics PostTopic[]
-    // Quan hệ ngược Post -> PostChunk
+    tags   Tag[]
     chunks PostChunk[] @relation("PostToChunks")
+    medias Media[]     @relation("PostToMedia")
 
     @@map("posts")
 }
 
-model PostTopic {
-    postId     Int      @map("post_id")
-    topicId    Int      @map("topic_id")
-    assignedAt DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
-
-    post  Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
-    topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
-    @@id([postId, topicId])
-    @@map("post_topics")
+enum PostStatus {
+    DRAFT
+    PUBLIC
 }
 
 model StudySession {

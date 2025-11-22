@@ -35,8 +35,8 @@ export async function getAttemptHistory(testId) {
 	return data.attempts;
 }
 
-export async function create(input) {
-	const { data } = await api.post("/tests", input);
+export async function create(payload) {
+	const { data } = await api.post("/tests", payload);
 	return data.test;
 }
 
@@ -49,7 +49,7 @@ export async function remove(id) {
 	await api.delete(`/tests/${id}`);
 }
 
-export async function addItem(testId, input) {
-	const { data } = await api.post(`/tests/${testId}/items`, input);
+export async function addItem(testId, payload) {
+	const { data } = await api.post(`/tests/${testId}/items`, payload);
 	return data.item;
 }

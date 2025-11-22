@@ -2,23 +2,23 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
 import {
-  authRouter,
-  testRouter,
-  optionRouter,
-  itemRouter,
-  postRouter,
-  topicRouter,
-  cardRouter,
-  listRouter,
-  sessionRouter,
-  userRouter,
-  mediaRouter,
-  attemptRouter,
-  courseRouter,
-  moduleRouter,
-  lessonRouter,
-  ragRouter,
-  checkoutRouter,
+	authRouter,
+	testRouter,
+	optionRouter,
+	itemRouter,
+	postRouter,
+	cardRouter,
+	listRouter,
+	sessionRouter,
+	userRouter,
+	mediaRouter,
+	attemptRouter,
+	courseRouter,
+	moduleRouter,
+	lessonRouter,
+	ragRouter,
+	checkoutRouter,
+	tagRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -35,9 +35,7 @@ app.use(
 
 app.use("/checkout", checkoutRouter);
 
-// tăng giới hạn body cho JSON & form
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.json());
 
 // Passport
 app.use(passport.initialize());
@@ -47,7 +45,7 @@ app.use("/auth", authRouter);
 app.use("/lists", listRouter);
 app.use("/cards", cardRouter);
 app.use("/posts", postRouter);
-app.use("/topics", topicRouter);
+app.use("/tags", tagRouter);
 app.use("/media", mediaRouter);
 app.use("/tests", testRouter);
 app.use("/items", itemRouter);
@@ -59,14 +57,6 @@ app.use("/attempts", attemptRouter);
 app.use("/courses", courseRouter);
 app.use("/modules", moduleRouter);
 app.use("/lessons", lessonRouter);
-
-// Handler riêng cho payload quá lớn (413)
-app.use((err, req, res, next) => {
-	if (err?.type === "entity.too.large") {
-		return res.status(413).json({ error: "Payload too large" });
-	}
-	next(err);
-});
 
 // Error handler
 app.use(errorHandler);

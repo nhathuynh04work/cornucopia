@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function FlashcardsListCard({ list }) {
 	const { user } = useAuth();
-	const isOwner = list.user.id === user.id;
+	const isOwner = list.user.id === user?.id;
 
 	return (
 		<Link

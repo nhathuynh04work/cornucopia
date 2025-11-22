@@ -1,97 +1,82 @@
 import { Link } from "react-router";
-import { formatVNDateTime } from "@/lib/text";
+import { formatVNDate } from "@/lib/text";
+import { Calendar, User, ImageIcon } from "lucide-react";
+import StatusBadge from "../StatusBadge";
 
-export default function PostCard({ post = {} }) {
-  const {
-    id,
-    slug,
-    title = "",
-    coverUrl = null,
-    publishedAt,
-    createdAt,
-    status = "",
-    topics = [],
-    author,
-    author_name,
-    excerpt,
-  } = post;
+export default function PostCard({ post }) {
+	const displayDate = formatVNDate(post.publishedAt ?? post.createdAt);
+	const to =
+		post.status === "DRAFT"
+			? `/posts/${post.id}/edit`
+			: `/posts/${post.id}`;
 
-  const postTo = slug ? `/blog/${id}/${slug}` : `/blog/${id}`;
-  const isPublished = status.toLowerCase() === "published";
-  const displayDate = isPublished
-    ? formatVNDateTime(publishedAt ?? createdAt)
-    : null;
+	return (
+		<article className="group flex flex-col md:flex-row gap-6 p-5 bg-white rounded-xl border border-gray-200 transition-all duration-200">
+			{/* Cover Image */}
+			<Link
+				to={to}
+				className="shrink-0 block overflow-hidden rounded-lg w-full md:w-[240px] h-[160px] bg-gray-100 relative">
+				{post.coverUrl ? (
+					<img
+						src={post.coverUrl}
+						alt={post.title || "cover"}
+						className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+					/>
+				) : (
+					<div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+						<ImageIcon className="w-8 h-8 mb-2 opacity-50" />
+						<span className="text-xs">No image</span>
+					</div>
+				)}
+			</Link>
 
-  const authorName =
-    (typeof author === "string" ? author : author?.name) ?? author_name ?? null;
+			{/* Content */}
+			<div className="flex flex-col flex-1">
+				<div className="flex flex-wrap gap-2 mb-3">
+					{post.tags.map((t) => (
+						<Link key={t.id} to={`/tags/${t.id}`}>
+							<StatusBadge
+								status={t.name}
+								size="xs"
+								className="bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer border !border-purple-100 lowercase"
+							/>
+						</Link>
+					))}
+				</div>
 
-  return (
-    <article className="flex gap-6 py-8">
-      {/* Ảnh bìa */}
-      <Link
-        to={postTo}
-        className="w-[180px] h-[120px] rounded-lg overflow-hidden bg-gray-100 flex-shrink-0"
-      >
-        {coverUrl ? (
-          <img
-            src={coverUrl}
-            alt={title || "cover"}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full grid place-items-center text-gray-400 text-sm">
-            No image
-          </div>
-        )}
-      </Link>
+				{/* Title */}
+				<h2 className="text-xl font-medium text-gray-800 leading-snug mb-2 group-hover:text-purple-600 transition-colors">
+					<Link to={`/posts/${post.id}`}>
+						{post.title || "(Không có tiêu đề)"}
+					</Link>
+				</h2>
 
-      {/* Nội dung */}
-      <div className="flex-1">
-        {/* Chủ đề */}
-        {topics.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {topics.map((t) => (
-              <Link
-                key={t.id ?? t.slug ?? t.name}
-                to={t.slug ? `/topics/${t.slug}` : "#"}
-                className="text-xs font-semibold tracking-widest uppercase bg-blue-50 text-blue-700 px-2 py-0.5 rounded"
-              >
-                {t.name}
-              </Link>
-            ))}
-          </div>
-        )}
+				{/* Excerpt */}
+				{post.excerpt && (
+					<p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mb-4 flex-1">
+						{post.excerpt}
+					</p>
+				)}
 
-        {/* Tiêu đề */}
-        <h2 className="mt-2 text-2xl font-extrabold leading-snug">
-          <Link to={postTo} className="hover:underline">
-            {title || "(Không có tiêu đề)"}
-          </Link>
-        </h2>
+				{/* Meta Footer */}
+				<div className="flex items-center justify-between pt-2">
+					<div className="flex items-center gap-4 text-xs text-gray-500 font-medium">
+						<div className="flex items-center gap-1.5">
+							<User className="w-3.5 h-3.5" />
+							<span>{post.author?.name || "Unknown"}</span>
+						</div>
+						<div className="flex items-center gap-1.5">
+							<Calendar className="w-3.5 h-3.5" />
+							<span>{displayDate}</span>
+						</div>
+					</div>
 
-        {/* Tóm tắt */}
-        {excerpt && (
-          <p className="mt-2 text-gray-700 leading-7 line-clamp-3">{excerpt}</p>
-        )}
-
-        {/* Info + actions */}
-        <div className="mt-3 text-sm text-gray-500 flex items-center gap-3">
-          {displayDate ? (
-            <span>{displayDate}</span>
-          ) : status ? (
-            <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-              {status}
-            </span>
-          ) : null}
-
-          {authorName && (
-            <>
-              <span>•</span>
-              <span>bởi {authorName}</span>
-            </>
-          )}
-        </div>
-      </div>
-    </article>
-  );
+					{/* Post Status Badge */}
+					{post.status && (
+						<StatusBadge status={post.status} size="xs" />
+					)}
+				</div>
+			</div>
+		</article>
+	);
 }
