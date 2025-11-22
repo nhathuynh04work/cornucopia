@@ -5,12 +5,16 @@ import StatusBadge from "../StatusBadge";
 
 export default function PostCard({ post }) {
 	const displayDate = formatVNDate(post.publishedAt ?? post.createdAt);
+	const to =
+		post.status === "DRAFT"
+			? `/posts/${post.id}/edit`
+			: `/posts/${post.id}`;
 
 	return (
 		<article className="group flex flex-col md:flex-row gap-6 p-5 bg-white rounded-xl border border-gray-200 transition-all duration-200">
 			{/* Cover Image */}
 			<Link
-				to={`/posts/${post.id}`}
+				to={to}
 				className="shrink-0 block overflow-hidden rounded-lg w-full md:w-[240px] h-[160px] bg-gray-100 relative">
 				{post.coverUrl ? (
 					<img

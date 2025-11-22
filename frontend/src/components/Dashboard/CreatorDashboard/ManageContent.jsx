@@ -10,10 +10,10 @@ export default function ManageContent({ content }) {
 		{ key: "courses", label: "Courses", data: courses, type: "course" },
 		{ key: "tests", label: "Tests", data: tests, type: "test" },
 		{
-			key: "blogPosts",
+			key: "posts",
 			label: "Blog Posts",
 			data: blogPosts,
-			type: "blog",
+			type: "post",
 		},
 		{
 			key: "flashcards",

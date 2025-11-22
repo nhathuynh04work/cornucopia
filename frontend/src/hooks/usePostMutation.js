@@ -17,9 +17,8 @@ export function useDeletePost() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (id) => deletePost(id),
+		mutationFn: ({ id }) => deletePost(id),
 		onSuccess: () => {
-			toast.success("Đã xóa bài viết.");
 			queryClient.invalidateQueries(["posts"]);
 		},
 		onError: (err) => {
@@ -34,7 +33,6 @@ export function useCreatePost() {
 	return useMutation({
 		mutationFn: () => createPost(),
 		onSuccess: () => {
-			toast.success("Đã tạo bài viết mới.");
 			queryClient.invalidateQueries(["posts"]);
 		},
 		onError: (err) => {

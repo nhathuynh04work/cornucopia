@@ -1,6 +1,7 @@
 import { Loader2, Plus } from "lucide-react";
 import { useCreatePost } from "@/hooks/usePostMutation";
 import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 export default function CreatePostButton() {
 	const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function CreatePostButton() {
 			{
 				onSuccess: (post) => {
 					navigate(`/posts/${post.id}/edit`);
+					toast.success("Tạo bài viết mới thành công!");
 				},
 			}
 		);

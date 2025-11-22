@@ -7,8 +7,7 @@ import Layout from "./layouts/Layout";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import ProfileInfo from "./pages/ProfileInfo";
-import BlogDetail from "./pages/BlogDetail";
-import TopicPage from "./pages/TopicPage";
+import PostDetails from "./pages/PostDetails";
 import TestInfo from "./pages/TestInfo";
 import { Explore, MyFlashcards } from "./pages/Flashcards";
 import FlashcardsDetail from "./pages/FlashcardsDetail";
@@ -62,10 +61,7 @@ function App() {
 						<Route path="my" element={<MyPosts />} />
 						<Route path="draft" element={<MyDrafts />} />
 					</Route>
-					<Route path="posts/:id" element={<BlogDetail />} />
-
-					{/* Topic Routes */}
-					<Route path="topics/:id" element={<TopicPage />} />
+					<Route path="posts/:id" element={<PostDetails />} />
 
 					{/* Test Routes */}
 					<Route path="/tests" element={<TestsLayout />}>

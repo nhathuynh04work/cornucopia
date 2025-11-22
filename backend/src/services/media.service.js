@@ -154,5 +154,5 @@ export async function deleteMedia(mediaId) {
 		console.error(`Could not parse S3 key from URL: ${media.url}`);
 	}
 
-	await prisma.media.delete({ where: { id: med } });
+	await prisma.media.delete({ where: { id: mediaId } });
 }

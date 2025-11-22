@@ -8,7 +8,7 @@ export default function CreatorContentItem({ item, type }) {
 	const isDraft = status === "DRAFT";
 	const showViewButton = type !== "flashcard" && !isDraft;
 
-	const viewLink = `/${type}/${id}`;
+	const viewLink = `/${type}s/${id}`;
 	const editLink = `/${type}s/${id}/edit`;
 
 	return (
