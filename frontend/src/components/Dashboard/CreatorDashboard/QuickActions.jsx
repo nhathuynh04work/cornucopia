@@ -31,7 +31,6 @@ export default function QuickActions() {
 					toast.success("Đã tạo bài kiểm tra! Bắt đầu thôi.");
 					navigate(`/tests/${test.id}/edit`);
 				},
-				onError: () => toast.error("Không thể tạo bài kiểm tra."),
 			}
 		);
 	}
@@ -48,7 +47,6 @@ export default function QuickActions() {
 					toast.success("Đã tạo khóa học! Bắt đầu thôi.");
 					navigate(`/courses/${course.id}/edit`);
 				},
-				onError: () => toast.error("Không thể tạo khóa học."),
 			}
 		);
 	}
@@ -61,7 +59,6 @@ export default function QuickActions() {
 					toast.success("Đã tạo danh sách! Bắt đầu thôi.");
 					navigate(`/flashcards/${list.id}/edit`);
 				},
-				onError: () => toast.error("Không thể tạo danh sách."),
 			}
 		);
 	}
@@ -74,7 +71,6 @@ export default function QuickActions() {
 					toast.success("Đã tạo bài viết! Bắt đầu thôi.");
 					navigate(`/posts/${post.id}/edit`);
 				},
-				onError: () => toast.error("Không thể tạo bài viết."),
 			}
 		);
 	}

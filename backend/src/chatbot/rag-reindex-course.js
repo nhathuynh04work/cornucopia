@@ -1,6 +1,6 @@
 // Giống rag-reindex.js của blog
-import prisma from "../prisma.js";
 import { CourseStatus } from "../generated/prisma/index.js";
+import prisma from "../prisma.js";
 
 // util đơn giản, giống blog
 function stripHtml(html = "") {

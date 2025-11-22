@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import { env } from "../config/env.js";
-import crypto from "crypto";
 import { expireTime } from "./constants.js";
 
 const transporter = nodemailer.createTransport({
@@ -12,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export function createEmailToken() {
-	const token = crypto.randomBytes(32).toString("hex");
+	const token = crypto.randomUUID().toString("hex");
 	const expiresAt = new Date(Date.now() + expireTime.EMAIL_TOKEN);
 	return { token, expiresAt };
 }

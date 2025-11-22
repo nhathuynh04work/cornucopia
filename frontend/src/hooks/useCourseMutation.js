@@ -10,9 +10,7 @@ export function useCreateCourse() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["courses"] });
 		},
-		onError: (err) => {
-			toast.error(err.message || "Failed to create course.");
-		},
+		onError: () => toast.error("Không thể tạo khóa học."),
 	});
 }
 

@@ -35,8 +35,6 @@ export function useCreatePost() {
 		onSuccess: () => {
 			queryClient.invalidateQueries(["posts"]);
 		},
-		onError: (err) => {
-			toast.error(err?.message || "Không thể tạo bài viết.");
-		},
+		onError: () => toast.error("Không thể tạo bài viết."),
 	});
 }

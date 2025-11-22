@@ -10,8 +10,6 @@ export function useCreateList() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["lists"] });
 		},
-		onError: (err) => {
-			toast.error(err.message || "Failed to create list.");
-		},
+		onError: () => toast.error("Không thể tạo danh sách."),
 	});
 }

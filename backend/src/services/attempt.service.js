@@ -3,8 +3,8 @@ import * as testService from "../services/test.service.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { errorMessage } from "../utils/constants.js";
 import { areSetsEqual } from "../utils/compare.js";
-import { GetAttemptsSchema } from "../schemas/attempt.schema.js";
 import { TestItemType } from "../generated/prisma/index.js";
+import prisma from "../prisma.js";
 
 // data: { userId, testId, time, answers }
 export async function createAttempt(data) {

@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { getUploadURL } from "../config/s3.js";
 import * as userRepo from "../repositories/user.repository.js";
 import * as lessonRepo from "../repositories/lesson.repository.js";
@@ -25,7 +24,7 @@ function urlToS3Key(url) {
 }
 
 export async function generateUploadUrl({ fileName, fileType }) {
-	const key = `uploads/${randomUUID()}-${fileName}`;
+	const key = `uploads/${crypto.randomUUID()}-${fileName}`;
 	const uploadUrl = await getUploadURL(key, fileType);
 	const url = `${env.BUCKET_URL}/${key}`;
 

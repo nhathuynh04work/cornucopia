@@ -94,13 +94,11 @@ export function useCreateTest() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (data) => testApi.create(data),
+		mutationFn: (payload) => testApi.create(payload),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["tests"] });
 		},
-		onError: (err) => {
-			toast.error(err.message || "Failed to create test.");
-		},
+		onError: () => toast.error("Không thể tạo bài kiểm tra."),
 	});
 }
 
