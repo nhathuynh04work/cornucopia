@@ -1,26 +1,23 @@
 {
 	"name": "backend",
 	"version": "1.0.0",
-	"description": "",
-	"license": "ISC",
-	"author": "",
 	"type": "module",
 	"main": "src/server.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "nodemon src/server.js"
 	},
-	"prisma": {
-		"seed": "node prisma/seed.js"
+	"overrides": {
+		"hono": "^4.10.3"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.895.0",
 		"@aws-sdk/s3-request-presigner": "^3.895.0",
 		"@google/generative-ai": "^0.21.0",
-		"@prisma/client": "^6.17.1",
+		"@prisma/adapter-pg": "^7.0.0",
+		"@prisma/client": "^7.0.0",
 		"@prisma/config": "^7.0.0",
 		"bcrypt": "^6.0.0",
-		"bcryptjs": "^3.0.3",
 		"cors": "^2.8.5",
 		"dotenv": "^17.2.3",
 		"express": "^5.1.0",
@@ -35,6 +32,6 @@
 		"zod": "^4.1.11"
 	},
 	"devDependencies": {
-		"prisma": "^6.17.1"
+		"prisma": "^7.0.0"
 	}
 }
