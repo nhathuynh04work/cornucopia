@@ -31,14 +31,6 @@ async function main() {
 		},
 	});
 
-	const topic = await prisma.topic.create({
-		data: {
-			name: "Chung",
-			slug: "Chung",
-			description: "Default topic for uncategorized posts",
-		},
-	});
-
 	console.log("Admin created: ", admin.email);
 }
 
