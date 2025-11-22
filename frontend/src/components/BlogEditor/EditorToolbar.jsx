@@ -9,47 +9,23 @@ import {
 	ListOrdered,
 	Quote,
 	Code,
-	Link,
-	Image as ImageIcon,
 	AlignLeft,
 	AlignCenter,
 	AlignRight,
 	Undo,
 	Redo,
 } from "lucide-react";
+import ImageUploadButton from "./ImageUploadButton";
+import LinkButton from "./LinkButton";
 
-export default function EditorToolbar({ editor }) {
+export default function EditorToolbar({ editor, postId }) {
 	if (!editor) return null;
 
 	// Helper to check if a format is active
 	const is = (name, attrs = {}) => editor.isActive(name, attrs);
 
-	const addImage = () => {
-		const url = window.prompt("Enter image URL");
-		if (url) {
-			editor.chain().focus().setImage({ src: url }).run();
-		}
-	};
-
-	const setLink = () => {
-		const previousUrl = editor.getAttributes("link").href;
-		const url = window.prompt("URL", previousUrl);
-
-		if (url === null) return; // cancelled
-		if (url === "") {
-			editor.chain().focus().extendMarkRange("link").unsetLink().run();
-			return;
-		}
-		editor
-			.chain()
-			.focus()
-			.extendMarkRange("link")
-			.setLink({ href: url })
-			.run();
-	};
-
 	return (
-		<div className="sticky top-6 z-40 mb-8 bg-white/80 backdrop-blur-md py-2 px-4 border border-gray-200 rounded-xl flex items-center gap-1 overflow-x-auto no-scrollbar shadow-sm transition-all">
+		<div className="sticky top-[80px] z-40 mb-8 bg-white/80 backdrop-blur-md py-2 px-4 border border-gray-200 rounded-xl flex items-center gap-1 overflow-x-auto no-scrollbar shadow-sm transition-all">
 			{/* Text Style */}
 			<div className="flex items-center gap-0.5 shrink-0">
 				<ToolbarBtn
@@ -141,13 +117,8 @@ export default function EditorToolbar({ editor }) {
 
 			{/* Inserts */}
 			<div className="flex items-center gap-0.5 shrink-0">
-				<ToolbarBtn
-					icon={Link}
-					label="Link"
-					isActive={is("link")}
-					onClick={setLink}
-				/>
-				<ToolbarBtn icon={ImageIcon} label="Image" onClick={addImage} />
+				<LinkButton editor={editor} />
+				<ImageUploadButton editor={editor} postId={postId} />
 			</div>
 			<Divider />
 

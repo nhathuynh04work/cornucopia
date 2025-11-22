@@ -40,9 +40,15 @@ const LinkToTestItemSchema = BaseMediaSchema.extend({
 	entityId: z.number().int(),
 });
 
+const LinkToPostSchema = BaseMediaSchema.extend({
+	entityType: z.literal(entityEnum.POST),
+	entityId: z.number().int(),
+});
+
 export const LinkMediaSchema = z.discriminatedUnion("entityType", [
 	LinkToTestSchema,
 	LinkToTestItemSchema,
+	LinkToPostSchema,
 ]);
 
 // Schema for adding media as a field (one-to-one)

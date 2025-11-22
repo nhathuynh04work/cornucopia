@@ -11,7 +11,12 @@ export async function getMyPosts() {
 }
 
 export async function createPost(payload) {
-	const { data } = await api.post("/posts", payload ?? {});
+	const { data } = await api.post("/posts", payload);
+	return data.post;
+}
+
+export async function updatePost(postId, payload) {
+	const { data } = await api.put(`/posts/${postId}`, payload);
 	return data.post;
 }
 

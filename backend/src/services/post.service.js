@@ -1,14 +1,12 @@
 import prisma from "../prisma.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { defaults } from "../utils/constants.js";
-import * as postRepo from "../repositories/post.repository.js";
 import * as ragService from "../chatbot/rag.service.js";
 import { PostStatus } from "../generated/prisma/index.js";
 
 export async function createDefaultPost(authorId) {
 	const tagName = "chung".toLowerCase();
-
-	const post = await postRepo.createPost({
+	const payload = {
 		...defaults.POST,
 		authorId,
 		tags: {
@@ -17,11 +15,10 @@ export async function createDefaultPost(authorId) {
 				create: { name: tagName },
 			},
 		},
-	});
+	};
 
-	if (post?.content) {
-		await ragService.reindexPost(post.id, post.content);
-	}
+	const post = await prisma.post.create({ data: payload });
+	await ragService.reindexPost(post.id, post.content);
 
 	return post;
 }
@@ -95,7 +92,10 @@ export async function updatePost(id, payload) {
 		})),
 	};
 
-	const updatedPost = await postRepo.updatePost(id, updateData);
+	const updatedPost = await prisma.post.update({
+		where: { id },
+		data: updateData,
+	});
 
 	if (updatedPost?.content) {
 		await ragService.reindexPost(updatedPost.id, updatedPost.content);

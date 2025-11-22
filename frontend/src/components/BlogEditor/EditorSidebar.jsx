@@ -7,7 +7,7 @@ export default function EditorSidebar({ register, setValue, watch, postId }) {
 
 	return (
 		<aside className="hidden lg:block h-full">
-			<div className="sticky top-6 space-y-8">
+			<div className="sticky top-[80px] space-y-8">
 				<CoverImage
 					url={coverUrl}
 					postId={postId}

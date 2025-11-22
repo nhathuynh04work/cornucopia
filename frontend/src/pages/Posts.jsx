@@ -11,7 +11,7 @@ import { useAllPostsQuery, useMyPostsQuery } from "@/hooks/usePostQuery";
 /* ============ SHARED LAYOUT ============ */
 function PostsPageContainer({ children }) {
 	return (
-		<div className="grid grid-cols-8 grid-rows-5 gap-8">
+		<div className="grid grid-cols-8 gap-8">
 			<div className="col-span-2">
 				<TagsList />
 			</div>

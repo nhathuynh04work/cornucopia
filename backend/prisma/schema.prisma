@@ -85,6 +85,10 @@ model Media {
     testItemId Int?      @map("test_item_id")
     testItem   TestItem? @relation("TestItemToMedia", fields: [testItemId], references: [id], onDelete: Cascade)
 
+    // Belongs to a Post
+    postId Int?  @map("post_id")
+    post   Post? @relation("PostToMedia", fields: [postId], references: [id], onDelete: Cascade)
+
     @@map("media")
 }
 
@@ -248,6 +252,7 @@ model Post {
     author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
     tags   Tag[]
     chunks PostChunk[] @relation("PostToChunks")
+    medias Media[]     @relation("PostToMedia")
 
     @@map("posts")
 }

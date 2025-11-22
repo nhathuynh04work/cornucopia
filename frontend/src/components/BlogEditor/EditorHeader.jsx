@@ -1,7 +1,28 @@
 import { Link } from "react-router";
-import { ArrowLeft, Save, Send, MoreVertical } from "lucide-react";
+import {
+	ArrowLeft,
+	Send,
+	MoreVertical,
+	Loader2,
+	CheckCircle2,
+	Cloud,
+} from "lucide-react";
 
-export default function EditorHeader({ isDirty, onSaveDraft, onPublish }) {
+export default function EditorHeader({ isDirty, isSaving, onPublish }) {
+	let statusLabel = "Saved";
+	let StatusIcon = CheckCircle2;
+	let statusColor = "text-gray-400";
+
+	if (isSaving) {
+		statusLabel = "Saving...";
+		StatusIcon = Loader2;
+		statusColor = "text-purple-600";
+	} else if (isDirty) {
+		statusLabel = "Unsaved changes";
+		StatusIcon = Cloud;
+		statusColor = "text-amber-500";
+	}
+
 	return (
 		<nav className="h-[64px] shrink-0 z-50 bg-white border-b border-gray-100 px-6 flex items-center justify-between shadow-sm">
 			<div className="flex items-center gap-4">
@@ -14,24 +35,20 @@ export default function EditorHeader({ isDirty, onSaveDraft, onPublish }) {
 					<span className="text-sm font-semibold text-gray-800">
 						Editing Post
 					</span>
-					<span
-						className={`text-xs font-medium ${
-							isDirty ? "text-amber-600" : "text-gray-400"
-						}`}>
-						{isDirty ? "Unsaved changes" : "All changes saved"}
-					</span>
+
+					<div
+						className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${statusColor}`}>
+						<StatusIcon
+							className={`w-3 h-3 ${
+								isSaving ? "animate-spin" : ""
+							}`}
+						/>
+						<span>{statusLabel}</span>
+					</div>
 				</div>
 			</div>
 
 			<div className="flex items-center gap-3">
-				<button
-					type="button"
-					onClick={onSaveDraft}
-					className="hidden sm:flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 border border-transparent hover:border-gray-200 rounded-lg text-sm font-medium transition-all">
-					<Save className="w-4 h-4" />
-					Save Draft
-				</button>
-
 				<button
 					type="button"
 					onClick={onPublish}

@@ -34,7 +34,7 @@ export default function PostCard({ post }) {
 							<StatusBadge
 								status={t.name}
 								size="xs"
-								className="bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer border border-purple-100"
+								className="bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer border !border-purple-100 lowercase"
 							/>
 						</Link>
 					))}
