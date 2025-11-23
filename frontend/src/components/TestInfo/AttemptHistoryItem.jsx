@@ -1,4 +1,4 @@
-import { formatTime, formatVNDateTime } from "@/lib/text";
+import { formatTime, formatVNDateTime } from "@/lib/formatters";
 import { Clock, CheckCircle, ExternalLink } from "lucide-react";
 import { Link } from "react-router";
 

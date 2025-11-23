@@ -1,7 +1,7 @@
-import FlashcardsListCard from "./FlashcardsListCard";
+import DeckCard from "./DeckCard";
 
-export default function FlashcardsListsList({
-	lists,
+export default function DeckList({
+	decks,
 	isPending,
 	searchTerm,
 	emptyMessage,
@@ -11,13 +11,11 @@ export default function FlashcardsListsList({
 }) {
 	if (isPending) {
 		return (
-			<p className="p-6 text-center text-gray-500">
-				Đang tải danh sách...
-			</p>
+			<p className="p-6 text-center text-gray-500">Đang tải bộ thẻ...</p>
 		);
 	}
 
-	if (!lists || (lists.length === 0 && !prependItem)) {
+	if (!decks || (decks.length === 0 && !prependItem)) {
 		const message = searchTerm ? searchEmptyMessage : emptyMessage;
 		return <p className="text-center text-gray-500 mt-10">{message}</p>;
 	}
@@ -30,8 +28,8 @@ export default function FlashcardsListsList({
 					: "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"
 			}`}>
 			{prependItem}
-			{lists.map((list) => (
-				<FlashcardsListCard key={list.id} list={list} />
+			{decks.map((deck) => (
+				<DeckCard key={deck.id} deck={deck} />
 			))}
 		</div>
 	);

@@ -1,6 +1,6 @@
 import { CheckCircle2, XCircle, AlertCircle, Clock } from "lucide-react";
 import StatsCard from "./StatsCard";
-import { formatTime } from "@/lib/text";
+import { formatTime } from "@/lib/formatters";
 import { Link } from "react-router-dom";
 
 function ResultSidebar({ attemptResult }) {

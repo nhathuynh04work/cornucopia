@@ -9,15 +9,14 @@ import ProfileEdit from "./pages/ProfileEdit";
 import ProfileInfo from "./pages/ProfileInfo";
 import PostDetails from "./pages/PostDetails";
 import TestInfo from "./pages/TestInfo";
-import { Explore, MyFlashcards } from "./pages/Flashcards";
-import FlashcardsDetail from "./pages/FlashcardsDetail";
+import { Explore, MyDecks } from "./pages/Decks";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import ProfileStats from "./pages/ProfileStats";
 import AuthCallback from "./pages/AuthCallback";
 import TestEdit from "./pages/TestEdit";
 import TestAttempt from "./pages/TestAttempt";
 import AttemptResult from "./pages/AttemptResult";
-import FlashcardPractice from "./pages/FlashcardPractice";
+import DeckStudySession from "./pages/DeckStudySession";
 import CourseInfo from "./pages/CourseInfo";
 import CourseEdit from "./pages/CourseEdit";
 import CourseLearn from "./pages/CourseLearn";
@@ -25,7 +24,7 @@ import CoursesLayout from "./layouts/CoursesLayout";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import TestsLayout from "./layouts/TestsLayout";
-import FlashcardsLayout from "./layouts/FlashcardsLayout";
+import DecksLayout from "./layouts/DecksLayout";
 import { AllCourses, EnrolledCourses, MyCourses } from "./pages/Courses";
 import { AllTests, AttemptedTests, MyTests } from "./pages/Tests";
 import PostsLayout from "./layouts/PostsLayout";
@@ -33,6 +32,8 @@ import { AllPosts, MyDrafts, MyPosts } from "./pages/Posts";
 import UsersLayout from "./layouts/UsersLayout";
 import { Admins, Creators, Users } from "./pages/Users";
 import BlogEdit from "./pages/BlogEdit";
+import DeckDetails from "./pages/DeckDetails";
+import DeckEdit from "./pages/DeckEdit";
 
 function App() {
 	return (
@@ -73,18 +74,14 @@ function App() {
 					<Route path="tests/:id" element={<TestInfo />} />
 
 					{/* Flashcard Routes */}
-					<Route path="flashcards" element={<FlashcardsLayout />}>
+					<Route path="flashcards" element={<DecksLayout />}>
 						<Route index element={<Navigate to="my" replace />} />
-						<Route path="my" element={<MyFlashcards />} />
+						<Route path="my" element={<MyDecks />} />
 						<Route path="explore" element={<Explore />} />
 					</Route>
 					<Route
-						path="flashcards/:listId/edit"
-						element={<FlashcardsDetail />}
-					/>
-					<Route
-						path="flashcards/:listId/practice"
-						element={<FlashcardPractice />}
+						path="flashcards/:deckId"
+						element={<DeckDetails />}
 					/>
 
 					{/* Courses Routes */}
@@ -115,6 +112,11 @@ function App() {
 				<Route path="courses/:id/edit" element={<CourseEdit />} />
 				<Route path="confirm" element={<Confirm />} />
 				<Route path="auth/callback" element={<AuthCallback />} />
+				<Route path="flashcards/:deckId/edit" element={<DeckEdit />} />
+				<Route
+					path="flashcards/:deckId/study"
+					element={<DeckStudySession />}
+				/>
 
 				<Route path="*" element={<Navigate to="/" />} />
 			</Routes>

@@ -1,4 +1,4 @@
-import { formatRelativeTime } from "@/lib/text";
+import { formatRelativeTime } from "@/lib/formatters";
 import StatusBadge from "@/components/StatusBadge";
 
 export default function AdminActivityItem({ item, type }) {

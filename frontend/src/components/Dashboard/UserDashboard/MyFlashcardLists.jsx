@@ -1,26 +1,26 @@
-import FlashcardsListCard from "@/components/Flashcards/FlashcardsListCard";
+import DeckList from "@/components/Decks/DeckCard";
 import { useNavigate } from "react-router";
 import { Plus } from "lucide-react";
 import DashboardSection from "../DashboardSection";
-import { useCreateList } from "@/hooks/useListMutation";
+import { useCreateDeck } from "@/hooks/useFlashcardMutation";
 
 export default function MyFlashcardLists({ lists = [] }) {
-	const { mutate, isPending } = useCreateList();
+	const { mutate, isPending } = useCreateDeck();
 	const navigate = useNavigate();
 
 	function handleClick() {
 		mutate(
-			{ title: "Danh sách không tiêu đề" },
+			{},
 			{
-				onSuccess: (list) => {
-					navigate(`/flashcards/${list.id}/edit`);
+				onSuccess: (deck) => {
+					navigate(`/flashcards/${deck.id}/edit`);
 				},
 			}
 		);
 	}
 
 	return (
-		<DashboardSection title="My Flashcard Lists">
+		<DashboardSection title="My Flashcard Decks">
 			<button
 				onClick={handleClick}
 				disabled={isPending}
@@ -32,13 +32,13 @@ export default function MyFlashcardLists({ lists = [] }) {
 				<div className="bg-purple-500 p-1 rounded-lg group-hover:bg-purple-600 transition-colors">
 					<Plus className="w-4 h-4" />
 				</div>
-				{isPending ? "Creating..." : "Create New List"}
+				{isPending ? "Creating..." : "Create New Deck"}
 			</button>
 
 			<div className="space-y-3 max-h-64 p-1 pr-2 scroll-container">
 				{lists.length > 0 ? (
 					lists.map((list) => (
-						<FlashcardsListCard key={list.id} list={list} />
+						<DeckList key={list.id} list={list} />
 					))
 				) : (
 					<p className="text-gray-500 text-sm p-2 text-center italic">

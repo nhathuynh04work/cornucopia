@@ -1,5 +1,5 @@
 import { Clock, HelpCircle, History } from "lucide-react";
-import { formatTime } from "@/lib/text";
+import { formatTime } from "@/lib/formatters";
 
 /**
  * A small, reusable component just for this file.

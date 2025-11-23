@@ -1,5 +1,5 @@
 import CourseCard from "@/components/Courses/CourseCard";
-import FlashcardsListCard from "@/components/Flashcards/FlashcardsListCard";
+import FlashcardsListCard from "@/components/Decks/DeckCard";
 import TestCard from "@/components/Tests/TestCard";
 import { useState } from "react";
 import DiscoveryCard from "./DiscoveryCard";

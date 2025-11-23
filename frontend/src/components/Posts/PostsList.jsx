@@ -25,10 +25,7 @@ export default function PostsList({
 		<div className="flex flex-col gap-4">
 			{prependItem}
 			{posts.map((post) => (
-				<PostCard
-					key={post.id}
-					post={post}
-				/>
+				<PostCard key={post.id} post={post} />
 			))}
 		</div>
 	);

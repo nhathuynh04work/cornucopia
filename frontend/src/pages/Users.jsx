@@ -1,6 +1,6 @@
 import UsersTable from "@/components/Users/UsersTable";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUsersQuery } from "@/hooks/useUsersQuery";
+import { useUsersQuery } from "@/hooks/useUserQuery";
 import { Role } from "@/lib/constants";
 import { useState } from "react";
 import { Navigate, useOutletContext } from "react-router";

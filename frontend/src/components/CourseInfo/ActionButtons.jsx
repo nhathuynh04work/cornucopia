@@ -3,7 +3,7 @@ import { useCreateCheckoutSession } from "@/hooks/useCourseMutation";
 import { useEnrollmentStatus } from "@/hooks/useCourseQuery";
 import NavButton from "../NavButton";
 import { Edit, Loader2, Play } from "lucide-react";
-import { formatVNDate } from "@/lib/text";
+import { formatVNDate } from "@/lib/formatters";
 
 function SidebarButtons({ course }) {
 	const { user } = useAuth();

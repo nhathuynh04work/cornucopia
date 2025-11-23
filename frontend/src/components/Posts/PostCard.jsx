@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { formatVNDate } from "@/lib/text";
+import { formatVNDate } from "@/lib/formatters";
 import { Calendar, User, ImageIcon } from "lucide-react";
 import StatusBadge from "../StatusBadge";
 

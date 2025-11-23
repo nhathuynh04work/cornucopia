@@ -1,6 +1,6 @@
 import { Calendar, Clock } from "lucide-react";
 import Avatar from "../Avatar";
-import { formatVNDate } from "@/lib/text";
+import { formatVNDate } from "@/lib/formatters";
 
 export default function AuthorCard({ author, publishedAt, readTime }) {
 	return (

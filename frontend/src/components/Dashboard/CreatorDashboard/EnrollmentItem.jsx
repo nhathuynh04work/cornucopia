@@ -1,4 +1,4 @@
-import { formatRelativeTime } from "@/lib/text";
+import { formatRelativeTime } from "@/lib/formatters";
 
 export default function EnrollmentItem({ enrollment }) {
 	return (

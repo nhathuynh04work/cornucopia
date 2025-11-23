@@ -13,7 +13,7 @@ function FlashcardsLayout() {
 	return (
 		<TabsSearchbarLayout
 			tabs={Object.values(TABS)}
-			searchPlaceholder="Tìm kiếm danh sách..."
+			searchPlaceholder="Tìm kiếm bộ thẻ..."
 		/>
 	);
 }

@@ -32,36 +32,36 @@ export default function ConfirmationModal({
 	const { Icon } = styles;
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-			<div className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-200">
+			<div className="w-full max-w-md p-6 bg-white rounded-2xl shadow-xl transform transition-all scale-100">
 				<div className="flex items-start gap-4">
 					<div
 						className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full ${styles.iconBg}`}>
 						<Icon className={`w-6 h-6 ${styles.iconColor}`} />
 					</div>
 					<div>
-						<h3 className="text-lg font-medium text-gray-900">
+						<h3 className="text-lg font-bold text-gray-900">
 							{title}
 						</h3>
 						{/* Render description content as children */}
-						<div className="mt-2 text-sm text-gray-600">
+						<div className="mt-2 text-sm text-gray-600 leading-relaxed">
 							{children}
 						</div>
 					</div>
 				</div>
-				<div className="flex justify-end gap-3 mt-6">
+				<div className="flex justify-end gap-3 mt-8">
 					<button
 						type="button"
 						onClick={onCancel}
 						disabled={isLoading}
-						className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-						Cancel
+						className="px-4 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50">
+						Hủy bỏ
 					</button>
 					<button
 						type="button"
 						onClick={onConfirm}
 						disabled={isLoading}
-						className={`flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-md ${styles.buttonBg} ${styles.buttonHover} ${styles.buttonDisabled}`}>
+						className={`flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white rounded-xl transition-colors shadow-sm ${styles.buttonBg} ${styles.buttonHover} ${styles.buttonDisabled}`}>
 						{isLoading ? (
 							<Loader2 className="w-4 h-4 animate-spin" />
 						) : (

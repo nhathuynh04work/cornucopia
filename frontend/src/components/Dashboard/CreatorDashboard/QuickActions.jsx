@@ -9,17 +9,17 @@ import {
 } from "lucide-react";
 import DashboardSection from "@/components/Dashboard/DashboardSection";
 import { useCreateCourse } from "@/hooks/useCourseMutation";
-import { useCreateList } from "@/hooks/useListMutation";
 import { useCreateTest } from "@/hooks/useTestMutation";
 import toast from "react-hot-toast";
 import { useCreatePost } from "@/hooks/usePostMutation";
+import { useCreateDeck } from "@/hooks/useFlashcardMutation";
 
 export default function QuickActions() {
 	const navigate = useNavigate();
 
 	const { mutate: createCourse, isPending: isCreatingCourse } =
 		useCreateCourse();
-	const { mutate: createList, isPending: isCreatingList } = useCreateList();
+	const { mutate: createDeck, isPending: isCreatingDeck } = useCreateDeck();
 	const { mutate: createTest, isPending: isCreatingTest } = useCreateTest();
 	const { mutate: createPost, isPending: isCreatingPost } = useCreatePost();
 
@@ -51,12 +51,12 @@ export default function QuickActions() {
 		);
 	}
 
-	function handleCreateList() {
-		createList(
-			{ title: "Danh sách mới" },
+	function handleCreateDeck() {
+		createDeck(
+			{ title: "Bộ thẻ mới" },
 			{
 				onSuccess: (list) => {
-					toast.success("Đã tạo danh sách! Bắt đầu thôi.");
+					toast.success("Đã tạo bộ thẻ! Bắt đầu thôi.");
 					navigate(`/flashcards/${list.id}/edit`);
 				},
 			}
@@ -106,8 +106,8 @@ export default function QuickActions() {
 		{
 			title: "Tạo Flashcard",
 			icon: Layers,
-			onClick: handleCreateList,
-			isLoading: isCreatingList,
+			onClick: handleCreateDeck,
+			isLoading: isCreatingDeck,
 			color: "text-amber-600",
 			bg: "bg-amber-50",
 			hoverBorder: "group-hover:border-amber-300",
