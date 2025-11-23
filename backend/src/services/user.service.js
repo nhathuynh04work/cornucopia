@@ -64,10 +64,10 @@ export async function getDashboardDataForUser({ userId }) {
 	const [
 		enrolledCoursesData,
 		recentTestAttempts,
-		myFlashcardLists,
+		myDecks,
 		discoverCoursesData,
 		discoverTestsData,
-		discoverBlogPostsData,
+		discoverPostsData,
 		discoverFlashcardsData,
 	] = await prisma.$transaction([
 		// ENROLLED COURSES
@@ -121,7 +121,7 @@ export async function getDashboardDataForUser({ userId }) {
 		}),
 
 		// FLASHCARD LISTS
-		prisma.flashcardList.findMany({
+		prisma.deck.findMany({
 			where: { userId },
 			take: 4,
 			orderBy: { createdAt: "desc" },
@@ -218,7 +218,7 @@ export async function getDashboardDataForUser({ userId }) {
 		}),
 
 		// DISCOVER: FLASHCARD LISTS
-		prisma.flashcardList.findMany({
+		prisma.deck.findMany({
 			where: {
 				user: {
 					role: {
@@ -249,7 +249,7 @@ export async function getDashboardDataForUser({ userId }) {
 		progress: calculateCourseProgress(course),
 	}));
 
-	const discoverBlogPosts = discoverBlogPostsData.map((post) => ({
+	const discoverPosts = discoverPostsData.map((post) => ({
 		...post,
 		// Updated mapping: flatten tags array of objects to array of strings if needed,
 		// or keep as objects. Here we keep array of { name: "..." } or map to strings:
@@ -259,11 +259,11 @@ export async function getDashboardDataForUser({ userId }) {
 	return {
 		enrolledCourses,
 		recentTestAttempts,
-		myFlashcardLists,
+		myDecks,
 		discover: {
 			courses: discoverCoursesData,
 			tests: discoverTestsData,
-			blogPosts: discoverBlogPosts,
+			blogPosts: discoverPosts,
 			flashcards: discoverFlashcardsData,
 		},
 	};
@@ -297,7 +297,7 @@ export async function getDashboardDataForCreator({ userId }) {
 						orderBy: { createdAt: "desc" },
 						select: { id: true, title: true, status: true },
 					},
-					flashcardLists: {
+					decks: {
 						orderBy: { createdAt: "desc" },
 						select: { id: true, title: true },
 					},
@@ -348,8 +348,8 @@ export async function getDashboardDataForCreator({ userId }) {
 			...t,
 			attempts: t._count.attempts,
 		})),
-		blogPosts: creatorContent.posts,
-		flashcards: creatorContent.flashcardLists,
+		posts: creatorContent.posts,
+		decks: creatorContent.decks,
 	};
 
 	const recentEnrollments = allEnrollments.slice(0, 5).map((e) => ({
@@ -407,13 +407,13 @@ export async function getDashboardDataForAdmin() {
 		newUsers,
 		newCourses,
 		newTests,
-		newBlogPosts,
+		newPosts,
 		totalTestAttempts,
 		totalStudySessions,
 		totalCourses,
 		totalTests,
-		totalBlogPosts,
-		totalFlashcardLists,
+		totalPosts,
+		totalDecks,
 	] = await prisma.$transaction([
 		// 1. Platform Overview
 		prisma.user.count(),
@@ -479,7 +479,7 @@ export async function getDashboardDataForAdmin() {
 		prisma.course.count(),
 		prisma.test.count(),
 		prisma.post.count(),
-		prisma.flashcardList.count(),
+		prisma.deck.count(),
 	]);
 
 	const totalRevenue = allEnrollments.reduce(
@@ -570,7 +570,7 @@ export async function getDashboardDataForAdmin() {
 			creator: t.user?.name || "Unknown",
 			date: t.createdAt,
 		})),
-		...newBlogPosts.map((p) => ({
+		...newPosts.map((p) => ({
 			id: `p-${p.id}`,
 			name: p.title,
 			type: "Blog Post",
@@ -597,8 +597,8 @@ export async function getDashboardDataForAdmin() {
 		content: [
 			{ label: "Total Courses", value: totalCourses },
 			{ label: "Total Tests", value: totalTests },
-			{ label: "Total Blog Posts", value: totalBlogPosts },
-			{ label: "Flashcard Lists", value: totalFlashcardLists },
+			{ label: "Total Blog Posts", value: totalPosts },
+			{ label: "Flashcard Lists", value: totalDecks },
 		],
 	};
 

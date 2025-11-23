@@ -7,8 +7,6 @@ import {
 	optionRouter,
 	itemRouter,
 	postRouter,
-	cardRouter,
-	listRouter,
 	sessionRouter,
 	userRouter,
 	mediaRouter,
@@ -19,6 +17,7 @@ import {
 	ragRouter,
 	checkoutRouter,
 	tagRouter,
+    deckRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -42,8 +41,7 @@ app.use(passport.initialize());
 
 // Routes
 app.use("/auth", authRouter);
-app.use("/lists", listRouter);
-app.use("/cards", cardRouter);
+app.use("/decks", deckRouter);
 app.use("/posts", postRouter);
 app.use("/tags", tagRouter);
 app.use("/media", mediaRouter);
