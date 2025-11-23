@@ -26,7 +26,7 @@ function StudyHeader({ title, current, total, deckId }) {
 
 			{/* Close Button */}
 			<Link
-				to={`/flashcards/${deckId}`}
+				to={`/decks/${deckId}`}
 				className="p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-full transition-colors"
 				title="Thoát phiên học">
 				<X className="w-6 h-6" />

@@ -1,50 +1,48 @@
 import { api } from "./axios";
 
-export async function getMyDecks() {
-	const { data } = await api.get("/decks");
-	return data.decks;
-}
+const flashcardsApi = {
+	getMyDecks: async () => {
+		const { data } = await api.get("/decks");
+		return data.decks;
+	},
+	getExploreDecks: async (params) => {
+		const { data } = await api.get("/decks/explore", { params });
+		return data.decks;
+	},
+	getDeckDetails: async (deckId) => {
+		const { data } = await api.get(`/decks/${deckId}`);
+		return data.deck;
+	},
+	createDeck: async () => {
+		const { data } = await api.post("/decks");
+		return data.deck;
+	},
+	syncDeck: async (deckId, payload) => {
+		const { data } = await api.post(`/decks/${deckId}/sync`, payload);
+		return data.deck;
+	},
+	deleteDeck: async (deckId) => {
+		await api.delete(`/decks/${deckId}`);
+	},
+	startSession: async (deckId) => {
+		const { data } = await api.post(`/decks/${deckId}/sessions`);
+		return data.session;
+	},
+	getSessionDetails: async (sessionId) => {
+		const { data } = await api.get(`/sessions/${sessionId}`);
+		return data.session;
+	},
+	submitAttempt: async (sessionId, payload) => {
+		const { data } = await api.post(
+			`/sessions/${sessionId}/answers`,
+			payload
+		);
+		return data.attempt;
+	},
+	getSessionSummary: async (sessionId) => {
+		const { data } = await api.get(`/sessions/${sessionId}/summary`);
+		return data.summary;
+	},
+};
 
-export async function getExploreDecks() {
-	const { data } = await api.get("/decks/explore");
-	return data.decks;
-}
-
-export async function getDeckDetails(deckId) {
-	const { data } = await api.get(`/decks/${deckId}`);
-	return data.deck;
-}
-
-export async function createDeck() {
-	const { data } = await api.post("/decks");
-	return data.deck;
-}
-
-export async function syncDeck(deckId, payload) {
-	const { data } = await api.post(`/decks/${deckId}/sync`, payload);
-	return data.deck;
-}
-
-export async function deleteDeck(deckId) {
-	await api.delete(`/decks/${deckId}`);
-}
-
-export async function startSession(deckId) {
-	const { data } = await api.post(`/decks/${deckId}/sessions`);
-	return data.session;
-}
-
-export async function getSessionDetails(sessionId) {
-	const { data } = await api.get(`/sessions/${sessionId}`);
-	return data.session;
-}
-
-export async function submitAttempt(sessionId, payload) {
-	const { data } = await api.post(`/sessions/${sessionId}/answers`, payload);
-	return data.attempt;
-}
-
-export async function getSessionSummary(sessionId) {
-	const { data } = await api.get(`/sessions/${sessionId}/summary`);
-	return data.summary;
-}
+export default flashcardsApi;

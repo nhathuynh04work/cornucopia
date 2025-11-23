@@ -1,61 +1,96 @@
-import { useParams } from "react-router";
-import { useTestInfoQuery } from "@/hooks/useTestQuery";
-import TestStatsBar from "../components/TestInfo/TestStatsBar";
-import TestAttemptHistory from "../components/TestInfo/TestAttemptHistory";
-import TestCommentsSection from "../components/TestInfo/TestCommentsSection";
-import StatusBadge from "@/components/StatusBadge";
-import ActionButtons from "@/components/TestInfo/ActionButtons";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetTestForInfo, useGetAttemptHistory } from "@/hooks/useTestQuery";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 
-function TestInfo() {
-	const { id } = useParams();
-	const { data: test, isPending } = useTestInfoQuery(id);
+import TestHero from "@/components/TestInfo/TestHero";
+import TestHistory from "@/components/TestInfo/TestHistory";
+import TestStats from "@/components/TestInfo/TestStats";
+import TestBestResult from "@/components/TestInfo/TestBestResult";
+import TestAuthor from "@/components/TestInfo/TestAuthor";
+
+export default function TestInfo() {
+	const { testId } = useParams();
+	const navigate = useNavigate();
+	const { user } = useAuth();
+
+	const { data: test, isPending, isError } = useGetTestForInfo(testId);
+
+	const { data: attempts, isPending: isHistoryPending } =
+		useGetAttemptHistory(testId);
 
 	if (isPending) {
-		return <p className="p-6">Loading...</p>;
+		return (
+			<div className="h-[80vh] flex flex-col items-center justify-center text-gray-400">
+				<Loader2 className="w-10 h-10 animate-spin mb-3 text-purple-500" />
+				<p>Đang tải thông tin bài thi...</p>
+			</div>
+		);
 	}
 
-	if (!test) {
-		return <p className="p-6">Error: Test not found.</p>;
+	if (isError || !test) {
+		return (
+			<div className="h-[80vh] flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-3xl border border-red-100 p-8 m-6">
+				<AlertCircle className="w-12 h-12 mb-4" />
+				<h2 className="text-lg font-bold text-gray-900">
+					Không tìm thấy bài kiểm tra
+				</h2>
+				<button
+					onClick={() => navigate("/tests")}
+					className="mt-4 text-sm font-medium text-gray-600 hover:text-gray-900 underline">
+					Quay lại danh sách
+				</button>
+			</div>
+		);
 	}
 
-	const questionsCount = test._count?.items || 0;
+	const questionCount = test._count?.items || 0;
 	const attemptsCount = test._count?.attempts || 0;
 
+	const bestAttempt = attempts?.reduce((prev, current) => {
+		const prevScore = prev?.scoredPoints || 0;
+		const currScore = current?.scoredPoints || 0;
+		return currScore > prevScore ? current : prev;
+	}, null);
+
 	return (
-		<div className="flex justify-center bg-white min-h-[calc(100vh-64px)]">
-			<div className="w-5/6 overflow-y-auto scroll-container py-8 space-y-8">
-				{/* Header Section */}
-				<div className="px-6">
-					<div className="flex items-center gap-4 mb-4 flex-wrap">
-						<h1 className="text-3xl font-bold text-gray-900">
-							{test.title}
-						</h1>
-						<StatusBadge status={test.status} />
-					</div>
-					<p className="text-lg text-gray-800">
-						{test.description ||
-							"No description provided for this test."}
-					</p>
+		<div className="p-6 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+			{/* --- Back Button --- */}
+			<button
+				onClick={() => navigate("/tests")}
+				className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6 group">
+				<ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+				Quay lại thư viện
+			</button>
+
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+				{/* --- LEFT COLUMN (Content) --- */}
+				<div className="lg:col-span-2 space-y-8">
+					<TestHero test={test} />
+
+					{/* Only show history if user is logged in */}
+					{user && (
+						<TestHistory
+							attempts={attempts}
+							isLoading={isHistoryPending}
+							testId={testId}
+						/>
+					)}
 				</div>
 
-				{/* Stats Bar */}
-				<TestStatsBar
-					timeLimit={test.timeLimit}
-					questionsCount={questionsCount}
-					attemptsCount={attemptsCount}
-				/>
+				{/* --- RIGHT COLUMN (Stats & Info) --- */}
+				<div className="space-y-6">
+					<TestStats
+						test={test}
+						questionCount={questionCount}
+						attemptsCount={attemptsCount}
+					/>
 
-				{/* Action Buttons */}
-				<ActionButtons test={test} />
+					<TestBestResult bestAttempt={bestAttempt} />
 
-				{/* Attempt History */}
-				<TestAttemptHistory testId={test.id} />
-
-				{/* Comments Section */}
-				<TestCommentsSection />
+					<TestAuthor user={test.user} createdAt={test.createdAt} />
+				</div>
 			</div>
 		</div>
 	);
 }
-
-export default TestInfo;

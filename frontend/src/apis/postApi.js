@@ -1,30 +1,29 @@
 import { api } from "./axios";
 
-export async function getAllPosts() {
-	const { data } = await api.get(`/posts`);
-	return data.posts;
-}
+const postApi = {
+	getAll: async (params) => {
+		const { data } = await api.get(`/posts`, { params });
+		return data.posts;
+	},
+	getMyPosts: async () => {
+		const { data } = await api.get(`/posts/my`);
+		return data.posts;
+	},
+	create: async (payload) => {
+		const { data } = await api.post("/posts", payload);
+		return data.post;
+	},
+	update: async (postId, payload) => {
+		const { data } = await api.put(`/posts/${postId}`, payload);
+		return data.post;
+	},
+	delete: async (postId) => {
+		await api.delete(`/posts/${postId}`);
+	},
+	getDetails: async (postId) => {
+		const { data } = await api.get(`/posts/${postId}`);
+		return data.post;
+	},
+};
 
-export async function getMyPosts() {
-	const { data } = await api.get(`/posts/my`);
-	return data.posts;
-}
-
-export async function createPost(payload) {
-	const { data } = await api.post("/posts", payload);
-	return data.post;
-}
-
-export async function updatePost(postId, payload) {
-	const { data } = await api.put(`/posts/${postId}`, payload);
-	return data.post;
-}
-
-export async function deletePost(postId) {
-	await api.delete(`/posts/${postId}`);
-}
-
-export async function getPostDetails(postId) {
-	const { data } = await api.get(`/posts/${postId}`);
-	return data.post;
-}
+export default postApi;

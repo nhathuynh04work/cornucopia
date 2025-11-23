@@ -1,61 +1,99 @@
-import CourseList from "@/components/Courses/CourseList";
-import CreateCourseCard from "@/components/Courses/CreateCourseCard";
+import { Link } from "react-router-dom";
+import { Plus, BookOpen } from "lucide-react";
+import { useGetCourses } from "@/hooks/useCourseQuery";
+import CourseCard from "@/components/Courses/CourseCard";
+import PermissionGate from "@/components/PermissionGate";
+import { PERMISSIONS } from "@/lib/constants";
+import PageHeader from "@/components/Shared/PageHeader";
+import FilterBar from "@/components/Shared/FilterBar";
+import ResourceList from "@/components/Shared/ResourceList";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-	useCoursesQuery,
-	useEnrolledCourses,
-	useMyCourses,
-} from "@/hooks/useCourseQuery";
-import { useFilteredCourses } from "@/hooks/useFilteredCourses";
-import { Role } from "@/lib/constants";
-import { Navigate } from "react-router";
+import { useResourceFilters } from "@/hooks/useResourceFilters";
 
-export function AllCourses() {
-	const { filteredCourses, isPending, searchTerm } =
-		useFilteredCourses(useCoursesQuery);
+export default function Courses() {
+	const { user } = useAuth();
 
-	return (
-		<CourseList
-			courses={filteredCourses}
-			isPending={isPending}
-			searchTerm={searchTerm}
-			emptyMessage="No courses found."
-			searchEmptyMessage="No courses match your search."
-		/>
-	);
-}
+	const {
+		searchTerm,
+		setSearchTerm,
+		debouncedSearch,
+		sort,
+		setSort,
+		scope,
+		setScope,
+	} = useResourceFilters({ defaultScope: "ALL" });
 
-export function EnrolledCourses() {
-	const { filteredCourses, isPending, searchTerm } =
-		useFilteredCourses(useEnrolledCourses);
+	const queryParams = {
+		search: debouncedSearch,
+		sort,
+		status: "PUBLIC",
+	};
 
-	return (
-		<CourseList
-			courses={filteredCourses}
-			isPending={isPending}
-			searchTerm={searchTerm}
-			emptyMessage="You are not enrolled in any courses."
-			searchEmptyMessage="No enrolled courses match your search."
-		/>
-	);
-}
+	if (scope === "MINE" && user) {
+		queryParams.userId = user.id;
+	} else if (scope === "ENROLLED" && user) {
+		queryParams.enrolledUserId = user.id;
+	}
 
-export function MyCourses() {
-	const { role } = useAuth();
+	const { data: courses, isPending, isError } = useGetCourses(queryParams);
 
-	const { filteredCourses, isPending, searchTerm } =
-		useFilteredCourses(useMyCourses);
-
-	if (role === Role.USER) return <Navigate to="/courses/all" replace />;
+	const tabs = [{ label: "Tất cả", value: "ALL" }];
+	if (user) {
+		tabs.push(
+			{ label: "Của tôi tạo", value: "MINE" },
+			{ label: "Đã tham gia", value: "ENROLLED" }
+		);
+	}
 
 	return (
-		<CourseList
-			courses={filteredCourses}
-			isPending={isPending}
-			searchTerm={searchTerm}
-			emptyMessage="You have not created any courses."
-			searchEmptyMessage="No courses match your search."
-			prependItem={<CreateCourseCard />}
-		/>
+		<div className="p-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+			<PageHeader
+				title="Khám phá Khóa học"
+				description="Nâng cao kỹ năng với các khóa học từ những giảng viên hàng đầu."
+				action={
+					<PermissionGate allowedRoles={PERMISSIONS.CREATE_COURSE}>
+						<Link
+							to="/courses/create"
+							className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow">
+							<Plus className="w-4 h-4" />
+							Tạo khóa học
+						</Link>
+					</PermissionGate>
+				}
+			/>
+
+			<FilterBar
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				searchPlaceholder="Tìm kiếm khóa học..."
+				tabs={tabs}
+				activeTab={scope}
+				onTabChange={setScope}
+				sortOptions={[
+					{ label: "Mới nhất", value: "newest" },
+					{ label: "Cũ nhất", value: "oldest" },
+					{ label: "Giá: Thấp đến Cao", value: "price_asc" },
+					{ label: "Giá: Cao đến Thấp", value: "price_desc" },
+				]}
+				activeSort={sort}
+				onSortChange={setSort}
+			/>
+
+			<ResourceList
+				isLoading={isPending}
+				isError={isError}
+				data={courses}
+				resourceName="khóa học"
+				renderItem={(course) => (
+					<CourseCard key={course.id} course={course} />
+				)}
+				emptyState={{
+					icon: BookOpen,
+					title: "Không tìm thấy khóa học",
+					description:
+						"Không có khóa học nào phù hợp với tiêu chí tìm kiếm của bạn.",
+				}}
+			/>
+		</div>
 	);
 }

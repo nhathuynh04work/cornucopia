@@ -1,4 +1,4 @@
-import { getAllTags } from "@/apis/tagApi";
+import tagApi from "@/apis/tagApi";
 import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import { Hash, AlertCircle, Sparkles } from "lucide-react";
@@ -10,7 +10,7 @@ export default function TagsList() {
 		isError,
 	} = useQuery({
 		queryKey: ["tags"],
-		queryFn: getAllTags,
+		queryFn: tagApi.getAll,
 	});
 
 	if (isPending) return <TagsSkeleton />;

@@ -1,56 +1,49 @@
-import { api } from "@/apis/axios";
-import AdminDashboard from "@/components/Dashboard/AdminDashboard/AdminDashboard";
-import CreatorDashboard from "@/components/Dashboard/CreatorDashboard/CreatorDashboard";
-import UserDashboard from "@/components/Dashboard/UserDashboard/UserDashboard";
 import { useAuth } from "@/contexts/AuthContext";
-import { Role } from "@/lib/constants";
-import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import { Navigate } from "react-router";
+import { useGetDashboardData } from "@/hooks/useUserQuery";
+import { Loader2, AlertCircle } from "lucide-react";
+
+import AdminDashboard from "@/components/Dashboard/AdminDashboard";
+import CreatorDashboard from "@/components/Dashboard/CreatorDashboard";
+import UserDashboard from "@/components/Dashboard/UserDashboard";
 
 function Dashboard() {
-	const { user, role, isInitialPending } = useAuth();
+	const { role } = useAuth();
+	const { data, isPending, isError, error } = useGetDashboardData();
 
-	const { data, isPending, isError, error } = useQuery({
-		queryKey: ["dashboard"],
-		queryFn: async () => {
-			const res = await api.get("/users/me/dashboard");
-			return res.data;
-		},
-		enabled: !!user,
-	});
-
-	if (isInitialPending) return <Loader2 />;
-
-	if (!user) return <Navigate to="/landing" />;
-
+	// Loading State
 	if (isPending) {
 		return (
-			<div className="flex flex-col items-center justify-center h-[80vh] text-gray-600">
-				<div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-				<p className="text-sm">Loading your dashboard...</p>
+			<div className="min-h-[80vh] flex items-center justify-center">
+				<Loader2 className="w-10 h-10 text-purple-600 animate-spin" />
 			</div>
 		);
 	}
 
+	// Error State
 	if (isError) {
 		return (
-			<div className="flex flex-col items-center justify-center h-[80vh] text-red-600">
-				<p className="text-lg font-medium">Something went wrong</p>
-				<p className="text-sm text-red-500 mt-1">
-					{error?.message || "Unable to fetch dashboard data."}
+			<div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6">
+				<div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mb-4 text-red-500">
+					<AlertCircle className="w-8 h-8" />
+				</div>
+				<h2 className="text-xl font-bold text-gray-900 mb-2">
+					Không thể tải dữ liệu
+				</h2>
+				<p className="text-gray-500 max-w-md">
+					{error?.message ||
+						"Đã có lỗi xảy ra. Vui lòng thử lại sau."}
 				</p>
-				<button
-					onClick={() => window.location.reload()}
-					className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-					Retry
-				</button>
 			</div>
 		);
 	}
 
-	if (role === Role.ADMIN) return <AdminDashboard data={data} />;
-	if (role === Role.CREATOR) return <CreatorDashboard data={data} />;
+	if (role === "ADMIN") {
+		return <AdminDashboard data={data} />;
+	}
+
+	if (role === "CREATOR") {
+		return <CreatorDashboard data={data} />;
+	}
 
 	return <UserDashboard data={data} />;
 }

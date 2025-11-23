@@ -1,55 +1,50 @@
-import { api } from "./axios.js";
+import { api } from "./axios";
 
-export async function getTests() {
-	const { data } = await api.get("/tests");
-	return data.tests;
-}
+const testApi = {
+	getAll: async (params) => {
+		const { data } = await api.get("/tests", { params });
+		return data.tests;
+	},
+	getAttempted: async (params) => {
+		const { data } = await api.get("/tests/attempted", { params });
+		return data.tests;
+	},
+	getForInfoView: async (id) => {
+		const { data } = await api.get(`/tests/${id}/info`);
+		return data.test;
+	},
+	getForEdit: async (id) => {
+		const { data } = await api.get(`/tests/${id}/edit`);
+		console.log(data);
+		return data.test;
+	},
+	getForAttempt: async (id) => {
+		const { data } = await api.get(`/tests/${id}/attempt`);
+		return data.test;
+	},
+	getAttemptHistory: async (testId) => {
+		const { data } = await api.get(`/tests/${testId}/attempts`);
+		return data.attempts;
+	},
+	getMyTests: async () => {
+		const { data } = await api.get("/tests/admin");
+		return data.tests;
+	},
+	create: async () => {
+		const { data } = await api.post("/tests");
+		return data.test;
+	},
+	update: async (id, changes) => {
+		const { data } = await api.patch(`/tests/${id}`, changes);
+		return data.test;
+	},
+	remove: async (id) => {
+		await api.delete(`/tests/${id}`);
+	},
+	addItem: async (testId, payload) => {
+		const { data } = await api.post(`/tests/${testId}/items`, payload);
+		return data.item;
+	},
+};
 
-export async function getAttemptedTests() {
-	const { data } = await api.get("/tests/attempted");
-	return data.tests;
-}
-
-export async function getMyTests() {
-	const { data } = await api.get("/tests/admin");
-	return data.tests;
-}
-
-export async function getTestForInfoView(id) {
-	const { data } = await api.get(`/tests/${id}/info`);
-	return data.test;
-}
-
-export async function getTestForEdit(id) {
-	const { data } = await api.get(`/tests/${id}/edit`);
-	return data.test;
-}
-
-export async function getTestForAttempt(id) {
-	const { data } = await api.get(`/tests/${id}/attempt`);
-	return data.test;
-}
-
-export async function getAttemptHistory(testId) {
-	const { data } = await api.get(`/tests/${testId}/attempts`);
-	return data.attempts;
-}
-
-export async function create(payload) {
-	const { data } = await api.post("/tests", payload);
-	return data.test;
-}
-
-export async function update(id, changes) {
-	const { data } = await api.patch(`/tests/${id}`, changes);
-	return data.test;
-}
-
-export async function remove(id) {
-	await api.delete(`/tests/${id}`);
-}
-
-export async function addItem(testId, payload) {
-	const { data } = await api.post(`/tests/${testId}/items`, payload);
-	return data.item;
-}
+export default testApi;

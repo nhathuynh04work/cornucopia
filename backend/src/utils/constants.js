@@ -86,4 +86,10 @@ export const defaults = {
 	LESSON_INFO: {
 		title: "New lesson",
 	},
+	TEST: {
+		title: "Bài thi không tên",
+		description:
+			"Đây là bài thi mới. Hãy nhập một đoạn mô tả ngắn về bài thi.",
+		timeLimit: 1800,
+	},
 };

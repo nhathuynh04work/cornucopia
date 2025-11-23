@@ -1,10 +1,4 @@
-import {
-	getDeckDetails,
-	getExploreDecks,
-	getMyDecks,
-	getSessionDetails,
-	getSessionSummary,
-} from "@/apis/flashcardsApi";
+import flashcardApi from "../apis/flashcardsApi";
 import { useAuth } from "@/contexts/AuthContext";
 import { queryDefaults } from "@/lib/react-query.config";
 import { useQuery } from "@tanstack/react-query";
@@ -14,16 +8,16 @@ export function useGetMyDecks() {
 
 	return useQuery({
 		queryKey: ["decks"],
-		queryFn: getMyDecks,
+		queryFn: flashcardApi.getMyDecks,
 		...queryDefaults,
 		enabled: !!user,
 	});
 }
 
-export function useGetExploreDecks() {
+export function useGetExploreDecks(params = {}) {
 	return useQuery({
-		queryKey: ["decks", "explore"],
-		queryFn: getExploreDecks,
+		queryKey: ["decks", "explore", params],
+		queryFn: () => flashcardApi.getExploreDecks(params),
 		...queryDefaults,
 	});
 }
@@ -31,7 +25,7 @@ export function useGetExploreDecks() {
 export function useGetDeckDetails(deckId) {
 	return useQuery({
 		queryKey: ["decks", Number(deckId)],
-		queryFn: () => getDeckDetails(deckId),
+		queryFn: () => flashcardApi.getDeckDetails(deckId),
 		...queryDefaults,
 	});
 }
@@ -39,7 +33,7 @@ export function useGetDeckDetails(deckId) {
 export function useGetSessionDetails(sessionId) {
 	return useQuery({
 		queryKey: ["session", sessionId],
-		queryFn: () => getSessionDetails(sessionId),
+		queryFn: () => flashcardApi.getSessionDetails(sessionId),
 		...queryDefaults,
 		enabled: !!sessionId,
 		retry: false,
@@ -49,7 +43,7 @@ export function useGetSessionDetails(sessionId) {
 export function useGetSessionSummary(sessionId) {
 	return useQuery({
 		queryKey: ["session", sessionId, "summary"],
-		queryFn: () => getSessionSummary(sessionId),
+		queryFn: () => flashcardApi.getSessionSummary(sessionId),
 		...queryDefaults,
 		enabled: !!sessionId,
 	});

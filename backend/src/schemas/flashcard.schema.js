@@ -22,3 +22,15 @@ export const SyncDeckSchema = DeckBaseSchema.extend({
 		})
 	),
 });
+
+// Session Attempt
+export const SubmitAttemptSchema = z.object({
+	cardId: z.number({
+		required_error: "Card ID is required",
+		invalid_type_error: "Card ID must be a number",
+	}),
+	isCorrect: z.boolean({
+		required_error: "isCorrect status is required",
+		invalid_type_error: "isCorrect must be a boolean",
+	}),
+});

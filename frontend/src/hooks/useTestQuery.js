@@ -1,53 +1,43 @@
 import { useQuery } from "@tanstack/react-query";
-import * as testApi from "../apis/testApi";
 import { useTestEditorStore } from "../store/testEditorStore.js";
 import { useEffect } from "react";
 import { useTestAttemptStore } from "@/store/testAttemptStore";
 import { useAuth } from "@/contexts/AuthContext";
 import { queryDefaults } from "@/lib/react-query.config";
+import testApi from "@/apis/testApi.js";
 
-export function useTestsQuery() {
+export function useGetTests(params = {}) {
 	return useQuery({
-		queryKey: ["tests"],
-		queryFn: testApi.getTests,
+		queryKey: ["tests", params],
+		queryFn: () => {
+			if (params.scope === "ATTEMPTED") {
+				return testApi.getAttempted(params);
+			}
+
+			return testApi.getAll(params);
+		},
 		...queryDefaults,
 	});
 }
 
-export function useAttemptedTests() {
-	return useQuery({
-		queryKey: ["tests", "attempted"],
-		queryFn: testApi.getAttemptedTests,
-		...queryDefaults,
-	});
-}
-
-export function useMyTests() {
-	return useQuery({
-		queryKey: ["tests", "admin"],
-		queryFn: testApi.getMyTests,
-		...queryDefaults,
-	});
-}
-
-export function useTestInfoQuery(id) {
+export function useGetTestForInfo(id) {
 	const numericId = Number(id);
 
 	return useQuery({
 		queryKey: ["test", numericId, "info"],
-		queryFn: () => testApi.getTestForInfoView(numericId),
+		queryFn: () => testApi.getForInfoView(numericId),
 		enabled: !!numericId,
 		...queryDefaults,
 	});
 }
 
-export function useTestEditQuery(id) {
+export function useGetTestForEdit(id) {
 	const setTest = useTestEditorStore((s) => s.setTest);
 	const numericId = Number(id);
 
 	const query = useQuery({
 		queryKey: ["test", numericId, "edit"],
-		queryFn: () => testApi.getTestForEdit(numericId),
+		queryFn: () => testApi.getForEdit(numericId),
 		enabled: !!numericId,
 		...queryDefaults,
 	});
@@ -62,14 +52,14 @@ export function useTestEditQuery(id) {
 	return query;
 }
 
-export function useTestAttemptQuery(id) {
+export function useGetTestForAttempt(id) {
 	const numericId = Number(id);
 
 	const setTest = useTestAttemptStore((s) => s.setTest);
 
 	const query = useQuery({
 		queryKey: ["test", numericId, "attempt"],
-		queryFn: () => testApi.getTestForAttempt(numericId),
+		queryFn: () => testApi.getForAttempt(numericId),
 		enabled: !!numericId,
 		...queryDefaults,
 	});
@@ -83,7 +73,7 @@ export function useTestAttemptQuery(id) {
 	return query;
 }
 
-export function useAttemptHistoryQuery(testId) {
+export function useGetAttemptHistory(testId) {
 	const { user } = useAuth();
 	const numericTestId = Number(testId);
 

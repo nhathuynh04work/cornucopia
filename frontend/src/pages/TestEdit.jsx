@@ -3,11 +3,11 @@ import TestEditorNav from "../components/TestEditor/TestNav/TestEditorNav";
 import TestEditor from "../components/TestEditor/TestEditor/TestEditor";
 import TestItemSettings from "@/components/TestEditor/TestItemSettings/TestItemSettings";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTestEditQuery } from "@/hooks/useTestQuery";
+import { useGetTestForEdit } from "@/hooks/useTestQuery";
 
 function TestEdit() {
-	const { id } = useParams();
-	const { isLoading: isTestLoading, isError } = useTestEditQuery(id);
+	const { testId } = useParams();
+	const { isLoading: isTestLoading, isError } = useGetTestForEdit(testId);
 
 	const { user, isInitialLoading } = useAuth();
 

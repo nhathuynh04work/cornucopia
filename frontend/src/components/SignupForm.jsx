@@ -6,7 +6,7 @@ import { env } from "../env";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import ErrorPopover from "./ErrorPopover";
-import { signup } from "../apis/authApi";
+import authApi from "../apis/authApi";
 
 function SignupForm() {
 	const { user } = useAuth();
@@ -24,7 +24,7 @@ function SignupForm() {
 	async function onSubmit(formData) {
 		setMessage("");
 		try {
-			const message = await signup(formData);
+			const message = await authApi.signup(formData);
 			setMessage(message);
 		} catch (err) {
 			toast.error(err.message || "Signup failed");

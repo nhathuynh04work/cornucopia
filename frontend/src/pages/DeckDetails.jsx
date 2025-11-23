@@ -4,7 +4,6 @@ import { ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
 import DeckHeader from "@/components/DeckDetails/DeckHeader";
 import DeckCarousel from "@/components/DeckDetails/DeckCarousel";
 import CardList from "@/components/DeckDetails/CardList";
-import Avatar from "@/components/Avatar";
 import DeckOwnerInfo from "@/components/DeckDetails/DeckOwnerInfo";
 
 function DeckDetails() {
@@ -33,7 +32,7 @@ function DeckDetails() {
 						"Bộ thẻ bạn đang tìm kiếm có thể đã bị xóa hoặc được đặt ở chế độ riêng tư."}
 				</p>
 				<Link
-					to="/flashcards"
+					to="/decks"
 					className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all">
 					<ArrowLeft className="w-5 h-5" />
 					Quay lại thư viện

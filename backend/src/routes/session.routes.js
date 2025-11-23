@@ -1,22 +1,32 @@
 import { Router } from "express";
-import {
-  submitAnswerController,
-  updateEndtimeController,
-} from "../controllers/session.controller.js";
+import * as sessionController from "../controllers/session.controller.js";
 import { validateParams } from "../middlewares/validateParams.js";
 import { authenticateJWT } from "../middlewares/authMiddleware.js";
-import { CreateAnswerSchema } from "../schemas/answer.schema.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
+import { SubmitAttemptSchema } from "../schemas/flashcard.schema.js";
 
 const router = Router();
 
-router.post(
-  "/:sessionId/answers",
-  validateParams(["sessionId"]),
-  validateSchema(CreateAnswerSchema),
-  submitAnswerController
+router.get(
+	"/:sessionId",
+	authenticateJWT,
+	validateParams(["sessionId"]),
+	sessionController.getSessionDetails
 );
 
-router.put("/:sessionId/endTime", validateParams(["sessionId"]), updateEndtimeController);
+router.get(
+	"/:sessionId/summary",
+	authenticateJWT,
+	validateParams(["sessionId"]),
+	sessionController.getSessionSummary
+);
+
+router.post(
+	"/:sessionId/answers",
+    authenticateJWT,
+	validateParams(["sessionId"]),
+	validateSchema(SubmitAttemptSchema),
+	sessionController.submitAttempt
+);
 
 export default router;

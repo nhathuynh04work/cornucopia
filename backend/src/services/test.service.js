@@ -7,11 +7,32 @@ import {
 import { defaults } from "../utils/constants.js";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 
-export async function getTests() {
+export async function getTests({ search, sort, isPublic, userId }) {
+	const where = {};
+
+	if (isPublic) {
+		where.status = TestStatus.PUBLIC;
+	}
+
+	if (userId) {
+		where.userId = userId;
+	}
+
+	if (search) {
+		where.title = {
+			contains: search,
+			mode: "insensitive",
+		};
+	}
+
+	let orderBy = { createdAt: "desc" };
+	if (sort === "oldest") {
+		orderBy = { createdAt: "asc" };
+	}
+
 	return prisma.test.findMany({
-		where: {
-			status: TestStatus.PUBLIC,
-		},
+		where,
+		orderBy,
 		include: {
 			_count: {
 				select: {
@@ -19,63 +40,68 @@ export async function getTests() {
 					items: { where: { type: { not: TestItemType.GROUP } } },
 				},
 			},
-		},
-	});
-}
 
-export async function getAttemptedTests(userId) {
-	return prisma.test.findMany({
-		where: {
-			attempts: {
-				some: {
-					userId: userId,
-				},
-			},
-		},
-		include: {
-			_count: {
-				select: {
-					attempts: true,
-					items: { where: { type: { not: TestItemType.GROUP } } },
-				},
+			user: {
+				select: { id: true, name: true, avatarUrl: true },
 			},
 		},
 	});
 }
 
-export async function getMyTests(userId) {
-	return prisma.test.findMany({
-		where: {
-			userId: userId,
-		},
-		include: {
-			_count: {
-				select: {
-					attempts: true,
-					items: { where: { type: { not: TestItemType.GROUP } } },
-				},
-			},
-		},
-		orderBy: {
-			updatedAt: "desc",
-		},
-	});
-}
-
-export async function createTest(testData, userId) {
-	const payload = {
-		...testData,
-		userId,
-		items: {
-			create: {
-				type: TestItemType.SHORT_ANSWER,
+export async function getAttemptedTests(userId, { search, sort } = {}) {
+	const where = {
+		attempts: {
+			some: {
+				userId: userId,
 			},
 		},
 	};
 
-	return prisma.test.create({
-		data: payload,
+	if (search) {
+		where.title = {
+			contains: search,
+			mode: "insensitive",
+		};
+	}
+
+	let orderBy = { createdAt: "desc" };
+	if (sort === "oldest") {
+		orderBy = { createdAt: "asc" };
+	}
+
+	return prisma.test.findMany({
+		where,
+		orderBy,
+		include: {
+			_count: {
+				select: {
+					attempts: true,
+					items: { where: { type: { not: TestItemType.GROUP } } },
+				},
+			},
+			user: {
+				select: { id: true, name: true, avatarUrl: true },
+			},
+		},
 	});
+}
+
+export async function createTest(userId) {
+	const payload = {
+		...defaults.TEST,
+		userId,
+		items: {
+			create: [
+				{
+					type: TestItemType.SHORT_ANSWER,
+					text: "Thủ đô của nước Pháp?",
+					answer: "Paris",
+				},
+			],
+		},
+	};
+
+	return prisma.test.create({ data: payload });
 }
 
 export async function getTestForInfoView(id) {
@@ -94,6 +120,7 @@ export async function getTestForInfoView(id) {
 					attempts: true,
 				},
 			},
+			user: true,
 		},
 	});
 

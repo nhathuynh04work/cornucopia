@@ -1,5 +1,5 @@
 import { toast } from "react-hot-toast";
-import * as mediaApi from "@/apis/mediaApi";
+import mediaApi from "@/apis/mediaApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useRequestUploadUrl() {
@@ -57,7 +57,6 @@ export function useLinkMedia({ onSuccess, onError } = {}) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		// data: { url, fileType, entityType, entityId }
 		mutationFn: (data) => mediaApi.linkMedia(data),
 
 		onSuccess: (data, variables) => {

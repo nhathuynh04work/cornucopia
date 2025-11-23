@@ -1,16 +1,22 @@
 import { api } from "./axios";
 
-export async function getUsers(params) {
-	const { data } = await api.get("/users", { params });
-	return data; // { users, total, page, totalPages }
-}
+const userApi = {
+	getUsers: async (params) => {
+		const { data } = await api.get("/users", { params });
+		return data;
+	},
+	updateInfo: async ({ userId, payload }) => {
+		const { data } = await api.patch(`/users/${userId}`, payload);
+		return data.user;
+	},
+	updateRole: async ({ userId, role }) => {
+		const { data } = await api.patch(`/users/${userId}/role`, { role });
+		return data.user;
+	},
+	getDashboardData: async () => {
+		const { data } = await api.get("/users/me/dashboard");
+		return data.data;
+	},
+};
 
-export async function updateInfo({ userId, payload }) {
-	const { data } = await api.patch(`/users/${userId}`, payload);
-	return data.user;
-}
-
-export async function updateRole({ userId, role }) {
-	const { data } = await api.patch(`/users/${userId}/role`, { role });
-	return data.user;
-}
+export default userApi;

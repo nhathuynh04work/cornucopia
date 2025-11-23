@@ -1,82 +1,88 @@
-import { Link } from "react-router";
-import { formatVNDate } from "@/lib/formatters";
-import { Calendar, User, ImageIcon } from "lucide-react";
-import StatusBadge from "../StatusBadge";
+import { Link } from "react-router-dom";
+import { Calendar, MessageSquare } from "lucide-react";
+import Avatar from "@/components/Avatar";
 
-export default function PostCard({ post }) {
-	const displayDate = formatVNDate(post.publishedAt ?? post.createdAt);
-	const to =
-		post.status === "DRAFT"
-			? `/posts/${post.id}/edit`
-			: `/posts/${post.id}`;
+function PostCard({ post }) {
+	const { id, title, excerpt, coverUrl, author, createdAt, _count } = post;
+
+	const date = new Date(createdAt).toLocaleDateString("vi-VN", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	});
 
 	return (
-		<article className="group flex flex-col md:flex-row gap-6 p-5 bg-white rounded-xl border border-gray-200 transition-all duration-200">
+		<Link
+			to={`/posts/${id}`}
+			className="group flex flex-col bg-white rounded-2xl border border-gray-200 hover:border-purple-200 hover:shadow-lg transition-all duration-300 h-full overflow-hidden">
 			{/* Cover Image */}
-			<Link
-				to={to}
-				className="shrink-0 block overflow-hidden rounded-lg w-full md:w-[240px] h-[160px] bg-gray-100 relative">
-				{post.coverUrl ? (
+			<div className="aspect-[16/9] w-full overflow-hidden bg-gray-100 relative">
+				{coverUrl ? (
 					<img
-						src={post.coverUrl}
-						alt={post.title || "cover"}
-						className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+						src={coverUrl}
+						alt={title}
+						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 					/>
 				) : (
-					<div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-						<ImageIcon className="w-8 h-8 mb-2 opacity-50" />
-						<span className="text-xs">No image</span>
+					<div className="w-full h-full bg-gradient-to-br from-purple-50 to-white flex items-center justify-center text-purple-200">
+						<svg
+							className="w-16 h-16 opacity-50"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1">
+							<rect
+								x="3"
+								y="3"
+								width="18"
+								height="18"
+								rx="2"
+								ry="2"
+							/>
+							<circle cx="8.5" cy="8.5" r="1.5" />
+							<polyline points="21 15 16 10 5 21" />
+						</svg>
 					</div>
 				)}
-			</Link>
+			</div>
 
 			{/* Content */}
-			<div className="flex flex-col flex-1">
-				<div className="flex flex-wrap gap-2 mb-3">
-					{post.tags.map((t) => (
-						<Link key={t.id} to={`/tags/${t.id}`}>
-							<StatusBadge
-								status={t.name}
-								size="xs"
-								className="bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer border !border-purple-100 lowercase"
-							/>
-						</Link>
-					))}
+			<div className="p-6 flex-1 flex flex-col">
+				<div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+					<span className="px-2 py-1 bg-gray-50 rounded-md border border-gray-100 font-medium">
+						Blog
+					</span>
+					<span>•</span>
+					<span className="flex items-center gap-1">
+						<Calendar className="w-3 h-3" />
+						{date}
+					</span>
 				</div>
 
-				{/* Title */}
-				<h2 className="text-xl font-medium text-gray-800 leading-snug mb-2 group-hover:text-purple-600 transition-colors">
-					<Link to={`/posts/${post.id}`}>
-						{post.title || "(Không có tiêu đề)"}
-					</Link>
-				</h2>
+				<h3 className="font-bold text-gray-900 text-xl line-clamp-2 mb-3 group-hover:text-purple-600 transition-colors leading-tight">
+					{title}
+				</h3>
 
-				{/* Excerpt */}
-				{post.excerpt && (
-					<p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mb-4 flex-1">
-						{post.excerpt}
-					</p>
-				)}
+				<p className="text-sm text-gray-500 line-clamp-3 mb-6 flex-1 leading-relaxed">
+					{excerpt || "Không có trích dẫn."}
+				</p>
 
-				{/* Meta Footer */}
-				<div className="flex items-center justify-between pt-2">
-					<div className="flex items-center gap-4 text-xs text-gray-500 font-medium">
-						<div className="flex items-center gap-1.5">
-							<User className="w-3.5 h-3.5" />
-							<span>{post.author?.name || "Unknown"}</span>
-						</div>
-						<div className="flex items-center gap-1.5">
-							<Calendar className="w-3.5 h-3.5" />
-							<span>{displayDate}</span>
-						</div>
+				{/* Footer Info */}
+				<div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+					<div className="flex items-center gap-3">
+						<Avatar
+							url={author?.avatarUrl}
+							name={author?.name}
+							size="xs"
+						/>
+						<span className="text-xs font-bold text-gray-700 truncate max-w-[120px]">
+							{author?.name}
+						</span>
 					</div>
-
-					{/* Post Status Badge */}
-					{post.status && (
-						<StatusBadge status={post.status} size="xs" />
-					)}
 				</div>
 			</div>
-		</article>
+		</Link>
 	);
 }
+
+export default PostCard;

@@ -1,5 +1,5 @@
 import { useCourseEditorStore } from "@/store/courseEditorStore";
-import * as moduleApi from "../apis/moduleApi";
+import moduleApi from "../apis/moduleApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useAddLesson(moduleId) {

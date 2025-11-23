@@ -10,12 +10,12 @@ function DeckHeader({ deck }) {
 	const { mutate: startSession, isPending } = useStartSession();
 	const navigate = useNavigate();
 
-	const handleStartSession = async () => {
+	const handleStartSession = () => {
 		startSession(
 			{ deckId: deck.id },
 			{
 				onSuccess: (session) => {
-					navigate(`/flashcards/${deck.id}/study/${session.id}`);
+					navigate(`/decks/${deck.id}/study/${session.id}`);
 				},
 			}
 		);

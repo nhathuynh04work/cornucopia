@@ -35,7 +35,7 @@ function EditMenu({ deck }) {
 			{
 				onSuccess: () => {
 					setIsDeleteModalOpen(false);
-					navigate("/flashcards");
+					navigate("/decks");
 					toast.success("Xoá bộ thẻ thành công!");
 				},
 				onError: () => {
@@ -58,7 +58,7 @@ function EditMenu({ deck }) {
 				{isMenuOpen && (
 					<div className="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-100 shadow-lg">
 						<Link
-							to={`/flashcards/${deck.id}/edit`}
+							to={`/decks/${deck.id}/edit`}
 							className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-purple-600 transition-colors w-full text-left">
 							<Edit3 className="w-4 h-4" />
 							Chỉnh sửa

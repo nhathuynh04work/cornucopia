@@ -56,3 +56,7 @@ export function formatRelativeTime(dateString) {
 	}
 	return "Just now";
 }
+
+export function cn(...classes) {
+	return classes.filter(Boolean).join(" ");
+}

@@ -1,30 +1,30 @@
 import * as sessionService from "../services/session.service.js";
 
-export async function submitAnswerController(req, res) {
-  const { sessionId } = req.params;
-  const { flashcardId, needRevise } = req.body;
+export async function getSessionDetails(req, res) {
+	const { sessionId } = req.params;
+	const userId = req.user.id;
 
-  const answer = await sessionService.submitAnswerService(
-    sessionId,
-    flashcardId,
-    needRevise
-  );
-  res.status(201).json({ answer });
+	const session = await sessionService.getSessionDetails(sessionId, userId);
+	res.status(200).json({ session });
 }
 
-export async function updateEndtimeController(req, res) {
-  const sessionId = req.params.sessionId;
-  const { startTime, endTime } = await sessionService.updateEndTime(sessionId);
-  res.status(200).json({ startTime, endTime });
+export async function getSessionSummary(req, res) {
+	const { sessionId } = req.params;
+	const userId = req.user.id;
+
+	const summary = await sessionService.getSessionSummary(sessionId, userId);
+	res.status(200).json({ summary });
 }
 
-export async function getYearlyStudyStatistic(req, res) {
-  try {
-    const userId = req.user.id;
-    const stats = await sessionService.getYearlyStudyStatisticService(userId);
-    res.status(200).json({ data: stats });
-  } catch (error) {
-    console.error("Error fetching yearly stats:", error);
-    res.status(500).json({ error: "Failed to fetch yearly statistics" });
-  }
+export async function submitAttempt(req, res) {
+	const payload = req.body;
+	const userId = req.user.id;
+	const { sessionId } = req.params;
+
+	const attempt = await sessionService.submitAttempt({
+		sessionId,
+		userId,
+		payload,
+	});
+	res.status(201).json({ attempt });
 }

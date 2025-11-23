@@ -31,7 +31,7 @@ function DeckEdit() {
 					{error?.message || "Có lỗi xảy ra khi tải dữ liệu."}
 				</p>
 				<Link
-					to="/flashcards"
+					to="/decks"
 					className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all shadow-sm">
 					<ArrowLeft className="w-5 h-5" />
 					Quay lại thư viện

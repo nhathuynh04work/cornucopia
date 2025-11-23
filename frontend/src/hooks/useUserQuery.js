@@ -1,9 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import * as userApi from "../apis/userApi";
 import { Role } from "@/lib/constants";
+import userApi from "@/apis/userApi";
 
-export function useUsersQuery({ role, search, page, limit = 10 }) {
+export function useGetUsers({ role, search, page, limit = 10 }) {
 	const { role: userRole } = useAuth();
 
 	return useQuery({
@@ -11,5 +11,15 @@ export function useUsersQuery({ role, search, page, limit = 10 }) {
 		queryFn: () => userApi.getUsers({ role, search, page, limit }),
 		keepPreviousData: true,
 		enabled: userRole === Role.ADMIN,
+	});
+}
+
+export function useGetDashboardData() {
+	const { user } = useAuth();
+
+	return useQuery({
+		queryKey: ["/dashboard"],
+		queryFn: userApi.getDashboardData,
+		enabled: !!user,
 	});
 }

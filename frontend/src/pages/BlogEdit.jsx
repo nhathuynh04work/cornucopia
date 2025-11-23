@@ -4,8 +4,8 @@ import { Loader2 } from "lucide-react";
 import { useParams } from "react-router";
 
 export default function BlogEdit() {
-	const { id } = useParams();
-	const { data: post, isPending, isError } = usePostDetailsQuery(id);
+	const { postId } = useParams();
+	const { data: post, isPending, isError } = usePostDetailsQuery(postId);
 
 	if (isPending) {
 		return (
