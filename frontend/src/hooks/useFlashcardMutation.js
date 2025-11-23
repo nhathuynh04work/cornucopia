@@ -2,6 +2,7 @@ import {
 	createDeck,
 	deleteDeck,
 	startSession,
+	submitAttempt,
 	syncDeck,
 } from "@/apis/flashcardsApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -49,5 +50,12 @@ export function useDeleteDeck() {
 export function useStartSession() {
 	return useMutation({
 		mutationFn: ({ deckId }) => startSession(deckId),
+	});
+}
+
+export function useSubmitAttempt() {
+	return useMutation({
+		mutationFn: ({ sessionId, payload }) =>
+			submitAttempt(sessionId, payload),
 	});
 }

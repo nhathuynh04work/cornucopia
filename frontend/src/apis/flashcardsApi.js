@@ -16,13 +16,11 @@ export async function getDeckDetails(deckId) {
 }
 
 export async function createDeck() {
-	// The backend creates a deck with default "New Deck" values, so no payload is needed
 	const { data } = await api.post("/decks");
 	return data.deck;
 }
 
 export async function syncDeck(deckId, payload) {
-	// Payload structure expected by backend: { title, isPublic, cards: [...] }
 	const { data } = await api.post(`/decks/${deckId}/sync`, payload);
 	return data.deck;
 }
@@ -34,4 +32,19 @@ export async function deleteDeck(deckId) {
 export async function startSession(deckId) {
 	const { data } = await api.post(`/decks/${deckId}/sessions`);
 	return data.session;
+}
+
+export async function getSessionDetails(sessionId) {
+	const { data } = await api.get(`/sessions/${sessionId}`);
+	return data.session;
+}
+
+export async function submitAttempt(sessionId, payload) {
+	const { data } = await api.post(`/sessions/${sessionId}/answers`, payload);
+	return data.attempt;
+}
+
+export async function getSessionSummary(sessionId) {
+	const { data } = await api.get(`/sessions/${sessionId}/summary`);
+	return data.summary;
 }

@@ -1,7 +1,6 @@
 import { Play, Share2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStartSession } from "@/hooks/useFlashcardMutation";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import EditMenu from "./EditMenu";
 
@@ -15,9 +14,8 @@ function DeckHeader({ deck }) {
 		startSession(
 			{ deckId: deck.id },
 			{
-				onSuccess: () => {
-					toast.success("Bắt đầu phiên học!");
-					navigate("");
+				onSuccess: (session) => {
+					navigate(`/flashcards/${deck.id}/study/${session.id}`);
 				},
 			}
 		);

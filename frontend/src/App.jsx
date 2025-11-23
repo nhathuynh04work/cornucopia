@@ -16,7 +16,7 @@ import AuthCallback from "./pages/AuthCallback";
 import TestEdit from "./pages/TestEdit";
 import TestAttempt from "./pages/TestAttempt";
 import AttemptResult from "./pages/AttemptResult";
-import DeckStudySession from "./pages/DeckStudySession";
+import StudySession from "./pages/StudySession";
 import CourseInfo from "./pages/CourseInfo";
 import CourseEdit from "./pages/CourseEdit";
 import CourseLearn from "./pages/CourseLearn";
@@ -114,8 +114,8 @@ function App() {
 				<Route path="auth/callback" element={<AuthCallback />} />
 				<Route path="flashcards/:deckId/edit" element={<DeckEdit />} />
 				<Route
-					path="flashcards/:deckId/study"
-					element={<DeckStudySession />}
+					path="flashcards/:deckId/study/:sessionId"
+					element={<StudySession />}
 				/>
 
 				<Route path="*" element={<Navigate to="/" />} />
