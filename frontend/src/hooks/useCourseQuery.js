@@ -1,4 +1,4 @@
-import * as courseApi from "@/apis/courseApi";
+import courseApi from "@/apis/courseApi";
 import { useAuth } from "@/contexts/AuthContext";
 import { Role } from "@/lib/constants";
 import { queryDefaults } from "@/lib/react-query.config";
@@ -6,11 +6,20 @@ import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-export function useCoursesQuery() {
+export function useGetCourses(params = {}) {
 	return useQuery({
-		queryKey: ["courses"],
-		queryFn: courseApi.getCourses,
+		queryKey: ["courses", params],
+		queryFn: () => courseApi.getAll(params),
 		...queryDefaults,
+	});
+}
+
+export function useGetCourseDetails(courseId) {
+	return useQuery({
+		queryKey: ["course", courseId],
+		queryFn: () => courseApi.getDetails(courseId),
+		...queryDefaults,
+		enabled: !!courseId,
 	});
 }
 

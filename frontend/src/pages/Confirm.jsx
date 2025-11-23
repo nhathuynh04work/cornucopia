@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
-import { confirmEmail } from "../apis/authApi";
+import authApi from "../apis/authApi";
 import { ClipLoader } from "react-spinners";
 
 function Confirm() {
@@ -18,7 +18,7 @@ function Confirm() {
 		setLoading(true);
 
 		try {
-			const token = await confirmEmail(confirmToken);
+			const token = await authApi.confirmEmail(confirmToken);
 			await setAuthenticatedSession(token);
 		} catch (err) {
 			setError(err.message);

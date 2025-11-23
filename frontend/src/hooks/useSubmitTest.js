@@ -24,7 +24,7 @@ export function useSubmitTest() {
 
 		try {
 			const attempt = await mutateAsync(payload);
-			navigate(`/attempts/${attempt.id}`);
+			navigate(`/tests/${test.id}/result/${attempt.id}`);
 		} catch {
 			toast.error("Failed to submit test. Please try again.");
 		}

@@ -1,55 +1,80 @@
-import { Users, Clock, FileText } from "lucide-react";
-import { Link, useLocation } from "react-router";
-import StatusBadge from "../StatusBadge";
+import { Link } from "react-router-dom";
+import { FileQuestion, Clock, Trophy } from "lucide-react";
+import Avatar from "@/components/Avatar";
+import StatusBadge from "@/components/StatusBadge";
 
-export default function TestCard({ test }) {
-	const { pathname } = useLocation();
-	const isAdmin = pathname.startsWith("/tests/admin");
+function TestCard({ test }) {
+	const { id, title, description, user, timeLimit, attempts, status } = test;
+	const duration = Math.floor(timeLimit / 60);
 
-	const attempts = test._count?.attempts || 0;
-	const questions = test._count?.items || 0;
-	const duration = test.timeLimit;
+	const isDraft = status === "DRAFT";
+	const targetLink = isDraft ? `/tests/${id}/edit` : `/tests/${id}`;
 
 	return (
 		<Link
-			to={
-				test.status === "DRAFT"
-					? `/tests/${test.id}/edit`
-					: `/tests/${test.id}`
-			}
-			className="group relative block rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-purple-300 hover:translate-y-[-2px] focus:ring-2 focus:ring-purple-500">
-			{/* Header */}
-			<div className="mb-3">
-				<h2
-					className="text-sm font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors"
-					title={test.title}>
-					{test.title}
-				</h2>
-				{isAdmin && <StatusBadge status={test.status} size="xs" />}
-			</div>
+			to={targetLink}
+			className="group flex flex-col bg-white rounded-2xl border border-gray-200 hover:border-purple-200 hover:shadow-lg transition-all duration-300 h-full overflow-hidden relative">
+			{/* Status Badge Overlay for Non-Public tests */}
+			{status !== "PUBLIC" && (
+				<div className="absolute top-3 left-3 z-10">
+					<StatusBadge
+						status={status}
+						size="xs"
+						className="shadow-sm"
+					/>
+				</div>
+			)}
 
-			{/* Stats */}
-			<div className="flex flex-col gap-2 text-gray-600">
-				<div className="flex items-center">
-					<FileText className="w-4 h-4 mr-2 text-gray-400" />
-					<span className="text-xs font-medium">{questions} Qs</span>
+			{/* Card Header / Icon */}
+			<div className="h-32 bg-gradient-to-br from-purple-50 to-white flex items-center justify-center border-b border-gray-50 relative">
+				<div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform duration-300">
+					<FileQuestion className="w-6 h-6" />
 				</div>
-				<div className="flex items-center">
-					<Clock className="w-4 h-4 mr-2 text-gray-400" />
-					<span className="text-xs font-medium">
-						{duration / 60} mins
-					</span>
-				</div>
-				<div className="flex items-center">
-					<Users className="w-4 h-4 mr-2 text-gray-400" />
-					<span className="text-xs font-medium">
-						{attempts} attempts
-					</span>
+
+				{/* Duration Badge */}
+				<div className="absolute top-3 right-3 px-2.5 py-1 bg-white/80 backdrop-blur-sm border border-gray-100 text-xs font-bold text-gray-600 rounded-lg flex items-center gap-1.5 shadow-sm">
+					<Clock className="w-3 h-3" />
+					{duration} phút
 				</div>
 			</div>
 
-			{/* Bottom accent bar */}
-			<div className="absolute bottom-0 left-0 w-full h-[3px] bg-purple-100 rounded-b-xl group-hover:bg-purple-400 transition-colors"></div>
+			{/* Content */}
+			<div className="p-5 flex-1 flex flex-col">
+				<h3 className="font-bold text-gray-900 text-lg line-clamp-2 mb-2 group-hover:text-purple-600 transition-colors">
+					{title}
+				</h3>
+
+				<p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
+					{description || "Chưa có mô tả cho bài kiểm tra này."}
+				</p>
+
+				{/* Footer Info */}
+				<div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+					{/* Author */}
+					<div className="flex items-center gap-2">
+						<Avatar
+							url={user?.avatarUrl}
+							name={user?.name}
+							size="xs"
+						/>
+						<span className="text-xs font-medium text-gray-600 truncate max-w-[100px]">
+							{user?.name}
+						</span>
+					</div>
+
+					{/* Stats */}
+					<div className="flex items-center gap-3 text-xs text-gray-400">
+						<div
+							className="flex items-center gap-1"
+							title="Lượt làm bài">
+							<Trophy className="w-3.5 h-3.5" />
+							<span>{attempts?.length || 0}</span>
+						</div>
+					</div>
+				</div>
+			</div>
 		</Link>
 	);
 }
+
+export default TestCard;

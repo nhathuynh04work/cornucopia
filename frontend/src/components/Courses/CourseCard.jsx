@@ -1,88 +1,76 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Users } from "lucide-react";
-import StatusBadge from "../StatusBadge";
+import { Link } from "react-router-dom";
+import { Users, BookOpen } from "lucide-react";
+import Avatar from "@/components/Avatar";
 
-export default function CourseCard({ course }) {
-	const { pathname } = useLocation();
-	const isAdmin = pathname.startsWith("/courses/admin");
+function CourseCard({ course }) {
+	const { id, name, description, coverUrl, price, user, _count } = course;
 
-	const coverImage =
-		course.coverUrl ||
-		`https://placehold.co/600x400/e2e8f0/64748b?text=${encodeURIComponent(
-			course.name || "Course"
-		)}`;
-
-	const enrollments = course._count?.enrollments || 0;
-	const instructor = course.user;
-	const isEnrolled = typeof course.progress === "number";
-
-	let destination = `/courses/${course.id}`;
-	if (course.status === "DRAFT") {
-		destination = `/courses/${course.id}/edit`;
-	} else if (isEnrolled) {
-		destination = `/courses/${course.id}/learn`;
-	}
+	// Format price: 0 -> "Miễn phí", otherwise currency format
+	const formattedPrice =
+		price === 0
+			? "Miễn phí"
+			: new Intl.NumberFormat("vi-VN", {
+					style: "currency",
+					currency: "VND",
+			  }).format(price);
 
 	return (
 		<Link
-			to={destination}
-			className="group relative rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-purple-300 hover:translate-y-[-2px] focus:outline-none focus:ring-2 focus:ring-purple-500 h-full flex flex-col">
-			{/* Cover image */}
-			<div className="relative w-full h-40 overflow-hidden flex-shrink-0">
-				<img
-					src={coverImage}
-					alt={course.name}
-					className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-				/>
-				{isAdmin && (
-					<div className="absolute top-2 left-3">
-						<StatusBadge status={course.status} size="xs" />
+			to={`/courses/${id}`}
+			className="group flex flex-col bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-purple-100 transition-all duration-300 h-full">
+			{/* Cover Image */}
+			<div className="aspect-video w-full overflow-hidden bg-gray-100 relative">
+				{coverUrl ? (
+					<img
+						src={coverUrl}
+						alt={name}
+						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+					/>
+				) : (
+					<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
+						<BookOpen className="w-12 h-12" />
 					</div>
 				)}
+
+				{/* Price Badge */}
+				<div className="absolute top-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-bold text-gray-900 rounded-full shadow-sm">
+					{formattedPrice}
+				</div>
 			</div>
 
-			{/* Info */}
-			<div className="p-4 flex flex-col flex-grow justify-between">
-				<div>
-					<h2
-						className="text-sm font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors"
-						title={course.name}>
-						{course.name}
-					</h2>
+			{/* Content */}
+			<div className="p-5 flex-1 flex flex-col">
+				<h3 className="font-bold text-gray-900 text-lg line-clamp-2 mb-2 group-hover:text-purple-600 transition-colors">
+					{name}
+				</h3>
 
-					<p
-						className="text-xs text-gray-500 mt-1 truncate"
-						title={instructor?.name || "N/A"}>
-						{instructor?.name || "N/A"}
-					</p>
-				</div>
+				<p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
+					{description || "Chưa có mô tả cho khóa học này."}
+				</p>
 
-				<div className="flex justify-between items-center mt-3 pt-2">
-					{isEnrolled ? (
-						<div className="w-1/2 bg-gray-100 h-1 rounded-full overflow-hidden mr-2">
-							<div
-								className="bg-purple-500 h-1 rounded-full transition-all duration-500"
-								style={{ width: `${course.progress}%` }}
-							/>
-						</div>
-					) : (
-						<p className="text-xs font-semibold text-gray-900 mr-2">
-							${(course.price / 100).toFixed(2)}
-						</p>
-					)}
-
-					<div className="flex items-center gap-1 text-gray-500 flex-shrink-0">
-						<Users className="w-3.5 h-3.5" />
-						<span className="text-xs font-medium">
-							{enrollments}
+				{/* Footer Info */}
+				<div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+					{/* Author */}
+					<div className="flex items-center gap-2">
+						<Avatar
+							url={user?.avatarUrl}
+							name={user?.name}
+							size="xs"
+						/>
+						<span className="text-xs font-medium text-gray-600 truncate max-w-[100px]">
+							{user?.name}
 						</span>
+					</div>
+
+					{/* Enrollment Count */}
+					<div className="flex items-center gap-1 text-xs text-gray-400">
+						<Users className="w-3.5 h-3.5" />
+						<span>{_count?.enrollments || 0} học viên</span>
 					</div>
 				</div>
 			</div>
-
-			{/* Accent bar */}
-			<div className="absolute bottom-0 left-0 w-full h-[3px] bg-purple-100 rounded-b-xl group-hover:bg-purple-400 transition-colors"></div>
 		</Link>
 	);
 }
+
+export default CourseCard;

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ACCESS_TOKEN_KEY } from "../lib/constants";
-import * as authApi from "../apis/authApi";
+import authApi from "../apis/authApi";
 import { useNavigate } from "react-router";
 
 const AuthContext = createContext();
@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
 	function logout() {
 		localStorage.removeItem(ACCESS_TOKEN_KEY);
 		setUser(null);
-		navigate("/dashboard");
+		navigate("/landing");
 	}
 
 	const value = {

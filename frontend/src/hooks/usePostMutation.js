@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deletePost, createPost, updatePost } from "@/apis/postApi";
+import postApi from "@/apis/postApi";
 import { toast } from "react-hot-toast";
 
 export function useUpdatePost() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ postId, payload }) => updatePost(postId, payload),
+		mutationFn: ({ postId, payload }) => postApi.update(postId, payload),
 		onSuccess: () => {
 			queryClient.invalidateQueries(["posts"]);
 		},
@@ -17,7 +17,7 @@ export function useDeletePost() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ id }) => deletePost(id),
+		mutationFn: ({ id }) => postApi.delete(id),
 		onSuccess: () => {
 			queryClient.invalidateQueries(["posts"]);
 		},
@@ -31,7 +31,7 @@ export function useCreatePost() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: () => createPost(),
+		mutationFn: () => postApi.create(),
 		onSuccess: () => {
 			queryClient.invalidateQueries(["posts"]);
 		},

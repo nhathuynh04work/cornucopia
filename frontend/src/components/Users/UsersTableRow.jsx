@@ -1,4 +1,4 @@
-import { formatVNDate } from "@/lib/text";
+import { formatVNDate } from "@/lib/formatters";
 import ChangeRoleDropdown from "./ChangeRoleDropdown";
 
 export default function UsersTableRow({ user, index, page }) {

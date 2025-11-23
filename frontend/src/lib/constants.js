@@ -5,7 +5,15 @@ export const errorMessage = {
 };
 
 export const Role = {
-	ADMIN: "ADMIN",
-	CREATOR: "CREATOR",
 	USER: "USER",
+	CREATOR: "CREATOR",
+	ADMIN: "ADMIN",
+};
+
+export const PERMISSIONS = {
+	CREATE_FLASHCARD: [Role.USER, Role.CREATOR, Role.ADMIN],
+	CREATE_POST: [Role.USER, Role.CREATOR, Role.ADMIN],
+	CREATE_COURSE: [Role.CREATOR, Role.ADMIN],
+	CREATE_TEST: [Role.CREATOR, Role.ADMIN],
+	MANAGE_USERS: [Role.ADMIN],
 };

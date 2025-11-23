@@ -1,5 +1,5 @@
 import { useTestAttemptStore } from "@/store/testAttemptStore";
-import { formatTime } from "@/lib/text";
+import { formatTime } from "@/lib/formatters";
 import { useNavigate } from "react-router";
 import { useSubmitTest } from "@/hooks/useSubmitTest";
 import { Loader2, LogOut } from "lucide-react";

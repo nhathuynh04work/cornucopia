@@ -1,99 +1,130 @@
 import { Link } from "react-router-dom";
-import { Github, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
+import { Facebook, Twitter, Instagram, Github, Mail } from "lucide-react";
 
 export default function Footer() {
 	const currentYear = new Date().getFullYear();
 
+	const footerSections = [
+		{
+			title: "Sản phẩm",
+			links: [
+				{ label: "Tính năng", href: "/features" },
+				{ label: "Khóa học", href: "/courses" },
+				{ label: "Bộ thẻ Flashcards", href: "/flashcards" },
+				{ label: "Bảng giá", href: "/pricing" },
+			],
+		},
+		{
+			title: "Tài nguyên",
+			links: [
+				{ label: "Blog", href: "/blog" },
+				{ label: "Hướng dẫn sử dụng", href: "/help" },
+				{ label: "Cộng đồng", href: "/community" },
+				{ label: "FAQ", href: "/faq" },
+			],
+		},
+		{
+			title: "Công ty",
+			links: [
+				{ label: "Về chúng tôi", href: "/about" },
+				{ label: "Tuyển dụng", href: "/careers" },
+				{ label: "Liên hệ", href: "/contact" },
+				{ label: "Điều khoản", href: "/terms" },
+			],
+		},
+	];
+
 	return (
-		<footer className="bg-white border-t border-gray-200 mt-auto">
-			<div className="w-5/6 mx-auto px-6 py-12">
-				{/* Increased gap to move columns apart */}
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-					{/* Brand Column */}
-					<div className="col-span-1">
-						<Logo />
-						<p className="mt-4 text-sm text-gray-500 leading-relaxed">
-							Trao quyền cho người học ngôn ngữ với các công cụ
-							tương tác, khóa học và nội dung từ cộng đồng.
+		<footer className="bg-white border-t border-gray-100 pt-16 pb-8">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-16">
+					{/* Brand Section (Takes up 2 columns on large screens) */}
+					<div className="lg:col-span-2 space-y-6">
+						<Link to="/" className="inline-block">
+							<Logo textSize="text-2xl" />
+						</Link>
+						<p className="text-gray-500 text-sm leading-relaxed max-w-xs">
+							Cornucopia là nền tảng học tập toàn diện, mang đến
+							sự phong phú về tri thức và công cụ giúp bạn chinh
+							phục mọi mục tiêu giáo dục.
 						</p>
-
-						{/* License Info Added Here */}
-						<div className="mt-8 pt-6 border-t border-gray-100 space-y-1">
-							<p className="text-xs text-gray-500 font-medium">
-								© {currentYear} Cornucopia Inc.
-							</p>
-							<p className="text-xs text-gray-400">
-								Giấy phép MXH số: 382/GP-BTTTT cấp ngày
-								12/09/2024.
-							</p>
-							<p className="text-xs text-gray-400">
-								Địa chỉ: Tầng 5, Tòa nhà TechHub, Quận 1,
-								TP.HCM.
-							</p>
-						</div>
-					</div>
-
-					{/* Quick Links - Added padding-left to move it to the right */}
-					<div className="md:pl-12">
-						<h4 className="font-semibold text-gray-900 mb-4">
-							Nền tảng
-						</h4>
-						<ul className="space-y-3 text-sm">
-							<li>
-								<Link
-									to="/courses"
-									className="text-gray-600 hover:text-purple-600 transition-colors">
-									Khóa học
-								</Link>
-							</li>
-							<li>
-								<Link
-									to="/tests"
-									className="text-gray-600 hover:text-purple-600 transition-colors">
-									Bài kiểm tra
-								</Link>
-							</li>
-							<li>
-								<Link
-									to="/flashcards"
-									className="text-gray-600 hover:text-purple-600 transition-colors">
-									Flashcards
-								</Link>
-							</li>
-							<li>
-								<Link
-									to="/blog"
-									className="text-gray-600 hover:text-purple-600 transition-colors">
-									Blog
-								</Link>
-							</li>
-						</ul>
-					</div>
-
-					{/* Newsletter / Social */}
-					<div>
-						<h4 className="font-semibold text-gray-900 mb-4">
-							Kết nối
-						</h4>
-						<div className="flex space-x-4 mb-6">
+						<div className="flex items-center gap-4">
 							<a
-								href="https://github.com/nhathuynh04work/cornucopia"
-								target="_blank"
-								rel="noreferrer"
-								className="p-2 bg-gray-50 rounded-full text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-all">
+								href="#"
+								className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all">
+								<Facebook className="w-5 h-5" />
+							</a>
+							<a
+								href="#"
+								className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all">
+								<Twitter className="w-5 h-5" />
+							</a>
+							<a
+								href="#"
+								className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all">
+								<Instagram className="w-5 h-5" />
+							</a>
+							<a
+								href="#"
+								className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all">
 								<Github className="w-5 h-5" />
 							</a>
-							<a
-								href="mailto:contact@cornucopia.com"
-								className="p-2 bg-gray-50 rounded-full text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-all">
-								<Mail className="w-5 h-5" />
-							</a>
 						</div>
-						<p className="text-xs text-gray-400">
-							Đăng ký nhận bản tin để nhận các mẹo học tập mới
+					</div>
+
+					{/* Links Sections */}
+					{footerSections.map((section, idx) => (
+						<div key={idx} className="lg:col-span-1">
+							<h3 className="font-bold text-gray-900 mb-4">
+								{section.title}
+							</h3>
+							<ul className="space-y-3">
+								{section.links.map((link, linkIdx) => (
+									<li key={linkIdx}>
+										<Link
+											to={link.href}
+											className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
+											{link.label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
+					))}
+
+					{/* Newsletter / CTA (Optional 1 column) */}
+					<div className="lg:col-span-1">
+						<h3 className="font-bold text-gray-900 mb-4">
+							Liên hệ
+						</h3>
+						<div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+							<Mail className="w-4 h-4" />
+							<span>support@cornucopia.com</span>
+						</div>
+						<p className="text-xs text-gray-400 mt-4">
+							Đăng ký nhận tin để không bỏ lỡ các cập nhật mới
 							nhất.
 						</p>
+					</div>
+				</div>
+
+				{/* Bottom Bar */}
+				<div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+					<p className="text-sm text-gray-400">
+						© {currentYear} Cornucopia Inc. All rights reserved.
+					</p>
+					<div className="flex gap-6 text-sm text-gray-400">
+						<Link
+							to="/privacy"
+							className="hover:text-purple-600 transition-colors">
+							Chính sách bảo mật
+						</Link>
+						<Link
+							to="/cookies"
+							className="hover:text-purple-600 transition-colors">
+							Cookies
+						</Link>
 					</div>
 				</div>
 			</div>

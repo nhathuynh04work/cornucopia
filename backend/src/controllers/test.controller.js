@@ -1,26 +1,30 @@
 import * as testService from "../services/test.service.js";
 
 export async function getTests(req, res) {
-	const tests = await testService.getTests();
+	const { search, sort, isPublic, userId } = req.query;
+
+	const tests = await testService.getTests({
+		search,
+		sort,
+		isPublic: isPublic === "true",
+		userId: userId ? Number(userId) : undefined,
+	});
+
 	res.status(200).json({ tests });
 }
 
 export async function getAttemptedTests(req, res) {
 	const userId = req.user.id;
-	const tests = await testService.getAttemptedTests(userId);
-	res.status(200).json({ tests });
-}
+	const { search, sort } = req.query;
 
-export async function getMyTests(req, res) {
-	const userId = req.user.id;
-	const tests = await testService.getMyTests(userId);
+	const tests = await testService.getAttemptedTests(userId, { search, sort });
 	res.status(200).json({ tests });
 }
 
 export async function createTest(req, res) {
 	const userId = req.user.id;
 
-	const test = await testService.createTest(req.body, userId);
+	const test = await testService.createTest(userId);
 	res.status(201).json({ test });
 }
 

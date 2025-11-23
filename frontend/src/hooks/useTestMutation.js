@@ -1,18 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTestEditorStore } from "../store/testEditorStore";
 import toast from "react-hot-toast";
-import * as itemApi from "../apis/itemApi";
-import * as testApi from "../apis/testApi";
-import * as optionApi from "../apis/optionApi";
+import itemApi from "../apis/itemApi";
+import testApi from "../apis/testApi";
+import optionApi from "../apis/optionApi";
 
-// ========================================================================
-// 1. THE CORE WRAPPER
-// ========================================================================
-
-/**
- * A wrapper hook for all mutations that edit the test.
- * It automatically handles toast messages and invalidating the active test query.
- */
 export function useTestEditorMutation({
 	mutationFn,
 	onSuccess,
@@ -25,16 +17,11 @@ export function useTestEditorMutation({
 
 	return useMutation({
 		mutationFn,
-
 		onSuccess: (data, variables) => {
-			// Allow the specific hook to run its own logic first
 			onSuccess?.(data, variables);
-
 			if (!disableToast && successMessage) {
 				toast.success(successMessage);
 			}
-
-			// Automatically refetch the test data
 			queryClient.invalidateQueries({
 				queryKey: ["tests"],
 			});
@@ -42,7 +29,6 @@ export function useTestEditorMutation({
 				queryKey: ["test", testId],
 			});
 		},
-
 		onError: (error) => {
 			if (!disableToast) {
 				toast.error(
@@ -54,10 +40,6 @@ export function useTestEditorMutation({
 		},
 	});
 }
-
-// ========================================================================
-// 2. ITEM MUTATIONS
-// ========================================================================
 
 export function useDeleteItem(id, { disableToast = true } = {}) {
 	return useTestEditorMutation({
@@ -86,19 +68,14 @@ export function useAddOption(itemId, { disableToast = true } = {}) {
 	});
 }
 
-// ========================================================================
-// 3. TEST MUTATIONS
-// ========================================================================
-
 export function useCreateTest() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (payload) => testApi.create(payload),
+		mutationFn: () => testApi.create(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["tests"] });
 		},
-		onError: () => toast.error("Không thể tạo bài kiểm tra."),
 	});
 }
 
@@ -134,10 +111,6 @@ export function useAddItem({ disableToast = true } = {}) {
 		disableToast,
 	});
 }
-
-// ========================================================================
-// 4. OPTION MUTATIONS
-// ========================================================================
 
 export function useDeleteOption(optionId, { disableToast = true } = {}) {
 	return useTestEditorMutation({

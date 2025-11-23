@@ -1,6 +1,10 @@
 import { api } from "./axios";
 
-export async function getAllTags() {
-	const { data } = await api.get(`/tags`);
-	return data.tags;
-}
+const tagApi = {
+	getAll: async () => {
+		const { data } = await api.get(`/tags`);
+		return data.tags;
+	},
+};
+
+export default tagApi;

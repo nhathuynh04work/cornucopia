@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as courseApi from "@/apis/courseApi";
+import courseApi from "@/apis/courseApi";
 import { toast } from "react-hot-toast";
 
 export function useCreateCourse() {

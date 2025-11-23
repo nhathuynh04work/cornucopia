@@ -1,12 +1,12 @@
 import TestRenderer from "@/components/TestAttempt/TestRenderer";
 import TestSidebar from "@/components/TestAttempt/TestSidebar";
-import { useTestAttemptQuery } from "@/hooks/useTestQuery";
+import { useGetTestForAttempt } from "@/hooks/useTestQuery";
 import { useTestTimer } from "@/hooks/useTestTimer";
 import { useParams } from "react-router";
 
 function TestAttempt() {
-	const { id } = useParams();
-	const { isPending, isError, data: test } = useTestAttemptQuery(id);
+	const { testId } = useParams();
+	const { isPending, isError, data: test } = useGetTestForAttempt(testId);
 
 	useTestTimer();
 
