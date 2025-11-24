@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { authenticateJWT } from "../middlewares/authMiddleware.js";
+import { authenticateJwt } from "../middlewares/authenticateJwt.js";
 import { validateParams } from "../middlewares/validateParams.js";
 import * as deckController from "../controllers/deck.controller.js";
 
 const router = Router();
 
-router.use(authenticateJWT);
+router.use(authenticateJwt);
 
 router.get("/", deckController.getDecks);
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as authController from "../controllers/auth.controller.js";
-import { authenticateJWT } from "../middlewares/authMiddleware.js";
+import { authenticateJwt } from "../middlewares/authenticateJwt.js";
 import passport from "../config/passport.js";
 import { env } from "../config/env.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
@@ -15,7 +15,7 @@ router.post("/login", validateSchema(LoginSchema), authController.localLogin);
 router.get("/confirm", validateQueries(["token"]), authController.confirmEmail);
 
 // get current user
-router.get("/me", authenticateJWT, authController.getCurrentUser);
+router.get("/me", authenticateJwt, authController.getCurrentUser);
 
 // google oauth
 router.get(

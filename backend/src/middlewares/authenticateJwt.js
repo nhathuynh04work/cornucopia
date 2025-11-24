@@ -2,7 +2,7 @@ import { UnauthorizedError } from "../utils/AppError.js";
 import { errorMessage } from "../utils/constants.js";
 import { verifyJWT } from "../utils/jwt.js";
 
-export async function authenticateJWT(req, res, next) {
+export async function authenticateJwt(req, res, next) {
 	const authHeader = req.headers.authorization;
 	if (!authHeader)
 		throw new UnauthorizedError(errorMessage.MISSING_AUTH_HEADER);

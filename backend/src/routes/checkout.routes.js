@@ -1,14 +1,14 @@
 import { Router } from "express";
 import express from "express";
 import * as checkoutController from "../controllers/checkout.controller.js";
-import { authenticateJWT } from "../middlewares/authMiddleware.js";
 import { validateParams } from "../middlewares/validateParams.js";
+import { authenticateJwt } from "../middlewares/authenticateJwt.js";
 
 const router = Router();
 
 router.post(
 	"/create-session/:courseId",
-	authenticateJWT,
+	authenticateJwt,
 	validateParams(["courseId"]),
 	checkoutController.createCheckoutSession
 );

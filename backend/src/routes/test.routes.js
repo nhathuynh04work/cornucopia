@@ -4,16 +4,18 @@ import * as attemptController from "../controllers/attempt.controller.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
 import { validateParams } from "../middlewares/validateParams.js";
 import { requireRole } from "../middlewares/requireRole.js";
-import { authenticateJWT } from "../middlewares/authMiddleware.js";
 import { CreateItemSchema } from "../schemas/item.schema.js";
 import { UpdateTestSchema } from "../schemas/test.schema.js";
 import { Role } from "../generated/prisma/index.js";
+import { authenticateJwt } from "../middlewares/authenticateJwt.js";
 
 const router = Router();
 
+router.use(authenticateJwt);
+
 router.get("/", testController.getTests);
 
-router.get("/attempted", authenticateJWT, testController.getAttemptedTests);
+router.get("/attempted", testController.getAttemptedTests);
 
 router.get(
 	"/:id/info",
@@ -23,7 +25,6 @@ router.get(
 
 router.get(
 	"/:id/edit",
-	authenticateJWT,
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validateParams(["id"]),
 	testController.getTestForEdit
@@ -36,21 +37,18 @@ router.get(
 );
 router.get(
 	"/:id/attempts",
-	authenticateJWT,
 	validateParams(["id"]),
 	attemptController.getUserAttemptsOnTest
 );
 
 router.post(
 	"/",
-	authenticateJWT,
 	requireRole(Role.ADMIN, Role.CREATOR),
 	testController.createTest
 );
 
 router.patch(
 	"/:id",
-	authenticateJWT,
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validateParams(["id"]),
 	validateSchema(UpdateTestSchema),
@@ -59,7 +57,6 @@ router.patch(
 
 router.delete(
 	"/:id",
-	authenticateJWT,
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validateParams(["id"]),
 	testController.deleteTest
@@ -67,7 +64,6 @@ router.delete(
 
 router.post(
 	"/:id/items",
-	authenticateJWT,
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validateParams(["id"]),
 	validateSchema(CreateItemSchema),

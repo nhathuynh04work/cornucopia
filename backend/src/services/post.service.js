@@ -2,7 +2,6 @@ import prisma from "../prisma.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { defaults } from "../utils/constants.js";
 import * as ragService from "../chatbot/rag.service.js";
-import { PostStatus } from "../generated/prisma/index.js";
 
 export async function createDefaultPost(authorId) {
 	const tagName = "chung".toLowerCase();
