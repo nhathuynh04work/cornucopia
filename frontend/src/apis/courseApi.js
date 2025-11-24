@@ -5,15 +5,7 @@ const courseApi = {
 		const { data } = await api.get("/courses", { params });
 		return data.courses;
 	},
-	getDetails: async (courseId) => {
-		const { data } = await api.get(`/courses/${courseId}`);
-		return data.course;
-	},
-	getMyCourses: async () => {
-		const { data } = await api.get("/courses/my-courses");
-		return data.courses;
-	},
-	getInfoView: async (courseId) => {
+	getForInfoView: async (courseId) => {
 		const { data } = await api.get(`/courses/${courseId}/info`);
 		return data.course;
 	},

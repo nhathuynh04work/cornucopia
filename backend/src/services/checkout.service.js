@@ -31,8 +31,8 @@ export async function createCheckoutSession({ courseId, userId }) {
 		metadata: {
 			courseId: String(courseId),
 		},
-		success_url: `${env.FRONTEND_URL}/courses/${courseId}?payment=success`,
-		cancel_url: `${env.FRONTEND_URL}/courses/${courseId}?payment=canceled`,
+		success_url: `${env.FRONTEND_URL}/payment/callback?status=success&courseId=${courseId}`,
+		cancel_url: `${env.FRONTEND_URL}/payment/callback?status=canceled&courseId=${courseId}`,
 		line_items: [
 			{
 				price_data: {

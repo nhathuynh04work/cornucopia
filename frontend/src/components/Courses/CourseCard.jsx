@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { Users, BookOpen } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import StatusBadge from "@/components/StatusBadge";
 
 function CourseCard({ course }) {
-	const { id, name, description, coverUrl, price, user, _count } = course;
+	const { id, name, description, coverUrl, price, user, _count, status } =
+		course;
 
-	// Format price: 0 -> "Miễn phí", otherwise currency format
 	const formattedPrice =
 		price === 0
 			? "Miễn phí"
@@ -14,10 +15,24 @@ function CourseCard({ course }) {
 					currency: "VND",
 			  }).format(price);
 
+	const isDraft = status === "DRAFT";
+	const targetLink = isDraft ? `/courses/${id}/edit` : `/courses/${id}`;
+
 	return (
 		<Link
-			to={`/courses/${id}`}
-			className="group flex flex-col bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-purple-100 transition-all duration-300 h-full">
+			to={targetLink}
+			className="group flex flex-col bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-100 transition-all duration-300 h-full relative">
+			{/* Status Badge Overlay for Non-Public courses */}
+			{status !== "PUBLIC" && (
+				<div className="absolute top-3 left-3 z-10">
+					<StatusBadge
+						status={status}
+						size="xs"
+						className="shadow-sm !bg-white/90 backdrop-blur-md"
+					/>
+				</div>
+			)}
+
 			{/* Cover Image */}
 			<div className="aspect-video w-full overflow-hidden bg-gray-100 relative">
 				{coverUrl ? (

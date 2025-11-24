@@ -23,19 +23,19 @@ export function useGetCourseDetails(courseId) {
 	});
 }
 
-export function useCourseInfoView(courseId) {
+export function useGetCourseForInfoView(courseId) {
 	const { user } = useAuth();
 	const numericCourseId = Number(courseId);
 
 	return useQuery({
 		queryKey: ["course", numericCourseId, "info-view", user?.id],
-		queryFn: () => courseApi.getCourseForInfoView(numericCourseId),
+		queryFn: () => courseApi.getForInfoView(numericCourseId),
 		enabled: !!numericCourseId,
 		...queryDefaults,
 	});
 }
 
-export function useEnrollmentStatus(courseId) {
+export function useGetEnrollmentStatus(courseId) {
 	const { user } = useAuth();
 	const numericCourseId = Number(courseId);
 
@@ -47,13 +47,13 @@ export function useEnrollmentStatus(courseId) {
 	});
 }
 
-export function useCourseEditorQuery(courseId) {
+export function useGteCourseForEdit(courseId) {
 	const setCourse = useCourseEditorStore((s) => s.setCourse);
 	const numericCourseId = Number(courseId);
 
 	const query = useQuery({
 		queryKey: ["course", numericCourseId, "edit"],
-		queryFn: () => courseApi.getCourseForEditor(numericCourseId),
+		queryFn: () => courseApi.getForEditor(numericCourseId),
 		enabled: !!numericCourseId,
 		...queryDefaults,
 	});
@@ -67,12 +67,12 @@ export function useCourseEditorQuery(courseId) {
 	return query;
 }
 
-export function useCourseLearnQuery(courseId) {
+export function useGetCourseForLearning(courseId) {
 	const numericCourseId = Number(courseId);
 
 	return useQuery({
 		queryKey: ["course", numericCourseId, "learn"],
-		queryFn: () => courseApi.getCourseForLearning(numericCourseId),
+		queryFn: () => courseApi.getForLearning(numericCourseId),
 		enabled: !!numericCourseId,
 		...queryDefaults,
 	});

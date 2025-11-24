@@ -1,8 +1,7 @@
 import { Square, CheckSquare } from "lucide-react";
 import { Video, FileText } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-// We have to assume an API function exists for this
-import * as lessonApi from "@/apis/lessonApi";
+import lessonApi from "@/apis/lessonApi";
 
 const lessonIcon = {
 	VIDEO: <Video className="w-3 h-3 text-gray-600" />,
@@ -21,7 +20,7 @@ function LessonItem({
 
 	const { mutate: toggleComplete } = useMutation({
 		mutationFn: () =>
-			lessonApi.toggleLessonComplete({
+			lessonApi.toggleComplete({
 				lessonId: lesson.id,
 				isCompleted: !isCompleted,
 			}),

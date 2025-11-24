@@ -2,7 +2,6 @@ import { useNavigate } from "react-router";
 import { Plus, FileQuestion, AlertCircle, Loader2 } from "lucide-react";
 import { useGetTests } from "@/hooks/useTestQuery";
 import { useCreateTest } from "@/hooks/useTestMutation";
-import TestList from "@/components/Tests/TestList";
 import PermissionGate from "@/components/PermissionGate";
 import { PERMISSIONS, Role } from "@/lib/constants";
 import PageHeader from "@/components/Shared/PageHeader";
@@ -11,6 +10,7 @@ import EmptyState from "@/components/Shared/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
 import toast from "react-hot-toast";
+import TestCard from "@/components/Tests/TestCard";
 
 export default function Tests() {
 	const { user } = useAuth();
@@ -90,7 +90,13 @@ export default function Tests() {
 			);
 		}
 
-		return <TestList tests={tests} />;
+		return (
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+				{tests.map((test) => (
+					<TestCard key={test.id} test={test} />
+				))}
+			</div>
+		);
 	};
 
 	const tabs = [{ label: "Tất cả", value: "ALL" }];

@@ -1,7 +1,16 @@
 import * as courseService from "../services/course.service.js";
 
 export async function getCourses(req, res) {
-	const courses = await courseService.getAll();
+	const { search, sort, status, userId, enrolledUserId } = req.query;
+
+	const courses = await courseService.getAll({
+		search,
+		sort,
+		status,
+		userId: userId ? Number(userId) : undefined,
+		enrolledUserId: enrolledUserId ? Number(enrolledUserId) : undefined,
+	});
+
 	res.status(200).json({ courses });
 }
 
@@ -56,7 +65,7 @@ export async function getUserCourseEnrollment(req, res) {
 export async function createCourse(req, res) {
 	const userId = req.user.id;
 
-	const course = await courseService.create({ userId, ...req.body });
+	const course = await courseService.createCourse({ userId });
 	res.status(201).json({ course });
 }
 

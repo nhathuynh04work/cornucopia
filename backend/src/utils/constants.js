@@ -92,4 +92,10 @@ export const defaults = {
 			"Đây là bài thi mới. Hãy nhập một đoạn mô tả ngắn về bài thi.",
 		timeLimit: 1800,
 	},
+	COURSE: {
+		name: "Khoá học không tên",
+		description:
+			"Đây là khoá học mới. Hãy thêm các module và bài học mới.",
+		price: 100000,
+	},
 };
