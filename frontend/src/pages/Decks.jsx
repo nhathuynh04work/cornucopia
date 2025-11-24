@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Plus, Layers, AlertCircle, Loader2 } from "lucide-react";
-import { useGetExploreDecks } from "@/hooks/useFlashcardQuery";
 import { useCreateDeck } from "@/hooks/useFlashcardMutation";
 import PermissionGate from "@/components/PermissionGate";
 import { PERMISSIONS } from "@/lib/constants";
@@ -11,6 +10,7 @@ import FilterBar from "@/components/Shared/FilterBar";
 import EmptyState from "@/components/Shared/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
+import { useGetDecks } from "@/hooks/useFlashcardQuery";
 
 export default function Decks() {
 	const { user } = useAuth();
@@ -37,7 +37,7 @@ export default function Decks() {
 		queryParams.userId = user.id;
 	}
 
-	const { data: decks, isPending, isError } = useGetExploreDecks(queryParams);
+	const { data: decks, isPending, isError } = useGetDecks(queryParams);
 
 	const handleCreateDeck = () => {
 		createDeck(

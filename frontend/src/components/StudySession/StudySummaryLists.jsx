@@ -9,8 +9,9 @@ function StudySummaryLists({
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 h-full max-h-[500px] overflow-hidden">
 			{/* Column 1: Needs Review */}
-			<div className="flex flex-col h-full">
-				<div className="flex items-center justify-between mb-3 pb-2 border-b border-red-100">
+			<div className="flex flex-col h-full min-h-0">
+				{/* Header */}
+				<div className="flex items-center justify-between mb-3 pb-2 border-b border-red-100 shrink-0">
 					<h4 className="font-bold text-red-500 flex items-center gap-2 text-sm uppercase tracking-wide">
 						<XCircle className="w-4 h-4" /> Cần ôn lại
 					</h4>
@@ -19,7 +20,8 @@ function StudySummaryLists({
 					</span>
 				</div>
 
-				<div className="flex-1 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+				{/* List */}
+				<div className="flex-1 min-h-0 space-y-2 scroll-container">
 					{reviewCards.length > 0 ? (
 						reviewCards.map((card, idx) => (
 							<div
@@ -42,8 +44,8 @@ function StudySummaryLists({
 			</div>
 
 			{/* Column 2: Mastered */}
-			<div className="flex flex-col h-full">
-				<div className="flex items-center justify-between mb-3 pb-2 border-b border-green-100">
+			<div className="flex flex-col h-full min-h-0">
+				<div className="flex items-center justify-between mb-3 pb-2 border-b border-green-100 shrink-0">
 					<h4 className="font-bold text-green-600 flex items-center gap-2 text-sm uppercase tracking-wide">
 						<CheckCircle2 className="w-4 h-4" /> Đã thuộc
 					</h4>
@@ -52,7 +54,7 @@ function StudySummaryLists({
 					</span>
 				</div>
 
-				<div className="flex-1 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+				<div className="flex-1 min-h-0 space-y-2 scroll-container">
 					{masteredCards.length > 0 ? (
 						masteredCards.map((card, idx) => (
 							<div

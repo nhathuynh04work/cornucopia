@@ -17,7 +17,7 @@ function StudySessionContent() {
 		isError,
 		error,
 	} = useGetSessionDetails(sessionId);
-	const { mutate: submitAnswer } = useSubmitAttempt();
+	const { mutateAsync: submitAnswer } = useSubmitAttempt();
 
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isFinished, setIsFinished] = useState(false);
@@ -30,7 +30,6 @@ function StudySessionContent() {
 		);
 	}
 
-	// --- Error State ---
 	if (isError) {
 		return (
 			<div className="min-h-screen flex flex-col items-center justify-center text-center p-6 bg-gray-50">
@@ -57,9 +56,8 @@ function StudySessionContent() {
 	const cards = session.deck.cards || [];
 	const currentCard = cards[currentIndex];
 
-	// --- Handlers ---
-	const handleRate = (isCorrect) => {
-		submitAnswer({
+	const handleRate = async (isCorrect) => {
+		await submitAnswer({
 			sessionId,
 			payload: { cardId: currentCard.id, isCorrect },
 		});

@@ -97,7 +97,7 @@ function DeckEditor({ deck }) {
 
 	const handleConfirmDeleteDeck = () => {
 		deleteDeck(deck.id, {
-			onSuccess: () => navigate("/flashcards"),
+			onSuccess: () => navigate("/decks"),
 			onError: () => toast.error("Xóa thất bại."),
 		});
 	};
@@ -119,7 +119,7 @@ function DeckEditor({ deck }) {
 			{ deckId: deck.id, payload },
 			{
 				onSuccess: () => {
-					navigate(`/flashcards/${deck.id}`);
+					navigate(`/decks/${deck.id}`);
 				},
 				onError: () => {
 					toast.error("Lưu thất bại. Vui lòng thử lại.");

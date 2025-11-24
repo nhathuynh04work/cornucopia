@@ -11,7 +11,7 @@ export default function Footer() {
 			links: [
 				{ label: "Tính năng", href: "/features" },
 				{ label: "Khóa học", href: "/courses" },
-				{ label: "Bộ thẻ Flashcards", href: "/flashcards" },
+				{ label: "Bộ thẻ Flashcards", href: "/decks" },
 				{ label: "Bảng giá", href: "/pricing" },
 			],
 		},

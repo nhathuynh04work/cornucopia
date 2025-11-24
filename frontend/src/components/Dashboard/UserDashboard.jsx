@@ -80,7 +80,7 @@ function UserDashboard({ data }) {
 								Hoạt động gần đây
 							</h2>
 							<Link
-								to="/flashcards"
+								to="/decks"
 								className="text-sm font-medium text-purple-600 hover:text-purple-700 flex items-center gap-1">
 								Xem tất cả <ArrowRight className="w-4 h-4" />
 							</Link>
