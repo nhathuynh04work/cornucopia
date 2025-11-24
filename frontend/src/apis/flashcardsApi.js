@@ -1,12 +1,8 @@
 import { api } from "./axios";
 
 const flashcardsApi = {
-	getMyDecks: async () => {
-		const { data } = await api.get("/decks");
-		return data.decks;
-	},
-	getExploreDecks: async (params) => {
-		const { data } = await api.get("/decks/explore", { params });
+	getAll: async (params) => {
+		const { data } = await api.get("/decks", { params });
 		return data.decks;
 	},
 	getDeckDetails: async (deckId) => {

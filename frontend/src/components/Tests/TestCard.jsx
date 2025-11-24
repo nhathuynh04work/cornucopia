@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { FileQuestion, Clock, Trophy } from "lucide-react";
-import Avatar from "@/components/Avatar";
-import StatusBadge from "@/components/StatusBadge";
+import Avatar from "@/components/Shared/Avatar";
+import StatusBadge from "@/components/Shared/StatusBadge";
 
 function TestCard({ test }) {
 	const { id, title, description, user, timeLimit, _count, status } = test;

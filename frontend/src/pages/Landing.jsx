@@ -7,7 +7,7 @@ import {
 	FileText,
 	FileQuestion,
 } from "lucide-react";
-import Logo from "@/components/Logo";
+import Logo from "@/components/Shared/Logo";
 
 import { useGetLandingData } from "@/hooks/useUserQuery";
 import CourseCard from "@/components/Courses/CourseCard";

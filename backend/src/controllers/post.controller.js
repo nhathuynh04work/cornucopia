@@ -13,7 +13,7 @@ export async function getPost(req, res) {
 	res.status(200).json({ post });
 }
 
-// GET /posts  (public list)
+// GET /posts 
 export async function getPosts(req, res) {
 	const { search, sort, status, authorId, tags } = req.query;
 
@@ -25,13 +25,6 @@ export async function getPosts(req, res) {
 		tags,
 	});
 
-	res.status(200).json({ posts });
-}
-
-// GET /posts/my  (current user's posts)
-export async function getMyPosts(req, res) {
-	const authorId = req.user.id;
-	const posts = await postService.getMyPosts(authorId);
 	res.status(200).json({ posts });
 }
 

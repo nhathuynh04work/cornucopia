@@ -1,7 +1,7 @@
-import Logo from "@/components/Logo";
-import UserMenu from "@/components/UserMenu";
+import Logo from "@/components/Shared/Logo";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { Link } from "react-router";
+import Avatar from "../Shared/Avatar";
 
 const statusStyles = {
 	DRAFT: {
@@ -46,7 +46,7 @@ export default function CourseEditTopBar() {
 				</div>
 			</div>
 
-			<UserMenu />
+			<Avatar />
 		</header>
 	);
 }

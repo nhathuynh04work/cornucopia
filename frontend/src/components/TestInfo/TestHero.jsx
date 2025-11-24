@@ -1,7 +1,7 @@
 import { Play, Edit3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Role } from "@/lib/constants";
-import StatusBadge from "@/components/StatusBadge";
+import StatusBadge from "@/components/Shared/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function TestHero({ test }) {

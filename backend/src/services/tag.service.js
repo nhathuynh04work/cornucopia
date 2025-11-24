@@ -1,63 +1,35 @@
 import prisma from "../prisma.js";
 import { NotFoundError } from "../utils/AppError.js";
-import { PostStatus } from "../generated/prisma/index.js";
 
-export async function listTags() {
-	return prisma.tag.findMany({
-		include: {
-			_count: {
-				select: { posts: true },
-			},
-		},
-		orderBy: { name: "asc" },
-	});
-}
+export async function getTags({ page, limit }) {
+	const skip = (page - 1) * limit;
 
-export async function getTagByName(name) {
-	const normalizedName = name.toLowerCase();
-
-	const tag = await prisma.tag.findUnique({
-		where: { name: normalizedName },
-	});
-
-	if (!tag) throw new NotFoundError("Tag not found");
-	return tag;
-}
-
-export async function listPostsByTagName({ name, offset = 0, limit = 50 }) {
-	const normalizedName = name.toLowerCase();
-
-	const posts = await prisma.post.findMany({
-		where: {
-			status: PostStatus.PUBLIC,
-			tags: {
-				some: {
-					name: normalizedName,
+	const [tags, total] = await Promise.all([
+		prisma.tag.findMany({
+			skip,
+			take: limit,
+			include: {
+				_count: {
+					select: { posts: true },
 				},
 			},
-		},
-		skip: Number(offset),
-		take: Number(limit),
-		include: {
-			author: true,
-			tags: true,
-		},
-		orderBy: { createdAt: "desc" },
-	});
+			orderBy: [
+				{ posts: { _count: "desc" } },
+				{ name: "asc" },
+			],
+		}),
+		prisma.tag.count(),
+	]);
 
-	return posts;
-}
-
-export async function createTag({ name }) {
-	const finalName = name.trim().toLowerCase();
-
-	return prisma.tag.upsert({
-		where: { name: finalName },
-		update: {},
-		create: {
-			name: finalName,
+	return {
+		tags,
+		metadata: {
+			total,
+			page,
+			totalPages: Math.ceil(total / limit),
+			hasNextPage: page * limit < total,
 		},
-	});
+	};
 }
 
 export async function deleteTag(id) {

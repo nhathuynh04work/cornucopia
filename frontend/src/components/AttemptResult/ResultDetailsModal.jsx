@@ -1,4 +1,4 @@
-import Modal from "@/components/Modal";
+import Modal from "@/components/Shared/Modal";
 import DetailedQuestionView from "./DetailedQuestionView";
 
 export default function ResultDetailsModal({ context, onClose }) {

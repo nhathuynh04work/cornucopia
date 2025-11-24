@@ -1,23 +1,11 @@
 import flashcardApi from "../apis/flashcardsApi";
-import { useAuth } from "@/contexts/AuthContext";
 import { queryDefaults } from "@/lib/react-query.config";
 import { useQuery } from "@tanstack/react-query";
 
-export function useGetMyDecks() {
-	const { user } = useAuth();
-
+export function useGetDecks(params = {}) {
 	return useQuery({
-		queryKey: ["decks"],
-		queryFn: flashcardApi.getMyDecks,
-		...queryDefaults,
-		enabled: !!user,
-	});
-}
-
-export function useGetExploreDecks(params = {}) {
-	return useQuery({
-		queryKey: ["decks", "explore", params],
-		queryFn: () => flashcardApi.getExploreDecks(params),
+		queryKey: ["decks", params],
+		queryFn: () => flashcardApi.getAll(params),
 		...queryDefaults,
 	});
 }

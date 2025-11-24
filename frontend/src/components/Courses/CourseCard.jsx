@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Users, BookOpen } from "lucide-react";
-import Avatar from "@/components/Avatar";
-import StatusBadge from "@/components/StatusBadge";
+import Avatar from "@/components/Shared/Avatar";
+import StatusBadge from "@/components/Shared/StatusBadge";
 
 function CourseCard({ course }) {
 	const { id, name, description, coverUrl, price, user, _count, status } =

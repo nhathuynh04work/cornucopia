@@ -1,4 +1,4 @@
-import ConfirmationModal from "@/components/ConfirmationModal";
+import ConfirmationModal from "@/components/Shared/ConfirmationModal";
 import ImportModal from "./ImportModal";
 import PrivacyModal from "./PrivacyModal";
 

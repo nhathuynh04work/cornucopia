@@ -1,5 +1,5 @@
 import { User, Calendar } from "lucide-react";
-import Avatar from "@/components/Avatar";
+import Avatar from "@/components/Shared/Avatar";
 
 export default function CourseAuthor({ user, createdAt }) {
 	return (

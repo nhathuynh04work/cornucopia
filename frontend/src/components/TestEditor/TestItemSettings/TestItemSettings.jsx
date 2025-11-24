@@ -1,7 +1,7 @@
 import { useTestEditorStore } from "@/store/testEditorStore";
 import ItemSettingsForm from "./ItemSettingsForm";
 import { EditPreviewSwitch } from "./EditPreviewSwitch";
-import UserMenu from "@/components/UserMenu";
+import Avatar from "@/components/Shared/Avatar";
 
 function TestItemSettings() {
 	const currentItem = useTestEditorStore((s) => s.getCurrentItem());
@@ -11,7 +11,7 @@ function TestItemSettings() {
 			{/* 1. Header */}
 			<div className="flex justify-between items-center border-b px-4 py-3">
 				<EditPreviewSwitch />
-				<UserMenu />
+				<Avatar />
 			</div>
 
 			{/* 2. Content */}

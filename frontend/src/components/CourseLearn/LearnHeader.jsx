@@ -1,5 +1,5 @@
 import React from "react";
-import Logo from "@/components/Logo";
+import Logo from "@/components/Shared/Logo";
 import DonutChart from "./DonutChart";
 import { Link } from "react-router";
 

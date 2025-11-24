@@ -17,7 +17,7 @@ function StudySummary({ sessionId, deckId }) {
 			{ deckId },
 			{
 				onSuccess: (session) => {
-					navigate(`/flashcards/${deckId}/study/${session.id}`);
+					navigate(`/decks/${deckId}/study/${session.id}`);
 				},
 				onError: () => {
 					toast.error("Không thể học lại. Thử lại sau!");

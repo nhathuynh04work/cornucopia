@@ -4,7 +4,7 @@ import EditableText from "./EditableText";
 import { toast } from "react-hot-toast";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useDeleteModule, useUpdateModule } from "@/hooks/useModuleMutation";
-import ConfirmationModal from "../ConfirmationModal";
+import ConfirmationModal from "../Shared/ConfirmationModal";
 
 export default function ModuleHeader({ module, isOpen, onToggle }) {
 	const [showConfirmModal, setShowConfirmModal] = useState(false);

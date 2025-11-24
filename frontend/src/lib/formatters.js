@@ -57,6 +57,16 @@ export function formatRelativeTime(dateString) {
 	return "Just now";
 }
 
+export function formatNumberCompact(num) {
+	if (num === undefined || num === null) return 0;
+    
+	return new Intl.NumberFormat("en-US", {
+		notation: "compact",
+		maximumFractionDigits: 1,
+	}).format(num);
+}
+
+// format classname
 export function cn(...classes) {
 	return classes.filter(Boolean).join(" ");
 }

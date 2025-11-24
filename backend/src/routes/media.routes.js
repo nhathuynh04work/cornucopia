@@ -7,9 +7,11 @@ import {
 	RequestUploadURLSchema,
 	SetPropertySchema,
 } from "../schemas/media.schema.js";
-import { authenticateJWT } from "../middlewares/authMiddleware.js";
+import { authenticateJwt } from "../middlewares/authenticateJwt.js";
 
 const router = Router();
+
+router.use(authenticateJwt);
 
 router.post(
 	"/upload-request",
@@ -19,7 +21,6 @@ router.post(
 
 router.post(
 	"/set-property",
-	authenticateJWT,
 	validateSchema(SetPropertySchema),
 	mediaController.setEntityProperty
 );
