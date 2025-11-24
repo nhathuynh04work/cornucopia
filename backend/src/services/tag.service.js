@@ -1,15 +1,35 @@
 import prisma from "../prisma.js";
 import { NotFoundError } from "../utils/AppError.js";
 
-export async function getTags() {
-	return prisma.tag.findMany({
-		include: {
-			_count: {
-				select: { posts: true },
+export async function getTags({ page, limit }) {
+	const skip = (page - 1) * limit;
+
+	const [tags, total] = await Promise.all([
+		prisma.tag.findMany({
+			skip,
+			take: limit,
+			include: {
+				_count: {
+					select: { posts: true },
+				},
 			},
+			orderBy: [
+				{ posts: { _count: "desc" } },
+				{ name: "asc" },
+			],
+		}),
+		prisma.tag.count(),
+	]);
+
+	return {
+		tags,
+		metadata: {
+			total,
+			page,
+			totalPages: Math.ceil(total / limit),
+			hasNextPage: page * limit < total,
 		},
-		orderBy: { name: "asc" },
-	});
+	};
 }
 
 export async function deleteTag(id) {

@@ -1,9 +1,11 @@
 import * as tagService from "../services/tag.service.js";
 
-// GET /tags
-export async function getTags(_req, res) {
-	const tags = await tagService.getTags();
-	return res.status(200).json({ tags });
+export async function getTags(req, res) {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const data = await tagService.getTags({ page, limit });
+    return res.status(200).json(data);
 }
 
 // DELETE /tags/:id

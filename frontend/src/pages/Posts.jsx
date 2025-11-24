@@ -1,9 +1,8 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { PenTool, FileText, Plus, Loader2 } from "lucide-react";
+import { FileText, Plus, Loader2 } from "lucide-react";
 import { useGetPosts } from "@/hooks/usePostQuery";
 import { useCreatePost } from "@/hooks/usePostMutation";
-import { useQuery } from "@tanstack/react-query";
-import tagApi from "@/apis/tagApi";
+import { useInfiniteTags } from "@/hooks/useTagQuery"; // Import new hook
 import PostCard from "@/components/Posts/PostCard";
 import TagFilter from "@/components/Posts/TagFilter";
 import PermissionGate from "@/components/PermissionGate";
@@ -11,7 +10,6 @@ import { PERMISSIONS } from "@/lib/constants";
 import toast from "react-hot-toast";
 import PageHeader from "@/components/Shared/PageHeader";
 import FilterBar from "@/components/Shared/FilterBar";
-import EmptyState from "@/components/Shared/EmptyState";
 import ResourceList from "@/components/Shared/ResourceList";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
@@ -32,10 +30,14 @@ export default function Posts() {
 		setScope,
 	} = useResourceFilters();
 
-	const { data: tags } = useQuery({
-		queryKey: ["tags"],
-		queryFn: tagApi.getAll,
-	});
+	const {
+		data: tagsData,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteTags();
+
+	const tags = tagsData?.pages?.flatMap((page) => page.tags) || [];
 
 	const { mutate: createPost, isPending: isCreating } = useCreatePost();
 
@@ -89,7 +91,7 @@ export default function Posts() {
 				<PageHeader
 					title="Blog Cộng đồng"
 					description="Đọc các bài viết, chia sẻ và kinh nghiệm từ cộng đồng Cornucopia."
-                    className={`!mb-4`}
+					className={`!mb-4`}
 					action={
 						<PermissionGate allowedRoles={PERMISSIONS.CREATE_POST}>
 							<button
@@ -114,6 +116,9 @@ export default function Posts() {
 					tags={tags}
 					activeTag={activeTag}
 					onSelect={handleTagSelect}
+					hasNextPage={hasNextPage}
+					fetchNextPage={fetchNextPage}
+					isFetchingNextPage={isFetchingNextPage}
 				/>
 
 				<FilterBar
