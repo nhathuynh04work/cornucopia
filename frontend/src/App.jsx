@@ -1,8 +1,14 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuth } from "./contexts/AuthContext";
+
+// Layouts
 import AppLayout from "./layouts/AppLayout";
 import FocusLayout from "./layouts/FocusLayout";
+import AuthLayout from "./layouts/AuthLayout";
+
+// Pages
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AuthCallback from "./pages/AuthCallback";
@@ -25,11 +31,12 @@ import TestAttempt from "./pages/TestAttempt";
 import TestEdit from "./pages/TestEdit";
 import BlogEdit from "./pages/BlogEdit";
 import PaymentCallback from "./pages/PaymentCallback";
+import Confirm from "./pages/Confirm";
 
 const ProtectedRoute = ({ children }) => {
-	const { user, loading } = useAuth();
+	const { user, isInitialLoading } = useAuth();
 
-	if (loading)
+	if (isInitialLoading)
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				Loading...
@@ -42,17 +49,36 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+	const { user } = useAuth();
+
 	return (
 		<>
 			<Toaster position="top-center" />
 			<Routes>
-				{/* --- Public Routes --- */}
-				<Route path="/login" element={<Login />} />
-				<Route path="/signup" element={<Signup />} />
+				{/* --- Public Root --- */}
+				<Route
+					path="/"
+					element={
+						user ? (
+							<Navigate to="/dashboard" replace />
+						) : (
+							<Landing />
+						)
+					}
+				/>
+
+				{/* --- Auth Routes (Split Layout) --- */}
+				<Route element={<AuthLayout />}>
+					<Route path="/login" element={<Login />} />
+					<Route path="/signup" element={<Signup />} />
+				</Route>
+
+				{/* --- Callbacks --- */}
 				<Route path="/auth/callback" element={<AuthCallback />} />
 				<Route path="/payment/callback" element={<PaymentCallback />} />
+				<Route path="/confirm" element={<Confirm />} />
 
-				{/* --- Protected App Routes (With Sidebar & Footer) --- */}
+				{/* --- Protected App Routes (Sidebar Layout) --- */}
 				<Route
 					element={
 						<ProtectedRoute>
@@ -87,7 +113,6 @@ function App() {
 							<FocusLayout />
 						</ProtectedRoute>
 					}>
-					{/* Course Learning & Editing */}
 					<Route
 						path="/courses/:courseId/learn"
 						element={<CourseLearn />}
@@ -96,22 +121,16 @@ function App() {
 						path="/courses/:courseId/edit"
 						element={<CourseEdit />}
 					/>
-
-					{/* Flashcard Study & Editing */}
 					<Route
 						path="/decks/:deckId/study/:sessionId"
 						element={<StudySession />}
 					/>
 					<Route path="/decks/:deckId/edit" element={<DeckEdit />} />
-
-					{/* Test Taking & Editing */}
 					<Route
 						path="/tests/:testId/take"
 						element={<TestAttempt />}
 					/>
 					<Route path="/tests/:testId/edit" element={<TestEdit />} />
-
-					{/* Blog Editing */}
 					<Route path="/posts/:postId/edit" element={<BlogEdit />} />
 				</Route>
 			</Routes>

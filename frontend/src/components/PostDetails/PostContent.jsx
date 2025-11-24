@@ -1,8 +1,12 @@
+import { Hash } from "lucide-react";
+import { Link } from "react-router";
+
 export default function PostContent({ post, htmlContent }) {
 	return (
-		<>
+		<div className="space-y-8">
+			{/* Featured Image */}
 			{post.coverUrl && (
-				<div className="mb-10 rounded-2xl overflow-hidden shadow-sm aspect-video bg-gray-100">
+				<div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 aspect-video w-full">
 					<img
 						src={post.coverUrl}
 						alt={post.title}
@@ -11,20 +15,41 @@ export default function PostContent({ post, htmlContent }) {
 				</div>
 			)}
 
+			{/* Main Content */}
 			<article
 				className="
-                text-lg text-gray-700 leading-relaxed font-serif
-                [&>h2]:font-sans [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-gray-900 [&>h2]:mt-10 [&>h2]:mb-4
-                [&>h3]:font-sans [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:text-gray-900 [&>h3]:mt-8 [&>h3]:mb-3
-                [&>p]:mb-6
-                [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-6
-                [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:mb-6
-                [&>blockquote]:border-l-4 [&>blockquote]:!border-purple-500 [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:my-8 [&>blockquote]:text-gray-800 [&>blockquote]:bg-gray-50 [&>blockquote]:py-2 [&>blockquote]:pr-4
-                [&>img]:rounded-xl [&>img]:shadow-md [&>img]:my-8 [&>img]:w-full
-                [&>a]:text-purple-600 [&>a]:underline hover:[&>a]:text-purple-800
+                prose prose-lg max-w-none text-gray-800
+                prose-headings:font-bold prose-headings:text-gray-900
+                prose-p:leading-relaxed
+                prose-a:text-purple-600 prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-gray-900 prose-strong:font-semibold
+                prose-img:rounded-2xl prose-img:shadow-md prose-img:my-8 prose-img:border prose-img:border-gray-100
+                prose-blockquote:border-l-4 prose-blockquote:border-purple-500 prose-blockquote:bg-gray-50 prose-blockquote:py-2 prose-blockquote:pr-4 prose-blockquote:rounded-r-lg
             ">
 				<div dangerouslySetInnerHTML={{ __html: htmlContent }} />
 			</article>
-		</>
+
+			{/* Footer Tags */}
+			{post.tags && post.tags.length > 0 && (
+				<div className="pt-8 border-t border-gray-100 mt-12">
+					<div className="flex items-center gap-2 mb-3">
+						<Hash className="w-4 h-4 text-gray-400" />
+						<span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
+							Chủ đề liên quan
+						</span>
+					</div>
+					<div className="flex flex-wrap gap-2">
+						{post.tags.map((tag) => (
+							<Link
+								key={tag.id}
+								to={`/posts?tag=${tag.name}`}
+								className="px-3 py-1.5 rounded-lg bg-gray-50 text-gray-600 text-sm font-medium hover:bg-purple-50 hover:text-purple-700 transition-colors">
+								#{tag.name}
+							</Link>
+						))}
+					</div>
+				</div>
+			)}
+		</div>
 	);
 }

@@ -1,11 +1,11 @@
 import BlogEditor from "@/components/BlogEditor/BlogEditor";
-import { usePostDetailsQuery } from "@/hooks/usePostQuery";
+import { useGetPostDetails } from "@/hooks/usePostQuery";
 import { Loader2 } from "lucide-react";
 import { useParams } from "react-router";
 
 export default function BlogEdit() {
 	const { postId } = useParams();
-	const { data: post, isPending, isError } = usePostDetailsQuery(postId);
+	const { data: post, isPending, isError } = useGetPostDetails(postId);
 
 	if (isPending) {
 		return (

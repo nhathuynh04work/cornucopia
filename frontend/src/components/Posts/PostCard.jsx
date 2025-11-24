@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { Calendar, MessageSquare } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import StatusBadge from "@/components/StatusBadge";
 
 function PostCard({ post }) {
-	const { id, title, excerpt, coverUrl, author, createdAt, _count } = post;
+	const { id, title, excerpt, coverUrl, author, createdAt, tags, status } =
+		post;
 
 	const date = new Date(createdAt).toLocaleDateString("vi-VN", {
 		day: "numeric",
@@ -14,9 +15,20 @@ function PostCard({ post }) {
 	return (
 		<Link
 			to={`/posts/${id}`}
-			className="group flex flex-col bg-white rounded-2xl border border-gray-200 hover:border-purple-200 hover:shadow-lg transition-all duration-300 h-full overflow-hidden">
+			className="group flex flex-col bg-white rounded-2xl border border-gray-200 hover:border-purple-200 hover:shadow-lg transition-all duration-300 h-full overflow-hidden relative">
+			{/* Status Badge (Absolute) */}
+			{status !== "PUBLIC" && (
+				<div className="absolute top-3 left-3 z-10">
+					<StatusBadge
+						status={status}
+						size="xs"
+						className="shadow-sm !bg-white/90 backdrop-blur-md"
+					/>
+				</div>
+			)}
+
 			{/* Cover Image */}
-			<div className="aspect-[16/9] w-full overflow-hidden bg-gray-100 relative">
+			<div className="aspect-video w-full overflow-hidden bg-gray-100 relative">
 				{coverUrl ? (
 					<img
 						src={coverUrl}
@@ -47,19 +59,26 @@ function PostCard({ post }) {
 			</div>
 
 			{/* Content */}
-			<div className="p-6 flex-1 flex flex-col">
-				<div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
-					<span className="px-2 py-1 bg-gray-50 rounded-md border border-gray-100 font-medium">
-						Blog
-					</span>
-					<span>•</span>
-					<span className="flex items-center gap-1">
-						<Calendar className="w-3 h-3" />
-						{date}
-					</span>
-				</div>
+			<div className="p-5 flex-1 flex flex-col">
+				{/* Tags */}
+				{tags && tags.length > 0 && (
+					<div className="flex flex-wrap gap-2 mb-3">
+						{tags.slice(0, 3).map((tag) => (
+							<span
+								key={tag.id}
+								className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-[10px] font-bold uppercase tracking-wide border border-purple-100">
+								{tag.name}
+							</span>
+						))}
+						{tags.length > 3 && (
+							<span className="px-2 py-0.5 rounded-md bg-gray-50 text-gray-500 text-[10px] font-medium border border-gray-100">
+								+{tags.length - 3}
+							</span>
+						)}
+					</div>
+				)}
 
-				<h3 className="font-bold text-gray-900 text-xl line-clamp-2 mb-3 group-hover:text-purple-600 transition-colors leading-tight">
+				<h3 className="font-bold text-gray-900 text-lg line-clamp-2 mb-2 group-hover:text-purple-600 transition-colors leading-tight">
 					{title}
 				</h3>
 
@@ -75,9 +94,14 @@ function PostCard({ post }) {
 							name={author?.name}
 							size="xs"
 						/>
-						<span className="text-xs font-bold text-gray-700 truncate max-w-[120px]">
-							{author?.name}
-						</span>
+						<div className="flex flex-col">
+							<span className="text-xs font-bold text-gray-700 truncate max-w-[120px]">
+								{author?.name || "Ẩn danh"}
+							</span>
+							<span className="text-[10px] text-gray-400">
+								{date}
+							</span>
+						</div>
 					</div>
 				</div>
 			</div>

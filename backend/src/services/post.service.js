@@ -36,24 +36,56 @@ export async function getPost(id) {
 	return post;
 }
 
-export async function getPosts() {
-	const posts = await prisma.post.findMany({
-		where: { status: PostStatus.PUBLIC },
-		include: { author: true, tags: true },
-		orderBy: { createdAt: "desc" },
+export async function getPosts({ search, sort, status, authorId, tags }) {
+	const where = {};
+
+	if (status) {
+		where.status = status;
+	}
+
+	if (authorId) {
+		where.authorId = authorId;
+	}
+
+	if (search) {
+		where.OR = [
+			{ title: { contains: search, mode: "insensitive" } },
+			{ excerpt: { contains: search, mode: "insensitive" } },
+		];
+	}
+
+	if (tags) {
+		const tagList = Array.isArray(tags)
+			? tags
+			: tags.split(",").map((t) => t.trim());
+		if (tagList.length > 0) {
+			where.tags = {
+				some: {
+					name: { in: tagList },
+				},
+			};
+		}
+	}
+
+	let orderBy = { createdAt: "desc" };
+	if (sort === "oldest") {
+		orderBy = { createdAt: "asc" };
+	}
+
+	return prisma.post.findMany({
+		where,
+		orderBy,
+		include: {
+			author: {
+				select: {
+					id: true,
+					name: true,
+					avatarUrl: true,
+				},
+			},
+			tags: true,
+		},
 	});
-
-	return posts;
-}
-
-export async function getMyPosts(authorId) {
-	const posts = await prisma.post.findMany({
-		where: { authorId: authorId },
-		include: { author: true, tags: true },
-		orderBy: { createdAt: "desc" },
-	});
-
-	return posts;
 }
 
 export async function deletePost(id) {

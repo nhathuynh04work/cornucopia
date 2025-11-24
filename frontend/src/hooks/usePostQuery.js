@@ -10,9 +10,10 @@ export function useGetPosts(params = {}) {
 	});
 }
 
-export function usePostDetailsQuery(postId) {
+export function useGetPostDetails(postId) {
 	return useQuery({
 		queryKey: ["posts", Number(postId)],
 		queryFn: () => postApi.getDetails(postId),
+		...queryDefaults,
 	});
 }

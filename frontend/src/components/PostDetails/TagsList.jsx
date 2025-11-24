@@ -1,18 +1,20 @@
-import { Link } from "react-router";
-import { Tag } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Hash } from "lucide-react";
 
 export default function TagsList({ tags }) {
+	if (!tags || tags.length === 0) return null;
+
 	return (
-		<div>
-			<h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2 mb-3">
-				<Tag className="w-3 h-3" /> Tags
+		<div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+			<h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+				<Hash className="w-4 h-4" /> Chủ đề liên quan
 			</h3>
 			<div className="flex flex-wrap gap-2">
 				{tags.map((tag) => (
 					<Link
 						key={tag.id}
-						to={`/tags/${tag.id}`}
-						className="px-2.5 py-1 rounded-md bg-gray-50 border text-gray-600 text-xs font-medium hover:bg-purple-50 hover:text-purple-600 hover:!border-purple-100 transition-all">
+						to={`/posts?tag=${tag.name}`}
+						className="px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-100 text-gray-600 text-xs font-medium hover:bg-purple-50 hover:text-purple-600 hover:border-purple-100 transition-all">
 						#{tag.name}
 					</Link>
 				))}

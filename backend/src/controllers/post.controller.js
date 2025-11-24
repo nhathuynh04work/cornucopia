@@ -14,8 +14,17 @@ export async function getPost(req, res) {
 }
 
 // GET /posts  (public list)
-export async function getPosts(_req, res) {
-	const posts = await postService.getPosts();
+export async function getPosts(req, res) {
+	const { search, sort, status, authorId, tags } = req.query;
+
+	const posts = await postService.getPosts({
+		search,
+		sort,
+		status,
+		authorId: authorId ? Number(authorId) : undefined,
+		tags,
+	});
+
 	res.status(200).json({ posts });
 }
 
