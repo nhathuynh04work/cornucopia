@@ -1,5 +1,5 @@
 import prisma from "../prisma.js";
-import { Role } from "../generated/prisma/index.js";
+import { ContentStatus, Role } from "../generated/prisma/index.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
 
 export async function getUsers({
@@ -120,72 +120,159 @@ export async function getDashboardData({ userId }) {
 }
 
 export async function getDashboardDataForUser({ userId }) {
-	// 1. Flashcard Progress
-	const recentSessions = await prisma.studySession.findMany({
-		where: { userId },
-		take: 5,
-		orderBy: { startTime: "desc" },
-		include: { deck: { select: { title: true, id: true } } },
-	});
+	const [
+		recentSessions,
+		masteryCount,
+		enrolledCourses,
+		recentAttempts,
+		recentLessonProgress,
+		allCompletedLessonIds,
+	] = await Promise.all([
+		// 1. Flashcard Sessions (Limit 5)
+		prisma.studySession.findMany({
+			where: { userId },
+			take: 5,
+			orderBy: { startTime: "desc" },
+			include: { deck: { select: { title: true, id: true } } },
+		}),
 
-	// Calculate mastery (simple metric: > 80% correct in last session of a deck)
-	// This is a simplified calculation for the dashboard
-	const masteryCount = await prisma.cardAttempt.groupBy({
-		by: ["cardId"],
-		where: {
-			session: { userId },
-			isCorrect: true,
-		},
-		_count: true,
-	});
-
-	// 2. Course Enrollment Progress
-	const enrolledCourses = await prisma.userCourseEnrollment.findMany({
-		where: { userId },
-		include: {
-			course: {
-				select: { name: true, coverUrl: true, id: true },
+		// 2. Mastery Count
+		prisma.cardAttempt.groupBy({
+			by: ["cardId"],
+			where: {
+				session: { userId },
+				isCorrect: true,
 			},
-		},
-		take: 3,
+			_count: true,
+		}),
+
+		// 3. Enrolled Courses (All courses)
+		prisma.userCourseEnrollment.findMany({
+			where: { userId },
+			orderBy: { createdAt: "desc" },
+			include: {
+				course: {
+					select: {
+						id: true,
+						name: true,
+						coverUrl: true,
+						modules: {
+							where: { status: ContentStatus.PUBLIC },
+							select: {
+								lessons: {
+									where: { status: ContentStatus.PUBLIC },
+									select: { id: true },
+								},
+							},
+						},
+					},
+				},
+			},
+		}),
+
+		// 4. Recent Test Attempts (Limit 5)
+		prisma.attempt.findMany({
+			where: { userId },
+			take: 5,
+			orderBy: { createdAt: "desc" },
+			include: { test: { select: { title: true } } },
+		}),
+
+		// 5. Recent Lesson Activity (Limit 5)
+		prisma.userLessonProgress.findMany({
+			where: { userId, isCompleted: true },
+			take: 5,
+			orderBy: { updatedAt: "desc" },
+			include: {
+				lesson: {
+					select: {
+						title: true,
+						module: {
+							select: { course: { select: { name: true } } },
+						},
+					},
+				},
+			},
+		}),
+
+		// 6. All Completed Lessons
+		prisma.userLessonProgress.findMany({
+			where: { userId, isCompleted: true },
+			select: { lessonId: true },
+		}),
+	]);
+
+	// Create a Set for O(1) lookup of completed lessons
+	const completedLessonIdSet = new Set(
+		allCompletedLessonIds.map((p) => p.lessonId)
+	);
+
+	const processedCourses = enrolledCourses.map((enrollment) => {
+		const course = enrollment.course;
+
+		// flatten
+		const allPublicLessons = course.modules.flatMap((m) => m.lessons);
+		const totalLessons = allPublicLessons.length;
+
+		// count finished lessons
+		const completedCount = allPublicLessons.filter((l) =>
+			completedLessonIdSet.has(l.id)
+		).length;
+
+		const progress =
+			totalLessons > 0
+				? Math.round((completedCount / totalLessons) * 100)
+				: 0;
+
+		return {
+			id: course.id,
+			name: course.name,
+			cover: course.coverUrl,
+			progress,
+		};
 	});
 
-	// 3. Recent Test Attempts
-	const recentAttempts = await prisma.attempt.findMany({
-		where: { userId },
-		take: 5,
-		orderBy: { createdAt: "desc" },
-		include: { test: { select: { title: true } } },
-	});
+	const activities = [
+		...recentSessions.map((s) => ({
+			id: `session-${s.id}`,
+			type: "SESSION",
+			title: s.deck?.title || "Unknown Deck",
+			subtitle: "Học bộ thẻ",
+			date: s.startTime,
+			meta: { deckId: s.deckId },
+		})),
+		...recentAttempts.map((a) => ({
+			id: `attempt-${a.id}`,
+			type: "TEST",
+			title: a.test?.title || "Unknown Test",
+			subtitle: `Kết quả: ${a.scoredPoints ?? 0} điểm`,
+			date: a.createdAt,
+			meta: { testId: a.testId, attemptId: a.id },
+		})),
+		...recentLessonProgress.map((p) => ({
+			id: `lesson-${p.id}`,
+			type: "LESSON",
+			title: p.lesson.title,
+			subtitle: `${p.lesson.module.course.name}`,
+			date: p.updatedAt,
+			meta: { lessonId: p.lessonId },
+		})),
+	];
+
+	activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+	const topActivities = activities.slice(0, 5);
 
 	return {
 		role: Role.USER,
 		overview: {
-			totalDecksStudied: recentSessions.length, // simplified
+			totalDecksStudied: recentSessions.length,
 			cardsMastered: masteryCount.length,
 			coursesEnrolled: enrolledCourses.length,
 		},
 		recentActivity: {
-			sessions: recentSessions.map((s) => ({
-				id: s.id,
-				deckTitle: s.deck?.title || "Deleted Deck",
-				date: s.startTime,
-			})),
-			tests: recentAttempts.map((a) => ({
-				id: a.id,
-				testTitle: a.test?.title || "Deleted Test",
-				score: a.scoredPoints,
-				total: a.totalPossiblePoints,
-				date: a.createdAt,
-			})),
+			sessions: topActivities,
 		},
-		courses: enrolledCourses.map((e) => ({
-			id: e.course.id,
-			title: e.course.title,
-			cover: e.course.coverUrl,
-			// Progress calculation would require more complex queries on UserLessonProgress
-			progress: 0,
-		})),
+		courses: processedCourses,
 	};
 }
 
