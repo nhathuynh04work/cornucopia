@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { useAuth } from "../contexts/AuthContext";
-import authApi from "../apis/authApi";
 import { ClipLoader } from "react-spinners";
+import { useAuth } from "@/contexts/AuthContext";
+import authApi from "@/apis/authApi";
 
 function Confirm() {
 	const location = useLocation();

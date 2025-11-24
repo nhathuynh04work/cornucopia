@@ -1,9 +1,9 @@
 import { Navigate, useParams } from "react-router";
-import TestEditorNav from "../components/TestEditor/TestNav/TestEditorNav";
-import TestEditor from "../components/TestEditor/TestEditor/TestEditor";
 import TestItemSettings from "@/components/TestEditor/TestItemSettings/TestItemSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGetTestForEdit } from "@/hooks/useTestQuery";
+import TestEditorNav from "@/components/TestEditor/TestNav/TestEditorNav";
+import TestEditor from "@/components/TestEditor/TestEditor/TestEditor";
 
 function TestEdit() {
 	const { testId } = useParams();

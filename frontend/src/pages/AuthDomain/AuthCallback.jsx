@@ -1,6 +1,6 @@
 import { useLocation } from "react-router";
-import { useAuth } from "../contexts/AuthContext";
 import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 function AuthCallback() {
 	const location = useLocation();

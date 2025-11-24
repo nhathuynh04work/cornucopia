@@ -48,8 +48,8 @@ export default function TagFilter({
 					onClick={() => onSelect(null)}
 					className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all whitespace-nowrap ${
 						!activeTag
-							? "bg-gray-900 text-white border-gray-900"
-							: "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+							? "bg-purple-600 text-white border-purple-600"
+							: "bg-white text-gray-600 border-gray-200 hover:border-purple-200 hover:text-purple-600"
 					}`}>
 					Tất cả
 				</button>
