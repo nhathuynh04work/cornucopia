@@ -11,7 +11,7 @@ function UserDashboard({ data }) {
 	const { overview, recentActivity, courses } = data;
 
 	return (
-		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+		<div className="p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 			{/* Header */}
 			<div>
 				<h1 className="text-2xl font-bold text-gray-900">

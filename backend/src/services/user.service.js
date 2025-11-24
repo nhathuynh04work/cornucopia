@@ -41,6 +41,71 @@ export async function getUsers({
 	};
 }
 
+export async function getLandingData() {
+	const [stats, featuredCourses, popularDecks, latestPosts, recentTests] =
+		await Promise.all([
+			prisma.$transaction([
+				prisma.user.count(),
+				prisma.course.count({ where: { status: "PUBLIC" } }),
+				prisma.deck.count({ where: { isPublic: true } }),
+				prisma.test.count({ where: { status: "PUBLIC" } }),
+			]),
+
+			prisma.course.findMany({
+				where: { status: "PUBLIC" },
+				take: 3,
+				orderBy: { enrollments: { _count: "desc" } },
+				include: {
+					user: { select: { name: true, avatarUrl: true } },
+					_count: { select: { enrollments: true } },
+				},
+			}),
+
+			prisma.deck.findMany({
+				where: { isPublic: true },
+				take: 4,
+				orderBy: { createdAt: "desc" },
+				include: {
+					user: { select: { name: true, avatarUrl: true } },
+					_count: { select: { cards: true } },
+				},
+			}),
+
+			prisma.post.findMany({
+				where: { status: "PUBLIC" },
+				take: 3,
+				orderBy: { createdAt: "desc" },
+				include: {
+					author: { select: { name: true, avatarUrl: true } },
+					tags: { take: 2 },
+				},
+			}),
+
+			prisma.test.findMany({
+				where: { status: "PUBLIC" },
+				take: 3,
+				orderBy: { createdAt: "desc" },
+				include: {
+					user: { select: { name: true, avatarUrl: true } },
+					_count: { select: { attempts: true } },
+				},
+			}),
+		]);
+
+	return {
+		stats: {
+			totalStudents: stats[0],
+			totalCourses: stats[1],
+			totalDecks: stats[2],
+			totalTests: stats[3],
+		},
+		courses: featuredCourses,
+		decks: popularDecks,
+		posts: latestPosts,
+		tests: recentTests,
+	};
+}
+
 export async function getDashboardData({ userId }) {
 	const user = await prisma.user.findUnique({ where: { id: userId } });
 	if (!user) throw new NotFoundError("User not found");

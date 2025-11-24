@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
 	function logout() {
 		localStorage.removeItem(ACCESS_TOKEN_KEY);
 		setUser(null);
-		navigate("/landing");
+		navigate("/"); // UPDATED: Navigate to root (Landing page)
 	}
 
 	const value = {

@@ -19,7 +19,7 @@ function AdminDashboard({ data }) {
 	const { totals, charts } = data;
 
 	return (
-		<div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+		<div className="p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 			<div>
 				<h1 className="text-2xl font-bold text-gray-900">
 					Admin Dashboard
@@ -44,7 +44,7 @@ function AdminDashboard({ data }) {
 						Tổng người dùng
 					</p>
 					<h3 className="text-3xl font-bold text-gray-900">
-						{totals.users}
+						{totals?.users}
 					</h3>
 				</div>
 
@@ -58,7 +58,7 @@ function AdminDashboard({ data }) {
 						Creators
 					</p>
 					<h3 className="text-3xl font-bold text-gray-900">
-						{totals.creators}
+						{totals?.creators}
 					</h3>
 				</div>
 
@@ -72,7 +72,7 @@ function AdminDashboard({ data }) {
 						Khóa học
 					</p>
 					<h3 className="text-3xl font-bold text-gray-900">
-						{totals.courses}
+						{totals?.courses}
 					</h3>
 				</div>
 
@@ -86,7 +86,7 @@ function AdminDashboard({ data }) {
 						Bài kiểm tra
 					</p>
 					<h3 className="text-3xl font-bold text-gray-900">
-						{totals.tests}
+						{totals?.tests}
 					</h3>
 				</div>
 			</div>

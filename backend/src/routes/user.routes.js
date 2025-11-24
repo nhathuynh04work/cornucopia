@@ -16,6 +16,8 @@ router.get(
 	userController.getUsers
 );
 
+router.get("/landing", userController.getLandingData);
+
 router.get("/me/dashboard", authenticateJWT, userController.getDashboardData);
 
 router.get(

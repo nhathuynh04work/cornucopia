@@ -5,10 +5,6 @@ const postApi = {
 		const { data } = await api.get(`/posts`, { params });
 		return data.posts;
 	},
-	getMyPosts: async () => {
-		const { data } = await api.get(`/posts/my`);
-		return data.posts;
-	},
 	create: async (payload) => {
 		const { data } = await api.post("/posts", payload);
 		return data.post;

@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Role } from "@/lib/constants";
 import userApi from "@/apis/userApi";
+import { queryDefaults } from "@/lib/react-query.config";
 
 export function useGetUsers({ role, search, page, limit = 10 }) {
 	const { role: userRole } = useAuth();
@@ -11,6 +12,15 @@ export function useGetUsers({ role, search, page, limit = 10 }) {
 		queryFn: () => userApi.getUsers({ role, search, page, limit }),
 		keepPreviousData: true,
 		enabled: userRole === Role.ADMIN,
+	});
+}
+
+export function useGetLandingData() {
+	return useQuery({
+		queryKey: ["landing"],
+		queryFn: userApi.getLandingData,
+		...queryDefaults,
+		staleTime: 1000 * 60 * 10,
 	});
 }
 
