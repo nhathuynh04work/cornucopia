@@ -94,7 +94,7 @@ model Media {
 model Test {
     id          Int        @id @default(autoincrement())
     title       String
-    userId      Int
+    userId      Int        @map("user_id")
     status      TestStatus @default(DRAFT)
     description String?
     timeLimit   Int        @default(1800) @map("time_limit")
@@ -267,15 +267,15 @@ model Tag {
 }
 
 model Post {
-    id          Int        @id @default(autoincrement())
-    authorId    Int        @map("author_id")
-    title       String
-    excerpt     String?    @db.Text
-    content     String
-    status      PostStatus @default(DRAFT)
-    publishedAt DateTime?  @map("published_at") @db.Timestamptz(6)
-    createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-    coverUrl    String?    @map("cover_url")
+    id        Int        @id @default(autoincrement())
+    authorId  Int        @map("author_id")
+    title     String
+    excerpt   String?    @db.Text
+    content   String
+    status    PostStatus @default(DRAFT)
+    createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+    coverUrl  String?    @map("cover_url")
 
     author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
     tags   Tag[]

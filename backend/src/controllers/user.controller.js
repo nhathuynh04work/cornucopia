@@ -25,4 +25,12 @@ export async function updateRole(req, res) {
 	res.status(200).json({ user });
 }
 
-export async function getUserStats(req, res) {}
+export async function getAdminOverallStats(req, res) {
+	const data = await userService.getAdminOverallStats();
+	res.status(200).json({ data });
+}
+
+export async function getAdminChartData(req, res) {
+	const data = await userService.getAdminChartData(req.query);
+	res.status(200).json({ data });
+}

@@ -42,9 +42,7 @@ export default function PostHeader({ post, readTime }) {
 						<div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
 							<span className="flex items-center gap-1">
 								<Calendar className="w-3 h-3" />
-								{formatVNDate(
-									post.publishedAt || post.createdAt
-								)}
+								{formatVNDate(post.updatedAt || post.createdAt)}
 							</span>
 							<span className="w-0.5 h-0.5 rounded-full bg-gray-300" />
 							<span className="flex items-center gap-1">

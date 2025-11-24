@@ -9,22 +9,11 @@ import { authenticateJwt } from "../middlewares/authenticateJwt.js";
 
 const router = Router();
 
-router.use(authenticateJwt)
+router.use(authenticateJwt);
 
 router.get("/", requireRole(Role.ADMIN), userController.getUsers);
 
 router.get("/landing", userController.getLandingData);
-
-router.get("/me/dashboard", userController.getDashboardData);
-
-router.get("/stats", requireRole(Role.ADMIN), userController.getUserStats);
-
-router.patch(
-	"/:id",
-	validateParams(["id"]),
-	validateSchema(UpdateRoleSchema),
-	userController.updateRole
-);
 
 router.patch(
 	"/:id/role",

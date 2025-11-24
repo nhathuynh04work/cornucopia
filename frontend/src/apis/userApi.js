@@ -9,17 +9,9 @@ const userApi = {
 		const { data } = await api.get("/users/landing");
 		return data.data;
 	},
-	updateInfo: async ({ userId, payload }) => {
-		const { data } = await api.patch(`/users/${userId}`, payload);
-		return data.user;
-	},
 	updateRole: async ({ userId, role }) => {
 		const { data } = await api.patch(`/users/${userId}/role`, { role });
 		return data.user;
-	},
-	getDashboardData: async () => {
-		const { data } = await api.get("/users/me/dashboard");
-		return data.data;
 	},
 };
 

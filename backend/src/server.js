@@ -17,7 +17,8 @@ import {
 	ragRouter,
 	checkoutRouter,
 	tagRouter,
-    deckRouter,
+	deckRouter,
+	dashboardRouter,
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -55,6 +56,7 @@ app.use("/attempts", attemptRouter);
 app.use("/courses", courseRouter);
 app.use("/modules", moduleRouter);
 app.use("/lessons", lessonRouter);
+app.use("/dashboard", dashboardRouter);
 
 // Error handler
 app.use(errorHandler);

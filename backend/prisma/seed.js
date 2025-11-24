@@ -5,13 +5,6 @@ import prisma from "../src/prisma.js";
 async function main() {
 	console.log("Seeding database...");
 
-	// Check if any user exists
-	const userCount = await prisma.user.count();
-	if (userCount > 0) {
-		console.log("Users already exist, skipping admin creation.");
-		return;
-	}
-
 	// Hash password
 	const passwordHash = await bcrypt.hash("khangnghinhat123456@", 10);
 
