@@ -1,7 +1,7 @@
 import { useTestEditorStore } from "@/store/testEditorStore";
 import ItemSettingsForm from "./ItemSettingsForm";
 import { EditPreviewSwitch } from "./EditPreviewSwitch";
-import Avatar from "@/components/Avatar";
+import Avatar from "@/components/Shared/Avatar";
 
 function TestItemSettings() {
 	const currentItem = useTestEditorStore((s) => s.getCurrentItem());

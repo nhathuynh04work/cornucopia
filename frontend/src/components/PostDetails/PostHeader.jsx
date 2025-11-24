@@ -1,5 +1,5 @@
-import StatusBadge from "@/components/StatusBadge";
-import Avatar from "@/components/Avatar";
+import StatusBadge from "@/components/Shared/StatusBadge";
+import Avatar from "@/components/Shared/Avatar";
 import { formatVNDate } from "@/lib/formatters";
 import { Calendar, Clock } from "lucide-react";
 

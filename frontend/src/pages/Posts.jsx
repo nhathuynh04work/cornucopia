@@ -5,7 +5,7 @@ import { useCreatePost } from "@/hooks/usePostMutation";
 import { useInfiniteTags } from "@/hooks/useTagQuery"; // Import new hook
 import PostCard from "@/components/Posts/PostCard";
 import TagFilter from "@/components/Posts/TagFilter";
-import PermissionGate from "@/components/PermissionGate";
+import PermissionGate from "@/components/Shared/PermissionGate";
 import { PERMISSIONS } from "@/lib/constants";
 import toast from "react-hot-toast";
 import PageHeader from "@/components/Shared/PageHeader";

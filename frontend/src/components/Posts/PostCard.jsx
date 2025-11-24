@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import Avatar from "@/components/Avatar";
-import StatusBadge from "@/components/StatusBadge";
+import Avatar from "@/components/Shared/Avatar";
+import StatusBadge from "@/components/Shared/StatusBadge";
 
 function PostCard({ post }) {
 	const { id, title, excerpt, coverUrl, author, createdAt, tags, status } =

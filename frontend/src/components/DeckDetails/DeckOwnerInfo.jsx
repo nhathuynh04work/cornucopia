@@ -1,4 +1,4 @@
-import Avatar from "../Avatar";
+import Avatar from "../Shared/Avatar";
 
 function DeckOwnerInfo({ owner }) {
 	return (

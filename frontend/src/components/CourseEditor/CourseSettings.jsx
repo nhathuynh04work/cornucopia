@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import { Loader2, Trash, CheckCircle, EyeOff, UploadCloud } from "lucide-react";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useDeleteCourse, useUpdateCourse } from "@/hooks/useCourseMutation";
-import ConfirmationModal from "../ConfirmationModal";
+import ConfirmationModal from "../Shared/ConfirmationModal";
 
 const statusDescriptions = {
 	DRAFT: "Course is not visible and cannot be enrolled in by students.",

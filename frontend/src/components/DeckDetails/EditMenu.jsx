@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MoreHorizontal, Edit3, Trash2 } from "lucide-react";
 import { useDeleteDeck } from "@/hooks/useFlashcardMutation";
-import ConfirmationModal from "@/components/ConfirmationModal";
+import ConfirmationModal from "@/components/Shared/ConfirmationModal";
 import toast from "react-hot-toast";
 
 function EditMenu({ deck }) {

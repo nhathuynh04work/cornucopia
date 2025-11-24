@@ -1,8 +1,8 @@
 import * as Popover from "@radix-ui/react-popover";
 import { useState } from "react";
 import { Role } from "@/lib/constants";
-import StatusBadge from "../StatusBadge";
-import ConfirmationModal from "../ConfirmationModal";
+import StatusBadge from "../Shared/StatusBadge";
+import ConfirmationModal from "../Shared/ConfirmationModal";
 import { ChevronDown } from "lucide-react";
 import RoleDropdownMenu from "./RoleDropdownMenu";
 import { useUpdateRole } from "@/hooks/useUserMutation";

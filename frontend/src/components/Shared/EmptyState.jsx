@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import PermissionGate from "@/components/PermissionGate";
+import PermissionGate from "@/components/Shared/PermissionGate";
 
 export default function EmptyState({
 	icon: Icon,

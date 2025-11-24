@@ -1,5 +1,5 @@
 import { Mail, UserCheck, MoreVertical, Shield } from "lucide-react";
-import Avatar from "@/components/Avatar";
+import Avatar from "@/components/Shared/Avatar";
 import ChangeRoleDropdown from "./ChangeRoleDropdown";
 
 function UsersTable({ users }) {

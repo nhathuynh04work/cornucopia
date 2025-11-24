@@ -1,7 +1,7 @@
-import Logo from "@/components/Logo";
+import Logo from "@/components/Shared/Logo";
 import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { Link } from "react-router";
-import Avatar from "../Avatar";
+import Avatar from "../Shared/Avatar";
 
 const statusStyles = {
 	DRAFT: {

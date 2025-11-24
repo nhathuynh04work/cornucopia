@@ -14,9 +14,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import Logo from "@/components/Logo";
+import Logo from "@/components/Shared/Logo";
 import { Role } from "@/lib/constants";
-import Avatar from "@/components/Avatar";
+import Avatar from "@/components/Shared/Avatar";
 
 function AppLayout() {
 	const { logout, user, role } = useAuth();

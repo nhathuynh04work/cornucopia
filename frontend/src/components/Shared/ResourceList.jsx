@@ -1,5 +1,6 @@
 import { Loader2, AlertCircle } from "lucide-react";
 import EmptyState from "./EmptyState";
+import PermissionGate from "./PermissionGate";
 
 export default function ResourceList({
 	isLoading,
@@ -43,3 +44,27 @@ export default function ResourceList({
 		</div>
 	);
 }
+
+ResourceList.Action = function ResourceAction({
+	actionLabel,
+	onAction,
+	icon: Icon,
+	allowedRoles,
+	isBusy,
+}) {
+	return (
+		<PermissionGate allowedRoles={allowedRoles}>
+			<button
+				onClick={onAction}
+				disabled={isBusy}
+				className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow disabled:opacity-70">
+				{isBusy ? (
+					<Loader2 className="w-4 h-4 animate-spin" />
+				) : (
+					Icon && <Icon className="w-4 h-4" />
+				)}
+				{actionLabel}
+			</button>
+		</PermissionGate>
+	);
+};

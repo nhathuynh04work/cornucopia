@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router-dom";
-import Logo from "@/components/Logo";
+import Logo from "@/components/Shared/Logo";
 
 export default function AuthLayout() {
 	return (
