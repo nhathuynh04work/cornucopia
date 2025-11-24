@@ -1,12 +1,11 @@
 import { Router } from "express";
 import { authenticateJWT } from "../middlewares/authMiddleware.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
-import {
-	CreateCourseSchema,
-	UpdateCourseSchema,
-} from "../schemas/course.schema.js";
+import { requireRole } from "../middlewares/requireRole.js";
+import { UpdateCourseSchema } from "../schemas/course.schema.js";
 import * as courseController from "../controllers/course.controller.js";
 import { validateParams } from "../middlewares/validateParams.js";
+import { Role } from "../generated/prisma/index.js";
 
 const router = Router();
 
@@ -25,6 +24,7 @@ router.get(
 router.get(
 	"/:id/edit",
 	authenticateJWT,
+	requireRole(Role.ADMIN, Role.CREATOR),
 	validateParams(["id"]),
 	courseController.getCourseForEditor
 );
@@ -46,12 +46,14 @@ router.get(
 router.post(
 	"/",
 	authenticateJWT,
-	validateSchema(CreateCourseSchema),
+	requireRole(Role.ADMIN, Role.CREATOR),
 	courseController.createCourse
 );
 
 router.patch(
 	"/:id",
+	authenticateJWT,
+	requireRole(Role.ADMIN, Role.CREATOR),
 	validateParams(["id"]),
 	validateSchema(UpdateCourseSchema),
 	courseController.updateCourse
@@ -60,10 +62,17 @@ router.patch(
 router.delete(
 	"/:id",
 	authenticateJWT,
+	requireRole(Role.ADMIN, Role.CREATOR),
 	validateParams(["id"]),
 	courseController.deleteCourse
 );
 
-router.post("/:id/modules", validateParams(["id"]), courseController.addModule);
+router.post(
+	"/:id/modules",
+    authenticateJWT,
+	requireRole(Role.ADMIN, Role.CREATOR),
+	validateParams(["id"]),
+	courseController.addModule
+);
 
 export default router;

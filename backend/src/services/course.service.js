@@ -6,11 +6,44 @@ import { defaults } from "../utils/constants.js";
 import { reindexOneCourse } from "../chatbot/course.indexer.helpers.js";
 import { calculateCourseProgress } from "../utils/calculate.js";
 
-export async function getAll() {
+export async function getAll({ search, sort, status, userId, enrolledUserId }) {
+	const where = {};
+
+	if (status) {
+		where.status = status;
+	}
+
+	if (userId) {
+		where.userId = userId;
+	}
+
+	if (enrolledUserId) {
+		where.enrollments = {
+			some: {
+				userId: enrolledUserId,
+			},
+		};
+	}
+
+	if (search) {
+		where.name = {
+			contains: search,
+			mode: "insensitive",
+		};
+	}
+
+	let orderBy = { createdAt: "desc" };
+	if (sort === "oldest") {
+		orderBy = { createdAt: "asc" };
+	} else if (sort === "price_asc") {
+		orderBy = { price: "asc" };
+	} else if (sort === "price_desc") {
+		orderBy = { price: "desc" };
+	}
+
 	return prisma.course.findMany({
-		where: {
-			status: CourseStatus.PUBLIC,
-		},
+		where,
+		orderBy,
 		include: {
 			user: {
 				select: {
@@ -20,7 +53,9 @@ export async function getAll() {
 				},
 			},
 			_count: {
-				select: { enrollments: true },
+				select: {
+					enrollments: true,
+				},
 			},
 		},
 	});
@@ -37,6 +72,7 @@ export async function getCourseForInfoView(courseId) {
 			coverUrl: true,
 			status: true,
 			userId: true,
+			createdAt: true,
 			user: {
 				select: { id: true, name: true, avatarUrl: true },
 			},
@@ -232,13 +268,14 @@ export async function getUserCourseEnrollment(courseId, userId) {
 	return enrollment ? enrollment : null;
 }
 
-export async function create(data) {
-	const createCoursePayload = {
-		...data,
-		modules: { create: { title: "First module" } },
+export async function createCourse({ userId }) {
+	const payload = {
+		...defaults.COURSE,
+		userId: userId,
+		modules: { create: { title: "Module mới - Hãy đổi tên tôi" } },
 	};
 
-	return prisma.course.create({ data: createCoursePayload });
+	return prisma.course.create({ data: payload });
 }
 
 export async function update(courseId, data) {
@@ -270,7 +307,6 @@ export async function update(courseId, data) {
 		data,
 	});
 
-	// 🔹 Sau update → index lại (nếu public thì tạo, không public thì xoá)
 	try {
 		await reindexOneCourse(updated.id);
 	} catch (e) {

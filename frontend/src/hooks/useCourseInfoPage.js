@@ -2,19 +2,19 @@ import { useEffect } from "react";
 import { useSearchParams, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { useCourseInfoView } from "./useCourseQuery";
+import { useGetCourseForInfoView } from "./useCourseQuery";
 
 export function useCourseInfoPage() {
-	const { id } = useParams();
+	const { courseId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const queryClient = useQueryClient();
-	const numericCourseId = Number(id);
+	const numericCourseId = Number(courseId);
 
 	const {
 		data: course,
 		isPending,
 		isError,
-	} = useCourseInfoView(numericCourseId);
+	} = useGetCourseForInfoView(numericCourseId);
 
 	useEffect(() => {
 		const paymentStatus = searchParams.get("payment");

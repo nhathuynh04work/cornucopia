@@ -3,7 +3,6 @@ import { Toaster } from "react-hot-toast";
 import { useAuth } from "./contexts/AuthContext";
 import AppLayout from "./layouts/AppLayout";
 import FocusLayout from "./layouts/FocusLayout";
-import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AuthCallback from "./pages/AuthCallback";
@@ -25,6 +24,7 @@ import StudySession from "./pages/StudySession";
 import TestAttempt from "./pages/TestAttempt";
 import TestEdit from "./pages/TestEdit";
 import BlogEdit from "./pages/BlogEdit";
+import PaymentCallback from "./pages/PaymentCallback";
 
 const ProtectedRoute = ({ children }) => {
 	const { user, loading } = useAuth();
@@ -47,10 +47,10 @@ function App() {
 			<Toaster position="top-center" />
 			<Routes>
 				{/* --- Public Routes --- */}
-				<Route path="/" element={<Landing />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/signup" element={<Signup />} />
 				<Route path="/auth/callback" element={<AuthCallback />} />
+				<Route path="/payment/callback" element={<PaymentCallback />} />
 
 				{/* --- Protected App Routes (With Sidebar & Footer) --- */}
 				<Route
@@ -65,10 +65,7 @@ function App() {
 					<Route path="/courses/:courseId" element={<CourseInfo />} />
 
 					<Route path="/decks" element={<Decks />} />
-					<Route
-						path="/decks/:deckId"
-						element={<DeckDetails />}
-					/>
+					<Route path="/decks/:deckId" element={<DeckDetails />} />
 
 					<Route path="/tests" element={<Tests />} />
 					<Route path="/tests/:testId" element={<TestInfo />} />

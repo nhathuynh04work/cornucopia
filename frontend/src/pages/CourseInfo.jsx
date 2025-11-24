@@ -1,38 +1,98 @@
-import CourseCurriculum from "@/components/CourseInfo/CourseCurriculum";
-import CourseHeader from "@/components/CourseInfo/CourseHeader";
-import CourseSidebar from "@/components/CourseInfo/CourseSidebar";
-import { useCourseInfoPage } from "@/hooks/useCourseInfoPage";
+import { useParams, useNavigate } from "react-router-dom";
+import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import {
+	useGetCourseForInfoView,
+	useGetEnrollmentStatus,
+} from "@/hooks/useCourseQuery";
+import { useAuth } from "@/contexts/AuthContext";
 
-function CourseInfo() {
-	const { isPending, course, totalModules, totalLessons, isError } =
-		useCourseInfoPage();
+import CourseHero from "@/components/CourseInfo/CourseHero";
+import CourseStats from "@/components/CourseInfo/CourseStats";
+import CourseCurriculumList from "@/components/CourseInfo/CourseCurriculumList";
+import CourseAuthor from "@/components/CourseInfo/CourseAuthor";
+
+export default function CourseInfo() {
+	const { courseId } = useParams();
+	const navigate = useNavigate();
+	const { user } = useAuth();
+
+	const {
+		data: course,
+		isPending,
+		isError,
+	} = useGetCourseForInfoView(courseId);
+
+	const { data: enrollment } = useGetEnrollmentStatus(courseId);
+
+	const isOwner = user?.id === course?.userId;
+	const isEnrolled = !!enrollment || isOwner;
 
 	if (isPending) {
-		return <p className="p-6 text-center text-gray-500">Loading...</p>;
+		return (
+			<div className="h-[80vh] flex flex-col items-center justify-center text-gray-400">
+				<Loader2 className="w-10 h-10 animate-spin mb-3 text-purple-500" />
+				<p>Đang tải thông tin khóa học...</p>
+			</div>
+		);
 	}
 
 	if (isError || !course) {
 		return (
-			<p className="p-6 text-center text-gray-500">Course not found.</p>
+			<div className="h-[80vh] flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-3xl border border-red-100 p-8 m-6">
+				<AlertCircle className="w-12 h-12 mb-4" />
+				<h2 className="text-lg font-bold text-gray-900">
+					Không tìm thấy khóa học
+				</h2>
+				<button
+					onClick={() => navigate("/courses")}
+					className="mt-4 text-sm font-medium text-gray-600 hover:text-gray-900 underline">
+					Quay lại danh sách
+				</button>
+			</div>
 		);
 	}
 
-	return (
-		<div className="flex h-[calc(100vh-64px)] overflow-hidden bg-white">
-			{/* Column 1: Main Content (Details & Curriculum) */}
-			<div className="w-3/4 p-6 overflow-y-auto scroll-container">
-				<CourseHeader course={course} />
-				<CourseCurriculum modules={course.modules} />
-			</div>
+	const totalModules = course.modules?.length || 0;
+	const totalLessons =
+		course.modules?.reduce(
+			(acc, mod) => acc + (mod.lessons?.length || 0),
+			0
+		) || 0;
+	const enrollmentCount = course._count?.enrollments || 0;
 
-			{/* Column 2: Sidebar (Metadata) */}
-			<CourseSidebar
-				course={course}
-				totalModules={totalModules}
-				totalLessons={totalLessons}
-			/>
+	return (
+		<div className="p-6 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+			{/* Breadcrumb */}
+			<button
+				onClick={() => navigate("/courses")}
+				className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6 group">
+				<ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+				Quay lại thư viện
+			</button>
+
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+				{/* Left Column */}
+				<div className="lg:col-span-2 space-y-8">
+					<CourseHero course={course} isEnrolled={isEnrolled} />
+					<CourseCurriculumList
+						modules={course.modules}
+						isEnrolled={isEnrolled}
+					/>
+				</div>
+
+				{/* Right Column */}
+				<div className="space-y-6">
+					<CourseStats
+						totalModules={totalModules}
+						totalLessons={totalLessons}
+						enrollmentCount={enrollmentCount}
+					/>
+					<CourseAuthor
+						user={course.user}
+						createdAt={course.createdAt}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 }
-
-export default CourseInfo;

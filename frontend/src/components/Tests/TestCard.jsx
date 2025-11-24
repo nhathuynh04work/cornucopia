@@ -4,7 +4,8 @@ import Avatar from "@/components/Avatar";
 import StatusBadge from "@/components/StatusBadge";
 
 function TestCard({ test }) {
-	const { id, title, description, user, timeLimit, attempts, status } = test;
+	const { id, title, description, user, timeLimit, _count, status } = test;
+	console.log(test);
 	const duration = Math.floor(timeLimit / 60);
 
 	const isDraft = status === "DRAFT";
@@ -68,7 +69,7 @@ function TestCard({ test }) {
 							className="flex items-center gap-1"
 							title="Lượt làm bài">
 							<Trophy className="w-3.5 h-3.5" />
-							<span>{attempts?.length || 0}</span>
+							<span>{_count?.attempts || 0}</span>
 						</div>
 					</div>
 				</div>
