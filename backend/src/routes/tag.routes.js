@@ -9,17 +9,7 @@ import { Role } from "../generated/prisma/index.js";
 
 const router = Router();
 
-router.get("/", tagController.listTags);
-router.get("/:name", tagController.getTagByName);
-router.get("/:name/posts", tagController.listPostsByTagName);
-
-router.post(
-	"/",
-	authenticateJWT,
-	requireRole(Role.ADMIN, Role.CREATOR),
-	validateSchema(CreateTagSchema),
-	tagController.createTag
-);
+router.get("/", tagController.getTags);
 
 router.delete(
 	"/:id",

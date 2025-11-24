@@ -1,24 +1,54 @@
 import prisma from "../prisma.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
 
-export async function getMyDecks(userId) {
-	const decks = await prisma.deck.findMany({
-		where: { userId: userId },
-		include: {
-			_count: { select: { cards: true } },
-			user: true,
-		},
-	});
+export async function getDecks({ search, sort, userId, currentUserId } = {}) {
+	const where = {};
 
-	return decks;
-}
+	if (search) {
+		where.title = {
+			contains: search,
+			mode: "insensitive",
+		};
+	}
 
-export async function getExploreDecks() {
+	if (userId) {
+		const targetId = parseInt(userId);
+		where.userId = targetId;
+		if (targetId !== currentUserId) {
+			where.isPublic = true;
+		}
+	} else {
+		where.isPublic = true;
+	}
+
+	let orderBy = {};
+	switch (sort) {
+		case "oldest":
+			orderBy = { createdAt: "asc" };
+			break;
+		case "alphabetical":
+			orderBy = { title: "asc" };
+			break;
+		case "newest":
+		default:
+			orderBy = { createdAt: "desc" };
+			break;
+	}
+
 	const decks = await prisma.deck.findMany({
-		where: { isPublic: true },
+		where,
+		orderBy,
 		include: {
-			_count: { select: { cards: true } },
-			user: true,
+			_count: {
+				select: { cards: true },
+			},
+			user: {
+				select: {
+					id: true,
+					name: true,
+					avatarUrl: true,
+				},
+			},
 		},
 	});
 

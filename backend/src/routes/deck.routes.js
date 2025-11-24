@@ -5,31 +5,32 @@ import * as deckController from "../controllers/deck.controller.js";
 
 const router = Router();
 
-router.get("/", authenticateJWT, deckController.getMyDecks);
+router.use(authenticateJWT);
 
-router.get("/explore", deckController.getExploreDecks);
+router.get("/", deckController.getDecks);
 
-router.get("/:deckId", validateParams(["deckId"]), deckController.getDeckDetails);
+router.get(
+	"/:deckId",
+	validateParams(["deckId"]),
+	deckController.getDeckDetails
+);
 
-router.post("/", authenticateJWT, deckController.createDeck);
+router.post("/", deckController.createDeck);
 
 router.post(
 	"/:deckId/sync",
-	authenticateJWT,
 	validateParams(["deckId"]),
 	deckController.syncDeck
 );
 
 router.delete(
 	"/:deckId",
-	authenticateJWT,
 	validateParams(["deckId"]),
 	deckController.deleteDeck
 );
 
 router.post(
 	"/:deckId/sessions",
-	authenticateJWT,
 	validateParams(["deckId"]),
 	deckController.startSession
 );
