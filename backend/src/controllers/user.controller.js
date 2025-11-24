@@ -5,6 +5,11 @@ export async function getUsers(req, res) {
 	res.status(200).json(result);
 }
 
+export async function getLandingData(req, res) {
+	const data = await userService.getLandingData();
+	res.status(200).json({ data });
+}
+
 export async function getDashboardData(req, res) {
 	const userId = req.user.id;
 	const data = await userService.getDashboardData({ userId });

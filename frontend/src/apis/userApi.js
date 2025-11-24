@@ -5,6 +5,10 @@ const userApi = {
 		const { data } = await api.get("/users", { params });
 		return data;
 	},
+    getLandingData: async () => {
+		const { data } = await api.get("/users/landing");
+		return data.data;
+	},
 	updateInfo: async ({ userId, payload }) => {
 		const { data } = await api.patch(`/users/${userId}`, payload);
 		return data.user;
