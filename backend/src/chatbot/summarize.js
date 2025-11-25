@@ -12,9 +12,6 @@ export async function summarize(hits, query) {
 		.map((h) => getCitationItem(h))
 		.filter((c) => !isWeakCitation(c));
 
-	console.log("citations");
-	console.log(citations);
-
 	// rewrite answer using Gemini
 	const genAI = await getAiClient();
 	if (!genAI) return { answer: getBulletContextList(citations), citations };

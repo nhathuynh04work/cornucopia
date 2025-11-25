@@ -18,7 +18,7 @@ export default async function getChatbotAnswer(req, res) {
 	const ranked = rerank(hits, question);
 
     // Send context to AI and get a "humanized" answer with citations of related content
-	const answer = await summarize(ranked);
+	const answer = await summarize(ranked, question);
 
 	res.status(200).json(answer);
 }
