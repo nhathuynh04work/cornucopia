@@ -1,37 +1,17 @@
 import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
-import {
-	authRouter,
-	testRouter,
-	optionRouter,
-	itemRouter,
-	postRouter,
-	sessionRouter,
-	userRouter,
-	mediaRouter,
-	attemptRouter,
-	courseRouter,
-	moduleRouter,
-	lessonRouter,
-	checkoutRouter,
-	tagRouter,
-	deckRouter,
-	dashboardRouter,
-} from "./routes/index.js";
+import { v1Router } from "./routes/v1.routes.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import getChatbotAnswer from "./chatbot/index.js";
+import checkoutRouter from "./checkout/checkout.routes.js";
+import { corsConfig } from "./config/cors.js";
 
-const app = express();
+export const app = express();
 
 // Middlewares
-app.use(
-	cors({
-		origin: env.FRONTEND_URL || true,
-		credentials: true,
-	})
-);
+app.use(cors(corsConfig));
 
 app.use("/checkout", checkoutRouter);
 
@@ -42,21 +22,7 @@ app.use(passport.initialize());
 
 // Routes
 app.post("/chatbot", getChatbotAnswer);
-app.use("/auth", authRouter);
-app.use("/decks", deckRouter);
-app.use("/posts", postRouter);
-app.use("/tags", tagRouter);
-app.use("/media", mediaRouter);
-app.use("/tests", testRouter);
-app.use("/items", itemRouter);
-app.use("/options", optionRouter);
-app.use("/sessions", sessionRouter);
-app.use("/users", userRouter);
-app.use("/attempts", attemptRouter);
-app.use("/courses", courseRouter);
-app.use("/modules", moduleRouter);
-app.use("/lessons", lessonRouter);
-app.use("/dashboard", dashboardRouter);
+app.use(v1Router);
 
 // Error handler
 app.use(errorHandler);

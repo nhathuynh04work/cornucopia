@@ -291,12 +291,12 @@ enum PostStatus {
 }
 
 model PostChunk {
-    id        Int                     @id @default(autoincrement())
-    postId    Int                     @map("post_id")
+    id        Int                      @id @default(autoincrement())
+    postId    Int                      @map("post_id")
     content   String
-    createdAt DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
-    tsv       Unsupported("tsvector")
+    createdAt DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime                 @default(now()) @map("updated_at") @db.Timestamptz(6)
+    tsv       Unsupported("tsvector")?
 
     // Cùng tên quan hệ với phía Post
     post Post @relation("PostToChunks", fields: [postId], references: [id], onDelete: Cascade)
