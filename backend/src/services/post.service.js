@@ -1,7 +1,7 @@
 import prisma from "../prisma.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { defaults } from "../utils/constants.js";
-import * as ragService from "../chatbot/rag.service.js";
+import { indexPost } from "../chatbot/indexer.js";
 
 export async function createDefaultPost(authorId) {
 	const tagName = "chung".toLowerCase();
@@ -17,7 +17,7 @@ export async function createDefaultPost(authorId) {
 	};
 
 	const post = await prisma.post.create({ data: payload });
-	await ragService.reindexPost(post.id, post.content);
+	indexPost(post.id);
 
 	return post;
 }
@@ -128,9 +128,7 @@ export async function updatePost(id, payload) {
 		data: updateData,
 	});
 
-	if (updatedPost?.content) {
-		await ragService.reindexPost(updatedPost.id, updatedPost.content);
-	}
+	indexPost(updatedPost.id);
 
 	return updatedPost;
 }

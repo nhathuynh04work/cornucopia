@@ -14,7 +14,6 @@ import {
 	courseRouter,
 	moduleRouter,
 	lessonRouter,
-	ragRouter,
 	checkoutRouter,
 	tagRouter,
 	deckRouter,
@@ -22,6 +21,7 @@ import {
 } from "./routes/index.js";
 import passport from "./config/passport.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import getChatbotAnswer from "./chatbot/index.js";
 
 const app = express();
 
@@ -41,6 +41,7 @@ app.use(express.json());
 app.use(passport.initialize());
 
 // Routes
+app.post("/chatbot", getChatbotAnswer);
 app.use("/auth", authRouter);
 app.use("/decks", deckRouter);
 app.use("/posts", postRouter);
@@ -50,7 +51,6 @@ app.use("/tests", testRouter);
 app.use("/items", itemRouter);
 app.use("/options", optionRouter);
 app.use("/sessions", sessionRouter);
-app.use("/rag", ragRouter);
 app.use("/users", userRouter);
 app.use("/attempts", attemptRouter);
 app.use("/courses", courseRouter);
