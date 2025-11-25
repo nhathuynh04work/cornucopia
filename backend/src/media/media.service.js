@@ -43,7 +43,7 @@ const setEntityProperty = async ({
 
 	try {
 		// CASE: user
-		if (entityType === EntityTypeEnum.USER) {
+		if (entityType === EntityTypeEnum.enum.user) {
 			if (entityId !== userId)
 				throw new ForbiddenError(
 					"You can only update your own profile."
@@ -55,7 +55,7 @@ const setEntityProperty = async ({
 		}
 
 		// CASE: course
-		if (entityType === EntityTypeEnum.COURSE) {
+		if (entityType === EntityTypeEnum.enum.course) {
 			const course = await prisma.course.findUnique({
 				where: { id: entityId },
 			});
@@ -67,7 +67,7 @@ const setEntityProperty = async ({
 		}
 
 		// CASE: post
-		if (entityType === EntityTypeEnum.POST) {
+		if (entityType === EntityTypeEnum.enum.post) {
 			const post = await prisma.post.findUnique({
 				where: { id: entityId },
 			});
@@ -83,7 +83,7 @@ const setEntityProperty = async ({
 		}
 
 		// CASE: lesson
-		if (entityType === EntityTypeEnum.LESSON) {
+		if (entityType === EntityTypeEnum.enum.lesson) {
 			const lesson = await lessonRepo.findById(entityId);
 			oldKey = urlToS3Key(lesson.videoUrl);
 			await lessonRepo.update(entityId, { videoUrl: url, duration });
@@ -111,15 +111,15 @@ const linkMediaToEntity = async (data) => {
 	};
 
 	switch (entityType) {
-		case EntityTypeEnum.TEST:
+		case EntityTypeEnum.enum.test:
 			mediaData.testId = entityId;
 			break;
 
-		case EntityTypeEnum.TEST_ITEM:
+		case EntityTypeEnum.enum.testItem:
 			mediaData.testItemId = entityId;
 			break;
 
-		case EntityTypeEnum.POST:
+		case EntityTypeEnum.enum.post:
 			mediaData.postId = entityId;
 			break;
 
