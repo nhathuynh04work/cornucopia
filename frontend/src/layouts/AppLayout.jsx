@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Logo from "@/components/Shared/Logo";
 import { Role } from "@/lib/constants";
 import Avatar from "@/components/Shared/Avatar";
+import ChatWidget from "@/components/ChatWidget/ChatWidget";
 
 function AppLayout() {
 	const { logout, user, role } = useAuth();
@@ -206,6 +207,8 @@ function AppLayout() {
 				</div>
 				{/* Footer Removed */}
 			</main>
+
+			<ChatWidget />
 		</div>
 	);
 }
