@@ -12,6 +12,5 @@ export { default as attemptRouter } from "./attempt.routes.js";
 export { default as courseRouter } from "./course.routes.js";
 export { default as moduleRouter } from "./module.routes.js";
 export { default as lessonRouter } from "./lesson.routes.js";
-export { default as ragRouter } from "../chatbot/rag.routes.js";
 export { default as checkoutRouter } from "./checkout.routes.js";
 export { default as dashboardRouter } from "./dashboard.routes.js";

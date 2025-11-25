@@ -3,8 +3,8 @@ import prisma from "../prisma.js";
 import * as moduleRepo from "../repositories/module.repository.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
 import { defaults } from "../utils/constants.js";
-import { reindexOneCourse } from "../chatbot/course.indexer.helpers.js";
 import { calculateCourseProgress } from "../utils/calculate.js";
+import { indexCourse } from "../chatbot/indexer.js";
 
 export async function getAll({ search, sort, status, userId, enrolledUserId }) {
 	const where = {};
@@ -237,29 +237,6 @@ export async function getEnrolledCourses(userId) {
 	}));
 }
 
-export async function getMyCourses(userId) {
-	return prisma.course.findMany({
-		where: {
-			userId: userId,
-		},
-		include: {
-			user: {
-				select: {
-					id: true,
-					name: true,
-					avatarUrl: true,
-				},
-			},
-			_count: {
-				select: { enrollments: true },
-			},
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
-	});
-}
-
 export async function getUserCourseEnrollment(courseId, userId) {
 	const enrollment = await prisma.userCourseEnrollment.findFirst({
 		where: { courseId: courseId, userId: userId },
@@ -275,7 +252,11 @@ export async function createCourse({ userId }) {
 		modules: { create: { title: "Module mới - Hãy đổi tên tôi" } },
 	};
 
-	return prisma.course.create({ data: payload });
+	const course = await prisma.course.create({ data: payload });
+
+	indexCourse(course.id);
+
+	return course;
 }
 
 export async function update(courseId, data) {
@@ -307,11 +288,7 @@ export async function update(courseId, data) {
 		data,
 	});
 
-	try {
-		await reindexOneCourse(updated.id);
-	} catch (e) {
-		console.warn("reindexOneCourse(update) failed:", e?.message || e);
-	}
+	indexCourse(updated.id);
 
 	return updated;
 }
@@ -345,6 +322,8 @@ export async function remove(courseId, userId) {
 	await prisma.course.delete({
 		where: { id: courseId },
 	});
+
+	indexCourse(courseId);
 
 	return { message: "Course deleted successfully." };
 }

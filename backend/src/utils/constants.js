@@ -94,8 +94,11 @@ export const defaults = {
 	},
 	COURSE: {
 		name: "Khoá học không tên",
-		description:
-			"Đây là khoá học mới. Hãy thêm các module và bài học mới.",
+		description: "Đây là khoá học mới. Hãy thêm các module và bài học mới.",
 		price: 100000,
+	},
+	CHATBOT_ANSWER: {
+		answer: "Mình chưa thấy nội dung phù hợp trong Blog/Course để trả lời câu này.",
+		citations: [],
 	},
 };
