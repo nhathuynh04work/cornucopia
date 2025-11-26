@@ -3,7 +3,7 @@ import { CheckCircle2, Trash2, Plus } from "lucide-react";
 import clsx from "clsx";
 
 const AnswerOptionRow = ({
-	nestIndex,
+	basePath, // Replaces nestIndex: full path to the specific option list (e.g. items.0.answerOptions)
 	index,
 	register,
 	remove,
@@ -12,7 +12,7 @@ const AnswerOptionRow = ({
 }) => {
 	const isCorrect = useWatch({
 		control,
-		name: `items.${nestIndex}.answerOptions.${index}.isCorrect`,
+		name: `${basePath}.${index}.isCorrect`,
 	});
 
 	return (
@@ -39,7 +39,7 @@ const AnswerOptionRow = ({
 						? "border-green-200 bg-green-50/30 focus:border-green-500 text-green-900 font-medium"
 						: "border-gray-200 focus:border-purple-500"
 				)}
-				{...register(`items.${nestIndex}.answerOptions.${index}.text`)}
+				{...register(`${basePath}.${index}.text`)}
 			/>
 
 			<button
@@ -51,18 +51,24 @@ const AnswerOptionRow = ({
 	);
 };
 
-export default function AnswerOptionsEditor({ nestIndex }) {
+export default function AnswerOptionsEditor({ nestIndex, baseName }) {
 	const { control, register, setValue } = useFormContext();
+	
+    // Determine the path: 
+    // If 'baseName' is provided (e.g. "items.0.children.1"), use that.
+    // Otherwise fallback to "items.{nestIndex}" for backward compatibility with top-level
+    const rootPath = baseName || `items.${nestIndex}`;
+    const listPath = `${rootPath}.answerOptions`;
+
 	const { fields, append, remove } = useFieldArray({
 		control,
-		name: `items.${nestIndex}.answerOptions`,
+		name: listPath,
 	});
 
 	const handleToggleCorrect = (index) => {
 		fields.forEach((_, i) => {
-			// Mark as dirty when toggling correct answer
 			setValue(
-				`items.${nestIndex}.answerOptions.${i}.isCorrect`,
+				`${listPath}.${i}.isCorrect`,
 				i === index,
 				{ shouldDirty: true }
 			);
@@ -81,7 +87,7 @@ export default function AnswerOptionsEditor({ nestIndex }) {
 				{fields.map((opt, index) => (
 					<AnswerOptionRow
 						key={opt.id}
-						nestIndex={nestIndex}
+						basePath={listPath} // Pass the full list path down
 						index={index}
 						control={control}
 						register={register}

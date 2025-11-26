@@ -49,7 +49,7 @@ export default function TestEditHeader({ testId, isSaving, lastSaved }) {
 		// Ideally, we might want to force one last save here if dirty,
 		// but typically auto-save + a small delay or "unsaved changes" warning is used.
 		// Given the requirement "disable when auto save is running", we assume safe to nav if !isSaving.
-		if (!isSaving) {
+		if (!isDirty) {
 			navigate(`/tests/${testId}`);
 		}
 	};
@@ -60,7 +60,7 @@ export default function TestEditHeader({ testId, isSaving, lastSaved }) {
 				{/* Back Button */}
 				<button
 					onClick={handleFinish}
-					disabled={isSaving}
+					disabled={isDirty}
 					className="p-2 -ml-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 					title="Quay lại">
 					<ArrowLeft className="w-5 h-5" />
@@ -125,7 +125,7 @@ export default function TestEditHeader({ testId, isSaving, lastSaved }) {
 				{/* Finish Button */}
 				<button
 					onClick={handleFinish}
-					disabled={isSaving}
+					disabled={isDirty}
 					className="px-5 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg shadow-sm transition-all flex items-center gap-2">
 					<Check className="w-4 h-4" /> Hoàn tất
 				</button>
