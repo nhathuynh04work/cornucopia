@@ -1,6 +1,13 @@
-import { useFormContext, useWatch, useFieldArray } from "react-hook-form";
-import { Trash2, CheckCircle2, Plus, ListChecks, FileText } from "lucide-react";
-import clsx from "clsx";
+import { useFormContext, useWatch, Controller } from "react-hook-form";
+import {
+	Trash2,
+	CheckCircle2,
+	ListChecks,
+	FileText,
+	AlertCircle,
+} from "lucide-react";
+import SimpleRichTextEditor from "@/components/Shared/SimpleRichTextEditor";
+import AnswerOptionsEditor from "./AnswerOptionsEditor";
 
 const QUESTION_TYPES = {
 	MULTIPLE_CHOICE: {
@@ -17,173 +24,96 @@ const QUESTION_TYPES = {
 	},
 };
 
-// --- INTERNAL COMPONENTS ---
-
-const ChildOptionRow = ({
+export default function ChildQuestionItem({
 	parentIndex,
-	childIndex,
-	optIndex,
-	control,
-	register,
+	index,
 	remove,
-	handleToggleCorrect,
-}) => {
-	const isCorrect = useWatch({
-		control,
-		name: `items.${parentIndex}.children.${childIndex}.answerOptions.${optIndex}.isCorrect`,
-	});
-
-	return (
-		<div className="flex items-center gap-2 group/opt">
-			<button
-				type="button"
-				onClick={() => handleToggleCorrect(optIndex)}
-				className={clsx(
-					"w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0",
-					isCorrect
-						? "bg-green-500 border-green-500 text-white"
-						: "border-gray-300 text-transparent hover:border-green-400"
-				)}>
-				<CheckCircle2 className="w-3 h-3" />
-			</button>
-
-			<input
-				type="text"
-				placeholder={`Lựa chọn ${optIndex + 1}`}
-				className={clsx(
-					"flex-1 px-2 py-1.5 text-sm border rounded-md focus:outline-none transition-all",
-					isCorrect
-						? "border-green-200 bg-green-50/30 focus:border-green-500 text-green-900"
-						: "border-gray-200 focus:border-purple-500"
-				)}
-				{...register(
-					`items.${parentIndex}.children.${childIndex}.answerOptions.${optIndex}.text`
-				)}
-			/>
-
-			<button
-				onClick={() => remove(optIndex)}
-				className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md opacity-0 group-hover/opt:opacity-100">
-				<Trash2 className="w-3.5 h-3.5" />
-			</button>
-		</div>
-	);
-};
-
-const ChildAnswerOptionsEditor = ({ parentIndex, childIndex }) => {
-	const { control, register, setValue } = useFormContext();
-	const { fields, append, remove } = useFieldArray({
-		control,
-		name: `items.${parentIndex}.children.${childIndex}.answerOptions`,
-	});
-
-	const handleToggleCorrect = (index) => {
-		fields.forEach((_, i) => {
-			setValue(
-				`items.${parentIndex}.children.${childIndex}.answerOptions.${i}.isCorrect`,
-				i === index
-			);
-		});
-	};
-
-	return (
-		<div className="space-y-2 mt-3">
-			<p className="text-[10px] font-bold text-gray-400 uppercase mb-1">
-				Lựa chọn
-			</p>
-			{fields.map((opt, index) => (
-				<ChildOptionRow
-					key={opt.id}
-					optIndex={index}
-					parentIndex={parentIndex}
-					childIndex={childIndex}
-					control={control}
-					register={register}
-					remove={remove}
-					handleToggleCorrect={handleToggleCorrect}
-				/>
-			))}
-			<button
-				type="button"
-				onClick={() => append({ text: "", isCorrect: false })}
-				className="text-xs font-medium text-purple-600 hover:text-purple-700 flex items-center gap-1 mt-2">
-				<Plus className="w-3 h-3" /> Thêm lựa chọn
-			</button>
-		</div>
-	);
-};
-
-export default function ChildQuestionItem({ parentIndex, index, remove }) {
+	questionNumber,
+}) {
 	const { control, register } = useFormContext();
+
+	const selfPath = `items.${parentIndex}.children.${index}`;
 
 	const type = useWatch({
 		control,
-		name: `items.${parentIndex}.children.${index}.type`,
+		name: `${selfPath}.type`,
 	});
 
 	return (
-		<div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative group/child">
-			<div className="absolute top-4 right-4 opacity-0 group-hover/child:opacity-100 transition-opacity">
+		<div className="relative group/child py-6 border-b border-gray-100 last:border-0">
+			{/* Actions (Absolute top-right) */}
+			<div className="absolute top-6 right-0 opacity-0 group-hover/child:opacity-100 transition-opacity z-10">
 				<button
 					onClick={() => remove(index)}
-					className="text-gray-300 hover:text-red-500">
+					className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors">
 					<Trash2 className="w-4 h-4" />
 				</button>
 			</div>
 
+			{/* Header: Type & Points */}
 			<div className="flex items-center gap-3 mb-3">
-				<div
-					className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${QUESTION_TYPES[type]?.bg} ${QUESTION_TYPES[type]?.color}`}>
-					{type === "MULTIPLE_CHOICE" ? "Trắc nghiệm" : "Điền từ"}
+				{/* Fixed: Use passed global questionNumber */}
+				<div className="flex items-center justify-center w-6 h-6 bg-gray-100 rounded-full text-xs font-bold text-gray-500">
+					{questionNumber}
 				</div>
-				<div className="h-4 w-px bg-gray-200" />
-
-				{/* Improved Score Input Styling */}
-				<div className="flex items-center gap-2">
+				<div
+					className={`text-[10px] font-bold uppercase tracking-wider ${QUESTION_TYPES[type]?.color}`}>
+					{QUESTION_TYPES[type]?.label}
+				</div>
+				<div className="h-3 w-px bg-gray-200" />
+				<div className="flex items-center gap-1">
 					<input
 						type="number"
-						className="w-12 text-center font-bold text-gray-900 border border-gray-200 rounded-md py-0.5 text-xs focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none"
-						{...register(
-							`items.${parentIndex}.children.${index}.points`,
-							{ valueAsNumber: true }
-						)}
+						className="w-8 text-xs font-bold text-gray-900 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-purple-500 text-right outline-none transition-colors p-0"
+						{...register(`${selfPath}.points`, {
+							valueAsNumber: true,
+						})}
 					/>
-					<span className="text-[10px] text-gray-500 font-medium">
-						điểm
-					</span>
+					<span className="text-[10px] text-gray-400">điểm</span>
 				</div>
 			</div>
 
-			<div className="space-y-4">
-				<textarea
-					{...register(
-						`items.${parentIndex}.children.${index}.text`,
-						{ required: true }
+			{/* Content */}
+			<div className="pl-9">
+				<Controller
+					control={control}
+					name={`${selfPath}.text`}
+					rules={{ required: true }}
+					render={({ field: { value, onChange } }) => (
+						<SimpleRichTextEditor
+							value={value}
+							onChange={(val) => onChange(val)}
+							placeholder="Nhập câu hỏi con..."
+							className="min-h-[3rem]"
+						/>
 					)}
-					placeholder="Nhập câu hỏi con..."
-					className="w-full text-sm font-medium text-gray-900 placeholder:text-gray-400 border-none focus:ring-0 p-0 bg-transparent resize-none min-h-[2.5rem]"
-					rows={1}
 				/>
 
+				{/* CONSISTENT SHORT ANSWER UI */}
 				{type === "SHORT_ANSWER" && (
-					<div className="relative mt-2">
-						<input
-							type="text"
-							className="w-full pl-3 pr-8 py-2 bg-blue-50/50 border border-blue-100 rounded-lg text-sm text-blue-900 placeholder:text-blue-300/70 focus:outline-none focus:border-blue-300"
-							placeholder="Đáp án chính xác..."
-							{...register(
-								`items.${parentIndex}.children.${index}.answer`
-							)}
-						/>
-						<CheckCircle2 className="w-4 h-4 text-blue-400 absolute right-3 top-2.5" />
+					<div className="space-y-3 mt-4">
+						<label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
+							Đáp án chính xác
+						</label>
+						<div className="relative">
+							<input
+								type="text"
+								className="w-full pl-4 pr-10 py-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-500 transition-all font-medium"
+								placeholder="Nhập đáp án..."
+								{...register(`${selfPath}.answer`)}
+							/>
+							<CheckCircle2 className="w-5 h-5 text-green-500 absolute right-3 top-3" />
+						</div>
+						<p className="text-xs text-gray-400 flex items-center gap-1">
+							<AlertCircle className="w-3 h-3" />
+							Đáp án sẽ được so sánh không phân biệt hoa thường.
+						</p>
 					</div>
 				)}
 
+				{/* CONSISTENT MULTIPLE CHOICE UI */}
 				{type === "MULTIPLE_CHOICE" && (
-					<ChildAnswerOptionsEditor
-						parentIndex={parentIndex}
-						childIndex={index}
-					/>
+					<AnswerOptionsEditor baseName={selfPath} />
 				)}
 			</div>
 		</div>

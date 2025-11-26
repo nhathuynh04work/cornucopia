@@ -1,7 +1,16 @@
-import { useFormContext } from "react-hook-form";
-import { ListChecks, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useFormContext, Controller } from "react-hook-form";
+import {
+	ListChecks,
+	FileText,
+	Image as ImageIcon,
+	X,
+	AlertCircle,
+	CheckCircle2,
+} from "lucide-react";
+import MediaUploader from "@/components/Shared/MediaUploader";
 import AnswerOptionsEditor from "./AnswerOptionsEditor";
 import MediaSection from "./MediaSection";
+import SimpleRichTextEditor from "@/components/Shared/SimpleRichTextEditor";
 
 const QUESTION_TYPES = {
 	MULTIPLE_CHOICE: {
@@ -19,7 +28,7 @@ const QUESTION_TYPES = {
 };
 
 export default function QuestionEditor({ nestIndex, item }) {
-	const { register } = useFormContext();
+	const { register, control } = useFormContext();
 	const Icon = QUESTION_TYPES[item.type]?.icon || FileText;
 
 	return (
@@ -49,15 +58,19 @@ export default function QuestionEditor({ nestIndex, item }) {
 					</div>
 				</div>
 
-				{/* Content */}
+				{/* Content - Rich Text Editor */}
 				<div>
-					<textarea
-						{...register(`items.${nestIndex}.text`, {
-							required: true,
-						})}
-						placeholder="Nhập nội dung câu hỏi..."
-						className="w-full text-xl md:text-2xl font-medium text-gray-900 placeholder:text-gray-300 border-none focus:ring-0 p-0 bg-transparent resize-none min-h-[3rem]"
-						rows={2}
+					<Controller
+						control={control}
+						name={`items.${nestIndex}.text`}
+						rules={{ required: true }}
+						render={({ field: { value, onChange } }) => (
+							<SimpleRichTextEditor
+								value={value}
+								onChange={(val) => onChange(val)}
+								placeholder="Nhập nội dung câu hỏi..."
+							/>
+						)}
 					/>
 				</div>
 

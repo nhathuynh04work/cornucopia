@@ -59,7 +59,7 @@ export function formatRelativeTime(dateString) {
 
 export function formatNumberCompact(num) {
 	if (num === undefined || num === null) return 0;
-    
+
 	return new Intl.NumberFormat("en-US", {
 		notation: "compact",
 		maximumFractionDigits: 1,
@@ -69,4 +69,15 @@ export function formatNumberCompact(num) {
 // format classname
 export function cn(...classes) {
 	return classes.filter(Boolean).join(" ");
+}
+
+export function stripHtml(html) {
+	if (!html) return "";
+
+	const htmlWithSpaces = html
+		.replace(/<\/(p|div|h[1-6]|li|ul|ol|tr)>/gi, " ")
+		.replace(/<br\s*\/?>/gi, " ");
+
+	const doc = new DOMParser().parseFromString(htmlWithSpaces, "text/html");
+	return (doc.body.textContent || "").trim();
 }

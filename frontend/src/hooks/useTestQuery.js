@@ -1,6 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { useTestAttemptStore } from "@/store/testAttemptStore";
 import { useAuth } from "@/contexts/AuthContext";
 import { queryDefaults } from "@/lib/react-query.config";
 import testApi from "@/apis/testApi.js";
@@ -37,30 +35,18 @@ export function useGetTestForEdit(id) {
 		queryKey: ["test", numericId, "edit"],
 		queryFn: () => testApi.getForEdit(numericId),
 		enabled: !!numericId,
-        refetchOnMount: "always",
+		refetchOnMount: "always",
 		...queryDefaults,
 	});
 }
 
-export function useGetTestForAttempt(id) {
-	const numericId = Number(id);
-
-	const setTest = useTestAttemptStore((s) => s.setTest);
-
-	const query = useQuery({
-		queryKey: ["test", numericId, "attempt"],
-		queryFn: () => testApi.getForAttempt(numericId),
-		enabled: !!numericId,
+export function useGetTestForAttempt(testId) {
+	return useQuery({
+		queryKey: ["test", Number(testId), "attempt"],
+		queryFn: () => testApi.getForAttempt(testId),
+		enabled: !!testId,
 		...queryDefaults,
 	});
-
-	useEffect(() => {
-		if (query.data) {
-			setTest(query.data);
-		}
-	}, [query.data, setTest]);
-
-	return query;
 }
 
 export function useGetAttemptHistory(testId) {

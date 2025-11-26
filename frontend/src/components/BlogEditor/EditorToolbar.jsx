@@ -25,7 +25,7 @@ export default function EditorToolbar({ editor, postId }) {
 	const is = (name, attrs = {}) => editor.isActive(name, attrs);
 
 	return (
-		<div className="sticky top-[80px] z-40 mb-8 bg-white/80 backdrop-blur-md py-2 px-4 border border-gray-200 rounded-xl flex items-center gap-1 overflow-x-auto no-scrollbar shadow-sm transition-all">
+		<div className="sticky top-[80px] z-40 mb-8 bg-white/80 backdrop-blur-md py-2 px-4 border border-gray-200 rounded-xl flex items-center gap-1 overflow-x-auto hide-scrollbar shadow-sm transition-all">
 			{/* Text Style */}
 			<div className="flex items-center gap-0.5 shrink-0">
 				<ToolbarBtn

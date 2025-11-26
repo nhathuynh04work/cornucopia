@@ -1,3 +1,5 @@
+import { itemTypeEnum } from "./item.config";
+
 /**
  * Generates a mapping of item IDs to their display numbers (e.g., "1", "2-4").
  * Useful for Test Editor sidebar, Test Attempt navigation, and Results view.
@@ -35,4 +37,39 @@ export function getQuestionNumberMap(items = []) {
 	});
 
 	return map;
+}
+
+export function flattenTestItems(items = [], options = {}) {
+	const { attachParent = false } = options;
+
+	const flatItems = items
+		.slice()
+		.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+		.flatMap((item) => {
+			if (item.type === itemTypeEnum.GROUP) {
+				const sortedChildren = (item.children || [])
+					.slice()
+					.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+				const childrenToReturn = attachParent
+					? sortedChildren.map((child) => ({
+							...child,
+							parent: item,
+							parentId: item.id,
+					  }))
+					: sortedChildren;
+
+				return [item, ...childrenToReturn];
+			}
+
+			return attachParent
+				? [{ ...item, parent: null, parentId: `single-${item.id}` }]
+				: [item];
+		});
+
+	const flatQuestions = flatItems.filter(
+		(item) => item.type !== itemTypeEnum.GROUP
+	);
+
+	return { flatItems, flatQuestions };
 }
