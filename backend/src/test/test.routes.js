@@ -8,10 +8,9 @@ import {
 import { validate } from "../middlewares/validate.middleware.js";
 import { Role } from "../generated/prisma/index.js";
 import {
-	addItemSchema,
 	deleteTestSchema,
 	getTestSchema,
-	updateTestSchema,
+	syncTestSchema,
 } from "./test.schema.js";
 
 const router = Router();
@@ -53,10 +52,10 @@ router.post(
 );
 
 router.patch(
-	"/:id",
+	"/:id/sync",
 	requireRole(Role.ADMIN, Role.CREATOR),
-	validate(updateTestSchema),
-	testController.updateTest
+	validate(syncTestSchema),
+	testController.syncTest
 );
 
 router.delete(
@@ -64,13 +63,6 @@ router.delete(
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validate(deleteTestSchema),
 	testController.deleteTest
-);
-
-router.post(
-	"/:id/items",
-	requireRole(Role.ADMIN, Role.CREATOR),
-	validate(addItemSchema),
-	testController.addItem
 );
 
 export default router;

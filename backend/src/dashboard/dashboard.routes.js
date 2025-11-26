@@ -15,7 +15,6 @@ const router = Router();
 
 router.use(authenticateJwt);
 
-// --- Admin Routes ---
 router.get(
 	"/admin/stats",
 	requireRole(Role.ADMIN),
@@ -29,7 +28,6 @@ router.get(
 	dashboardController.getAdminChartData
 );
 
-// --- Creator Routes ---
 router.get(
 	"/creator/stats",
 	requireRole(Role.CREATOR),
@@ -43,7 +41,6 @@ router.get(
 	dashboardController.getCreatorChartData
 );
 
-// --- User Routes ---
 router.get("/user/stats", dashboardController.getUserOverallStats);
 
 export default router;

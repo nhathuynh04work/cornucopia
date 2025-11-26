@@ -25,14 +25,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
 	(response) => response,
 	(error) => {
-		console.log(error.response.data.error);
-        
+		if (error.response?.data?.error) {
+			console.log(error.response.data.error);
+		}
+
 		if (error.name === "CanceledError" || error.code === "ERR_CANCELED") {
 			throw new Error("Aborted");
 		}
+
 		const normalizedError = new Error(
 			error.response?.data?.error || error.message || "Unknown error"
 		);
+        
 		normalizedError.status = error.response?.status;
 		throw normalizedError;
 	}

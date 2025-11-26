@@ -17,18 +17,16 @@ const CreatorChartTypeSchema = z.enum([
 	"ENGAGEMENT_BREAKDOWN",
 ]);
 
-// --- Route Schemas ---
-
-export const getAdminChartDataSchema = {
+export const getAdminChartDataSchema = z.object({
 	query: z.object({
 		chartType: AdminChartTypeSchema,
 		timePeriod: TimePeriodSchema.optional(),
 	}),
-};
+});
 
-export const getCreatorChartDataSchema = {
+export const getCreatorChartDataSchema = z.object({
 	query: z.object({
 		chartType: CreatorChartTypeSchema,
 		timePeriod: TimePeriodSchema.optional(),
 	}),
-};
+});
