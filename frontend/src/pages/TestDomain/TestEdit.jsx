@@ -1,5 +1,10 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useForm, FormProvider, useFieldArray } from "react-hook-form";
+import {
+	useForm,
+	FormProvider,
+	useFieldArray,
+	Controller,
+} from "react-hook-form";
 import { useParams, Link } from "react-router-dom";
 import { useGetTestForEdit } from "@/hooks/useTestQuery";
 import { useTestMutation } from "@/hooks/useTestMutation";
@@ -13,27 +18,27 @@ import {
 	Archive,
 } from "lucide-react";
 import _ from "lodash";
-import clsx from "clsx";
 import MainEditor from "@/components/TestEditor/MainEditor";
 import Sidebar from "@/components/TestEditor/Sidebar";
+import RadixSelect from "@/components/Shared/RadixSelect";
 
-const STATUS_CONFIG = {
-	DRAFT: {
+const STATUS_OPTIONS = [
+	{
+		value: "DRAFT",
 		label: "Nháp",
-		color: "bg-gray-100 text-gray-600",
-		icon: FileText,
+		icon: <FileText className="w-3.5 h-3.5" />,
 	},
-	PUBLIC: {
+	{
+		value: "PUBLIC",
 		label: "Công khai",
-		color: "bg-green-100 text-green-700",
-		icon: Globe,
+		icon: <Globe className="w-3.5 h-3.5" />,
 	},
-	ARCHIVED: {
+	{
+		value: "ARCHIVED",
 		label: "Lưu trữ",
-		color: "bg-yellow-100 text-yellow-700",
-		icon: Archive,
+		icon: <Archive className="w-3.5 h-3.5" />,
 	},
-};
+];
 
 function useEditorAutoSave(callback, value, delay = 2000, isDirty = false) {
 	const callbackRef = useRef(callback);
@@ -75,13 +80,13 @@ function TestEditForm({ test, testId }) {
 			description: test.description || "",
 			items: test.items || [],
 			audioUrl: test.audioUrl || null,
-			timeLimit: test.timeLimit || 30,
+			// Convert seconds to minutes for the UI
+			timeLimit: test.timeLimit ? Math.floor(test.timeLimit / 60) : 30,
 			status: test.status || "DRAFT",
 		},
 	});
 
 	const {
-		register,
 		control,
 		reset,
 		watch,
@@ -95,14 +100,11 @@ function TestEditForm({ test, testId }) {
 	});
 
 	const formData = watch();
-	const status = formData.status || "DRAFT";
-	const StatusIcon = STATUS_CONFIG[status].icon;
 
-	useEffect(() => {
-		if (test) {
-			reset(test);
-		}
-	}, [test, reset]);
+	// Helper to find current status icon
+	const currentStatusOption =
+		STATUS_OPTIONS.find((o) => o.value === formData.status) ||
+		STATUS_OPTIONS[0];
 
 	useEditorAutoSave(
 		(data) => {
@@ -110,17 +112,22 @@ function TestEditForm({ test, testId }) {
 
 			setIsSaving(true);
 
+			// Convert minutes back to seconds for the API
+			const payload = {
+				...data,
+				timeLimit: data.timeLimit ? data.timeLimit * 60 : 0,
+			};
+
 			syncTestMutation.mutate(
 				{
 					id: testId,
-					data: {
-						...data,
-					},
+					data: payload,
 				},
 				{
 					onSuccess: (updatedTest) => {
 						setIsSaving(false);
 						setLastSaved(new Date(updatedTest.updatedAt));
+						// We don't need to transform timeLimit back because keepValues preserves UI state
 						reset(data, { keepValues: true, keepDirty: false });
 					},
 					onError: () => {
@@ -167,26 +174,38 @@ function TestEditForm({ test, testId }) {
 				<header className="h-16 px-6 border-b border-gray-200 flex items-center justify-between bg-white shrink-0 z-20">
 					<div className="flex items-center gap-4">
 						<Link
-							to={`/tests/${test.id}`}
+							to="/dashboard"
 							className="p-2 -ml-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all">
 							<ArrowLeft className="w-5 h-5" />
 						</Link>
 						<div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
 
 						<div className="flex items-center gap-3">
-							<span
-								className={clsx(
-									"flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide",
-									STATUS_CONFIG[status].color
-								)}>
-								<StatusIcon className="w-3 h-3" />
-								{STATUS_CONFIG[status].label}
-							</span>
-							<input
-								{...register("title", { required: true })}
-								className="text-lg font-bold text-gray-900 border-none focus:ring-0 p-0 placeholder:text-gray-300 w-64 sm:w-96 bg-transparent truncate"
-								placeholder="Nhập tiêu đề bài thi..."
+							{/* Status Dropdown */}
+							<Controller
+								control={control}
+								name="status"
+								render={({ field: { value, onChange } }) => (
+									<RadixSelect
+										value={value}
+										onChange={(val) => onChange(val)} // This triggers isDirty
+										options={STATUS_OPTIONS}
+										icon={currentStatusOption.icon}
+										className="w-[140px]"
+									/>
+								)}
 							/>
+
+							{/* Static Title Display (Truncated) */}
+							<span
+								className="text-lg font-bold text-gray-900 truncate max-w-[200px] sm:max-w-md"
+								title={formData.title}>
+								{formData.title || (
+									<span className="text-gray-300 italic">
+										Chưa có tiêu đề
+									</span>
+								)}
+							</span>
 						</div>
 					</div>
 
@@ -213,8 +232,6 @@ function TestEditForm({ test, testId }) {
 								</span>
 							) : null}
 						</div>
-
-						{/* Removed Preview Button */}
 
 						<button className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg shadow-sm transition-all flex items-center gap-2">
 							<Save className="w-4 h-4" /> Xuất bản
