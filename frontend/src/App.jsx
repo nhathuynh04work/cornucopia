@@ -28,10 +28,10 @@ import CourseEdit from "./pages/CourseDomain/CourseEdit";
 import DeckEdit from "./pages/DeckDomain/DeckEdit";
 import StudySession from "./pages/DeckDomain/StudySession";
 import TestAttempt from "./pages/TestDomain/TestAttempt";
-import TestEdit from "./pages/TestDomain/TestEdit";
 import BlogEdit from "./pages/PostDomain/PostEdit";
 import PaymentCallback from "./pages/CourseDomain/PaymentCallback";
 import Confirm from "./pages/AuthDomain/Confirm";
+import TestEdit from "./pages/TestDomain/TestEdit";
 
 const ProtectedRoute = ({ children }) => {
 	const { user, isInitialLoading } = useAuth();

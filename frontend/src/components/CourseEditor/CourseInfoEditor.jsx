@@ -1,9 +1,9 @@
 import { Loader2 } from "lucide-react";
 import { useCourseEditorStore } from "../../store/courseEditorStore";
 import DebouncedInput from "../Shared/DebouncedInput";
-import DebouncedTextarea from "../../components/TestEditor/TestEditor/DebouncedTextarea";
 import CourseCoverUploader from "./CourseCoverUploader";
 import { useUpdateCourse } from "@/hooks/useCourseMutation";
+import DebouncedTextarea from "../Shared/DebouncedTextarea";
 
 function CourseInfoEditor() {
 	const course = useCourseEditorStore((s) => s.course);

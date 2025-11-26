@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useTestEditorStore } from "../store/testEditorStore.js";
 import { useEffect } from "react";
 import { useTestAttemptStore } from "@/store/testAttemptStore";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,24 +31,15 @@ export function useGetTestForInfo(id) {
 }
 
 export function useGetTestForEdit(id) {
-	const setTest = useTestEditorStore((s) => s.setTest);
 	const numericId = Number(id);
 
-	const query = useQuery({
+	return useQuery({
 		queryKey: ["test", numericId, "edit"],
 		queryFn: () => testApi.getForEdit(numericId),
 		enabled: !!numericId,
+        refetchOnMount: "always",
 		...queryDefaults,
 	});
-
-	// Hydrate store when query resolves
-	useEffect(() => {
-		if (query.data) {
-			setTest(query.data);
-		}
-	}, [query.data, setTest]);
-
-	return query;
 }
 
 export function useGetTestForAttempt(id) {
