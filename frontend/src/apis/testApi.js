@@ -1,6 +1,10 @@
 import { api } from "./axios";
 
 const testApi = {
+	sync: async ({ id, data }) => {
+		const response = await api.patch(`/tests/${id}/sync`, data);
+		return response.data.test;
+	},
 	getAll: async (params) => {
 		const { data } = await api.get("/tests", { params });
 		return data.tests;
@@ -15,7 +19,6 @@ const testApi = {
 	},
 	getForEdit: async (id) => {
 		const { data } = await api.get(`/tests/${id}/edit`);
-		console.log(data);
 		return data.test;
 	},
 	getForAttempt: async (id) => {
@@ -34,16 +37,8 @@ const testApi = {
 		const { data } = await api.post("/tests");
 		return data.test;
 	},
-	update: async (id, changes) => {
-		const { data } = await api.patch(`/tests/${id}`, changes);
-		return data.test;
-	},
 	remove: async (id) => {
 		await api.delete(`/tests/${id}`);
-	},
-	addItem: async (testId, payload) => {
-		const { data } = await api.post(`/tests/${testId}/items`, payload);
-		return data.item;
 	},
 };
 

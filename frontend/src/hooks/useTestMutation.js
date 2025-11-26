@@ -1,72 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTestEditorStore } from "../store/testEditorStore";
 import toast from "react-hot-toast";
-import itemApi from "../apis/itemApi";
 import testApi from "../apis/testApi";
-import optionApi from "../apis/optionApi";
-
-export function useTestEditorMutation({
-	mutationFn,
-	onSuccess,
-	successMessage,
-	errorMessagePrefix,
-	disableToast = false,
-}) {
-	const queryClient = useQueryClient();
-	const testId = useTestEditorStore((s) => s.test?.id);
-
-	return useMutation({
-		mutationFn,
-		onSuccess: (data, variables) => {
-			onSuccess?.(data, variables);
-			if (!disableToast && successMessage) {
-				toast.success(successMessage);
-			}
-			queryClient.invalidateQueries({
-				queryKey: ["tests"],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ["test", testId],
-			});
-		},
-		onError: (error) => {
-			if (!disableToast) {
-				toast.error(
-					`${errorMessagePrefix}: ${
-						error.message || "An unknown error occurred"
-					}`
-				);
-			}
-		},
-	});
-}
-
-export function useDeleteItem(id, { disableToast = true } = {}) {
-	return useTestEditorMutation({
-		mutationFn: () => itemApi.remove(id),
-		successMessage: "Item deleted",
-		errorMessagePrefix: "Failed to delete item",
-		disableToast,
-	});
-}
-
-export function useUpdateItem(id, { disableToast = true } = {}) {
-	return useTestEditorMutation({
-		mutationFn: (data) => itemApi.update(id, data),
-		successMessage: "Updated",
-		errorMessagePrefix: "Failed to update item",
-		disableToast,
-	});
-}
-
-export function useAddOption(itemId, { disableToast = true } = {}) {
-	return useTestEditorMutation({
-		mutationFn: () => itemApi.addOption(itemId),
-		successMessage: "Option added",
-		errorMessagePrefix: "Failed to add option",
-		disableToast,
-	});
-}
 
 export function useCreateTest() {
 	const queryClient = useQueryClient();
@@ -79,53 +13,66 @@ export function useCreateTest() {
 	});
 }
 
-export function useUpdateTest({ disableToast = true } = {}) {
-	const testId = useTestEditorStore((s) => s.test?.id);
+export function useTestMutation() {
+	const queryClient = useQueryClient();
 
-	return useTestEditorMutation({
-		mutationFn: (changes) => testApi.update(testId, changes),
-		successMessage: "Test settings updated",
-		errorMessagePrefix: "Failed to update settings",
-		disableToast,
+	const createTestMutation = useMutation({
+		mutationFn: testApi.create,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["tests"] });
+			toast.success("Test created successfully");
+		},
 	});
-}
 
-export function useDeleteTest({ disableToast = true } = {}) {
-	const testId = useTestEditorStore((s) => s.test?.id);
-
-	return useTestEditorMutation({
-		mutationFn: () => testApi.remove(testId),
-		successMessage: "Test deleted",
-		errorMessagePrefix: "Failed to delete test",
-		disableToast,
+	const updateTestMutation = useMutation({
+		mutationFn: ({ id, data }) => testApi.update(id, data),
+		onSuccess: (data) => {
+			queryClient.invalidateQueries({ queryKey: ["tests", data.id] });
+			queryClient.invalidateQueries({ queryKey: ["tests"] });
+			toast.success("Test updated successfully");
+		},
 	});
-}
 
-export function useAddItem({ disableToast = true } = {}) {
-	const testId = useTestEditorStore((s) => s.test?.id);
-
-	return useTestEditorMutation({
-		mutationFn: (itemData) => testApi.addItem(testId, itemData),
-		successMessage: "Item added",
-		errorMessagePrefix: "Failed to add item",
-		disableToast,
+	const syncTestMutation = useMutation({
+		mutationFn: testApi.sync,
+		onSuccess: (data) => {
+			// Silent success for auto-save
+			// We update the cache with the returned data (updated timestamps, etc.)
+			// but we DO NOT invalidate to prevent overwriting user input.
+			queryClient.setQueryData(["tests", data.id], (oldData) => {
+				if (!oldData) return data;
+				// Merge the new server data with the existing cache
+				return { ...oldData, ...data };
+			});
+		},
+		onError: (error) => {
+			console.error("Auto-save failed", error);
+			toast.error("Failed to save changes");
+		},
 	});
-}
 
-export function useDeleteOption(optionId, { disableToast = true } = {}) {
-	return useTestEditorMutation({
-		mutationFn: () => optionApi.remove(optionId),
-		successMessage: "Removed",
-		errorMessagePrefix: "Failed to remove option",
-		disableToast,
+	const deleteTestMutation = useMutation({
+		mutationFn: testApi.remove,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["tests"] });
+			toast.success("Test deleted successfully");
+		},
 	});
-}
 
-export function useUpdateOption({ disableToast = true } = {}) {
-	return useTestEditorMutation({
-		mutationFn: ({ id, data }) => optionApi.update(id, data),
-		successMessage: "Option updated",
-		errorMessagePrefix: "Failed to update option",
-		disableToast,
+	const addItemMutation = useMutation({
+		mutationFn: testApi.addItem,
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: ["tests", variables.testId],
+			});
+		},
 	});
+
+	return {
+		createTestMutation,
+		updateTestMutation,
+		syncTestMutation,
+		deleteTestMutation,
+		addItemMutation,
+	};
 }

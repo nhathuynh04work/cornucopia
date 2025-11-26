@@ -88,19 +88,21 @@ const getAttemptedTests = async (userId, { search, sort } = {}) => {
 };
 
 const createTest = async (userId) => {
-  const payload = {
-    ...defaults.TEST,
-    userId,
-    items: {
-      create: [
-        {
-          type: TestItemType.SHORT_ANSWER,
-          text: "Thủ đô của nước Pháp?",
-          answer: "Paris",
-        },
-      ],
-    },
-  };
+	const payload = {
+		...defaults.TEST,
+		userId,
+		items: {
+			create: [
+				{
+					type: TestItemType.SHORT_ANSWER,
+					text: "Thủ đô của nước Pháp?",
+					answer: "Paris",
+					sortOrder: 0,
+				},
+			],
+		},
+	};
+
   const test = await prisma.test.create({ data: payload });
   indexTest(test.id);
 
@@ -135,40 +137,40 @@ const getTestForInfoView = async (id) => {
 };
 
 const getTestForEdit = async (testId, userId) => {
-  const test = await prisma.test.findFirst({
-    where: { id: testId, userId },
-  });
+	const test = await prisma.test.findFirst({
+		where: { id: testId, userId },
+	});
 
-  if (!test) {
-    throw new ForbiddenError("You have no permission to edit this test");
-  }
+	if (!test) {
+		throw new ForbiddenError("You have no permission to edit this test");
+	}
 
-  return prisma.test.findUnique({
-    where: { id: testId },
-    include: {
-      items: {
-        where: { parentItemId: null },
-        orderBy: { sortOrder: "asc" },
-        include: {
-          answerOptions: {
-            orderBy: { sortOrder: "asc" },
-          },
-          children: {
-            orderBy: { sortOrder: "asc" },
-            include: {
-              answerOptions: {
-                orderBy: { sortOrder: "asc" },
-              },
-              media: true,
-            },
-          },
-          media: true,
-        },
-      },
-      media: true,
-      _count: { select: { attempts: true } },
-    },
-  });
+	return prisma.test.findUnique({
+		where: { id: testId },
+		include: {
+			items: {
+				where: { parentItemId: null },
+				orderBy: { sortOrder: "asc" },
+				include: {
+					answerOptions: {
+						orderBy: { sortOrder: "asc" },
+					},
+					children: {
+						orderBy: { sortOrder: "asc" },
+						include: {
+							answerOptions: {
+								orderBy: { sortOrder: "asc" },
+							},
+							media: true,
+						},
+					},
+					media: true,
+				},
+			},
+
+			_count: { select: { attempts: true } },
+		},
+	});
 };
 
 const getTestForAttempt = async (testId) => {
@@ -183,30 +185,6 @@ const getTestForAttempt = async (testId) => {
   }
 
   return test;
-};
-
-const updateTest = async (id, data, userId) => {
-  const test = await prisma.test.findFirst({
-    where: { id, userId },
-  });
-
-  if (!test) {
-    throw new ForbiddenError("You have no permission to edit this test");
-  }
-
-  if (data?.status === TestStatus.DRAFT && data.status !== test.status) {
-    throw new ForbiddenError(
-      "Cannot make this test a draft. Try archiving it instead"
-    );
-  }
-
-  const updated = await prisma.test.update({
-    where: { id },
-    data,
-  });
-  indexTest(updated.id);
-
-  return updated;
 };
 
 const deleteTest = async (testId, userId) => {
@@ -226,44 +204,6 @@ const deleteTest = async (testId, userId) => {
   }
 
   await prisma.test.delete({ where: { id: testId } });
-};
-
-const addItem = async (testId, data, userId) => {
-  const test = await prisma.test.findUnique({
-    where: { id: testId, userId },
-  });
-
-  if (!test) {
-    throw new ForbiddenError("You have no permission to edit this test");
-  }
-
-  const payload = { ...data, testId };
-
-  switch (data.type) {
-    case TestItemType.MULTIPLE_CHOICE:
-      payload.answerOptions = {
-        create: {
-          text: defaults.OPTION_TEXT,
-          isCorrect: true,
-        },
-      };
-      break;
-    case TestItemType.GROUP:
-      payload.children = {
-        create: {
-          testId: testId,
-          type: TestItemType.SHORT_ANSWER,
-          text: defaults.QUESTION_TEXT,
-        },
-      };
-      break;
-  }
-
-  const item = await prisma.testItem.create({ data: payload });
-
-  indexTest(test.id);
-
-  return item;
 };
 
 const getAnswersKey = async (testId) => {
@@ -337,16 +277,176 @@ const getTestWithoutAnswer = async (testId) => {
   });
 };
 
+const syncAnswerOptions = async (itemId, options, client = prisma) => {
+	if (!options) return;
+
+	const existing = await client.answerOption.findMany({
+		where: { itemId },
+		select: { id: true },
+	});
+
+	const existingIds = existing.map((o) => o.id);
+	const incomingIds = options.map((o) => o.id).filter(Boolean);
+
+	const toDelete = existingIds.filter((id) => !incomingIds.includes(id));
+	if (toDelete.length > 0) {
+		await client.answerOption.deleteMany({
+			where: { id: { in: toDelete } },
+		});
+	}
+
+	for (let i = 0; i < options.length; i++) {
+		const opt = options[i];
+		const payload = {
+			text: opt.text,
+			isCorrect: opt.isCorrect,
+			sortOrder: i,
+		};
+
+		if (opt.id) {
+			await client.answerOption.update({
+				where: { id: opt.id },
+				data: payload,
+			});
+		} else {
+			await client.answerOption.create({
+				data: { ...payload, itemId },
+			});
+		}
+	}
+};
+
+const syncItems = async (
+	testId,
+	items,
+	parentItemId = null,
+	client = prisma
+) => {
+	if (!items) return;
+
+	const existingItems = await client.testItem.findMany({
+		where: {
+			testId,
+			parentItemId,
+		},
+		select: { id: true },
+	});
+	const existingIds = existingItems.map((i) => i.id);
+
+	const incomingIds = items
+		.map((i) => i.id)
+		.filter((id) => id !== undefined && id !== null);
+
+	const toDelete = existingIds.filter((id) => !incomingIds.includes(id));
+	if (toDelete.length > 0) {
+		await client.testItem.deleteMany({
+			where: { id: { in: toDelete } },
+		});
+	}
+
+	for (let i = 0; i < items.length; i++) {
+		const item = items[i];
+
+		// Common data for both create and update
+		const baseItemData = {
+			type: item.type,
+			text: item.text,
+			points: item.points,
+			answer: item.answer,
+			sortOrder: i,
+		};
+
+		const mediaConnect = item.media?.map((m) => ({ id: m.id })) || [];
+
+		let currentItemId = item.id;
+
+		if (currentItemId) {
+			// UPDATE: Use 'set' to replace relations
+			await client.testItem.update({
+				where: { id: currentItemId },
+				data: {
+					...baseItemData,
+					media: {
+						set: mediaConnect,
+					},
+				},
+			});
+		} else {
+			// CREATE: Use 'connect' to link existing media
+			const newItem = await client.testItem.create({
+				data: {
+					...baseItemData,
+					testId,
+					parentItemId,
+					media: {
+						connect: mediaConnect,
+					},
+				},
+			});
+			currentItemId = newItem.id;
+		}
+
+		if (item.type === TestItemType.MULTIPLE_CHOICE && item.answerOptions) {
+			await syncAnswerOptions(currentItemId, item.answerOptions, client);
+		}
+
+		if (item.type === TestItemType.GROUP && item.children) {
+			await syncItems(testId, item.children, currentItemId, client);
+		}
+	}
+};
+
+const syncTest = async ({ testId, data, userId }, client = prisma) => {
+	const test = await client.test.findFirst({
+		where: { id: testId, userId },
+	});
+
+	if (!test) {
+		throw new ForbiddenError("You have no permission to edit this test");
+	}
+
+	const performSync = async (tx) => {
+		const updated = await tx.test.update({
+			where: { id: testId },
+			data: {
+				title: data.title,
+				description: data.description,
+				status: data.status,
+				timeLimit: data.timeLimit,
+				audioUrl: data.audioUrl,
+			},
+			include: {
+				_count: { select: { items: true } },
+			},
+		});
+
+		if (data.items) {
+			await syncItems(testId, data.items, null, tx);
+		}
+    
+    indexTest(updated.id);
+		return updated;
+	};
+
+	if (typeof client.$transaction === "function") {
+		return client.$transaction(performSync, {
+			maxWait: 5000,
+			timeout: 20000,
+		});
+	} else {
+		return performSync(client);
+	}
+};
+
 export const testService = {
-  getTests,
-  getAttemptedTests,
-  createTest,
-  getTestForInfoView,
-  getTestForEdit,
-  getTestForAttempt,
-  updateTest,
-  deleteTest,
-  addItem,
-  getAnswersKey,
-  getTestWithoutAnswer,
+	getTests,
+	getAttemptedTests,
+	createTest,
+	getTestForInfoView,
+	getTestForEdit,
+	getTestForAttempt,
+	deleteTest,
+	getAnswersKey,
+	getTestWithoutAnswer,
+	syncTest,
 };

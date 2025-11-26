@@ -1,32 +1,29 @@
-import { BadRequestError } from "../utils/AppError.js";
-import { errorMessage } from "../utils/constants.js";
-
 export function validate(schema) {
 	return (req, res, next) => {
-		try {
-			if (schema.params) {
-				const result = schema.params.safeParse(req.params);
-				if (!result.success) throw result.error;
+		const dataToValidate = {
+			params: req.params,
+			query: req.query,
+			body: req.body,
+		};
 
-				req.params = result.data;
-			}
+		const result = schema.safeParse(dataToValidate);
 
-			if (schema.query) {
-				const result = schema.query.safeParse(req.query);
-				if (!result.success) throw result.error;
-
-				Object.assign(req.query, result.data);
-			}
-
-			if (schema.body) {
-				const result = schema.body.safeParse(req.body);
-				if (!result.success) throw result.error;
-				req.body = result.data;
-			}
-
-			next();
-		} catch (error) {
-			throw new BadRequestError(errorMessage.INVALID_INPUT);
+		if (!result.success) {
+			throw result.error;
 		}
+
+		if (result.data.params) {
+			req.params = result.data.params;
+		}
+
+		if (result.data.body) {
+			req.body = result.data.body;
+		}
+
+		if (result.data.query) {
+			Object.assign(req.query, result.data.query);
+		}
+
+		next();
 	};
 }

@@ -48,18 +48,18 @@ const LinkMediaBody = z.discriminatedUnion("entityType", [
 	LinkToPost,
 ]);
 
-export const requestUploadURLSchema = {
+export const requestUploadURLSchema = z.object({
 	body: RequestUploadURLBody,
-};
+});
 
-export const setPropertySchema = {
+export const setPropertySchema = z.object({
 	body: SetPropertyBody,
-};
+});
 
-export const linkMediaSchema = {
+export const linkMediaSchema = z.object({
 	body: LinkMediaBody,
-};
+});
 
-export const deleteMediaSchema = {
+export const deleteMediaSchema = z.object({
 	params: createIdParamSchema("id"),
-};
+});
