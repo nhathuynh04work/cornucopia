@@ -27,6 +27,19 @@ const createTest = async (req, res) => {
 	res.status(201).json({ test });
 };
 
+const syncTest = async (req, res) => {
+	const id = req.params.id;
+	const userId = req.user.id;
+
+	const updated = await testService.syncTest({
+		testId: id,
+		data: req.body,
+		userId,
+	});
+
+	res.status(200).json({ test: updated });
+};
+
 const getTestForInfoView = async (req, res) => {
 	const id = req.params.id;
 	const test = await testService.getTestForInfoView(id);
@@ -46,27 +59,11 @@ const getTestForAttempt = async (req, res) => {
 	res.status(200).json({ test });
 };
 
-const updateTest = async (req, res) => {
-	const id = req.params.id;
-	const userId = req.user.id;
-
-	const updated = await testService.updateTest(id, req.body, userId);
-	res.status(200).json({ test: updated });
-};
-
 const deleteTest = async (req, res) => {
 	const id = req.params.id;
 	const userId = req.user.id;
 	await testService.deleteTest(id, userId);
 	res.status(204).end();
-};
-
-const addItem = async (req, res) => {
-	const id = req.params.id;
-	const userId = req.user.id;
-
-	const item = await testService.addItem(id, req.body, userId);
-	res.status(201).json({ item });
 };
 
 export const testController = {
@@ -76,7 +73,6 @@ export const testController = {
 	getTestForInfoView,
 	getTestForEdit,
 	getTestForAttempt,
-	updateTest,
 	deleteTest,
-	addItem,
+	syncTest,
 };

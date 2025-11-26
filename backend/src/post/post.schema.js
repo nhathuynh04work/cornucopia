@@ -2,7 +2,7 @@ import { z } from "zod";
 import { PostStatus } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
 
-const PostStatusSchema = z.enum(PostStatus);
+const PostStatusSchema = z.enum([PostStatus.DRAFT, PostStatus.PUBLIC]); 
 
 const UpdatePostBody = z.object({
 	title: z.string().min(1),
@@ -17,19 +17,19 @@ const ListPostsQuery = z.object({
 	pageSize: z.coerce.number().int().positive().max(100).default(30),
 });
 
-export const getPostSchema = {
+export const getPostSchema = z.object({
 	params: createIdParamSchema("id"),
-};
+});
 
-export const updatePostSchema = {
+export const updatePostSchema = z.object({
 	params: createIdParamSchema("id"),
 	body: UpdatePostBody,
-};
+});
 
-export const deletePostSchema = {
+export const deletePostSchema = z.object({
 	params: createIdParamSchema("id"),
-};
+});
 
-export const listPostsSchema = {
+export const listPostsSchema = z.object({
 	query: ListPostsQuery,
-};
+});

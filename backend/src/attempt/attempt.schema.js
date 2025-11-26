@@ -13,10 +13,10 @@ const CreateAttemptBody = z.object({
 	answers: z.array(AnswerPayload),
 });
 
-export const createAttemptSchema = {
+export const createAttemptSchema = z.object({
 	body: CreateAttemptBody,
-};
+});
 
-export const getAttemptResultSchema = {
+export const getAttemptResultSchema = z.object({
 	params: createIdParamSchema("id"),
-};
+});

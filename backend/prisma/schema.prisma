@@ -76,10 +76,6 @@ model Media {
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-    // Belongs to a Test
-    testId Int?  @map("test_id")
-    test   Test? @relation("TestToMedia", fields: [testId], references: [id], onDelete: Cascade)
-
     // Belongs to a TestItem 
     testItemId Int?      @map("test_item_id")
     testItem   TestItem? @relation("TestItemToMedia", fields: [testItemId], references: [id], onDelete: Cascade)
@@ -93,16 +89,16 @@ model Media {
 
 model Test {
     id          Int        @id @default(autoincrement())
-    title       String
     userId      Int        @map("user_id")
-    status      TestStatus @default(DRAFT)
+    title       String
     description String?
+    status      TestStatus @default(DRAFT)
     timeLimit   Int        @default(1800) @map("time_limit")
+    audioUrl    String?    @map("audio_url")
     createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
     user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
     items       TestItem[]
-    media       Media[]    @relation("TestToMedia")
     attempts    Attempt[]
 
     @@map("tests")
@@ -115,18 +111,16 @@ enum TestStatus {
 }
 
 model TestItem {
-    id                   Int                 @id @default(autoincrement())
-    testId               Int                 @map("test_id")
-    parentItemId         Int?                @map("parent_item_id")
-    type                 TestItemType
-    text                 String?
-    answer               String?
-    points               Int?                @default(1)
-    allowMultipleCorrect Boolean?            @default(false) @map("allow_multiple_correct")
-    mediaLayout          TestItemMediaLayout @default(FULL_WIDTH_STACKED) @map("media_layout")
-    sortOrder            Int?                @map("sort_order")
-    createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt            DateTime            @default(now()) @map("updated_at") @db.Timestamptz(6)
+    id           Int          @id @default(autoincrement())
+    testId       Int          @map("test_id")
+    parentItemId Int?         @map("parent_item_id")
+    type         TestItemType
+    text         String?
+    answer       String?
+    points       Int?         @default(1)
+    sortOrder    Int          @map("sort_order")
+    createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
 
     test          Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
     parent        TestItem?       @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
@@ -142,8 +136,8 @@ model AnswerOption {
     id        Int      @id @default(autoincrement())
     itemId    Int      @map("item_id")
     text      String?
-    isCorrect Boolean? @default(false) @map("is_correct")
-    sortOrder Int?     @map("sort_order")
+    isCorrect Boolean  @default(false) @map("is_correct")
+    sortOrder Int      @map("sort_order")
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
     item      TestItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
@@ -157,17 +151,6 @@ enum TestItemType {
     SHORT_ANSWER
 
     @@map("enum_test_items_type")
-}
-
-enum TestItemMediaLayout {
-    // Layout 1: Text, Media, Questions stacked vertically
-    FULL_WIDTH_STACKED
-
-    // Layout 2: [Text + Media] on left, [Questions] on right
-    LEFT_STACKED
-
-    // Layout 3: [Text] on top, [Media] on left, [Questions] on right
-    TEXT_TOP_MEDIA_LEFT
 }
 
 model Attempt {

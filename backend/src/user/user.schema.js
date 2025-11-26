@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod"; 
 import { Role } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
 
@@ -8,7 +8,7 @@ const UpdateRoleBody = z.object({
 	role: RoleSchema,
 });
 
-export const updateRoleSchema = {
+export const updateRoleSchema = z.object({
 	params: createIdParamSchema("id"),
 	body: UpdateRoleBody,
-};
+});

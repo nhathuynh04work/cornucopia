@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 import { CourseStatus } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
 
@@ -18,20 +18,19 @@ const UpdateCourseBody = z
 	})
 	.partial();
 
-export const getCourseSchema = {
+export const getCourseSchema = z.object({
 	params: createIdParamSchema("id"),
-};
+});
 
-export const updateCourseSchema = {
+export const updateCourseSchema = z.object({
 	params: createIdParamSchema("id"),
 	body: UpdateCourseBody,
-};
+});
 
-export const deleteCourseSchema = {
+export const deleteCourseSchema = z.object({
 	params: createIdParamSchema("id"),
-};
+});
 
-export const addModuleSchema = {
+export const addModuleSchema = z.object({
 	params: createIdParamSchema("id"),
-};
-
+});

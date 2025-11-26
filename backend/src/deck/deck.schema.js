@@ -30,30 +30,30 @@ const SubmitAttemptBody = z.object({
 	}),
 });
 
-export const getDeckSchema = {
+export const getDeckSchema = z.object({
 	params: createIdParamSchema("deckId"),
-};
+});
 
-export const createDeckSchema = {};
+export const createDeckSchema = z.object({});
 
-export const syncDeckSchema = {
+export const syncDeckSchema = z.object({
 	params: createIdParamSchema("deckId"),
 	body: SyncDeckBody,
-};
+});
 
-export const deleteDeckSchema = {
+export const deleteDeckSchema = z.object({
 	params: createIdParamSchema("deckId"),
-};
+});
 
-export const startSessionSchema = {
+export const startSessionSchema = z.object({
 	params: createIdParamSchema("deckId"),
-};
+});
 
-export const getSessionSchema = {
+export const getSessionSchema = z.object({
 	params: createIdParamSchema("sessionId"),
-};
+});
 
-export const submitAttemptRouteSchema = {
+export const submitAttemptRouteSchema = z.object({
 	params: createIdParamSchema("sessionId"),
 	body: SubmitAttemptBody,
-};
+});
