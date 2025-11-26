@@ -104,8 +104,22 @@ model Test {
     items       TestItem[]
     media       Media[]    @relation("TestToMedia")
     attempts    Attempt[]
-
+    chunks      TestChunk[] @relation("TestToChunks")
     @@map("tests")
+}
+
+model TestChunk {
+    id        Int      @id @default(autoincrement())
+    testId    Int      @map("test_id")
+    content   String
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    tsv Unsupported("tsvector")?
+
+    test Test @relation("TestToChunks", fields: [testId], references: [id], onDelete: Cascade)
+
+    @@index([testId])
+    @@map("test_chunks")
 }
 
 enum TestStatus {
