@@ -53,7 +53,7 @@ export default function TestInfoEditor() {
 				{/* Time Limit Input using RadixSelect */}
 				<div className="flex items-center gap-4">
 					<div className="flex-1">
-						<label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+						<label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
 							Thời gian làm bài
 						</label>
 						<Controller
