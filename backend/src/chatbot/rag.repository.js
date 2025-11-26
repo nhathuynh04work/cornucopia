@@ -4,7 +4,7 @@ const MIN_SCORE = 0.05;
 
 /** Chuẩn SELECT + score + headline */
 function selectCols() {
-	return `
+  return `
     pc.id, pc.post_id, pc.content,
     (
       ts_rank(pc.tsv, websearch_to_tsquery('simple', unaccent($1)))
@@ -28,53 +28,54 @@ function selectCols() {
 }
 
 function normalize(rows = []) {
-	return rows
-		.filter((r) => Number(r.score) >= MIN_SCORE)
-		.map((r) => ({
-			postId: r.post_id,
-			title: r.title ?? "(Không có tiêu đề)",
-			content: String(r.content || ""),
-			fragment: String(r.fragment || ""),
-			score: Number(r.score || 0),
-		}))
-		.sort((a, b) => b.score - a.score);
+  return rows
+    .filter((r) => Number(r.score) >= MIN_SCORE)
+    .map((r) => ({
+      source: "post",
+      postId: r.post_id,
+      title: r.title ?? "(Không có tiêu đề)",
+      content: String(r.content || ""),
+      fragment: String(r.fragment || ""),
+      score: Number(r.score || 0),
+    }))
+    .sort((a, b) => b.score - a.score);
 }
 
-/** 1) Full-text chính */
+/** 1) Full-text Post chính */
 export async function searchChunksFT(query, limit, topicIds = []) {
-	const rows = await prisma.$queryRawUnsafe(
-		`
+  const rows = await prisma.$queryRawUnsafe(
+    `
     SELECT ${selectCols()}
     FROM post_chunks pc JOIN posts p ON p.id = pc.post_id
     WHERE pc.tsv @@ websearch_to_tsquery('simple', unaccent($1))
     ORDER BY score DESC, pc.id DESC
     LIMIT $2;
     `,
-		...(topicIds.length ? [query, limit, topicIds] : [query, limit])
-	);
-	return normalize(rows);
+    ...(topicIds.length ? [query, limit, topicIds] : [query, limit])
+  );
+  return normalize(rows);
 }
 
 /** 2) Full-text OR tokens (nới lỏng) */
 export async function searchChunksFT_OR(tokens = [], limit, topicIds = []) {
-	const orQ = tokens.join(" OR ");
-	const rows = await prisma.$queryRawUnsafe(
-		`
+  const orQ = tokens.join(" OR ");
+  const rows = await prisma.$queryRawUnsafe(
+    `
     SELECT ${selectCols()}
     FROM post_chunks pc JOIN posts p ON p.id = pc.post_id
     WHERE pc.tsv @@ websearch_to_tsquery('simple', unaccent($1))
     ORDER BY score DESC, pc.id DESC
     LIMIT $2;
     `,
-		...(topicIds.length ? [orQ, limit, topicIds] : [orQ, limit])
-	);
-	return normalize(rows);
+    ...(topicIds.length ? [orQ, limit, topicIds] : [orQ, limit])
+  );
+  return normalize(rows);
 }
 
 /** 3) Fallback ILIKE an toàn (>=2 token & cùng post có >=2 chunk khớp) */
 export async function searchChunksILIKE(patterns = [], limit, topicIds = []) {
-	const rows = await prisma.$queryRawUnsafe(
-		`
+  const rows = await prisma.$queryRawUnsafe(
+    `
     WITH hit AS (
       SELECT
         pc.id, pc.post_id, pc.content,
@@ -93,24 +94,24 @@ export async function searchChunksILIKE(patterns = [], limit, topicIds = []) {
     ORDER BY h.score DESC, h.id DESC
     LIMIT $2;
     `,
-		...(topicIds.length ? [patterns, limit, topicIds] : [patterns, limit])
-	);
-	return normalize(rows);
+    ...(topicIds.length ? [patterns, limit, topicIds] : [patterns, limit])
+  );
+  return normalize(rows);
 }
 
 // ===== Course helpers =====
 export async function findCourseIdsByNames(names = []) {
-	if (!names?.length) return [];
-	const pats = names.map((n) => `%${n}%`);
-	const rows = await prisma.$queryRawUnsafe(
-		`SELECT id FROM courses WHERE unaccent(name) ILIKE ANY($1) LIMIT 20;`,
-		pats
-	);
-	return (rows || []).map((r) => r.id);
+  if (!names?.length) return [];
+  const pats = names.map((n) => `%${n}%`);
+  const rows = await prisma.$queryRawUnsafe(
+    `SELECT id FROM courses WHERE unaccent(name) ILIKE ANY($1) LIMIT 20;`,
+    pats
+  );
+  return (rows || []).map((r) => r.id);
 }
 
 function courseSelectCols() {
-	return `
+  return `
     cc.id, cc.course_id, cc.module_id, cc.lesson_id, cc.content,
     (
       ts_rank(cc.tsv, websearch_to_tsquery('simple', unaccent($1)))
@@ -130,26 +131,26 @@ function courseSelectCols() {
 }
 
 function normalizeCourse(rows = []) {
-	return (rows || [])
-		.map((r) => ({
-			source: "course",
-			title:
-				r.lesson_title || r.module_title || r.course_name || "(Course)",
-			content: String(r.content || ""),
-			fragment: String(r.fragment || ""),
-			score: Number(r.score || 0),
-		}))
-		.filter((r) => r.score >= 0.05)
-		.sort((a, b) => b.score - a.score);
+  return (rows || [])
+    .map((r) => ({
+      source: "course",
+      courseId: r.course_id,
+      title: r.lesson_title || r.module_title || r.course_name || "(Course)",
+      content: String(r.content || ""),
+      fragment: String(r.fragment || ""),
+      score: Number(r.score || 0),
+    }))
+    .filter((r) => r.score >= 0.05)
+    .sort((a, b) => b.score - a.score);
 }
 
 function courseFilterSQL(courseIds) {
-	return courseIds?.length ? `AND cc.course_id = ANY($3)` : ``;
+  return courseIds?.length ? `AND cc.course_id = ANY($3)` : ``;
 }
 
 export async function searchCourseChunksFT(query, limit, courseIds = []) {
-	const rows = await prisma.$queryRawUnsafe(
-		`
+  const rows = await prisma.$queryRawUnsafe(
+    `
     SELECT ${courseSelectCols()}
     FROM course_chunks cc
     JOIN courses c ON c.id = cc.course_id
@@ -160,19 +161,19 @@ export async function searchCourseChunksFT(query, limit, courseIds = []) {
     ORDER BY score DESC, cc.id DESC
     LIMIT $2;
     `,
-		...(courseIds.length ? [query, limit, courseIds] : [query, limit])
-	);
-	return normalizeCourse(rows);
+    ...(courseIds.length ? [query, limit, courseIds] : [query, limit])
+  );
+  return normalizeCourse(rows);
 }
 
 export async function searchCourseChunksFT_OR(
-	tokens = [],
-	limit,
-	courseIds = []
+  tokens = [],
+  limit,
+  courseIds = []
 ) {
-	const orQ = tokens.join(" OR ");
-	const rows = await prisma.$queryRawUnsafe(
-		`
+  const orQ = tokens.join(" OR ");
+  const rows = await prisma.$queryRawUnsafe(
+    `
     SELECT ${courseSelectCols()}
     FROM course_chunks cc
     JOIN courses c ON c.id = cc.course_id
@@ -183,18 +184,18 @@ export async function searchCourseChunksFT_OR(
     ORDER BY score DESC, cc.id DESC
     LIMIT $2;
     `,
-		...(courseIds.length ? [orQ, limit, courseIds] : [orQ, limit])
-	);
-	return normalizeCourse(rows);
+    ...(courseIds.length ? [orQ, limit, courseIds] : [orQ, limit])
+  );
+  return normalizeCourse(rows);
 }
 
 export async function searchCourseChunksILIKE(
-	patterns = [],
-	limit,
-	courseIds = []
+  patterns = [],
+  limit,
+  courseIds = []
 ) {
-	const rows = await prisma.$queryRawUnsafe(
-		`
+  const rows = await prisma.$queryRawUnsafe(
+    `
     WITH hit AS (
       SELECT
         cc.id, cc.course_id, cc.module_id, cc.lesson_id, cc.content,
@@ -217,7 +218,108 @@ export async function searchCourseChunksILIKE(
     ORDER BY h.score DESC, h.id DESC
     LIMIT $2;
     `,
-		...(courseIds.length ? [patterns, limit, courseIds] : [patterns, limit])
-	);
-	return normalizeCourse(rows);
+    ...(courseIds.length ? [patterns, limit, courseIds] : [patterns, limit])
+  );
+  return normalizeCourse(rows);
+}
+
+// ===== Test helpers =====
+function testSelectCols() {
+  return `
+    tc.id,
+    tc.test_id,
+    tc.content,
+    (
+      ts_rank(tc.tsv, websearch_to_tsquery('simple', unaccent($1)))
+      + CASE WHEN unaccent(t.title)    ILIKE '%'||unaccent($1)||'%' THEN 0.08 ELSE 0 END
+      + CASE WHEN unaccent(tc.content) ILIKE '%'||unaccent($1)||'%' THEN 0.12 ELSE 0 END
+    ) AS score,
+    ts_headline(
+      'simple',
+      tc.content,
+      websearch_to_tsquery('simple', unaccent($1)),
+      'StartSel="", StopSel="", MaxFragments=2, MinWords=6, MaxWords=18'
+    ) AS fragment,
+    t.title AS test_title
+  `;
+}
+
+function normalizeTest(rows = []) {
+  return (rows || [])
+    .map((r) => ({
+      source: "test",
+      testId: r.test_id,
+      title: r.test_title || "(Test)",
+      content: String(r.content || ""),
+      fragment: String(r.fragment || ""),
+      score: Number(r.score || 0),
+    }))
+    .filter((r) => r.score >= MIN_SCORE)
+    .sort((a, b) => b.score - a.score);
+}
+
+export async function searchTestChunksFT(query, limit) {
+  const rows = await prisma.$queryRawUnsafe(
+    `
+    SELECT ${testSelectCols()}
+    FROM test_chunks tc
+    JOIN tests t ON t.id = tc.test_id
+    WHERE tc.tsv @@ websearch_to_tsquery('simple', unaccent($1))
+    ORDER BY score DESC, tc.id DESC
+    LIMIT $2;
+    `,
+    query,
+    limit
+  );
+
+  return normalizeTest(rows);
+}
+
+export async function searchTestChunksFT_OR(tokens = [], limit) {
+  const orQ = tokens.join(" OR ");
+  const rows = await prisma.$queryRawUnsafe(
+    `
+    SELECT ${testSelectCols()}
+    FROM test_chunks tc
+    JOIN tests t ON t.id = tc.test_id
+    WHERE tc.tsv @@ websearch_to_tsquery('simple', unaccent($1))
+    ORDER BY score DESC, tc.id DESC
+    LIMIT $2;
+    `,
+    orQ,
+    limit
+  );
+
+  return normalizeTest(rows);
+}
+
+export async function searchTestChunksILIKE(patterns = [], limit) {
+  const rows = await prisma.$queryRawUnsafe(
+    `
+    WITH hit AS (
+      SELECT
+        tc.id,
+        tc.test_id,
+        tc.content,
+        (
+          (SELECT COUNT(*) FROM unnest($1::text[]) tok WHERE unaccent(tc.content) ILIKE tok)*0.02
+        + (SELECT COUNT(*) FROM unnest($1::text[]) tok WHERE unaccent(t.title)   ILIKE tok)*0.03
+        ) AS score,
+        NULL::text AS fragment,
+        t.title AS test_title
+      FROM test_chunks tc
+      JOIN tests t ON t.id = tc.test_id
+      WHERE EXISTS (SELECT 1 FROM unnest($1::text[]) tok WHERE unaccent(tc.content) ILIKE tok)
+         OR EXISTS (SELECT 1 FROM unnest($1::text[]) tok WHERE unaccent(t.title)   ILIKE tok)
+    ),
+    agg AS (SELECT test_id FROM hit GROUP BY test_id HAVING COUNT(*) >= 2)
+    SELECT h.* FROM hit h JOIN agg a ON a.test_id = h.test_id
+    ORDER BY h.score DESC, h.id DESC
+    LIMIT $2;
+    `,
+    patterns,
+    limit
+  );
+
+  return normalizeTest(rows);
 }
