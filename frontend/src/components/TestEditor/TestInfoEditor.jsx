@@ -1,13 +1,19 @@
 import { useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
-import { FileText, Music, Trash2, Loader2 } from "lucide-react";
+import { useFormContext, useWatch, Controller } from "react-hook-form";
+import { FileText, Music, Trash2, Loader2, Clock } from "lucide-react";
 import MediaUploader from "@/components/Shared/MediaUploader";
+import RadixSelect from "@/components/Shared/RadixSelect";
+import clsx from "clsx";
+
+const TIME_OPTIONS = Array.from({ length: 12 }, (_, i) => {
+	const mins = (i + 1) * 15;
+	return { value: mins, label: `${mins} phút` };
+});
 
 export default function TestInfoEditor() {
 	const { register, setValue, control } = useFormContext();
 	const audioUrl = useWatch({ control, name: "audioUrl" });
 
-	// Local loading state for audio upload
 	const [isUploadingAudio, setIsUploadingAudio] = useState(false);
 
 	return (
@@ -44,26 +50,31 @@ export default function TestInfoEditor() {
 					/>
 				</div>
 
-				{/* Time Limit Input */}
+				{/* Time Limit Input using RadixSelect */}
 				<div className="flex items-center gap-4">
 					<div className="flex-1">
 						<label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-							Thời gian làm bài (phút)
+							Thời gian làm bài
 						</label>
-						<input
-							type="number"
-							{...register("timeLimit", {
-								valueAsNumber: true,
-								min: 0,
-							})}
-							className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all font-medium"
-							placeholder="VD: 45"
+						<Controller
+							control={control}
+							name="timeLimit"
+							render={({ field: { value, onChange } }) => (
+								<RadixSelect
+									value={value}
+									onChange={(val) => onChange(val)}
+									options={TIME_OPTIONS}
+									icon={<Clock className="w-4 h-4" />}
+									className="w-full max-w-xs"
+								/>
+							)}
 						/>
 					</div>
 					<div className="flex-1"></div>
 				</div>
 			</div>
 
+			{/* Audio Section (Same as before) */}
 			<div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
 				<div className="flex items-center justify-between mb-4">
 					<div>
@@ -75,13 +86,18 @@ export default function TestInfoEditor() {
 						</p>
 					</div>
 
-					{/* Upload Button (Hidden if uploading or audio exists) */}
-					{!audioUrl && !isUploadingAudio && (
+					<div
+						className={clsx(
+							audioUrl || isUploadingAudio ? "hidden" : "block"
+						)}>
 						<MediaUploader
 							accept="audio/*"
 							onUploadStart={() => setIsUploadingAudio(true)}
 							onUploadSuccess={(data) => {
-								setValue("audioUrl", data.url);
+								setValue("audioUrl", data.url, {
+									shouldDirty: true,
+									shouldValidate: true,
+								});
 								setIsUploadingAudio(false);
 							}}
 							onUploadError={() => setIsUploadingAudio(false)}>
@@ -89,10 +105,9 @@ export default function TestInfoEditor() {
 								Tải lên
 							</button>
 						</MediaUploader>
-					)}
+					</div>
 				</div>
 
-				{/* Loading Skeleton / Spinner */}
 				{isUploadingAudio && (
 					<div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200 animate-pulse">
 						<div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -102,7 +117,6 @@ export default function TestInfoEditor() {
 					</div>
 				)}
 
-				{/* Audio Player */}
 				{!isUploadingAudio && audioUrl && (
 					<div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
 						<div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
@@ -116,7 +130,12 @@ export default function TestInfoEditor() {
 							/>
 						</div>
 						<button
-							onClick={() => setValue("audioUrl", null)}
+							onClick={() =>
+								setValue("audioUrl", null, {
+									shouldDirty: true,
+									shouldValidate: true,
+								})
+							}
 							className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
 							<Trash2 className="w-4 h-4" />
 						</button>

@@ -2,9 +2,9 @@ import { BadRequestError } from "../utils/AppError.js";
 import { mediaService } from "./media.service.js";
 
 const uploadFile = async (req, res) => {
-    if (!req.file) {
-        throw new BadRequestError("No file uploaded");
-    }
+	if (!req.file) {
+		throw new BadRequestError("No file uploaded");
+	}
 
 	const { location, mimetype, key } = req.file;
 	const media = await mediaService.createOrphanMedia({

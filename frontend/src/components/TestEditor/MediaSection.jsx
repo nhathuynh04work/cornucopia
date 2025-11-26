@@ -14,17 +14,18 @@ export default function MediaSection({ nestIndex }) {
 	const [isUploading, setIsUploading] = useState(false);
 
 	const handleAddMedia = (data) => {
-		setValue(`items.${nestIndex}.media`, [
+		const newMedia = [
 			...mediaList,
 			{ url: data.url, id: data.mediaId, fileType: data.fileType },
-		]);
+		];
+		setValue(`items.${nestIndex}.media`, newMedia, { shouldDirty: true });
 		setIsUploading(false);
 	};
 
 	const handleRemoveMedia = (index) => {
 		const newList = [...mediaList];
 		newList.splice(index, 1);
-		setValue(`items.${nestIndex}.media`, newList);
+		setValue(`items.${nestIndex}.media`, newList, { shouldDirty: true });
 	};
 
 	return (
