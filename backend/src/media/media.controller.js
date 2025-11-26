@@ -1,4 +1,24 @@
+import { BadRequestError } from "../utils/AppError.js";
 import { mediaService } from "./media.service.js";
+
+const uploadFile = async (req, res) => {
+    if (!req.file) {
+        throw new BadRequestError("No file uploaded");
+    }
+
+	const { location, mimetype, key } = req.file;
+	const media = await mediaService.createOrphanMedia({
+		url: location,
+		fileType: mimetype,
+		key: key,
+	});
+
+	res.status(201).json({
+		url: location,
+		mediaId: media.id,
+		fileType: mimetype,
+	});
+};
 
 const requestUploadURL = async (req, res) => {
 	const { uploadUrl, url } = await mediaService.generateUploadUrl(req.body);
@@ -27,6 +47,7 @@ const deleteMedia = async (req, res) => {
 };
 
 export const mediaController = {
+	uploadFile,
 	requestUploadURL,
 	setEntityProperty,
 	linkMediaToEntity,

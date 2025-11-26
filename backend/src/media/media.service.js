@@ -23,6 +23,17 @@ function urlToS3Key(url) {
 	}
 }
 
+const createOrphanMedia = async ({ url, fileType, key }) => {
+	const media = await prisma.media.create({
+		data: {
+			url,
+			fileType,
+		},
+	});
+
+	return media;
+};
+
 const generateUploadUrl = async ({ fileName, fileType }) => {
 	const key = `uploads/${crypto.randomUUID()}-${fileName}`;
 	const uploadUrl = await getUploadURL(key, fileType);
@@ -151,4 +162,5 @@ export const mediaService = {
 	setEntityProperty,
 	linkMediaToEntity,
 	deleteMedia,
+	createOrphanMedia,
 };

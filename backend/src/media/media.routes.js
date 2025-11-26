@@ -8,10 +8,13 @@ import {
 	requestUploadURLSchema,
 	setPropertySchema,
 } from "./media.schema.js";
+import { uploadMiddleware } from "../middlewares/upload.middleware.js";
 
 const router = Router();
 
 router.use(authenticateJwt);
+
+router.post("/upload", uploadMiddleware, mediaController.uploadFile);
 
 router.post(
 	"/upload-request",
