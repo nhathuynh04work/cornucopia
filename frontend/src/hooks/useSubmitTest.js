@@ -1,42 +1,41 @@
-import { useTestAttemptStore } from "@/store/testAttemptStore";
-import { useCreateAttemptMutation } from "./useAttemptMutation";
+import { useMutation } from "@tanstack/react-query";
+import attemptApi from "@/apis/attemptApi";
 import toast from "react-hot-toast";
-import { useCallback } from "react";
-import { useNavigate } from "react-router";
 
 export function useSubmitTest() {
-	const test = useTestAttemptStore((s) => s.test);
-	const timeLeft = useTestAttemptStore((s) => s.timeLeft);
-	const timeLimit = useTestAttemptStore((s) => s.timeLimit);
-	const answers = useTestAttemptStore((s) => s.answers);
-	const navigate = useNavigate();
+	return useMutation({
+		mutationFn: (payload) => attemptApi.create(payload),
+		onError: () => {
+			toast.error("Nộp bài không thành công");
+		},
+	});
+}
 
-	const { mutateAsync, isPending } = useCreateAttemptMutation();
+export function formatTestPayload(testId, timeSpent, answersMap) {
+	const answers = Object.entries(answersMap).map(([qId, value]) => {
+		const questionId = parseInt(qId, 10);
 
-	const submitTest = useCallback(async () => {
-		if (isPending) return;
+		let text = null;
+		let optionIds = [];
 
-		const payload = {
-			testId: test.id,
-			time: timeLimit - timeLeft,
-			answers: Object.values(answers),
-		};
-
-		try {
-			const attempt = await mutateAsync(payload);
-			navigate(`/tests/${test.id}/result/${attempt.id}`);
-		} catch {
-			toast.error("Failed to submit test. Please try again.");
+		if (typeof value === "string") {
+			// Case: Short Answer
+			text = value;
+		} else if (typeof value === "number") {
+			// Case: Single Choice (Radio) -> backend expects array
+			optionIds = [value];
 		}
-	}, [
-		answers,
-		isPending,
-		mutateAsync,
-		navigate,
-		test?.id,
-		timeLeft,
-		timeLimit,
-	]);
 
-	return { submitTest, isSubmitting: isPending };
+		return {
+			questionId,
+			text,
+			optionIds,
+		};
+	});
+
+	return {
+		testId: parseInt(testId, 10),
+		time: timeSpent,
+		answers,
+	};
 }

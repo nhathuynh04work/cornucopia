@@ -26,7 +26,7 @@ export default function FilterBar({
 			</div>
 
 			{/* Filters & Sort */}
-			<div className="flex items-center gap-3 overflow-x-auto no-scrollbar w-full md:w-auto pb-1 md:pb-0">
+			<div className="flex items-center gap-3 overflow-x-auto hide-scrollbar w-full md:w-auto pb-1 md:pb-0">
 				{/* Tabs / Categories */}
 				{tabs.length > 0 && (
 					<div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">

@@ -1,5 +1,10 @@
 import { useState, useMemo } from "react";
-import { useForm, FormProvider, useFieldArray } from "react-hook-form";
+import {
+	useForm,
+	FormProvider,
+	useFieldArray,
+	useWatch,
+} from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { useGetTestForEdit } from "@/hooks/useTestQuery";
 import { useTestMutation } from "@/hooks/useTestMutation";
@@ -34,7 +39,6 @@ function TestEditForm({ test, testId }) {
 	const {
 		control,
 		reset,
-		watch,
 		formState: { isDirty },
 	} = methods;
 
@@ -44,7 +48,12 @@ function TestEditForm({ test, testId }) {
 		keyName: "fieldId",
 	});
 
-	const formData = watch();
+	const items = useWatch({
+		control,
+		name: "items",
+	});
+
+	const formData = useWatch({ control });
 
 	useEditorAutoSave(
 		(data) => {
@@ -81,13 +90,12 @@ function TestEditForm({ test, testId }) {
 	);
 
 	const questionNumberMap = useMemo(() => {
-		return getQuestionNumberMap(formData.items || []);
-	}, [formData.items]);
+		return getQuestionNumberMap(items || []);
+	}, [items]);
 
 	return (
 		<FormProvider {...methods}>
 			<div className="h-screen flex flex-col bg-white font-sans text-gray-900 overflow-hidden">
-				{/* Refactored Header */}
 				<TestEditHeader
 					testId={testId}
 					isSaving={isSaving}
@@ -108,6 +116,7 @@ function TestEditForm({ test, testId }) {
 						activeItemId={activeItemId}
 						fields={fields}
 						remove={remove}
+						questionNumberMap={questionNumberMap}
 					/>
 				</div>
 			</div>

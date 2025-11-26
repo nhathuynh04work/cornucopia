@@ -8,7 +8,7 @@ const DeckBase = z.object({
 
 const CardBase = z.object({
 	term: z.string().min(1, "Term cannot be empty"),
-	definition: z.string().min(1, "Definition cannot be empty"),
+	definition: z.string().optional(),
 });
 
 const SyncDeckBody = DeckBase.extend({
