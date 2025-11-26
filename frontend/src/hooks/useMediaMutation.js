@@ -2,6 +2,12 @@ import { toast } from "react-hot-toast";
 import mediaApi from "@/apis/mediaApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+export const useUploadMedia = () => {
+	return useMutation({
+		mutationFn: mediaApi.upload,
+	});
+};
+
 export function useRequestUploadUrl() {
 	return useMutation({
 		mutationFn: (data) => mediaApi.requestUploadUrl(data),
