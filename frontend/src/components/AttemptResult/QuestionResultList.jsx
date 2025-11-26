@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ResultItemRow from "./ResultItemRow";
 import ResultDetailsModal from "./ResultDetailsModal";
-import { flattenTestItems } from "@/store/testEditorStore";
+import { flattenTestItems } from "@/lib/testHelpers";
 
 export default function QuestionResultList({ items }) {
 	const [selectedContext, setSelectedContext] = useState(null);

@@ -1,6 +1,7 @@
 import { useFormContext, useWatch } from "react-hook-form";
 import { FileText, ListChecks, FolderOpen, Trash2 } from "lucide-react";
 import clsx from "clsx";
+import { stripHtml } from "@/lib/formatters";
 
 const QUESTION_TYPES = {
 	MULTIPLE_CHOICE: {
@@ -23,20 +24,6 @@ const QUESTION_TYPES = {
 	},
 };
 
-// Helper to strip HTML tags for preview
-const stripHtml = (html) => {
-	if (!html) return "";
-
-	// FIX: Inject spaces for block element boundaries before parsing
-	// This prevents <h1>Header</h1><p>Text</p> from becoming "HeaderText"
-	const htmlWithSpaces = html
-		.replace(/<\/(p|div|h[1-6]|li|ul|ol|tr)>/gi, " ") // Replace closing block tags with a space
-		.replace(/<br\s*\/?>/gi, " "); // Replace <br> with a space
-
-	const doc = new DOMParser().parseFromString(htmlWithSpaces, "text/html");
-	return (doc.body.textContent || "").trim();
-};
-
 const SidebarItem = ({
 	item,
 	index,
@@ -52,7 +39,6 @@ const SidebarItem = ({
 		defaultValue: item.text,
 	});
 
-	// Strip HTML for sidebar display
 	const plainText = stripHtml(itemText);
 
 	const TypeIcon = QUESTION_TYPES[item.type]?.icon || FileText;
