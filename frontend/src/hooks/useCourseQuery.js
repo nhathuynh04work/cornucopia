@@ -2,9 +2,7 @@ import courseApi from "@/apis/courseApi";
 import { useAuth } from "@/contexts/AuthContext";
 import { Role } from "@/lib/constants";
 import { queryDefaults } from "@/lib/react-query.config";
-import { useCourseEditorStore } from "@/store/courseEditorStore";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 
 export function useGetCourses(params = {}) {
 	return useQuery({
@@ -48,23 +46,14 @@ export function useGetEnrollmentStatus(courseId) {
 }
 
 export function useGteCourseForEdit(courseId) {
-	const setCourse = useCourseEditorStore((s) => s.setCourse);
 	const numericCourseId = Number(courseId);
 
-	const query = useQuery({
+	return useQuery({
 		queryKey: ["course", numericCourseId, "edit"],
 		queryFn: () => courseApi.getForEditor(numericCourseId),
 		enabled: !!numericCourseId,
 		...queryDefaults,
 	});
-
-	useEffect(() => {
-		if (query.data) {
-			setCourse(query.data);
-		}
-	}, [query.data, setCourse]);
-
-	return query;
 }
 
 export function useGetCourseForLearning(courseId) {

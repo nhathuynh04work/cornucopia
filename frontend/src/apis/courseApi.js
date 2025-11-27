@@ -25,20 +25,9 @@ const courseApi = {
 		const { data } = await api.get("/courses/enrolled");
 		return data.courses;
 	},
-	create: async (payload) => {
+	createCourse: async (payload) => {
 		const { data } = await api.post("/courses", payload);
 		return data.course;
-	},
-	update: async (courseId, payload) => {
-		const { data } = await api.patch(`/courses/${courseId}`, payload);
-		return data.course;
-	},
-	remove: async (courseId) => {
-		await api.delete(`/courses/${courseId}`);
-	},
-	addModule: async (courseId) => {
-		const { data } = await api.post(`/courses/${courseId}/modules`);
-		return data.module;
 	},
 	createCheckoutSession: async (courseId) => {
 		const { data } = await api.post(`/checkout/create-session/${courseId}`);
