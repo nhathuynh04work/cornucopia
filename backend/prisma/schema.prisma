@@ -88,19 +88,20 @@ model Media {
 }
 
 model Test {
-    id          Int        @id @default(autoincrement())
-    userId      Int        @map("user_id")
+    id          Int         @id @default(autoincrement())
+    userId      Int         @map("user_id")
     title       String
     description String?
-    status      TestStatus @default(DRAFT)
-    timeLimit   Int        @default(1800) @map("time_limit")
-    audioUrl    String?    @map("audio_url")
-    createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
-    user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    status      TestStatus  @default(DRAFT)
+    timeLimit   Int         @default(1800) @map("time_limit")
+    audioUrl    String?     @map("audio_url")
+    createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt   DateTime    @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     items       TestItem[]
     attempts    Attempt[]
     chunks      TestChunk[] @relation("TestToChunks")
+
     @@map("tests")
 }
 
@@ -303,60 +304,58 @@ model PostChunk {
 }
 
 model Course {
-    id          Int                    @id @default(autoincrement())
-    userId      Int                    @map("user_id")
-    name        String
-    description String?
-    price       Int
-    coverUrl    String?                @map("cover_url")
-    status      CourseStatus           @default(DRAFT)
-    createdAt   DateTime               @default(now()) @map("created_at")
-    updatedAt   DateTime               @updatedAt @map("updated_at")
+    id          Int          @id @default(autoincrement())
+    userId      Int          @map("user_id")
+    title       String
+    description String?      @db.Text
+    price       Int          @default(100000)
+    coverUrl    String?      @map("cover_url")
+    status      CourseStatus @default(DRAFT)
+    createdAt   DateTime     @default(now()) @map("created_at")
+    updatedAt   DateTime     @updatedAt @map("updated_at")
+
     user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
     modules     Module[]
     enrollments UserCourseEnrollment[]
+    chunks      CourseChunk[]
 
     @@index([status])
     @@map("courses")
 }
 
 model Module {
-    id        Int           @id @default(autoincrement())
-    courseId  Int           @map("course_id")
+    id        Int      @id @default(autoincrement())
+    courseId  Int      @map("course_id")
     title     String
-    sortOrder Int?          @map("sort_order")
-    status    ContentStatus @default(DRAFT)
-    createdAt DateTime      @default(now()) @map("created_at")
-    updatedAt DateTime      @updatedAt @map("updated_at")
-    course    Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-    lessons   Lesson[]
+    sortOrder Int      @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
 
-    @@index([status])
+    course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    lessons Lesson[]
+
     @@map("modules")
 }
 
 model Lesson {
-    id          Int                  @id @default(autoincrement())
-    moduleId    Int                  @map("module_id")
+    id          Int        @id @default(autoincrement())
+    moduleId    Int        @map("module_id")
+    type        LessonType @default(VIDEO)
     title       String
-    duration    Int                  @default(0)
-    type        LessonType?
-    textContent String?              @map("text_content")
-    videoUrl    String?              @map("video_url")
-    sortOrder   Int?                 @map("sort_order")
-    status      ContentStatus        @default(DRAFT)
-    createdAt   DateTime             @default(now()) @map("created_at")
-    updatedAt   DateTime             @updatedAt @map("updated_at")
-    module      Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-    progress    UserLessonProgress[]
+    duration    Int        @default(0)
+    videoUrl    String?    @map("video_url")
+    htmlContent String?    @map("html_content") @db.Text
+    sortOrder   Int        @map("sort_order")
+    isPublished Boolean    @default(false) @map("is_published")
+    createdAt   DateTime   @default(now()) @map("created_at")
+    updatedAt   DateTime   @updatedAt @map("updated_at")
 
-    @@index([status])
+    module   Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+    progress UserLessonProgress[]
+    chunks   CourseChunk[]
+
+    @@index([moduleId])
     @@map("lessons")
-}
-
-enum LessonType {
-    TEXT
-    VIDEO
 }
 
 model UserLessonProgress {
@@ -366,22 +365,12 @@ model UserLessonProgress {
     isCompleted Boolean  @default(false) @map("is_completed")
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
-    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
     @@unique([userId, lessonId])
     @@map("user_lesson_progress")
-}
-
-enum CourseStatus {
-    DRAFT
-    PUBLIC
-    UNLISTED
-}
-
-enum ContentStatus {
-    DRAFT
-    PUBLIC
 }
 
 model UserCourseEnrollment {
@@ -400,15 +389,27 @@ model UserCourseEnrollment {
 model CourseChunk {
     id        Int      @id @default(autoincrement())
     courseId  Int      @map("course_id")
+    course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
     moduleId  Int?     @map("module_id")
     lessonId  Int?     @map("lesson_id")
-    content   String
+    lesson    Lesson?  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+    content   String   @db.Text
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-    /// cột tsvector Prisma không map kiểu → dùng Unsupported
     tsv Unsupported("tsvector")?
 
     @@index([courseId])
     @@index([lessonId])
     @@map("course_chunks")
+}
+
+enum LessonType {
+    TEXT
+    VIDEO
+}
+
+enum CourseStatus {
+    DRAFT
+    PUBLIC
+    ARCHIVED
 }

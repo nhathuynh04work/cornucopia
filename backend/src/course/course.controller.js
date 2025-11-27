@@ -64,21 +64,53 @@ const createCourse = async (req, res) => {
 
 const updateCourse = async (req, res) => {
 	const id = req.params.id;
-	const course = await courseService.update(id, req.body);
+	const course = await courseService.updateCourse(id, req.body);
 	res.status(200).json({ course });
 };
 
 const deleteCourse = async (req, res) => {
 	const courseId = req.params.id;
 	const userId = req.user.id;
-	await courseService.remove(courseId, userId);
+	await courseService.removeCourse(courseId, userId);
 	res.status(204).end();
 };
 
+// --- MODULES ---
 const addModule = async (req, res) => {
-	const id = req.params.id;
-	const module = await courseService.addModule(id);
+	const { courseId } = req.params;
+	const module = await courseService.addModule(courseId, req.body);
 	res.status(201).json({ module });
+};
+
+const updateModule = async (req, res) => {
+	const { moduleId } = req.params;
+	const module = await courseService.updateModule(moduleId, req.body);
+	res.status(200).json({ module });
+};
+
+const deleteModule = async (req, res) => {
+	const { moduleId } = req.params;
+	await courseService.removeModule(moduleId);
+	res.status(204).end();
+};
+
+// --- LESSONS ---
+const addLesson = async (req, res) => {
+	const { moduleId } = req.params;
+	const lesson = await courseService.addLesson(moduleId, req.body);
+	res.status(201).json({ lesson });
+};
+
+const updateLesson = async (req, res) => {
+	const { lessonId } = req.params;
+	const lesson = await courseService.updateLesson(lessonId, req.body);
+	res.status(200).json({ lesson });
+};
+
+const deleteLesson = async (req, res) => {
+	const { lessonId } = req.params;
+	await courseService.removeLesson(lessonId);
+	res.status(204).end();
 };
 
 export const courseController = {
@@ -93,4 +125,9 @@ export const courseController = {
 	updateCourse,
 	deleteCourse,
 	addModule,
+	updateModule,
+	deleteModule,
+	addLesson,
+	updateLesson,
+	deleteLesson,
 };

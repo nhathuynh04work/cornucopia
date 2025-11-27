@@ -8,8 +8,6 @@ import sessionRouter from "../session/session.routes.js";
 import userRouter from "../user/user.routes.js";
 import attemptRouter from "../attempt/attempt.routes.js";
 import courseRouter from "../course/course.routes.js";
-import moduleRouter from "../module/module.routes.js";
-import lessonRouter from "../lesson/lesson.routes.js";
 import dashboardRouter from "../dashboard/dashboard.routes.js";
 import { Router } from "express";
 
@@ -25,6 +23,4 @@ v1Router.use("/sessions", sessionRouter);
 v1Router.use("/users", userRouter);
 v1Router.use("/attempts", attemptRouter);
 v1Router.use("/courses", courseRouter);
-v1Router.use("/modules", moduleRouter);
-v1Router.use("/lessons", lessonRouter);
 v1Router.use("/dashboard", dashboardRouter);
