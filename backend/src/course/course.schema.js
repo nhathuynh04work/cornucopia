@@ -1,22 +1,30 @@
 import { z } from "zod";
-import { CourseStatus, LessonType } from "../generated/prisma/index.js";
+import {
+	CourseLevel,
+	CourseStatus,
+	LessonType,
+} from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
 
-const CourseStatusSchema = z.enum([
-	CourseStatus.DRAFT,
-	CourseStatus.PUBLIC,
-	CourseStatus.ARCHIVED,
-]);
+const CourseStatusSchema = z.enum(CourseStatus);
 
-const LessonTypeSchema = z.enum([LessonType.VIDEO, LessonType.TEXT]);
+const CourseLevelSchema = z.enum(CourseLevel);
+
+const LessonTypeSchema = z.enum(LessonType);
 
 const UpdateCourseBody = z
 	.object({
 		title: z.string().min(1, "Course title must be at least 1 character"),
+		excerpt: z
+			.string()
+			.max(160, "Subtitle cannot exceed 160 characters")
+			.nullish(),
 		description: z.string().nullish(),
 		price: z.coerce.number().min(0),
 		coverUrl: z.string().nullish(),
 		status: CourseStatusSchema,
+		level: CourseLevelSchema.optional(),
+		language: z.string().length(2).optional(),
 	})
 	.partial();
 

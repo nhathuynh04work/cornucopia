@@ -35,15 +35,7 @@ const getAll = async ({ search, sort, status, userId, enrolledUserId }) => {
 const getCourseForInfoView = async (courseId) => {
 	const course = await prisma.course.findUnique({
 		where: { id: courseId },
-		select: {
-			id: true,
-			title: true,
-			description: true,
-			price: true,
-			coverUrl: true,
-			status: true,
-			userId: true,
-			createdAt: true,
+		include: {
 			user: { select: { id: true, name: true, avatarUrl: true } },
 
 			modules: {
@@ -196,8 +188,7 @@ const getUserCourseEnrollment = async (courseId, userId) => {
 const createCourse = async ({ userId }) => {
 	const payload = {
 		title: "Học ngoại ngữ cùng Cornucopia",
-		description:
-			"Cornucopia là nền tảng học ngoại ngữ uy tín nhất thế giới.",
+		excerpt: "Cornucopia là nền tảng học ngoại ngữ uy tín nhất thế giới.",
 		userId: userId,
 		price: 0,
 		modules: {

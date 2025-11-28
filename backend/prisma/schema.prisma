@@ -308,7 +308,10 @@ model Course {
     userId      Int          @map("user_id")
     title       String
     description String?      @db.Text
-    price       Int          @default(100000)
+    excerpt     String?      @db.VarChar(160)
+    level       CourseLevel  @default(ALL_LEVELS)
+    language    String       @default("en")
+    price       Int          @default(0)
     coverUrl    String?      @map("cover_url")
     status      CourseStatus @default(DRAFT)
     createdAt   DateTime     @default(now()) @map("created_at")
@@ -412,4 +415,11 @@ enum CourseStatus {
     DRAFT
     PUBLIC
     ARCHIVED
+}
+
+enum CourseLevel {
+    ALL_LEVELS
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
 }
