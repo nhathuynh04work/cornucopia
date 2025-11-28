@@ -38,7 +38,7 @@ const createCheckoutSession = async ({ courseId, userId }) => {
 				price_data: {
 					currency: "vnd",
 					product_data: {
-						name: course.name,
+						name: course.title,
 					},
 					unit_amount: course.price,
 				},

@@ -16,24 +16,6 @@ router.use(authenticateJwt);
 
 router.post("/upload", uploadMiddleware, mediaController.uploadFile);
 
-router.post(
-	"/upload-request",
-	validate(requestUploadURLSchema),
-	mediaController.requestUploadURL
-);
-
-router.post(
-	"/set-property",
-	validate(setPropertySchema),
-	mediaController.setEntityProperty
-);
-
-router.post(
-	"/link",
-	validate(linkMediaSchema),
-	mediaController.linkMediaToEntity
-);
-
 router.delete("/:id", validate(deleteMediaSchema), mediaController.deleteMedia);
 
 export default router;

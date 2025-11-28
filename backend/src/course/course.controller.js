@@ -113,6 +113,22 @@ const deleteLesson = async (req, res) => {
 	res.status(204).end();
 };
 
+// Lesson progress
+const updateLessonProgress = async (req, res) => {
+	const { courseId, lessonId } = req.params;
+	const { isCompleted } = req.body;
+	const userId = req.user.id;
+
+	const progress = await courseService.updateLessonProgress(
+		courseId,
+		lessonId,
+		userId,
+		isCompleted
+	);
+
+	res.status(200).json({ progress });
+};
+
 export const courseController = {
 	getCourses,
 	getCourseForInfoView,
@@ -130,4 +146,5 @@ export const courseController = {
 	addLesson,
 	updateLesson,
 	deleteLesson,
+	updateLessonProgress,
 };

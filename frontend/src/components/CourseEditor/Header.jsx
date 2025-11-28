@@ -10,7 +10,6 @@ export default function Header({
 	isSaving,
 	lastSaved,
 	onStatusChange,
-	onSave,
 	onToggleSidebar,
 }) {
 	const navigate = useNavigate();
@@ -36,7 +35,12 @@ export default function Header({
 
 				<button
 					onClick={() => navigate(-1)}
-					className="hidden md:block p-2 -ml-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all">
+					disabled={isSaving}
+					className={`hidden md:block p-2 -ml-2 rounded-lg transition-all ${
+						isSaving
+							? "text-gray-300 cursor-not-allowed"
+							: "text-gray-400 hover:text-purple-600 hover:bg-purple-50"
+					}`}>
 					<ArrowLeft className="w-5 h-5" />
 				</button>
 
@@ -50,6 +54,7 @@ export default function Header({
 							options={availableStatusOptions}
 							icon={currentStatus.icon}
 							className="w-[140px]"
+							disabled={isSaving}
 						/>
 					</div>
 
@@ -93,10 +98,15 @@ export default function Header({
 				</div>
 
 				<button
-					onClick={onSave}
-					className="px-3 md:px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg shadow-sm transition-all flex items-center gap-2">
+					onClick={() => navigate(-1)}
+					disabled={isSaving}
+					className={`px-3 md:px-5 py-2 text-white text-sm font-bold rounded-lg shadow-sm transition-all flex items-center gap-2 ${
+						isSaving
+							? "bg-purple-300 cursor-not-allowed"
+							: "bg-purple-600 hover:bg-purple-700"
+					}`}>
 					<span className="hidden sm:inline">Hoàn tất</span>
-					<span className="sm:hidden">Lưu</span>
+					<span className="sm:hidden">Xong</span>
 				</button>
 			</div>
 		</header>

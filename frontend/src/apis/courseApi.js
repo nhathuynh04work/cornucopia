@@ -1,8 +1,6 @@
-// frontend/src/apis/courseApi.js
 import { api } from "./axios";
 
 const courseApi = {
-	// ... existing read methods ...
 	getAll: async (params) => {
 		const { data } = await api.get("/courses", { params });
 		return data.courses;
@@ -77,6 +75,15 @@ const courseApi = {
 		await api.delete(
 			`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}`
 		);
+	},
+
+	updateLessonProgress: async (courseId, moduleId, lessonId, isCompleted) => {
+		console.log(courseId, moduleId, lessonId);
+		const { data } = await api.put(
+			`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/progress`,
+			{ isCompleted }
+		);
+		return data.progress;
 	},
 
 	createCheckoutSession: async (courseId) => {

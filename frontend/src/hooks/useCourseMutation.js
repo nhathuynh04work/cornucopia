@@ -1,4 +1,3 @@
-// frontend/src/hooks/useCourseMutation.js
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import courseApi from "@/apis/courseApi";
 import { toast } from "react-hot-toast";
@@ -43,7 +42,6 @@ export function useModuleMutations() {
 			queryClient.invalidateQueries({
 				queryKey: ["course", Number(courseId), "edit"],
 			});
-			toast.success("Đã thêm chương mới");
 		},
 		onError: () => toast.error("Lỗi khi thêm chương"),
 	});
@@ -66,7 +64,6 @@ export function useModuleMutations() {
 			queryClient.invalidateQueries({
 				queryKey: ["course", Number(courseId), "edit"],
 			});
-			toast.success("Đã xóa chương");
 		},
 	});
 
@@ -83,7 +80,6 @@ export function useLessonMutations() {
 			queryClient.invalidateQueries({
 				queryKey: ["course", Number(courseId), "edit"],
 			});
-			toast.success("Đã thêm bài học");
 		},
 	});
 
@@ -109,11 +105,35 @@ export function useLessonMutations() {
 			queryClient.invalidateQueries({
 				queryKey: ["course", Number(courseId), "edit"],
 			});
-			toast.success("Đã xóa bài học");
 		},
 	});
 
 	return { addLesson, updateLesson, deleteLesson };
+}
+
+export function useUpdateLessonProgress() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ courseId, moduleId, lessonId, isCompleted }) =>
+			courseApi.updateLessonProgress(
+				courseId,
+				moduleId,
+				lessonId,
+				isCompleted
+			),
+		onSuccess: (_, { courseId }) => {
+			queryClient.invalidateQueries({
+				queryKey: ["course", Number(courseId), "learn"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["courses", "enrolled"],
+			});
+		},
+		onError: () => {
+			toast.error("Cập nhật tiến độ thất bại");
+		},
+	});
 }
 
 export function useCreateCheckoutSession(courseId) {

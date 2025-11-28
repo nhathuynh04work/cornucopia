@@ -7,13 +7,25 @@ import ConfirmationModal from "@/components/Shared/ConfirmationModal";
 import { useConfirmation } from "@/hooks/useConfirmation";
 import { useCourseEditor } from "@/hooks/useCourseEditor";
 import { getLessonIndexMap } from "@/lib/utils/course";
+import { useQueryClient } from "@tanstack/react-query";
+import courseApi from "@/apis/courseApi";
+import toast from "react-hot-toast";
 
 export default function CourseEditor({ initialData }) {
 	const [activeItemId, setActiveItemId] = useState("course-info");
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+	const queryClient = useQueryClient();
 
-	const { course, isSaving, lastSaved, handlers, mutations } =
-		useCourseEditor(initialData);
+	const {
+		course,
+		setCourse,
+		isSaving,
+		setIsSaving,
+		lastSaved,
+		handlers,
+		mutations,
+	} = useCourseEditor(initialData);
+
 	const {
 		confirmationState,
 		requestConfirmation,
@@ -22,7 +34,7 @@ export default function CourseEditor({ initialData }) {
 	} = useConfirmation();
 
 	const handleAddLesson = (moduleId) => {
-		handlers.setIsSaving?.(true);
+		setIsSaving(true);
 		mutations.addLesson.mutate(
 			{
 				moduleId,
@@ -32,7 +44,7 @@ export default function CourseEditor({ initialData }) {
 			},
 			{
 				onSuccess: (newLesson) => {
-					handlers.setCourse((prev) => ({
+					setCourse((prev) => ({
 						...prev,
 						modules: prev.modules.map((m) =>
 							m.id === moduleId
@@ -48,7 +60,7 @@ export default function CourseEditor({ initialData }) {
 					}));
 					setActiveItemId(`lesson-${newLesson.id}`);
 				},
-				onSettled: () => handlers.setIsSaving?.(false),
+				onSettled: () => setIsSaving(false),
 			}
 		);
 	};
@@ -62,7 +74,8 @@ export default function CourseEditor({ initialData }) {
 			if (confirmed) {
 				if (activeViewData?.module?.id === moduleId)
 					setActiveItemId("course-info");
-				handlers.setCourse((prev) => ({
+
+				setCourse((prev) => ({
 					...prev,
 					modules: prev.modules.filter((m) => m.id !== moduleId),
 				}));
@@ -83,11 +96,11 @@ export default function CourseEditor({ initialData }) {
 				const moduleId = course.modules.find((m) =>
 					m.lessons.some((l) => l.id === lessonId)
 				)?.id;
-				// Switch view if current lesson is deleted
+
 				if (activeItemId === `lesson-${lessonId}` && moduleId)
 					setActiveItemId(`module-${moduleId}`);
 
-				handlers.setCourse((prev) => ({
+				setCourse((prev) => ({
 					...prev,
 					modules: prev.modules.map((m) => ({
 						...m,
@@ -104,12 +117,54 @@ export default function CourseEditor({ initialData }) {
 		});
 	};
 
-	// View Calculation
+	const handleUpdateCourseStatus = (newStatus) => {
+		const performUpdate = () => {
+			setIsSaving(true);
+			mutations.updateCourse(
+				{ id: course.id, data: { status: newStatus } },
+				{
+					onSuccess: async () => {
+						try {
+							await queryClient.invalidateQueries({
+								queryKey: ["course", Number(course.id), "edit"],
+							});
+							const freshCourseData =
+								await courseApi.getForEditor(course.id);
+							setCourse(freshCourseData);
+							toast.success(
+								"Khoá học và toàn bộ bài giảng đều được công khai."
+							);
+						} catch {
+							toast.error("Công khai khoá học thất bại");
+						} finally {
+							setIsSaving(false);
+						}
+					},
+					onError: () => {
+						setIsSaving(false);
+					},
+				}
+			);
+		};
+
+		if (course.status === "DRAFT" && newStatus === "PUBLIC") {
+			requestConfirmation({
+				title: "Xuất bản khóa học?",
+				message:
+					"Khóa học sẽ được công khai cho học viên. Bạn có chắc chắn muốn tiếp tục?",
+			}).then((confirmed) => {
+				if (confirmed) performUpdate();
+			});
+		} else {
+			performUpdate();
+		}
+	};
+
 	const lessonMap = useMemo(
 		() => getLessonIndexMap(course?.modules),
 		[course?.modules]
 	);
-    
+
 	const activeViewData = useMemo(() => {
 		if (!course || activeItemId === "course-info") return { type: "INFO" };
 		if (activeItemId.startsWith("module-")) {
@@ -136,8 +191,8 @@ export default function CourseEditor({ initialData }) {
 				course={course}
 				isSaving={isSaving}
 				lastSaved={lastSaved}
-				onSave={() => handlers.updateCourseInfo("status", "PUBLIC")}
 				onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+				onStatusChange={handleUpdateCourseStatus}
 			/>
 			<div className="flex-1 flex overflow-hidden">
 				<Sidebar
@@ -185,8 +240,9 @@ export default function CourseEditor({ initialData }) {
 					onClose={closeConfirm}
 					onCancel={closeConfirm}
 					onConfirm={executeConfirm}
-					{...confirmationState}
-				/>
+					{...confirmationState}>
+					<p>{confirmationState.message}</p>
+				</ConfirmationModal>
 			)}
 		</div>
 	);
