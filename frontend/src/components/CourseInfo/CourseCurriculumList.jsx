@@ -1,18 +1,9 @@
 import { useState } from "react";
-import {
-	ChevronDown,
-	ChevronRight,
-	Video,
-	FileText,
-	Clock,
-	Lock,
-	PlayCircle,
-} from "lucide-react";
-import { formatTime } from "@/lib/formatters";
+import { ChevronDown, Video, FileText, Lock, PlayCircle } from "lucide-react";
 
 const lessonIcon = {
-	VIDEO: <Video className="w-4 h-4 text-purple-500" />,
-	TEXT: <FileText className="w-4 h-4 text-blue-500" />,
+	VIDEO: <Video className="w-4 h-4" />,
+	TEXT: <FileText className="w-4 h-4" />,
 };
 
 export default function CourseCurriculumList({ modules, isEnrolled }) {
@@ -24,7 +15,7 @@ export default function CourseCurriculumList({ modules, isEnrolled }) {
 
 	if (!modules || modules.length === 0) {
 		return (
-			<div className="p-8 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+			<div className="py-12 text-center">
 				<p className="text-gray-400 text-sm">
 					Khóa học này chưa có nội dung.
 				</p>
@@ -33,104 +24,89 @@ export default function CourseCurriculumList({ modules, isEnrolled }) {
 	}
 
 	return (
-		<div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-			<div className="p-6 border-b border-gray-100">
-				<h2 className="text-xl font-bold text-gray-900">
-					Nội dung khóa học
-				</h2>
-			</div>
+		<div className="bg-white w-full">
+			{modules.map((module, idx) => {
+				const isOpen = openModules[module.id];
+				const lessonCount = module.lessons?.length || 0;
 
-			<div className="divide-y divide-gray-50">
-				{modules.map((module, idx) => {
-					const isOpen = openModules[module.id];
-					const lessonCount = module.lessons?.length || 0;
-
-					return (
-						<div key={module.id} className="bg-white">
-							<button
-								onClick={() => toggleModule(module.id)}
-								className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors text-left group">
-								<div className="flex items-center gap-4">
-									<div
-										className={`p-1.5 rounded-lg transition-colors ${
-											isOpen
-												? "bg-purple-100 text-purple-600"
-												: "bg-gray-100 text-gray-400 group-hover:text-gray-600"
-										}`}>
-										{isOpen ? (
-											<ChevronDown className="w-5 h-5" />
-										) : (
-											<ChevronRight className="w-5 h-5" />
-										)}
-									</div>
-									<div>
-										<h3 className="font-bold text-gray-800 text-base">
-											Chương {idx + 1}: {module.title}
-										</h3>
-										<p className="text-xs text-gray-500 mt-0.5">
-											{lessonCount} bài học
-										</p>
-									</div>
+				return (
+					<div
+						key={module.id}
+						className="border-b border-gray-100 last:border-0">
+						{/* Module Header */}
+						<button
+							onClick={() => toggleModule(module.id)}
+							className="w-full flex items-center justify-between py-4 pl-6 pr-4 hover:bg-gray-50 transition-colors text-left group">
+							<div className="flex items-center gap-3">
+								<div
+									className={`text-gray-400 transition-transform duration-200 ${
+										isOpen ? "rotate-180" : ""
+									}`}>
+									<ChevronDown className="w-5 h-5" />
 								</div>
-							</button>
+								<div>
+									{/* UPDATED: font-bold -> font-semibold */}
+									<h3 className="font-semibold text-gray-900 text-base leading-none">
+										Chương {idx + 1}: {module.title}
+									</h3>
+									<p className="text-xs text-gray-500 mt-1 font-medium">
+										{lessonCount} bài học
+									</p>
+								</div>
+							</div>
+						</button>
 
-							{isOpen && (
-								<div className="bg-gray-50/50 px-5 pb-5 pt-2 space-y-2">
+						{/* Lesson List */}
+						{isOpen && (
+							<div className="animate-in slide-in-from-top-2 fade-in duration-300 origin-top">
+								<div className="divide-y divide-gray-100/60 border-t border-gray-100/60">
 									{module.lessons?.map((lesson, lIdx) => (
 										<div
 											key={lesson.id}
-											className={`flex items-center justify-between p-3 rounded-xl border border-gray-100 transition-colors ${
+											// UPDATED: items-start for multiline, adjusted padding
+											className={`flex items-start justify-between py-3 pl-12 pr-6 transition-all group/lesson ${
 												isEnrolled
-													? "bg-white hover:border-purple-200 cursor-pointer"
-													: "bg-gray-50 opacity-75 cursor-not-allowed"
+													? "hover:bg-gray-50 cursor-pointer text-gray-700 hover:text-purple-700"
+													: "opacity-60 cursor-not-allowed text-gray-500"
 											}`}>
-											<div className="flex items-center gap-3">
-												<div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 font-medium text-xs border border-gray-100">
-													{lIdx + 1}
+											<div className="flex items-start gap-3 min-w-0">
+												{/* Icon */}
+												<div
+													className={`shrink-0 mt-0.5 ${
+														lesson.type === "VIDEO"
+															? "text-purple-500"
+															: "text-blue-500"
+													}`}>
+													{lessonIcon[lesson.type]}
 												</div>
-												<div className="flex flex-col">
-													<span className="text-sm font-medium text-gray-700">
+
+												{/* UPDATED: Title & Duration Stack */}
+												<div className="flex flex-col gap-0.5">
+													<span className="text-sm font-medium truncate">
+														Bài {lIdx + 1}:{" "}
 														{lesson.title}
 													</span>
-													<div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
-														{
-															lessonIcon[
-																lesson.type
-															]
-														}
-														<span>
-															{lesson.type ===
-															"VIDEO"
-																? "Video"
-																: "Bài đọc"}
-														</span>
-													</div>
+													<span className="text-xs text-gray-400">
+														{lesson.duration} phút
+													</span>
 												</div>
 											</div>
 
-											<div className="flex items-center gap-4">
-												<div className="flex items-center gap-1 text-xs text-gray-400">
-													<Clock className="w-3.5 h-3.5" />
-													<span>
-														{formatTime(
-															lesson.duration
-														)}
-													</span>
-												</div>
+											<div className="flex items-center gap-4 shrink-0 mt-1">
 												{isEnrolled ? (
-													<PlayCircle className="w-5 h-5 text-purple-400" />
+													<PlayCircle className="w-4 h-4 text-gray-300 group-hover/lesson:text-purple-500 transition-colors" />
 												) : (
-													<Lock className="w-4 h-4 text-gray-300" />
+													<Lock className="w-3.5 h-3.5 text-gray-300" />
 												)}
 											</div>
 										</div>
 									))}
 								</div>
-							)}
-						</div>
-					);
-				})}
-			</div>
+							</div>
+						)}
+					</div>
+				);
+			})}
 		</div>
 	);
 }

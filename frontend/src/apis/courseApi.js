@@ -1,6 +1,8 @@
+// frontend/src/apis/courseApi.js
 import { api } from "./axios";
 
 const courseApi = {
+	// ... existing read methods ...
 	getAll: async (params) => {
 		const { data } = await api.get("/courses", { params });
 		return data.courses;
@@ -29,6 +31,54 @@ const courseApi = {
 		const { data } = await api.post("/courses", payload);
 		return data.course;
 	},
+	updateCourse: async (id, payload) => {
+		const { data } = await api.patch(`/courses/${id}`, payload);
+		return data.course;
+	},
+	deleteCourse: async (id) => {
+		await api.delete(`/courses/${id}`);
+	},
+
+	// --- MODULES ---
+	addModule: async (courseId, payload) => {
+		const { data } = await api.post(
+			`/courses/${courseId}/modules`,
+			payload
+		);
+		return data.module;
+	},
+	updateModule: async (moduleId, courseId, payload) => {
+		const { data } = await api.patch(
+			`/courses/${courseId}/modules/${moduleId}`,
+			payload
+		);
+		return data.module;
+	},
+	deleteModule: async (moduleId, courseId) => {
+		await api.delete(`/courses/${courseId}/modules/${moduleId}`);
+	},
+
+	// --- LESSONS ---
+	addLesson: async (moduleId, courseId, payload) => {
+		const { data } = await api.post(
+			`/courses/${courseId}/modules/${moduleId}/lessons`,
+			payload
+		);
+		return data.lesson;
+	},
+	updateLesson: async (lessonId, moduleId, courseId, payload) => {
+		const { data } = await api.patch(
+			`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}`,
+			payload
+		);
+		return data.lesson;
+	},
+	deleteLesson: async (lessonId, moduleId, courseId) => {
+		await api.delete(
+			`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}`
+		);
+	},
+
 	createCheckoutSession: async (courseId) => {
 		const { data } = await api.post(`/checkout/create-session/${courseId}`);
 		return data.url;

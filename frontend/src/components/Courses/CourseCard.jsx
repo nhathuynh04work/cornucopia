@@ -4,7 +4,7 @@ import Avatar from "@/components/Shared/Avatar";
 import StatusBadge from "@/components/Shared/StatusBadge";
 
 function CourseCard({ course }) {
-	const { id, name, description, coverUrl, price, user, _count, status } =
+	const { id, title, excerpt, coverUrl, price, user, _count, status } =
 		course;
 
 	const formattedPrice =
@@ -56,11 +56,11 @@ function CourseCard({ course }) {
 			{/* Content */}
 			<div className="p-5 flex-1 flex flex-col">
 				<h3 className="font-bold text-gray-900 text-lg line-clamp-2 mb-2 group-hover:text-purple-600 transition-colors">
-					{name}
+					{title}
 				</h3>
 
 				<p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
-					{description || "Chưa có mô tả cho khóa học này."}
+					{excerpt || "Chưa có mô tả cho khóa học này."}
 				</p>
 
 				{/* Footer Info */}

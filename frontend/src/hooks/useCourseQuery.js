@@ -45,7 +45,7 @@ export function useGetEnrollmentStatus(courseId) {
 	});
 }
 
-export function useGteCourseForEdit(courseId) {
+export function useGetCourseForEdit(courseId) {
 	const numericCourseId = Number(courseId);
 
 	return useQuery({
