@@ -1,0 +1,8 @@
+-- CreateEnum
+CREATE TYPE "CourseLevel" AS ENUM ('ALL_LEVELS', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED');
+
+-- AlterTable
+ALTER TABLE "courses" ADD COLUMN     "excerpt" VARCHAR(160),
+ADD COLUMN     "language" TEXT NOT NULL DEFAULT 'en',
+ADD COLUMN     "level" "CourseLevel" NOT NULL DEFAULT 'ALL_LEVELS',
+ALTER COLUMN "price" SET DEFAULT 0;

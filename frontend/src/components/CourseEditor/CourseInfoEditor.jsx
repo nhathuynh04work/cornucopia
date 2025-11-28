@@ -1,83 +1,21 @@
-import { Loader2 } from "lucide-react";
-import { useCourseEditorStore } from "../../store/courseEditorStore";
-import DebouncedInput from "../Shared/DebouncedInput";
-import CourseCoverUploader from "./CourseCoverUploader";
-import { useUpdateCourse } from "@/hooks/useCourseMutation";
-import DebouncedTextarea from "../Shared/DebouncedTextarea";
+import {
+	BasicInfoSection,
+	MediaSection,
+	SettingsSection,
+} from "./CourseInfoSections";
 
-function CourseInfoEditor() {
-	const course = useCourseEditorStore((s) => s.course);
-
-	const { mutate: updateCourse, isPending: isUpdating } =
-		useUpdateCourse(course?.id);
-
-	const isBusy = isUpdating;
-
-	if (!course) return;
-
+export default function CourseInfoEditor({ course, onChange }) {
 	return (
-		<div className="max-w-2xl space-y-6">
-			<div>
-				<label className="block text-sm font-medium text-gray-700 mb-2">
-					Cover Image
-				</label>
-				<CourseCoverUploader course={course} />
-			</div>
-
-			{/* --- Text Fields Form --- */}
-			<div className="space-y-6">
-				<div>
-					<label className="block text-sm font-medium text-gray-700">
-						Course Name
-					</label>
-					<DebouncedInput
-						initialValue={course.name}
-						mutationFn={updateCourse}
-						mutationKey="name"
-						className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm"
-						placeholder="Enter course name..."
-						disabled={isBusy}
-					/>
+		<div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+			<div className="flex flex-col lg:flex-row gap-8 items-start">
+				<div className="flex-1 space-y-8 w-full order-2 lg:order-1">
+					<BasicInfoSection course={course} onChange={onChange} />
 				</div>
-				<div>
-					<label className="block text-sm font-medium text-gray-700">
-						Description
-					</label>
-					<DebouncedTextarea
-						initialValue={course.description}
-						mutationFn={updateCourse}
-						mutationKey="description"
-						className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm field-sizing-content resize-none"
-						placeholder="Enter description..."
-						disabled={isBusy}
-					/>
-				</div>
-				<div>
-					<label className="block text-sm font-medium text-gray-700">
-						Price (in cents)
-					</label>
-					<DebouncedInput
-						initialValue={course.price}
-						mutationFn={updateCourse}
-						mutationKey="price"
-						type="number"
-						className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm"
-						disabled={isBusy}
-					/>
-				</div>
-
-				{/* --- Autosave Indicator --- */}
-				<div className="pt-4 h-10">
-					{isBusy && (
-						<div className="flex items-center gap-2 text-sm text-gray-500">
-							<Loader2 className="w-4 h-4 animate-spin" />
-							<span>Saving...</span>
-						</div>
-					)}
+				<div className="w-full lg:w-[360px] space-y-6 shrink-0 lg:sticky lg:top-4 order-1 lg:order-2">
+					<MediaSection course={course} onChange={onChange} />
+					<SettingsSection course={course} onChange={onChange} />
 				</div>
 			</div>
 		</div>
 	);
 }
-
-export default CourseInfoEditor;

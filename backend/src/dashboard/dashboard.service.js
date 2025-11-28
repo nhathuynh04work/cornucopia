@@ -1,5 +1,5 @@
 import prisma from "../prisma.js";
-import { ContentStatus, Role } from "../generated/prisma/index.js";
+import { Role } from "../generated/prisma/index.js";
 
 const getUserOverallStats = async ({ userId }) => {
 	const [
@@ -28,13 +28,12 @@ const getUserOverallStats = async ({ userId }) => {
 				course: {
 					select: {
 						id: true,
-						name: true,
+						title: true,
 						coverUrl: true,
 						modules: {
-							where: { status: ContentStatus.PUBLIC },
 							select: {
 								lessons: {
-									where: { status: ContentStatus.PUBLIC },
+									where: { isPublished: true },
 									select: { id: true },
 								},
 							},
@@ -58,7 +57,7 @@ const getUserOverallStats = async ({ userId }) => {
 					select: {
 						title: true,
 						module: {
-							select: { course: { select: { name: true } } },
+							select: { course: { select: { title: true } } },
 						},
 					},
 				},
@@ -86,7 +85,7 @@ const getUserOverallStats = async ({ userId }) => {
 				: 0;
 		return {
 			id: course.id,
-			name: course.name,
+			title: course.title,
 			cover: course.coverUrl,
 			progress,
 		};
@@ -113,7 +112,7 @@ const getUserOverallStats = async ({ userId }) => {
 			id: `lesson-${p.id}`,
 			type: "LESSON",
 			title: p.lesson.title,
-			subtitle: `${p.lesson.module.course.name}`,
+			subtitle: `${p.lesson.module.course.title}`,
 			date: p.updatedAt,
 			meta: { lessonId: p.lessonId },
 		})),
@@ -160,7 +159,7 @@ const getCreatorOverallStats = async ({ userId }) => {
 			where: { userId: currentUserId },
 			take: 5,
 			orderBy: { updatedAt: "desc" },
-			select: { id: true, name: true, status: true, updatedAt: true },
+			select: { id: true, title: true, status: true, updatedAt: true },
 		}),
 		prisma.deck.findMany({
 			where: { userId: currentUserId },
@@ -191,7 +190,7 @@ const getCreatorOverallStats = async ({ userId }) => {
 		...recentCourses.map((c) => ({
 			id: `course-${c.id}`,
 			type: "COURSE",
-			title: c.name,
+			title: c.title,
 			status: c.status,
 			updatedAt: c.updatedAt,
 		})),
@@ -374,11 +373,11 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 			where: { status: "PUBLIC" },
 			take: 10,
 			orderBy: { enrollments: { _count: "desc" } },
-			select: { name: true, _count: { select: { enrollments: true } } },
+			select: { title: true, _count: { select: { enrollments: true } } },
 		});
 		return {
 			chartData: data.map((c) => ({
-				name: c.name,
+				name: c.title,
 				value: c._count.enrollments,
 				label: "học viên",
 			})),
@@ -403,17 +402,17 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 
 	if (chartType === "TOP_REVENUE_COURSES") {
 		const rawData = await prisma.$queryRaw`
-            SELECT c.name, (COUNT(uce.id) * c.price) as revenue
+            SELECT c.title, (COUNT(uce.id) * c.price) as revenue
             FROM courses c
             JOIN user_course_enrollments uce ON c.id = uce.course_id
             WHERE c.price > 0
-            GROUP BY c.id, c.name, c.price
+            GROUP BY c.id, c.title, c.price
             ORDER BY revenue DESC
             LIMIT 10;
         `;
 		return {
 			chartData: rawData.map((c) => ({
-				name: c.name,
+				name: c.title,
 				value: Number(c.revenue),
 				label: "VND",
 			})),
@@ -442,7 +441,6 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 	return { chartData: [] };
 };
 
-// Helper functions (internal use only)
 async function getCreatorMonthlyEngagement(creatorId, months = 6) {
 	const today = new Date();
 	const startDate = new Date(today.setMonth(today.getMonth() - months));

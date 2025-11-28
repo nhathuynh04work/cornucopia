@@ -47,7 +47,7 @@ export default function SimpleRichTextEditor({
 				class: clsx(
 					"prose prose-sm focus:outline-none px-4 py-3 text-gray-700 max-w-none",
 					"prose-headings:mb-2 prose-headings:mt-2 prose-p:my-1 prose-p:leading-normal",
-					"prose-blockquote:border-l-4 prose-blockquote:border-purple-200 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-500",
+					"prose-blockquote:border-l-4 prose-blockquote:border-purple-200 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-500 border-0",
 					className || "min-h-[80px]"
 				),
 			},
@@ -69,7 +69,7 @@ export default function SimpleRichTextEditor({
 	}
 
 	return (
-		<div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:ring-2 focus-within:ring-purple-100 focus-within:border-purple-500 transition-all group/editor">
+		<div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:ring focus-within:ring-purple-100 focus-within:border-purple-500 transition-all group/editor">
 			{/* Toolbar */}
 			<div className="flex items-center gap-1 border-b border-gray-100 px-2 py-1.5 bg-gray-50/50 flex-wrap">
 				<ToolbarButton
