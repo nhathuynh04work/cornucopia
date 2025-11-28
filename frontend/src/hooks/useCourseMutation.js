@@ -116,6 +116,31 @@ export function useLessonMutations() {
 	return { addLesson, updateLesson, deleteLesson };
 }
 
+export function useUpdateLessonProgress() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ courseId, moduleId, lessonId, isCompleted }) =>
+			courseApi.updateLessonProgress(
+				courseId,
+				moduleId,
+				lessonId,
+				isCompleted
+			),
+		onSuccess: (_, { courseId }) => {
+			queryClient.invalidateQueries({
+				queryKey: ["course", Number(courseId), "learn"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["courses", "enrolled"],
+			});
+		},
+		onError: () => {
+			toast.error("Cập nhật tiến độ thất bại");
+		},
+	});
+}
+
 export function useCreateCheckoutSession(courseId) {
 	return useMutation({
 		mutationFn: () => courseApi.createCheckoutSession(courseId),
