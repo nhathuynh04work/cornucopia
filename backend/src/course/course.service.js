@@ -115,9 +115,10 @@ const getCourseForLearning = async (courseId, userId) => {
 	const moduleWhere = isOwner
 		? {}
 		: { lessons: { some: { isPublished: true } } };
+
 	const lessonWhere = isOwner ? {} : { isPublished: true };
 
-	return prisma.course.findUnique({
+	const course = await prisma.course.findUnique({
 		where: { id: courseId },
 		include: {
 			modules: {
@@ -135,6 +136,26 @@ const getCourseForLearning = async (courseId, userId) => {
 			},
 		},
 	});
+
+	if (course && course.modules) {
+		course.modules = course.modules
+			.map((module) => ({
+				...module,
+				lessons: module.lessons.map((lesson) => {
+					const { progress, ...rest } = lesson;
+					return {
+						...rest,
+						isCompleted:
+							progress.length > 0
+								? progress[0].isCompleted
+								: false,
+					};
+				}),
+			}))
+			.filter((module) => module.lessons.length > 0);
+	}
+
+	return course;
 };
 
 const getEnrolledCourses = async (userId) => {
@@ -369,6 +390,51 @@ const removeLesson = async (lessonId) => {
 	return prisma.lesson.delete({ where: { id: lessonId } });
 };
 
+const updateLessonProgress = async (
+	courseId,
+	lessonId,
+	userId,
+	isCompleted
+) => {
+	const lesson = await prisma.lesson.findUnique({
+		where: { id: lessonId },
+		include: { module: true },
+	});
+
+	if (!lesson) throw new NotFoundError("Lesson not found");
+
+	if (lesson.module.courseId !== courseId) {
+		throw new NotFoundError("Lesson not found in this course");
+	}
+
+	const enrollment = await prisma.userCourseEnrollment.findUnique({
+		where: {
+			userId_courseId: { userId, courseId },
+		},
+	});
+
+	const course = await prisma.course.findUnique({
+		where: { id: courseId },
+		select: { userId: true },
+	});
+
+	if (!enrollment && course.userId !== userId) {
+		throw new ForbiddenError("You are not enrolled in this course");
+	}
+
+	return prisma.userLessonProgress.upsert({
+		where: {
+			userId_lessonId: { userId, lessonId },
+		},
+		update: { isCompleted },
+		create: {
+			userId,
+			lessonId,
+			isCompleted,
+		},
+	});
+};
+
 export const courseService = {
 	getAll,
 	getCourseForInfoView,
@@ -388,4 +454,6 @@ export const courseService = {
 	addLesson,
 	updateLesson,
 	removeLesson,
+
+	updateLessonProgress,
 };

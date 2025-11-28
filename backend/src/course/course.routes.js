@@ -14,6 +14,7 @@ import {
 	deleteModuleSchema,
 	getCourseSchema,
 	updateCourseSchema,
+	updateLessonProgressSchema,
 	updateLessonSchema,
 	updateModuleSchema,
 } from "./course.schema.js";
@@ -25,7 +26,6 @@ router.use(authenticateJwt);
 // --- READ OPERATIONS ---
 router.get("/", courseController.getCourses);
 router.get("/enrolled", courseController.getEnrolledCourses);
-router.get("/my-courses", courseController.getMyCourses);
 
 router.get(
 	"/:id/info",
@@ -123,6 +123,13 @@ router.delete(
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validate(deleteLessonSchema),
 	courseController.deleteLesson
+);
+
+// Update lesson progress
+router.put(
+	"/:courseId/modules/:moduleId/lessons/:lessonId/progress",
+	validate(updateLessonProgressSchema),
+	courseController.updateLessonProgress
 );
 
 export default router;

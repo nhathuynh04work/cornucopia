@@ -97,3 +97,13 @@ export const deleteLessonSchema = z.object({
 		.extend(createIdParamSchema("moduleId").shape)
 		.extend(createIdParamSchema("lessonId").shape),
 });
+
+// Update lesson progress
+export const updateLessonProgressSchema = z.object({
+	params: createIdParamSchema("courseId")
+		.extend(createIdParamSchema("moduleId").shape)
+		.extend(createIdParamSchema("lessonId").shape),
+	body: z.object({
+		isCompleted: z.boolean(),
+	}),
+});
