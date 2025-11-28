@@ -89,7 +89,6 @@ export default function CourseLearnSidebar({
 												<button
 													key={lesson.id}
 													onClick={() =>
-														!lesson.isLocked &&
 														handleLessonChange(
 															lesson.id
 														)
@@ -101,11 +100,6 @@ export default function CourseLearnSidebar({
 																? "bg-purple-50"
 																: "bg-white hover:bg-gray-50"
 														}
-                                                        ${
-															lesson.isLocked
-																? "opacity-60 cursor-not-allowed"
-																: ""
-														}
                                                     `}>
 													<div
 														className={`mt-0.5 shrink-0 cursor-pointer p-1 rounded hover:bg-gray-200 transition-colors ${
@@ -113,10 +107,8 @@ export default function CourseLearnSidebar({
 																? "text-purple-600"
 																: "text-gray-400"
 														}`}
-														onClick={(e) =>
-															!lesson.isLocked &&
+														onClick={() =>
 															handleToggleProgress(
-																e,
 																lesson
 															)
 														}>
@@ -128,8 +120,6 @@ export default function CourseLearnSidebar({
 															<Loader2 className="w-4 h-4 animate-spin" />
 														) : lesson.isCompleted ? (
 															<CheckSquare className="w-4 h-4 text-purple-600 fill-purple-100" />
-														) : lesson.isLocked ? (
-															<Lock className="w-4 h-4" />
 														) : (
 															<Square className="w-4 h-4 text-gray-300" />
 														)}

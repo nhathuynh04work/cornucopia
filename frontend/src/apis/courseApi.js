@@ -78,6 +78,7 @@ const courseApi = {
 	},
 
 	updateLessonProgress: async (courseId, moduleId, lessonId, isCompleted) => {
+		console.log(courseId, moduleId, lessonId);
 		const { data } = await api.put(
 			`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/progress`,
 			{ isCompleted }
