@@ -1,13 +1,33 @@
 import { Link } from "react-router-dom";
-import { Users, BookOpen, Star, Globe, BarChart } from "lucide-react";
+import {
+	Users,
+	BookOpen,
+	BarChart2,
+	Globe,
+	Clock,
+	PlayCircle,
+} from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import StatusBadge from "@/components/Shared/StatusBadge";
+import StarRating from "@/components/Shared/StarRating";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
+
+// Helper to format duration (seconds -> readable string)
+const formatDuration = (seconds) => {
+	if (!seconds) return "0h";
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	if (hours > 0) {
+		return `${hours}h ${minutes > 0 ? `${minutes}p` : ""}`;
+	}
+	return `${minutes}p`;
+};
 
 function CourseCard({ course }) {
 	const {
 		id,
 		title,
+		excerpt,
 		coverUrl,
 		price,
 		user,
@@ -16,6 +36,8 @@ function CourseCard({ course }) {
 		stats,
 		level,
 		language,
+		duration,
+		lessons,
 	} = course;
 
 	const formattedPrice =
@@ -35,91 +57,112 @@ function CourseCard({ course }) {
 	const langLabel =
 		LANGUAGE_OPTIONS.find((o) => o.value === language)?.label || language;
 
+	const rating = stats?.rating || 0;
+	const ratingCount = stats?.ratingCount || 0;
+
 	return (
 		<Link
 			to={targetLink}
-			className="group flex flex-col bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-100 transition-all duration-300 h-full relative">
-			{/* --- IMAGE SECTION --- */}
-			<div className="aspect-video w-full overflow-hidden bg-gray-100 relative">
-				{coverUrl ? (
-					<img
-						src={coverUrl}
-						alt={title}
-						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-					/>
-				) : (
-					<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
-						<BookOpen className="w-12 h-12" />
-					</div>
-				)}
-
-				{/* Status Badge */}
-				{status !== "PUBLIC" && (
-					<div className="absolute top-3 left-3 z-10">
-						<StatusBadge
-							status={status}
-							size="xs"
-							className="shadow-sm !bg-white/90 backdrop-blur-md"
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative"
+		>
+			{/* --- IMAGE SECTION (Left Side) --- */}
+			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100">
+				<div className="aspect-video md:h-full md:aspect-auto relative">
+					{coverUrl ? (
+						<img
+							src={coverUrl}
+							alt={title}
+							className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
 						/>
-					</div>
-				)}
+					) : (
+						<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
+							<BookOpen className="w-12 h-12" />
+						</div>
+					)}
 
-				{/* Price Badge */}
-				<div className="absolute top-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-bold text-gray-900 rounded-full shadow-sm">
-					{formattedPrice}
+					{/* Status Badge */}
+					{status !== "PUBLIC" && (
+						<div className="absolute top-3 left-3 z-10">
+							<StatusBadge
+								status={status}
+								size="xs"
+								className="shadow-sm !bg-white/90 backdrop-blur-md"
+							/>
+						</div>
+					)}
 				</div>
 			</div>
 
-			{/* --- CONTENT SECTION --- */}
-			<div className="p-5 flex-1 flex flex-col">
-				{/* Title */}
-				<h3 className="font-bold text-gray-900 text-lg line-clamp-2 mb-3 group-hover:text-purple-600 transition-colors">
-					{title}
-				</h3>
+			{/* --- CONTENT SECTION (Right Side) --- */}
+			<div className="flex-1 p-5 flex flex-col min-w-0">
+				{/* Header: Title & Price */}
+				<div className="flex justify-between items-start gap-4 mb-2">
+					<div className="space-y-1.5">
+						{/* Metadata Badges */}
+						<div className="flex flex-wrap items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-gray-500">
+							<div className="flex items-center gap-1 text-purple-600">
+								<Globe className="w-3 h-3" />
+								{langLabel}
+							</div>
+							<span className="w-0.5 h-3 bg-gray-200"></span>
+							<div className="flex items-center gap-1 text-blue-600">
+								<BarChart2 className="w-3 h-3" />
+								{levelLabel}
+							</div>
+						</div>
 
-				{/* Metadata: Language & Level */}
-				<div className="flex flex-wrap items-center gap-2 mb-3">
-					<div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md text-gray-600 text-[11px] font-medium border border-gray-100">
-						<BarChart className="w-3 h-3 text-gray-400" />
-						{levelLabel}
+						<h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
+							{title}
+						</h3>
 					</div>
 
-					<div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md text-gray-600 text-[11px] font-medium border border-gray-100">
-						<Globe className="w-3 h-3 text-gray-400" />
-						{langLabel}
+					<div className="shrink-0 font-bold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg text-sm">
+						{formattedPrice}
 					</div>
 				</div>
 
-				{/* Stats Row: Reviews */}
-				<div className="flex items-center gap-1.5 mb-4">
-					<Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-					<span className="text-sm font-bold text-gray-900">
-						{stats?.rating || 0}
-					</span>
-					<span className="text-xs text-gray-500">
-						({stats?.ratingCount || 0} đánh giá)
-					</span>
-				</div>
-
-				{/* --- FOOTER --- */}
-				<div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
-					{/* Author */}
-					<div className="flex items-center gap-2">
-						<Avatar
-							url={user?.avatarUrl}
-							name={user?.name}
-							size="xs"
-						/>
-						<span className="text-xs font-medium text-gray-600 truncate max-w-[100px]">
-							{user?.name}
+				{/* 1. Rating Row (Precise Stars) */}
+				<div className="flex items-center gap-2 mb-2">
+					<StarRating rating={rating} size={16} />
+					
+					<div className="flex items-baseline gap-1">
+						<span className="text-sm font-bold text-gray-900">
+							{rating}
+						</span>
+						<span className="text-xs text-gray-400">
+							({ratingCount})
 						</span>
 					</div>
+				</div>
 
-					{/* Enrollment Count */}
-					<div className="flex items-center gap-1 text-xs text-gray-400">
+				{/* 2. Stats Row (Muted & Small) */}
+				<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-gray-400 font-medium mb-auto uppercase tracking-wide">
+					<div className="flex items-center gap-1.5">
 						<Users className="w-3.5 h-3.5" />
 						<span>{_count?.enrollments || 0} học viên</span>
 					</div>
+
+					<div className="w-1 h-1 rounded-full bg-gray-300"></div>
+
+					<div className="flex items-center gap-1.5">
+						<Clock className="w-3.5 h-3.5" />
+						<span>{formatDuration(duration)}</span>
+					</div>
+
+					<div className="w-1 h-1 rounded-full bg-gray-300"></div>
+
+					<div className="flex items-center gap-1.5">
+						<PlayCircle className="w-3.5 h-3.5" />
+						<span>{lessons || 0} bài học</span>
+					</div>
+				</div>
+
+				{/* Footer: Author */}
+				<div className="pt-4 border-t border-gray-50 flex items-center gap-2 mt-4">
+					<Avatar url={user?.avatarUrl} name={user?.name} size="xs" />
+					<span className="text-xs font-bold text-gray-700 truncate max-w-[200px]">
+						{user?.name}
+					</span>
 				</div>
 			</div>
 		</Link>

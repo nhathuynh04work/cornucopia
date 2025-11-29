@@ -1,77 +1,116 @@
 import { Link } from "react-router-dom";
-import { FileQuestion, Clock, Trophy } from "lucide-react";
+import {
+	Users,
+	FileText,
+	Clock,
+	Trophy,
+	Globe,
+	BarChart2,
+} from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import StatusBadge from "@/components/Shared/StatusBadge";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
+
+// Helper to format duration (seconds -> string)
+const formatDuration = (seconds) => {
+	if (!seconds) return "--";
+	const minutes = Math.floor(seconds / 60);
+	return `${minutes} phút`;
+};
 
 function TestCard({ test }) {
-	const { id, title, description, user, timeLimit, _count, status } = test;
-	console.log(test);
-	const duration = Math.floor(timeLimit / 60);
+	const {
+		id,
+		title,
+		user,
+		status,
+		questionsCount,
+		timeLimit,
+		attemptsCount,
+		level,
+		language,
+	} = test;
 
 	const isDraft = status === "DRAFT";
 	const targetLink = isDraft ? `/tests/${id}/edit` : `/tests/${id}`;
 
+	// Helper to get labels
+	const levelLabel = LEVEL_OPTIONS?.find((o) => o.value === level)?.label || level;
+	const langLabel = LANGUAGE_OPTIONS?.find((o) => o.value === language)?.label || language;
+
 	return (
 		<Link
 			to={targetLink}
-			className="group flex flex-col bg-white rounded-2xl border border-gray-200 hover:border-purple-200 hover:shadow-lg transition-all duration-300 h-full overflow-hidden relative">
-			{/* Status Badge Overlay for Non-Public tests */}
-			{status !== "PUBLIC" && (
-				<div className="absolute top-3 left-3 z-10">
-					<StatusBadge
-						status={status}
-						size="xs"
-						className="shadow-sm"
-					/>
-				</div>
-			)}
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative"
+		>
+			{/* --- ICON SECTION (Left Side) --- */}
+			<div className="w-full md:w-48 shrink-0 relative bg-blue-50 flex items-center justify-center min-h-[140px] md:min-h-0">
+				<Trophy className="w-12 h-12 text-blue-300 group-hover:scale-110 transition-transform duration-500" />
 
-			{/* Card Header / Icon */}
-			<div className="h-32 bg-gradient-to-br from-purple-50 to-white flex items-center justify-center border-b border-gray-50 relative">
-				<div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform duration-300">
-					<FileQuestion className="w-6 h-6" />
-				</div>
-
-				{/* Duration Badge */}
-				<div className="absolute top-3 right-3 px-2.5 py-1 bg-white/80 backdrop-blur-sm border border-gray-100 text-xs font-bold text-gray-600 rounded-lg flex items-center gap-1.5 shadow-sm">
-					<Clock className="w-3 h-3" />
-					{duration} phút
-				</div>
+				{/* Status Badge */}
+				{status !== "PUBLIC" && (
+					<div className="absolute top-3 left-3 z-10">
+						<StatusBadge
+							status={status}
+							size="xs"
+							className="shadow-sm !bg-white/90 backdrop-blur-md"
+						/>
+					</div>
+				)}
 			</div>
 
-			{/* Content */}
-			<div className="p-5 flex-1 flex flex-col">
-				<h3 className="font-bold text-gray-900 text-lg line-clamp-2 mb-2 group-hover:text-purple-600 transition-colors">
-					{title}
-				</h3>
-
-				<p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
-					{description || "Chưa có mô tả cho bài kiểm tra này."}
-				</p>
-
-				{/* Footer Info */}
-				<div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
-					{/* Author */}
-					<div className="flex items-center gap-2">
-						<Avatar
-							url={user?.avatarUrl}
-							name={user?.name}
-							size="xs"
-						/>
-						<span className="text-xs font-medium text-gray-600 truncate max-w-[100px]">
-							{user?.name}
-						</span>
-					</div>
-
-					{/* Stats */}
-					<div className="flex items-center gap-3 text-xs text-gray-400">
-						<div
-							className="flex items-center gap-1"
-							title="Lượt làm bài">
-							<Trophy className="w-3.5 h-3.5" />
-							<span>{_count?.attempts || 0}</span>
+			{/* --- CONTENT SECTION (Right Side) --- */}
+			<div className="flex-1 p-5 flex flex-col min-w-0">
+				{/* Header */}
+				<div className="flex justify-between items-start gap-4 mb-2">
+					<div className="space-y-1.5">
+						{/* Metadata Badges */}
+						<div className="flex flex-wrap items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-gray-500">
+							<div className="flex items-center gap-1 text-purple-600">
+								<Globe className="w-3 h-3" />
+								{langLabel}
+							</div>
+							<span className="w-0.5 h-3 bg-gray-200"></span>
+							<div className="flex items-center gap-1 text-blue-600">
+								<BarChart2 className="w-3 h-3" />
+								{levelLabel}
+							</div>
 						</div>
+
+						<h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
+							{title}
+						</h3>
 					</div>
+				</div>
+
+				{/* Stats Row */}
+				<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-gray-400 font-medium mb-auto uppercase tracking-wide mt-1">
+					<div className="flex items-center gap-1.5">
+						<Users className="w-3.5 h-3.5" />
+						<span>{attemptsCount || 0} lượt thi</span>
+					</div>
+
+					<div className="w-1 h-1 rounded-full bg-gray-300"></div>
+
+					<div className="flex items-center gap-1.5">
+						<Clock className="w-3.5 h-3.5" />
+						<span>{formatDuration(timeLimit)}</span>
+					</div>
+
+					<div className="w-1 h-1 rounded-full bg-gray-300"></div>
+
+					<div className="flex items-center gap-1.5">
+						<FileText className="w-3.5 h-3.5" />
+						<span>{questionsCount || 0} câu hỏi</span>
+					</div>
+				</div>
+
+				{/* Footer: Author */}
+				<div className="pt-4 border-t border-gray-50 flex items-center gap-2 mt-4">
+					<Avatar url={user?.avatarUrl} name={user?.name} size="xs" />
+					<span className="text-xs font-bold text-gray-700 truncate max-w-[200px]">
+						{user?.name}
+					</span>
 				</div>
 			</div>
 		</Link>
