@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
 import { toArray } from "../utils/transform.js";
+import { ContentLanguageSchema, LevelSchema } from "../course/course.schema.js";
 
 export const getTestSchema = z.object({
 	params: createIdParamSchema("id"),
@@ -55,8 +56,11 @@ export const getTestsSchema = z.object({
 		page: z.coerce.number().int().min(1).default(1),
 		limit: z.coerce.number().int().min(1).default(10),
 
-		level: z.preprocess(toArray, z.array(z.string()).optional()),
-		language: z.preprocess(toArray, z.array(z.string()).optional()),
+		level: z.preprocess(toArray, z.array(LevelSchema).optional()),
+		language: z.preprocess(
+			toArray,
+			z.array(ContentLanguageSchema).optional()
+		),
 	}),
 });
 

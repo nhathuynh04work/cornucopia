@@ -1,13 +1,13 @@
 import z from "zod";
 import { createIdParamSchema } from "../utils/validate.js";
-import { LevelSchema } from "../course/course.schema.js";
+import { ContentLanguageSchema, LevelSchema } from "../course/course.schema.js";
 import { toArray } from "../utils/transform.js";
 
 const DeckBase = z.object({
 	title: z.string().min(1, "Title is required"),
 	isPublic: z.boolean().default(false),
 	level: LevelSchema.optional(),
-	language: z.string().length(2).optional(),
+	language: ContentLanguageSchema.optional(),
 });
 
 const CardBase = z.object({
@@ -43,8 +43,11 @@ export const getDecksSchema = z.object({
 		userId: z.coerce.number().int().optional(),
 		page: z.coerce.number().int().min(1).default(1),
 		limit: z.coerce.number().int().min(1).default(10),
-		level: z.preprocess(toArray, z.array(z.string()).optional()),
-		language: z.preprocess(toArray, z.array(z.string()).optional()),
+		level: z.preprocess(toArray, z.array(LevelSchema).optional()),
+		language: z.preprocess(
+			toArray,
+			z.array(ContentLanguageSchema).optional()
+		),
 	}),
 });
 

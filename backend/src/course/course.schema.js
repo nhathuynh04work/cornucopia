@@ -1,11 +1,17 @@
 import { z } from "zod";
-import { CourseStatus, LessonType, Level } from "../generated/prisma/index.js";
+import {
+	ContentLanguage,
+	CourseStatus,
+	LessonType,
+	Level,
+} from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
 import { toArray } from "../utils/transform.js";
 
 const CourseStatusSchema = z.enum(CourseStatus);
 
 export const LevelSchema = z.enum(Level);
+export const ContentLanguageSchema = z.enum(ContentLanguage);
 
 const LessonTypeSchema = z.enum(LessonType);
 
@@ -27,8 +33,11 @@ export const getCoursesSchema = z.object({
 		enrolledUserId: z.coerce.number().int().optional(),
 		page: z.coerce.number().int().min(1).default(1),
 		limit: z.coerce.number().int().min(1).default(10),
-		level: z.preprocess(toArray, z.array(z.string()).optional()),
-		language: z.preprocess(toArray, z.array(z.string()).optional()),
+		level: z.preprocess(toArray, z.array(LevelSchema).optional()),
+		language: z.preprocess(
+			toArray,
+			z.array(ContentLanguageSchema).optional()
+		),
 		rating: z.coerce.number().min(0).max(5).optional(),
 		price: z.enum(["all", "free", "paid"]).optional(),
 	}),
@@ -46,7 +55,7 @@ const UpdateCourseBody = z
 		coverUrl: z.string().nullish(),
 		status: CourseStatusSchema,
 		level: LevelSchema.optional(),
-		language: z.string().length(2).optional(),
+		language: ContentLanguageSchema.optional(),
 	})
 	.partial();
 
