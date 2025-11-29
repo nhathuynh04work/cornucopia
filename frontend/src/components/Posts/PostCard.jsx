@@ -13,17 +13,14 @@ function PostCard({ post }) {
 		coverUrl,
 		author,
 		createdAt,
-		readTime, // e.g., "5 min read"
-		views,
-		commentsCount,
+		readTime,
 		status,
-		tags, // Array of strings e.g. ["Technology", "Tips"]
+		tags,
 	} = post;
 
 	const isDraft = status === "DRAFT";
 	const targetLink = isDraft ? `/posts/${id}/edit` : `/posts/${id}`;
 
-	// Format Date
 	const timeAgo = createdAt
 		? formatDistanceToNow(new Date(createdAt), {
 				addSuffix: true,
@@ -34,8 +31,7 @@ function PostCard({ post }) {
 	return (
 		<Link
 			to={targetLink}
-			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative"
-		>
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- IMAGE SECTION (Left Side) --- */}
 			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100">
 				<div className="aspect-video md:h-full md:aspect-auto relative">
@@ -75,8 +71,7 @@ function PostCard({ post }) {
 								{tags.slice(0, 3).map((tag, index) => (
 									<span
 										key={index}
-										className="text-[10px] font-bold tracking-wider uppercase text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md"
-									>
+										className="text-[10px] font-bold tracking-wider uppercase text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">
 										{tag}
 									</span>
 								))}
@@ -107,21 +102,15 @@ function PostCard({ post }) {
 						<Clock className="w-3.5 h-3.5" />
 						<span>{readTime || "5 phút đọc"}</span>
 					</div>
-
-					{views !== undefined && (
-						<>
-							<div className="w-1 h-1 rounded-full bg-gray-300"></div>
-							<div className="flex items-center gap-1.5">
-								<Eye className="w-3.5 h-3.5" />
-								<span>{views} lượt xem</span>
-							</div>
-						</>
-					)}
 				</div>
 
 				{/* Footer: Author */}
 				<div className="pt-4 border-t border-gray-50 flex items-center gap-2 mt-4">
-					<Avatar url={author?.avatarUrl} name={author?.name} size="xs" />
+					<Avatar
+						url={author?.avatarUrl}
+						name={author?.name}
+						size="xs"
+					/>
 					<span className="text-xs font-bold text-gray-700 truncate max-w-[200px]">
 						{author?.name}
 					</span>

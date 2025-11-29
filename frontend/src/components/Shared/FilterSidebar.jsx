@@ -1,5 +1,34 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
+
+export const FilterSidebar = ({
+	title = "Bộ lọc",
+	onClear,
+	hasActiveFilters,
+	children,
+}) => {
+	return (
+		<div className="flex flex-col flex-1 min-h-0 w-full">
+			<div className="flex items-center justify-between mb-4 shrink-0">
+				<h2 className="font-bold text-lg flex items-center gap-2 text-gray-900">
+					<SlidersHorizontal className="w-5 h-5 text-purple-600" />
+					{title}
+				</h2>
+				{hasActiveFilters && (
+					<button
+						onClick={onClear}
+						className="text-xs font-semibold text-purple-600 hover:text-purple-700 hover:underline">
+						Xóa tất cả
+					</button>
+				)}
+			</div>
+
+			<div className="flex-1 overflow-y-auto pr-1 space-y-1 scroll-container hide-scrollbar">
+				{children}
+			</div>
+		</div>
+	);
+};
 
 export const FilterSection = ({ title, children, isOpen = true }) => {
 	const [open, setOpen] = useState(isOpen);
@@ -31,7 +60,6 @@ export const CheckboxItem = ({ label, count, checked, onChange }) => (
 		<input
 			type="checkbox"
 			className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer accent-purple-600"
-			// FIX: Ensure checked is always a boolean (false if undefined)
 			checked={!!checked}
 			onChange={onChange}
 		/>

@@ -3,7 +3,7 @@ import { api } from "./axios";
 const postApi = {
 	getAll: async (params) => {
 		const { data } = await api.get(`/posts`, { params });
-		return data.posts;
+		return data;
 	},
 	create: async (payload) => {
 		const { data } = await api.post("/posts", payload);

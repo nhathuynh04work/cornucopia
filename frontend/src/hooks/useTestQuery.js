@@ -10,7 +10,7 @@ export function useGetTests(params = {}) {
 	});
 }
 
-export function useGetTestInfo(id) {
+export function useGetTestForInfo(id) {
 	return useQuery({
 		queryKey: ["test", Number(id), "info"],
 		queryFn: () => testApi.getById(id),
@@ -33,6 +33,14 @@ export function useGetTestForAttempt(id) {
 		queryKey: ["test", Number(id), "attempt"],
 		queryFn: () => testApi.getForAttempt(id),
 		enabled: !!id,
+		...queryDefaults,
+	});
+}
+
+export function useGetAttemptHistory(testId) {
+	return useQuery({
+		queryKey: ["attempts-history", Number(testId)],
+		queryFn: () => testApi.getAttemptHistory(testId),
 		...queryDefaults,
 	});
 }

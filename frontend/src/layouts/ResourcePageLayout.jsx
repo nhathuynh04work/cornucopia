@@ -48,13 +48,10 @@ export default function ResourcePageLayout({
 			</div>
 
 			{/* --- Sticky Control Bar --- */}
-			{/* Removed border-b from here to fix width issue */}
 			<div className="sticky top-0 z-20 bg-gray-50/95 backdrop-blur-md transition-all">
 				<div className="max-w-[1600px] mx-auto px-6">
-					{/* Added padding and border here so it matches content width */}
 					<div className="py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
 						<div className="flex items-center gap-3 w-full md:w-auto">
-							{/* Desktop Sidebar Toggle */}
 							<button
 								onClick={() => setIsSidebarOpen(!isSidebarOpen)}
 								className="hidden lg:flex items-center justify-center p-2.5 bg-white border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-600 hover:text-purple-600 rounded-xl transition-all shadow-sm"
@@ -68,14 +65,12 @@ export default function ResourcePageLayout({
 								)}
 							</button>
 
-							{/* Mobile Filter Toggle */}
 							<button
 								className="lg:hidden p-2.5 bg-white border border-gray-200 rounded-xl text-gray-600 hover:text-purple-600 shadow-sm"
 								onClick={() => setIsMobileFilterOpen(true)}>
 								<Filter className="w-5 h-5" />
 							</button>
 
-							{/* Sort Dropdown */}
 							<div className="hidden md:block w-[180px]">
 								<RadixSelect
 									value={sort}
@@ -87,7 +82,6 @@ export default function ResourcePageLayout({
 							</div>
 						</div>
 
-						{/* Search & Count */}
 						<div className="flex items-center gap-4 flex-1 justify-end ml-auto w-full md:w-auto">
 							<span className="text-sm text-gray-500 whitespace-nowrap hidden lg:inline">
 								<span className="font-bold text-gray-900">
@@ -121,7 +115,6 @@ export default function ResourcePageLayout({
 								? "w-[300px] opacity-100 translate-x-0 pl-6 pr-2"
 								: "w-0 opacity-0 -translate-x-10 overflow-hidden pl-0 pr-0"
 						}`}>
-						{/* Changed h-[...] to max-h-[...] so it doesn't force stretch */}
 						<aside className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm w-full max-h-[calc(100vh-8rem)] flex flex-col overflow-hidden">
 							{filterContent}
 						</aside>
@@ -160,7 +153,6 @@ export default function ResourcePageLayout({
 							</button>
 						</div>
 
-						{/* Mobile Sidebar Content */}
 						<div className="flex-1 overflow-y-auto">
 							{filterContent}
 						</div>
