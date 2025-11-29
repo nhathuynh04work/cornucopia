@@ -3,7 +3,7 @@ import { api } from "./axios";
 const courseApi = {
 	getAll: async (params) => {
 		const { data } = await api.get("/courses", { params });
-		return data.courses;
+		return data;
 	},
 	getForInfoView: async (courseId) => {
 		const { data } = await api.get(`/courses/${courseId}/info`);
@@ -20,10 +20,6 @@ const courseApi = {
 	getForLearning: async (courseId) => {
 		const { data } = await api.get(`/courses/${courseId}/learn`);
 		return data.course;
-	},
-	getEnrolled: async () => {
-		const { data } = await api.get("/courses/enrolled");
-		return data.courses;
 	},
 	createCourse: async (payload) => {
 		const { data } = await api.post("/courses", payload);

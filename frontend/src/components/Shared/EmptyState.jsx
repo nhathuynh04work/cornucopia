@@ -9,6 +9,7 @@ export default function EmptyState({
 	actionLink,
 	onAction,
 	allowedRoles,
+	children,
 }) {
 	const renderButton = () => {
 		if (actionLink && actionLabel) {
@@ -37,23 +38,28 @@ export default function EmptyState({
 	const button = renderButton();
 
 	return (
-		<div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-dashed border-gray-200">
-			<div className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mb-4 text-purple-500">
-				<Icon className="w-8 h-8" />
-			</div>
-			<h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
-			<p className="text-gray-500 max-w-sm mb-6 text-sm leading-relaxed">
+		<div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-3xl border border-gray-200 shadow-sm px-6">
+			{Icon && (
+				<div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6 text-gray-400">
+					<Icon className="w-10 h-10" />
+				</div>
+			)}
+			<h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+			<p className="text-gray-500 max-w-md mb-6 leading-relaxed">
 				{description}
 			</p>
 
-			{button &&
-				(allowedRoles ? (
-					<PermissionGate allowedRoles={allowedRoles}>
-						{button}
-					</PermissionGate>
-				) : (
-					button
-				))}
+			{/* Render children if provided (e.g. Clear Filters), otherwise render standard button */}
+			{children
+				? children
+				: button &&
+				  (allowedRoles ? (
+						<PermissionGate allowedRoles={allowedRoles}>
+							{button}
+						</PermissionGate>
+				  ) : (
+						button
+				  ))}
 		</div>
 	);
 }

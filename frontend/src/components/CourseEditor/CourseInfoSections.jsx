@@ -10,12 +10,8 @@ import SimpleRichTextEditor from "@/components/Shared/SimpleRichTextEditor";
 import RadixSelect from "@/components/Shared/RadixSelect";
 import MediaUploader from "@/components/Shared/MediaUploader";
 import { useState } from "react";
-import {
-	LEVEL_OPTIONS,
-	PRICE_TIERS,
-	LANGUAGE_OPTIONS,
-	EXCERPT_LIMIT,
-} from "@/lib/constants/course";
+import { PRICE_TIERS, EXCERPT_LIMIT } from "@/lib/constants/course";
+import { LANGUAGE_OPTIONS, LEVEL_OPTIONS } from "@/lib/constants/common";
 
 export const BasicInfoSection = ({ course, onChange }) => {
 	const currentExcerpt = course.excerpt || "";
@@ -59,7 +55,8 @@ export const BasicInfoSection = ({ course, onChange }) => {
 							Hiển thị trên thẻ khóa học và SEO
 						</span>
 						<div className="flex items-center gap-2">
-							<span className={`text-[11px] font-semibold text-gray-400`}>
+							<span
+								className={`text-[11px] font-semibold text-gray-400`}>
 								{currentLength}/{EXCERPT_LIMIT}
 							</span>
 						</div>

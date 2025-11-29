@@ -10,7 +10,7 @@ import {
 import Avatar from "@/components/Shared/Avatar";
 import StatusBadge from "@/components/Shared/StatusBadge";
 import StarRating from "@/components/Shared/StarRating";
-import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 // Helper to format duration (seconds -> readable string)
 const formatDuration = (seconds) => {
@@ -27,7 +27,6 @@ function CourseCard({ course }) {
 	const {
 		id,
 		title,
-		excerpt,
 		coverUrl,
 		price,
 		user,
@@ -63,8 +62,7 @@ function CourseCard({ course }) {
 	return (
 		<Link
 			to={targetLink}
-			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative"
-		>
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- IMAGE SECTION (Left Side) --- */}
 			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100">
 				<div className="aspect-video md:h-full md:aspect-auto relative">
@@ -124,7 +122,7 @@ function CourseCard({ course }) {
 				{/* 1. Rating Row (Precise Stars) */}
 				<div className="flex items-center gap-2 mb-2">
 					<StarRating rating={rating} size={16} />
-					
+
 					<div className="flex items-baseline gap-1">
 						<span className="text-sm font-bold text-gray-900">
 							{rating}

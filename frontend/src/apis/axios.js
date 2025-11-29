@@ -5,6 +5,9 @@ import { ACCESS_TOKEN_KEY } from "../lib/constants";
 export const api = axios.create({
 	baseURL: env.API_URL,
 	timeout: 5000,
+	paramsSerializer: {
+		indexes: null,
+	},
 });
 
 // Request interceptor: Attaches the JWT to every outgoing request
@@ -36,7 +39,7 @@ api.interceptors.response.use(
 		const normalizedError = new Error(
 			error.response?.data?.error || error.message || "Unknown error"
 		);
-        
+
 		normalizedError.status = error.response?.status;
 		throw normalizedError;
 	}

@@ -6,6 +6,7 @@ import {
 	createDeckSchema,
 	deleteDeckSchema,
 	getDeckSchema,
+	getDecksSchema,
 	startSessionSchema,
 	syncDeckSchema,
 } from "./deck.schema.js";
@@ -14,7 +15,7 @@ const router = Router();
 
 router.use(authenticateJwt);
 
-router.get("/", deckController.getDecks);
+router.get("/", validate(getDecksSchema), deckController.getDecks);
 
 router.get("/:deckId", validate(getDeckSchema), deckController.getDeckDetails);
 

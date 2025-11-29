@@ -1,17 +1,35 @@
 import { courseService } from "./course.service.js";
 
 const getCourses = async (req, res) => {
-	const { search, sort, status, userId, enrolledUserId } = req.query;
-
-	const courses = await courseService.getAll({
+	const {
 		search,
 		sort,
 		status,
-		userId: userId ? Number(userId) : undefined,
-		enrolledUserId: enrolledUserId ? Number(enrolledUserId) : undefined,
+		userId,
+		enrolledUserId,
+		page,
+		limit,
+		level,
+		language,
+		rating,
+		price,
+	} = req.query;
+
+	const coursesData = await courseService.getAll({
+		search,
+		sort,
+		status,
+		userId,
+		enrolledUserId,
+		page,
+		limit,
+		level,
+		language,
+		minRating: rating,
+		priceType: price,
 	});
 
-	res.status(200).json({ courses });
+	res.status(200).json(coursesData);
 };
 
 const getCourseForInfoView = async (req, res) => {
@@ -33,12 +51,6 @@ const getCourseForLearning = async (req, res) => {
 	const userId = req.user.id;
 	const course = await courseService.getCourseForLearning(courseId, userId);
 	res.status(200).json({ course });
-};
-
-const getEnrolledCourses = async (req, res) => {
-	const userId = req.user.id;
-	const courses = await courseService.getEnrolledCourses(userId);
-	res.status(200).json({ courses });
 };
 
 const getUserCourseEnrollment = async (req, res) => {
@@ -171,7 +183,6 @@ export const courseController = {
 	getCourseForInfoView,
 	getCourseForEditor,
 	getCourseForLearning,
-	getEnrolledCourses,
 	getUserCourseEnrollment,
 
 	createCourse,

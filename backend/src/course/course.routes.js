@@ -15,11 +15,12 @@ import {
 	deleteModuleSchema,
 	deleteReviewSchema,
 	getCourseSchema,
+	getCoursesSchema,
 	updateCourseSchema,
 	updateLessonProgressSchema,
 	updateLessonSchema,
 	updateModuleSchema,
-    updateReviewSchema,
+	updateReviewSchema,
 } from "./course.schema.js";
 
 const router = Router();
@@ -27,8 +28,7 @@ const router = Router();
 router.use(authenticateJwt);
 
 // --- READ OPERATIONS ---
-router.get("/", courseController.getCourses);
-router.get("/enrolled", courseController.getEnrolledCourses);
+router.get("/", validate(getCoursesSchema), courseController.getCourses);
 
 router.get(
 	"/:courseId/info",

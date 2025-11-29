@@ -1,16 +1,21 @@
 import { testService } from "./test.service.js";
 
 const getTests = async (req, res) => {
-	const { search, sort, isPublic, userId } = req.query;
+	const { search, sort, isPublic, userId, page, limit, level, language } =
+		req.query;
 
-	const tests = await testService.getTests({
+	const testsData = await testService.getTests({
 		search,
 		sort,
 		isPublic: isPublic === "true",
-		userId: userId ? Number(userId) : undefined,
+		userId,
+		page,
+		limit,
+		level,
+		language,
 	});
 
-	res.status(200).json({ tests });
+	res.status(200).json(testsData);
 };
 
 const getAttemptedTests = async (req, res) => {
