@@ -305,18 +305,20 @@ model PostChunk {
 }
 
 model Course {
-    id          Int          @id @default(autoincrement())
-    userId      Int          @map("user_id")
-    title       String
-    description String?      @db.Text
-    excerpt     String?      @db.VarChar(160)
-    level       CourseLevel  @default(ALL_LEVELS)
-    language    String       @default("en")
-    price       Int          @default(0)
-    coverUrl    String?      @map("cover_url")
-    status      CourseStatus @default(DRAFT)
-    createdAt   DateTime     @default(now()) @map("created_at")
-    updatedAt   DateTime     @updatedAt @map("updated_at")
+    id            Int          @id @default(autoincrement())
+    userId        Int          @map("user_id")
+    title         String
+    description   String?      @db.Text
+    excerpt       String?      @db.VarChar(160)
+    level         CourseLevel  @default(ALL_LEVELS)
+    language      String       @default("en")
+    price         Int          @default(0)
+    coverUrl      String?      @map("cover_url")
+    status        CourseStatus @default(DRAFT)
+    averageRating Float        @default(0) @map("average_rating")
+    ratingCount   Int          @default(0) @map("rating_count")
+    createdAt     DateTime     @default(now()) @map("created_at")
+    updatedAt     DateTime     @updatedAt @map("updated_at")
 
     user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
     modules     Module[]
@@ -325,6 +327,8 @@ model Course {
     reviews     Review[]
 
     @@index([status])
+    @@index([averageRating])
+    @@index([price])
     @@map("courses")
 }
 

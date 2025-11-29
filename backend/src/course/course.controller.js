@@ -1,17 +1,40 @@
 import { courseService } from "./course.service.js";
 
 const getCourses = async (req, res) => {
-	const { search, sort, status, userId, enrolledUserId } = req.query;
+	const {
+		search,
+		sort,
+		status,
+		userId,
+		enrolledUserId,
+		page,
+		limit,
+		level,
+		language,
+		rating,
+		price,
+	} = req.query;
 
-	const courses = await courseService.getAll({
+	const parseArrayParam = (param) => {
+		if (!param) return undefined;
+		return Array.isArray(param) ? param : [param];
+	};
+
+	const coursesData = await courseService.getAll({
 		search,
 		sort,
 		status,
 		userId: userId ? Number(userId) : undefined,
 		enrolledUserId: enrolledUserId ? Number(enrolledUserId) : undefined,
+		page: page ? Number(page) : 1,
+		limit: limit ? Number(limit) : 10,
+		level: parseArrayParam(level),
+		language: parseArrayParam(language),
+		minRating: rating ? Number(rating) : undefined,
+		priceType: price,
 	});
 
-	res.status(200).json({ courses });
+	res.status(200).json(coursesData);
 };
 
 const getCourseForInfoView = async (req, res) => {

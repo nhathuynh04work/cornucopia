@@ -8,6 +8,25 @@ import { calculateCourseProgress } from "../utils/calculate.js";
 import { indexCourse } from "../chatbot/indexer.js";
 import { CourseStatus } from "../generated/prisma/index.js";
 
+const updateCourseRatingStats = async (courseId) => {
+	const aggregate = await prisma.review.aggregate({
+		where: { courseId },
+		_avg: { rating: true },
+		_count: { rating: true },
+	});
+
+	const averageRating = aggregate._avg.rating || 0;
+	const ratingCount = aggregate._count.rating || 0;
+
+	await prisma.course.update({
+		where: { id: courseId },
+		data: {
+			averageRating,
+			ratingCount,
+		},
+	});
+};
+
 const getReviewStats = async (courseId) => {
 	const [aggregates, distribution] = await Promise.all([
 		prisma.review.aggregate({
@@ -46,10 +65,27 @@ const getReviewStats = async (courseId) => {
 	};
 };
 
-const getAll = async ({ search, sort, status, userId, enrolledUserId }) => {
+const getAll = async ({
+	search,
+	sort,
+	status,
+	userId,
+	enrolledUserId,
+	page = 1,
+	limit = 10,
+	level,
+	language,
+	minRating,
+	priceType,
+}) => {
 	const where = {};
 
 	if (status) where.status = status;
+
+	if (!status && !userId && !enrolledUserId) {
+		where.status = "PUBLIC";
+	}
+
 	if (userId) where.userId = userId;
 	if (enrolledUserId) {
 		where.enrollments = { some: { userId: enrolledUserId } };
@@ -59,38 +95,101 @@ const getAll = async ({ search, sort, status, userId, enrolledUserId }) => {
 		where.title = { contains: search, mode: "insensitive" };
 	}
 
+	if (level && level.length > 0 && !level.includes("ALL_LEVELS")) {
+		where.level = { in: level };
+	}
+
+	if (language && language.length > 0) {
+		where.language = { in: language };
+	}
+
+	if (minRating) {
+		where.averageRating = { gte: minRating };
+	}
+
+	if (priceType === "free") {
+		where.price = 0;
+	} else if (priceType === "paid") {
+		where.price = { gt: 0 };
+	}
+
 	let orderBy = { createdAt: "desc" };
-	if (sort === "oldest") orderBy = { createdAt: "asc" };
-	else if (sort === "price_asc") orderBy = { price: "asc" };
-	else if (sort === "price_desc") orderBy = { price: "desc" };
 
-	const courses = await prisma.course.findMany({
-		where,
-		orderBy,
-		include: {
-			user: { select: { id: true, name: true, avatarUrl: true } },
+	if (sort === "oldest") {
+		orderBy = { createdAt: "asc" };
+	} else if (sort === "price_asc") {
+		orderBy = { price: "asc" };
+	} else if (sort === "price_desc") {
+		orderBy = { price: "desc" };
+	} else if (sort === "rating") {
+		orderBy = { averageRating: "desc" };
+	} else if (sort === "popular") {
+		orderBy = { enrollments: { _count: "desc" } };
+	}
 
-			reviews: {
-				select: { rating: true },
+	const skip = (page - 1) * limit;
+
+	const [courses, totalItems] = await Promise.all([
+		prisma.course.findMany({
+			where,
+			orderBy,
+			skip,
+			take: limit,
+			include: {
+				user: { select: { id: true, name: true, avatarUrl: true } },
+				_count: { select: { enrollments: true } },
+				modules: {
+					select: {
+						lessons: {
+							where: { isPublished: true },
+							select: { duration: true },
+						},
+					},
+				},
 			},
-			_count: { select: { enrollments: true } },
-		},
-	});
+		}),
+		prisma.course.count({ where }),
+	]);
 
-	return courses.map((course) => {
-		const totalRatings = course.reviews.length;
-		const sumRatings = course.reviews.reduce((acc, r) => acc + r.rating, 0);
-		const avgRating = totalRatings > 0 ? sumRatings / totalRatings : 0;
+	const mappedCourses = courses.map((course) => {
+		let duration = 0;
+		let lessons = 0;
+
+		course.modules.forEach((mod) => {
+			lessons += mod.lessons.length;
+			duration += mod.lessons.reduce((acc, l) => acc + l.duration, 0);
+		});
 
 		return {
-			...course,
+			id: course.id,
+			title: course.title,
+			excerpt: course.excerpt,
+			coverUrl: course.coverUrl,
+			price: course.price,
+			user: course.user,
+			_count: course._count,
+			status: course.status,
+			level: course.level,
+			language: course.language,
+
 			stats: {
-				rating: Number(avgRating.toFixed(1)),
-				ratingCount: totalRatings,
+				rating: Number(course.averageRating.toFixed(1)),
+				ratingCount: course.ratingCount,
 			},
-			reviews: undefined,
+
+			duration,
+			lessons,
 		};
 	});
+
+	return {
+		data: mappedCourses,
+		pagination: {
+			totalItems,
+			totalPages: Math.ceil(totalItems / limit),
+			currentPage: page,
+		},
+	};
 };
 
 const getCourseForInfoView = async (courseId, userId) => {
@@ -568,7 +667,7 @@ const addReview = async (courseId, userId, { rating, content }) => {
 		throw new BadRequestError("You have already reviewed this course.");
 	}
 
-	return prisma.review.create({
+	const review = await prisma.review.create({
 		data: {
 			userId,
 			courseId,
@@ -579,6 +678,10 @@ const addReview = async (courseId, userId, { rating, content }) => {
 			user: { select: { id: true, name: true, avatarUrl: true } },
 		},
 	});
+
+	await updateCourseRatingStats(courseId);
+
+	return review;
 };
 
 const updateReview = async (reviewId, userId, data) => {
@@ -588,13 +691,17 @@ const updateReview = async (reviewId, userId, data) => {
 	if (review.userId !== userId)
 		throw new ForbiddenError("You can only edit your own review");
 
-	return prisma.review.update({
+	const updatedReview = await prisma.review.update({
 		where: { id: reviewId },
 		data,
 		include: {
 			user: { select: { id: true, name: true, avatarUrl: true } },
 		},
 	});
+
+	await updateCourseRatingStats(review.courseId);
+
+	return updatedReview;
 };
 
 const deleteReview = async (reviewId, userId) => {
@@ -604,7 +711,11 @@ const deleteReview = async (reviewId, userId) => {
 	if (review.userId !== userId)
 		throw new ForbiddenError("You can only delete your own review");
 
-	return prisma.review.delete({ where: { id: reviewId } });
+	await prisma.review.delete({ where: { id: reviewId } });
+
+	await updateCourseRatingStats(review.courseId);
+
+	return { message: "Review deleted" };
 };
 
 export const courseService = {
