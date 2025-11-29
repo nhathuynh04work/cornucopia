@@ -15,20 +15,21 @@ const getCourses = async (req, res) => {
 };
 
 const getCourseForInfoView = async (req, res) => {
-	const courseId = req.params.id;
-	const course = await courseService.getCourseForInfoView(courseId);
+	const courseId = req.params.courseId;
+	const userId = req.user.id;
+	const course = await courseService.getCourseForInfoView(courseId, userId);
 	res.status(200).json({ course });
 };
 
 const getCourseForEditor = async (req, res) => {
-	const courseId = req.params.id;
+	const courseId = req.params.courseId;
 	const userId = req.user.id;
 	const course = await courseService.getCourseForEditor(courseId, userId);
 	res.status(200).json({ course });
 };
 
 const getCourseForLearning = async (req, res) => {
-	const courseId = req.params.id;
+	const courseId = req.params.courseId;
 	const userId = req.user.id;
 	const course = await courseService.getCourseForLearning(courseId, userId);
 	res.status(200).json({ course });
@@ -40,14 +41,8 @@ const getEnrolledCourses = async (req, res) => {
 	res.status(200).json({ courses });
 };
 
-const getMyCourses = async (req, res) => {
-	const userId = req.user.id;
-	const courses = await courseService.getMyCourses(userId);
-	res.status(200).json({ courses });
-};
-
 const getUserCourseEnrollment = async (req, res) => {
-	const courseId = req.params.id;
+	const courseId = req.params.courseId;
 	const userId = req.user.id;
 	const enrollment = await courseService.getUserCourseEnrollment(
 		courseId,
@@ -63,13 +58,13 @@ const createCourse = async (req, res) => {
 };
 
 const updateCourse = async (req, res) => {
-	const id = req.params.id;
+	const id = req.params.courseId;
 	const course = await courseService.updateCourse(id, req.body);
 	res.status(200).json({ course });
 };
 
 const deleteCourse = async (req, res) => {
-	const courseId = req.params.id;
+	const courseId = req.params.courseId;
 	const userId = req.user.id;
 	await courseService.removeCourse(courseId, userId);
 	res.status(204).end();
@@ -129,14 +124,56 @@ const updateLessonProgress = async (req, res) => {
 	res.status(200).json({ progress });
 };
 
+// Reviews
+const getReviews = async (req, res) => {
+	const { courseId } = req.params;
+	const { page, limit, sort, rating } = req.query;
+
+	const result = await courseService.getReviews(courseId, {
+		page: page ? page : 1,
+		limit: limit ? limit : 10,
+		sort,
+		rating: rating ? Number(rating) : undefined,
+	});
+
+	res.status(200).json(result);
+};
+
+const addReview = async (req, res) => {
+	const { courseId } = req.params;
+	const userId = req.user.id;
+
+	const review = await courseService.addReview(courseId, userId, req.body);
+
+	res.status(201).json({ review });
+};
+
+const updateReview = async (req, res) => {
+	const { reviewId } = req.params;
+	const userId = req.user.id;
+
+	const review = await courseService.updateReview(reviewId, userId, req.body);
+
+	res.status(200).json({ review });
+};
+
+const deleteReview = async (req, res) => {
+	const { reviewId } = req.params;
+	const userId = req.user.id;
+
+	await courseService.deleteReview(reviewId, userId);
+
+	res.status(204).end();
+};
+
 export const courseController = {
 	getCourses,
 	getCourseForInfoView,
 	getCourseForEditor,
 	getCourseForLearning,
 	getEnrolledCourses,
-	getMyCourses,
 	getUserCourseEnrollment,
+
 	createCourse,
 	updateCourse,
 	deleteCourse,
@@ -146,5 +183,11 @@ export const courseController = {
 	addLesson,
 	updateLesson,
 	deleteLesson,
+
 	updateLessonProgress,
+
+	getReviews,
+	addReview,
+	updateReview,
+	deleteReview,
 };

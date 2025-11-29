@@ -3,6 +3,7 @@ import { FileText, List, Star } from "lucide-react";
 import clsx from "clsx";
 import CourseDescription from "./CourseDescription";
 import CourseCurriculumList from "./CourseCurriculumList";
+import CourseReviews from "./CourseReviews";
 
 export default function CourseTabs({ course, isEnrolled }) {
 	const [activeTab, setActiveTab] = useState("overview");
@@ -51,18 +52,7 @@ export default function CourseTabs({ course, isEnrolled }) {
 				)}
 
 				{activeTab === "reviews" && (
-					<div className="p-6 md:p-8 py-12 text-center">
-						<div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-							<Star className="w-8 h-8" />
-						</div>
-						<h3 className="text-gray-900 font-bold mb-2">
-							Đánh giá & Nhận xét
-						</h3>
-						<p className="text-gray-500 text-sm max-w-xs mx-auto">
-							Tính năng đánh giá khóa học đang được phát triển và
-							sẽ sớm ra mắt.
-						</p>
-					</div>
+					<CourseReviews course={course} isEnrolled={isEnrolled} />
 				)}
 			</div>
 		</div>

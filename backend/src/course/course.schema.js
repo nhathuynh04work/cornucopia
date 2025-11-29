@@ -29,16 +29,16 @@ const UpdateCourseBody = z
 	.partial();
 
 export const getCourseSchema = z.object({
-	params: createIdParamSchema("id"),
+	params: createIdParamSchema("courseId"),
 });
 
 export const updateCourseSchema = z.object({
-	params: createIdParamSchema("id"),
+	params: createIdParamSchema("courseId"),
 	body: UpdateCourseBody,
 });
 
 export const deleteCourseSchema = z.object({
-	params: createIdParamSchema("id"),
+	params: createIdParamSchema("courseId"),
 });
 
 // --- Module Schemas ---
@@ -106,4 +106,29 @@ export const updateLessonProgressSchema = z.object({
 	body: z.object({
 		isCompleted: z.boolean(),
 	}),
+});
+
+// reviews
+export const createReviewSchema = z.object({
+	params: createIdParamSchema("courseId"),
+	body: z.object({
+		rating: z.number().int().min(1).max(5),
+		content: z.string().optional(),
+	}),
+});
+
+export const updateReviewSchema = z.object({
+	params: createIdParamSchema("courseId").extend(
+		createIdParamSchema("reviewId").shape
+	),
+	body: z.object({
+		rating: z.number().int().min(1).max(5).optional(),
+		content: z.string().optional(),
+	}),
+});
+
+export const deleteReviewSchema = z.object({
+	params: createIdParamSchema("courseId").extend(
+		createIdParamSchema("reviewId").shape
+	),
 });
