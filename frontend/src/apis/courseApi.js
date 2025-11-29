@@ -90,6 +90,30 @@ const courseApi = {
 		const { data } = await api.post(`/checkout/create-session/${courseId}`);
 		return data.url;
 	},
+
+	getReviews: async (courseId, params) => {
+		const { data } = await api.get(`/courses/${courseId}/reviews`, {
+			params,
+		});
+		return data;
+	},
+	addReview: async (courseId, payload) => {
+		const { data } = await api.post(
+			`/courses/${courseId}/reviews`,
+			payload
+		);
+		return data.review;
+	},
+	updateReview: async (courseId, reviewId, payload) => {
+		const { data } = await api.patch(
+			`/courses/${courseId}/reviews/${reviewId}`,
+			payload
+		);
+		return data.review;
+	},
+	deleteReview: async (courseId, reviewId) => {
+		await api.delete(`/courses/${courseId}/reviews/${reviewId}`);
+	},
 };
 
 export default courseApi;

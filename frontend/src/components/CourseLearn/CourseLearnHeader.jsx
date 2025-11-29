@@ -1,5 +1,5 @@
 import { ArrowLeft, Menu, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const CircularProgress = ({ percentage, size = 42, strokeWidth = 4 }) => {
 	const radius = (size - strokeWidth) / 2;
@@ -46,18 +46,15 @@ export default function CourseLearnHeader({
 	isSidebarOpen,
 	setIsSidebarOpen,
 }) {
-	const navigate = useNavigate();
-
 	return (
-		// REMOVED: shadow-sm class
 		<header className="h-16 border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 bg-white z-20 shrink-0 relative">
 			<div className="flex items-center gap-4">
-				<button
-					onClick={() => navigate("/courses")}
+				<Link
+					to={`/courses/${course.id}`}
 					className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
 					title="Back to Courses">
 					<ArrowLeft className="w-5 h-5" />
-				</button>
+				</Link>
 
 				<div className="flex flex-col">
 					<h1 className="font-bold text-gray-900 text-sm md:text-base line-clamp-1 max-w-[200px] md:max-w-md">
