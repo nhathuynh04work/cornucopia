@@ -3,7 +3,7 @@ import { api } from "./axios";
 const courseApi = {
 	getAll: async (params) => {
 		const { data } = await api.get("/courses", { params });
-		return data.courses;
+		return data;
 	},
 	getForInfoView: async (courseId) => {
 		const { data } = await api.get(`/courses/${courseId}/info`);
