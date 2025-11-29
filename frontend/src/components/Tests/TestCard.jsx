@@ -1,15 +1,8 @@
 import { Link } from "react-router-dom";
-import {
-	Users,
-	FileText,
-	Clock,
-	Trophy,
-	Globe,
-	BarChart2,
-} from "lucide-react";
+import { Users, FileText, Clock, Trophy, Globe, BarChart2 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import StatusBadge from "@/components/Shared/StatusBadge";
-import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 // Helper to format duration (seconds -> string)
 const formatDuration = (seconds) => {
@@ -35,14 +28,15 @@ function TestCard({ test }) {
 	const targetLink = isDraft ? `/tests/${id}/edit` : `/tests/${id}`;
 
 	// Helper to get labels
-	const levelLabel = LEVEL_OPTIONS?.find((o) => o.value === level)?.label || level;
-	const langLabel = LANGUAGE_OPTIONS?.find((o) => o.value === language)?.label || language;
+	const levelLabel =
+		LEVEL_OPTIONS?.find((o) => o.value === level)?.label || level;
+	const langLabel =
+		LANGUAGE_OPTIONS?.find((o) => o.value === language)?.label || language;
 
 	return (
 		<Link
 			to={targetLink}
-			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative"
-		>
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- ICON SECTION (Left Side) --- */}
 			<div className="w-full md:w-48 shrink-0 relative bg-blue-50 flex items-center justify-center min-h-[140px] md:min-h-0">
 				<Trophy className="w-12 h-12 text-blue-300 group-hover:scale-110 transition-transform duration-500" />

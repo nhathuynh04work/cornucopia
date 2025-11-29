@@ -3,6 +3,7 @@ import {
 	FilterSection,
 	CheckboxItem,
 } from "@/components/Shared/FilterSidebar";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 export default function DeckFilterSidebar({
 	filters,
@@ -17,12 +18,7 @@ export default function DeckFilterSidebar({
 			onClear={clearFilters}
 			hasActiveFilters={hasActiveFilters}>
 			<FilterSection title="Trình độ">
-				{[
-					{ value: "ALL_LEVELS", label: "Tất cả trình độ" },
-					{ value: "BEGINNER", label: "Cơ bản" },
-					{ value: "INTERMEDIATE", label: "Trung bình" },
-					{ value: "ADVANCED", label: "Nâng cao" },
-				].map((opt) => (
+				{LEVEL_OPTIONS.map((opt) => (
 					<CheckboxItem
 						key={opt.value}
 						label={opt.label}
@@ -33,11 +29,7 @@ export default function DeckFilterSidebar({
 			</FilterSection>
 
 			<FilterSection title="Ngôn ngữ">
-				{[
-					{ value: "en", label: "Tiếng Anh" },
-					{ value: "vi", label: "Tiếng Việt" },
-					{ value: "ja", label: "Tiếng Nhật" },
-				].map((opt) => (
+				{LANGUAGE_OPTIONS.map((opt) => (
 					<CheckboxItem
 						key={opt.value}
 						label={opt.label}

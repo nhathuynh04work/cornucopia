@@ -10,7 +10,7 @@ import {
 import Avatar from "@/components/Shared/Avatar";
 import StatusBadge from "@/components/Shared/StatusBadge";
 import StarRating from "@/components/Shared/StarRating";
-import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 // Helper to format duration (seconds -> readable string)
 const formatDuration = (seconds) => {

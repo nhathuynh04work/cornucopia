@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Users, Layers, BrainCircuit, Globe, BarChart2 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import StatusBadge from "@/components/Shared/StatusBadge";
-import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 function DeckCard({ deck }) {
 	const {

@@ -5,7 +5,7 @@ import {
 	CheckboxItem,
 	RadioItem,
 } from "@/components/Shared/FilterSidebar";
-import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 export default function CourseFilterSidebar({
 	filters,
