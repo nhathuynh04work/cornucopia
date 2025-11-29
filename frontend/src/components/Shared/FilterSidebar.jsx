@@ -31,7 +31,8 @@ export const CheckboxItem = ({ label, count, checked, onChange }) => (
 		<input
 			type="checkbox"
 			className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer accent-purple-600"
-			checked={checked}
+			// FIX: Ensure checked is always a boolean (false if undefined)
+			checked={!!checked}
 			onChange={onChange}
 		/>
 		<span
@@ -54,7 +55,7 @@ export const RadioItem = ({ label, name, checked, onChange, icon }) => (
 			type="radio"
 			name={name}
 			className="w-4 h-4 border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer accent-purple-600"
-			checked={checked}
+			checked={!!checked}
 			onChange={onChange}
 		/>
 		<div

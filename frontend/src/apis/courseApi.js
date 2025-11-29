@@ -21,10 +21,6 @@ const courseApi = {
 		const { data } = await api.get(`/courses/${courseId}/learn`);
 		return data.course;
 	},
-	getEnrolled: async () => {
-		const { data } = await api.get("/courses/enrolled");
-		return data.courses;
-	},
 	createCourse: async (payload) => {
 		const { data } = await api.post("/courses", payload);
 		return data.course;

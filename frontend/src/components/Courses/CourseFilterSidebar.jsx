@@ -1,27 +1,21 @@
-import { Star, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, Star } from "lucide-react";
 import {
 	FilterSection,
 	CheckboxItem,
 	RadioItem,
 } from "@/components/Shared/FilterSidebar";
-import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
 
 export default function CourseFilterSidebar({
 	filters,
-	toggleFilterArray,
 	setFilter,
+	toggleFilterArray,
 	clearFilters,
 }) {
-	const selectedLevels = filters.level || [];
-	const selectedLanguages = filters.language || [];
-	const minRating = filters.rating || null;
-	const priceFilter = filters.price || "all";
-
 	const hasActiveFilters =
-		selectedLevels.length > 0 ||
-		selectedLanguages.length > 0 ||
-		minRating ||
-		priceFilter !== "all";
+		filters.level?.length > 0 ||
+		filters.language?.length > 0 ||
+		filters.rating ||
+		filters.price;
 
 	return (
 		<div className="flex flex-col h-full">
@@ -47,7 +41,7 @@ export default function CourseFilterSidebar({
 							key={rating}
 							name="rating"
 							label={`Từ ${rating} sao`}
-							checked={minRating === rating}
+							checked={filters.rating === rating}
 							onChange={() => setFilter("rating", rating)}
 							icon={
 								<div className="flex gap-0.5">
@@ -57,9 +51,6 @@ export default function CourseFilterSidebar({
 											className={`w-3 h-3 ${
 												s <= Math.floor(rating)
 													? "fill-amber-400 text-amber-400"
-													: s === Math.ceil(rating) &&
-													  rating % 1 !== 0
-													? "fill-amber-400 text-amber-400 opacity-50"
 													: "text-gray-300"
 											}`}
 										/>
@@ -71,18 +62,23 @@ export default function CourseFilterSidebar({
 					<RadioItem
 						name="rating"
 						label="Tất cả"
-						checked={minRating === null}
+						checked={!filters.rating}
 						onChange={() => setFilter("rating", null)}
 					/>
 				</FilterSection>
 
 				{/* Level */}
 				<FilterSection title="Trình độ">
-					{LEVEL_OPTIONS.map((opt) => (
+					{[
+						{ value: "ALL_LEVELS", label: "Tất cả trình độ" },
+						{ value: "BEGINNER", label: "Cơ bản" },
+						{ value: "INTERMEDIATE", label: "Trung cấp" },
+						{ value: "ADVANCED", label: "Nâng cao" },
+					].map((opt) => (
 						<CheckboxItem
 							key={opt.value}
 							label={opt.label}
-							checked={selectedLevels.includes(opt.value)}
+							checked={filters.level?.includes(opt.value)}
 							onChange={() =>
 								toggleFilterArray("level", opt.value)
 							}
@@ -92,11 +88,16 @@ export default function CourseFilterSidebar({
 
 				{/* Language */}
 				<FilterSection title="Ngôn ngữ">
-					{LANGUAGE_OPTIONS.map((opt) => (
+					{[
+						{ value: "en", label: "Tiếng Anh" },
+						{ value: "ja", label: "Tiếng Nhật" },
+						{ value: "ko", label: "Tiếng Hàn" },
+						{ value: "zh", label: "Tiếng Trung" },
+					].map((opt) => (
 						<CheckboxItem
 							key={opt.value}
 							label={opt.label}
-							checked={selectedLanguages.includes(opt.value)}
+							checked={filters.language?.includes(opt.value)}
 							onChange={() =>
 								toggleFilterArray("language", opt.value)
 							}
@@ -109,19 +110,19 @@ export default function CourseFilterSidebar({
 					<RadioItem
 						name="price"
 						label="Tất cả"
-						checked={priceFilter === "all"}
+						checked={!filters.price || filters.price === "all"}
 						onChange={() => setFilter("price", "all")}
 					/>
 					<RadioItem
 						name="price"
 						label="Miễn phí"
-						checked={priceFilter === "free"}
+						checked={filters.price === "free"}
 						onChange={() => setFilter("price", "free")}
 					/>
 					<RadioItem
 						name="price"
 						label="Có phí"
-						checked={priceFilter === "paid"}
+						checked={filters.price === "paid"}
 						onChange={() => setFilter("price", "paid")}
 					/>
 				</FilterSection>

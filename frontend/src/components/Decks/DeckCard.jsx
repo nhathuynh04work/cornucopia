@@ -8,7 +8,6 @@ function DeckCard({ deck }) {
 	const {
 		id,
 		title,
-		description,
 		user,
 		isPublic,
 		cardsCount,
@@ -20,14 +19,15 @@ function DeckCard({ deck }) {
 	const targetLink = `/decks/${id}`;
 
 	// Helper to get labels (assuming you have these constants, or fallback to value)
-	const levelLabel = LEVEL_OPTIONS?.find((o) => o.value === level)?.label || level;
-	const langLabel = LANGUAGE_OPTIONS?.find((o) => o.value === language)?.label || language;
+	const levelLabel =
+		LEVEL_OPTIONS?.find((o) => o.value === level)?.label || level;
+	const langLabel =
+		LANGUAGE_OPTIONS?.find((o) => o.value === language)?.label || language;
 
 	return (
 		<Link
 			to={targetLink}
-			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative"
-		>
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- ICON SECTION (Left Side) --- */}
 			<div className="w-full md:w-48 shrink-0 relative bg-indigo-50 flex items-center justify-center min-h-[140px] md:min-h-0">
 				<Layers className="w-12 h-12 text-indigo-300 group-hover:scale-110 transition-transform duration-500" />
