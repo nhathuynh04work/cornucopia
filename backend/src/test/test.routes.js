@@ -10,6 +10,7 @@ import { Role } from "../generated/prisma/index.js";
 import {
 	deleteTestSchema,
 	getTestSchema,
+	getTestsSchema,
 	syncTestSchema,
 } from "./test.schema.js";
 
@@ -17,7 +18,7 @@ const router = Router();
 
 router.use(authenticateJwt);
 
-router.get("/", testController.getTests);
+router.get("/", validate(getTestsSchema), testController.getTests);
 
 router.get("/attempted", testController.getAttemptedTests);
 
