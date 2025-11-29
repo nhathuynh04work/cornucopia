@@ -1,17 +1,21 @@
 import { deckService } from "./deck.service.js";
 
 const getDecks = async (req, res) => {
-	const { search, sort, userId } = req.query;
+	const { search, sort, userId, page, limit, level, language } = req.query;
 	const currentUserId = req.user.id;
 
-	const decks = await deckService.getDecks({
+	const decksData = await deckService.getDecks({
 		search,
 		sort,
 		userId,
 		currentUserId,
+		page,
+		limit,
+		level,
+		language,
 	});
 
-	res.status(200).json({ decks });
+	res.status(200).json(decksData);
 };
 
 const getDeckDetails = async (req, res) => {

@@ -1,15 +1,11 @@
 import { z } from "zod";
-import {
-	CourseLevel,
-	CourseStatus,
-	LessonType,
-} from "../generated/prisma/index.js";
+import { CourseStatus, LessonType, Level } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
 import { toArray } from "../utils/transform.js";
 
 const CourseStatusSchema = z.enum(CourseStatus);
 
-const CourseLevelSchema = z.enum(CourseLevel);
+export const LevelSchema = z.enum(Level);
 
 const LessonTypeSchema = z.enum(LessonType);
 
@@ -49,7 +45,7 @@ const UpdateCourseBody = z
 		price: z.coerce.number().min(0),
 		coverUrl: z.string().nullish(),
 		status: CourseStatusSchema,
-		level: CourseLevelSchema.optional(),
+		level: LevelSchema.optional(),
 		language: z.string().length(2).optional(),
 	})
 	.partial();

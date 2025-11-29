@@ -200,10 +200,15 @@ model AttemptAnswer {
 }
 
 model Deck {
-    id        Int      @id @default(autoincrement())
-    userId    Int      @map("user_id")
-    title     String
-    isPublic  Boolean  @default(false) @map("is_public")
+    id                Int     @id @default(autoincrement())
+    userId            Int     @map("user_id")
+    title             String
+    isPublic          Boolean @default(false) @map("is_public")
+    level             Level   @default(ALL_LEVELS)
+    language          String  @default("en")
+    cardsCount        Int     @default(0) @map("cards_count")
+    studySessionCount Int     @default(0) @map("study_session_count")
+
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -211,6 +216,10 @@ model Deck {
     cards         Card[]
     studySessions StudySession[]
 
+    @@index([isPublic])
+    @@index([level])
+    @@index([language])
+    @@index([studySessionCount])
     @@map("decks")
 }
 
@@ -310,7 +319,7 @@ model Course {
     title         String
     description   String?      @db.Text
     excerpt       String?      @db.VarChar(160)
-    level         CourseLevel  @default(ALL_LEVELS)
+    level         Level        @default(ALL_LEVELS)
     language      String       @default("en")
     price         Int          @default(0)
     coverUrl      String?      @map("cover_url")
@@ -440,7 +449,7 @@ enum CourseStatus {
     ARCHIVED
 }
 
-enum CourseLevel {
+enum Level {
     ALL_LEVELS
     BEGINNER
     INTERMEDIATE
