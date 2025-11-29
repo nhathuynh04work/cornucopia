@@ -87,19 +87,19 @@ model Media {
 }
 
 model Test {
-    id             Int        @id @default(autoincrement())
-    userId         Int        @map("user_id")
+    id             Int             @id @default(autoincrement())
+    userId         Int             @map("user_id")
     title          String
     description    String?
-    status         TestStatus @default(DRAFT)
-    timeLimit      Int        @default(1800) @map("time_limit")
-    audioUrl       String?    @map("audio_url")
-    level          Level      @default(ALL_LEVELS)
-    language       String     @default("en")
-    questionsCount Int        @default(0) @map("questions_count")
-    attemptsCount  Int        @default(0) @map("attempts_count")
-    createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt      DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+    status         TestStatus      @default(DRAFT)
+    timeLimit      Int             @default(1800) @map("time_limit")
+    audioUrl       String?         @map("audio_url")
+    level          Level           @default(ALL_LEVELS)
+    language       ContentLanguage @default(ENGLISH)
+    questionsCount Int             @default(0) @map("questions_count")
+    attemptsCount  Int             @default(0) @map("attempts_count")
+    createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt      DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
 
     user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     items    TestItem[]
@@ -108,6 +108,7 @@ model Test {
 
     @@index([status])
     @@index([level])
+    @@index([language])
     @@index([attemptsCount])
     @@map("tests")
 }
@@ -206,14 +207,14 @@ model AttemptAnswer {
 }
 
 model Deck {
-    id                Int     @id @default(autoincrement())
-    userId            Int     @map("user_id")
+    id                Int             @id @default(autoincrement())
+    userId            Int             @map("user_id")
     title             String
-    isPublic          Boolean @default(false) @map("is_public")
-    level             Level   @default(ALL_LEVELS)
-    language          String  @default("en")
-    cardsCount        Int     @default(0) @map("cards_count")
-    studySessionCount Int     @default(0) @map("study_session_count")
+    isPublic          Boolean         @default(false) @map("is_public")
+    level             Level           @default(ALL_LEVELS)
+    language          ContentLanguage @default(ENGLISH)
+    cardsCount        Int             @default(0) @map("cards_count")
+    studySessionCount Int             @default(0) @map("study_session_count")
 
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -319,20 +320,20 @@ model PostChunk {
 }
 
 model Course {
-    id            Int          @id @default(autoincrement())
-    userId        Int          @map("user_id")
+    id            Int             @id @default(autoincrement())
+    userId        Int             @map("user_id")
     title         String
-    description   String?      @db.Text
-    excerpt       String?      @db.VarChar(160)
-    level         Level        @default(ALL_LEVELS)
-    language      String       @default("en")
-    price         Int          @default(0)
-    coverUrl      String?      @map("cover_url")
-    status        CourseStatus @default(DRAFT)
-    averageRating Float        @default(0) @map("average_rating")
-    ratingCount   Int          @default(0) @map("rating_count")
-    createdAt     DateTime     @default(now()) @map("created_at")
-    updatedAt     DateTime     @updatedAt @map("updated_at")
+    description   String?         @db.Text
+    excerpt       String?         @db.VarChar(160)
+    level         Level           @default(ALL_LEVELS)
+    language      ContentLanguage @default(ENGLISH)
+    price         Int             @default(0)
+    coverUrl      String?         @map("cover_url")
+    status        CourseStatus    @default(DRAFT)
+    averageRating Float           @default(0) @map("average_rating")
+    ratingCount   Int             @default(0) @map("rating_count")
+    createdAt     DateTime        @default(now()) @map("created_at")
+    updatedAt     DateTime        @updatedAt @map("updated_at")
 
     user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
     modules     Module[]
@@ -459,4 +460,13 @@ enum Level {
     BEGINNER
     INTERMEDIATE
     ADVANCED
+}
+
+enum ContentLanguage {
+    ENGLISH  @map("en")
+    JAPANESE @map("ja")
+    KOREAN   @map("ko")
+    CHINESE  @map("zh")
+    FRENCH   @map("fr")
+    SPANISH  @map("es")
 }
