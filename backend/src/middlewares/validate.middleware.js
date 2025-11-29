@@ -21,7 +21,12 @@ export function validate(schema) {
 		}
 
 		if (result.data.query) {
-			Object.assign(req.query, result.data.query);
+			Object.defineProperty(req, "query", {
+				value: result.data.query,
+				writable: true,
+				enumerable: true,
+				configurable: true,
+			});
 		}
 
 		next();

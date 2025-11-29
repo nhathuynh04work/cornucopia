@@ -340,36 +340,6 @@ const getCourseForLearning = async (courseId, userId) => {
 	};
 };
 
-const getEnrolledCourses = async (userId) => {
-	const courses = await prisma.course.findMany({
-		where: { enrollments: { some: { userId: userId } } },
-		include: {
-			user: { select: { id: true, name: true, avatarUrl: true } },
-			modules: {
-				where: { lessons: { some: { isPublished: true } } },
-				select: {
-					lessons: {
-						where: { isPublished: true },
-						select: {
-							id: true,
-							progress: {
-								where: { userId },
-								select: { isCompleted: true },
-							},
-						},
-					},
-				},
-			},
-			_count: { select: { enrollments: true } },
-		},
-	});
-
-	return courses.map((course) => ({
-		...course,
-		progress: calculateCourseProgress(course),
-	}));
-};
-
 const getUserCourseEnrollment = async (courseId, userId) => {
 	return prisma.userCourseEnrollment.findUnique({
 		where: {
@@ -723,7 +693,6 @@ export const courseService = {
 	getCourseForInfoView,
 	getCourseForEditor,
 	getCourseForLearning,
-	getEnrolledCourses,
 	getUserCourseEnrollment,
 	createCourse,
 	updateCourse,

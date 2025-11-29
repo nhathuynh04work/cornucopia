@@ -15,22 +15,17 @@ const getCourses = async (req, res) => {
 		price,
 	} = req.query;
 
-	const parseArrayParam = (param) => {
-		if (!param) return undefined;
-		return Array.isArray(param) ? param : [param];
-	};
-
 	const coursesData = await courseService.getAll({
 		search,
 		sort,
 		status,
-		userId: userId ? Number(userId) : undefined,
-		enrolledUserId: enrolledUserId ? Number(enrolledUserId) : undefined,
-		page: page ? Number(page) : 1,
-		limit: limit ? Number(limit) : 10,
-		level: parseArrayParam(level),
-		language: parseArrayParam(language),
-		minRating: rating ? Number(rating) : undefined,
+		userId,
+		enrolledUserId,
+		page,
+		limit,
+		level,
+		language,
+		minRating: rating,
 		priceType: price,
 	});
 
@@ -56,12 +51,6 @@ const getCourseForLearning = async (req, res) => {
 	const userId = req.user.id;
 	const course = await courseService.getCourseForLearning(courseId, userId);
 	res.status(200).json({ course });
-};
-
-const getEnrolledCourses = async (req, res) => {
-	const userId = req.user.id;
-	const courses = await courseService.getEnrolledCourses(userId);
-	res.status(200).json({ courses });
 };
 
 const getUserCourseEnrollment = async (req, res) => {
@@ -194,7 +183,6 @@ export const courseController = {
 	getCourseForInfoView,
 	getCourseForEditor,
 	getCourseForLearning,
-	getEnrolledCourses,
 	getUserCourseEnrollment,
 
 	createCourse,

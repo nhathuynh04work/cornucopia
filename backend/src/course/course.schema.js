@@ -5,12 +5,38 @@ import {
 	LessonType,
 } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
+import { toArray } from "../utils/transform.js";
 
 const CourseStatusSchema = z.enum(CourseStatus);
 
 const CourseLevelSchema = z.enum(CourseLevel);
 
 const LessonTypeSchema = z.enum(LessonType);
+
+export const getCoursesSchema = z.object({
+	query: z.object({
+		search: z.string().optional(),
+		sort: z
+			.enum([
+				"newest",
+				"oldest",
+				"price_asc",
+				"price_desc",
+				"rating",
+				"popular",
+			])
+			.default("newest"),
+		status: CourseStatusSchema.optional(),
+		userId: z.coerce.number().int().optional(),
+		enrolledUserId: z.coerce.number().int().optional(),
+		page: z.coerce.number().int().min(1).default(1),
+		limit: z.coerce.number().int().min(1).default(10),
+		level: z.preprocess(toArray, z.array(z.string()).optional()),
+		language: z.preprocess(toArray, z.array(z.string()).optional()),
+		rating: z.coerce.number().min(0).max(5).optional(),
+		price: z.enum(["all", "free", "paid"]).optional(),
+	}),
+});
 
 const UpdateCourseBody = z
 	.object({
