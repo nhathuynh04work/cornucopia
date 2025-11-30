@@ -1,20 +1,14 @@
 import { useState } from "react";
-import {
-	Info,
-	MessageSquare,
-	Star,
-	Send,
-	BookOpen,
-	Clock,
-	Users,
-} from "lucide-react";
+import { Info, MessageSquare, Star } from "lucide-react";
 import CourseReviews from "../CourseInfo/CourseReviews";
+import CommentSection from "../Comments/CommentSection";
+import CourseOverview from "./CourseOverview";
 
 export default function CourseLearnTabs({
-  course,
-  allLessons,
-  totalLessonsCount,
-  currentLessonId,
+	course,
+	allLessons,
+	totalLessonsCount,
+	currentLessonId,
 }) {
 	const [activeTab, setActiveTab] = useState("overview");
 
@@ -51,61 +45,21 @@ export default function CourseLearnTabs({
 				</div>
 			</div>
 
-      {/* TAB CONTENT */}
-      <div className="min-h-[300px] animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20 max-w-7xl mx-auto px-4 md:px-8">
-        {/* OVERVIEW TAB */}
-        {activeTab === "overview" && (
-          <div className="max-w-3xl mx-auto space-y-8">
-            <div className="space-y-4">
-              <p className="text-xl text-gray-600 leading-relaxed font-medium">
-                {course.excerpt}
-              </p>
+			{/* TAB CONTENT */}
+			<div className="min-h-[300px] pb-20 max-w-7xl mx-auto px-4 md:px-8">
+				{/* OVERVIEW TAB */}
+				{activeTab === "overview" && (
+					<CourseOverview
+						course={course}
+						allLessons={allLessons}
+						totalLessonsCount={totalLessonsCount}
+					/>
+				)}
 
-              <div className="flex flex-wrap gap-6 text-sm text-gray-600 border-y border-gray-100 py-4">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-gray-400" />
-                  <span>{totalLessonsCount} bài học</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <span>
-                    {allLessons.reduce((acc, l) => acc + (l.duration || 0), 0)}{" "}
-                    phút
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span>{course.enrollments?.length || 0} học viên</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-gray-900 text-lg mb-3">
-                Giới thiệu khóa học
-              </h3>
-              <div
-                className="prose prose-gray max-w-none prose-a:text-purple-600"
-                dangerouslySetInnerHTML={{
-                  __html: course.description,
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* COMMENTS TAB*/}
-        {activeTab === "comments" && (
-          <div className="max-w-3xl mx-auto">
-            {currentLessonId ? (
-              <CommentSection lessonId={currentLessonId} />
-            ) : (
-              <div className="text-center py-10 text-gray-500">
-                Vui lòng chọn một bài học để xem thảo luận.
-              </div>
-            )}
-          </div>
-        )}
+				{/* COMMENTS TAB*/}
+				{activeTab === "comments" && (
+					<CommentSection lessonId={currentLessonId} />
+				)}
 
 				{/* REVIEWS TAB */}
 				{activeTab === "reviews" && (

@@ -21,24 +21,6 @@ export default function VideoLessonEditor({ lesson, onChange }) {
 		setUploadProgress(0);
 	};
 
-	if (isUploading) {
-		return (
-			<div className="border-2 border-dashed border-purple-200 bg-purple-50 rounded-xl p-8 flex flex-col items-center justify-center text-purple-700 cursor-default">
-				<Loader2 className="w-8 h-8 animate-spin mb-3" />
-				<p className="font-bold text-sm mb-2">Đang tải lên...</p>
-				<div className="w-full max-w-xs h-2 bg-purple-200 rounded-full overflow-hidden">
-					<div
-						className="h-full bg-purple-600 transition-all duration-300"
-						style={{ width: `${uploadProgress}%` }}
-					/>
-				</div>
-				<p className="text-xs mt-2 font-medium">
-					{Math.round(uploadProgress)}%
-				</p>
-			</div>
-		);
-	}
-
 	return (
 		<MediaUploader
 			accept="video/*"
@@ -47,7 +29,21 @@ export default function VideoLessonEditor({ lesson, onChange }) {
 			onUploadProgress={setUploadProgress}
 			onUploadSuccess={handleUploadSuccess}
 			onUploadError={() => setIsUploading(false)}>
-			{!lesson.videoUrl ? (
+			{isUploading ? (
+				<div className="border-2 border-dashed border-purple-200 bg-purple-50 rounded-xl p-8 flex flex-col items-center justify-center text-purple-700 cursor-default">
+					<Loader2 className="w-8 h-8 animate-spin mb-3" />
+					<p className="font-bold text-sm mb-2">Đang tải lên...</p>
+					<div className="w-full max-w-xs h-2 bg-purple-200 rounded-full overflow-hidden">
+						<div
+							className="h-full bg-purple-600 transition-all duration-300"
+							style={{ width: `${uploadProgress}%` }}
+						/>
+					</div>
+					<p className="text-xs mt-2 font-medium">
+						{Math.round(uploadProgress)}%
+					</p>
+				</div>
+			) : !lesson.videoUrl ? (
 				<div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-500 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-600 cursor-pointer transition-all bg-white">
 					<div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-3">
 						<UploadCloud className="w-5 h-5" />

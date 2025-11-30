@@ -127,7 +127,7 @@ export const MediaSection = ({ course, onChange }) => {
 					)}
 				</div>
 			</MediaUploader>
-			<p className="text-[10px] text-gray-400 text-center">
+			<p className="text-[10px] mt-2 text-gray-400 text-center">
 				Khuyên dùng: 1280x720px (JPG, PNG)
 			</p>
 		</div>
