@@ -12,6 +12,7 @@ const formatDuration = (seconds) => {
 };
 
 function TestCard({ test }) {
+	console.log(test);
 	const {
 		id,
 		title,

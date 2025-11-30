@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import { Calendar, Clock, Eye, MessageCircle } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import StatusBadge from "@/components/Shared/StatusBadge";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 
 function PostCard({ post }) {
+	console.log(post);
 	const {
 		id,
 		title,
@@ -68,11 +69,11 @@ function PostCard({ post }) {
 						{/* Tags as Metadata Badges */}
 						{tags && tags.length > 0 && (
 							<div className="flex flex-wrap items-center gap-2">
-								{tags.slice(0, 3).map((tag, index) => (
+								{tags.slice(0, 3).map((tag) => (
 									<span
-										key={index}
+										key={tag.name}
 										className="text-[10px] font-bold tracking-wider uppercase text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">
-										{tag}
+										{tag.name}
 									</span>
 								))}
 							</div>

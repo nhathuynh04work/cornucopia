@@ -33,3 +33,14 @@ export function useGetDashboardData() {
 		enabled: !!user,
 	});
 }
+
+export function useGetLibrary() {
+	const { user } = useAuth();
+
+	return useQuery({
+		queryKey: ["library"],
+		queryFn: userApi.getLibrary,
+		enabled: !!user,
+		staleTime: 1000 * 60 * 2,
+	});
+}

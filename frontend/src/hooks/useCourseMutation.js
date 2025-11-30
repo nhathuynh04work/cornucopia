@@ -32,6 +32,17 @@ export function useUpdateCourse() {
 	});
 }
 
+export function useDeleteCourse() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ courseId }) => courseApi.deleteCourse(courseId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["courses"] });
+			queryClient.invalidateQueries({ queryKey: ["library"] });
+		},
+	});
+}
+
 export function useModuleMutations() {
 	const queryClient = useQueryClient();
 
