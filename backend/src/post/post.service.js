@@ -4,35 +4,38 @@ import { defaults } from "../utils/constants.js";
 import { indexPost } from "../chatbot/indexer.js";
 
 const createDefaultPost = async (authorId) => {
-	const tagName = "chung".toLowerCase();
-	const payload = {
-		...defaults.POST,
-		authorId,
-		tags: {
-			connectOrCreate: {
-				where: { name: tagName },
-				create: { name: tagName },
-			},
-		},
-	};
+  const tagName = "chung".toLowerCase();
+  const payload = {
+    ...defaults.POST,
+    authorId,
+    tags: {
+      connectOrCreate: {
+        where: { name: tagName },
+        create: { name: tagName },
+      },
+    },
+  };
 
-	const post = await prisma.post.create({ data: payload });
-	indexPost(post.id);
+  const post = await prisma.post.create({ data: payload });
+  indexPost(post.id);
 
-	return post;
+  return post;
 };
 
 const getPost = async (id) => {
-	const post = await prisma.post.findUnique({
-		where: { id },
-		include: { author: true, tags: true },
-	});
+  const post = await prisma.post.findUnique({
+    where: { id },
+    include: {
+      author: true,
+      tags: true,
+    },
+  });
 
-	if (!post) {
-		throw new NotFoundError("Post not found.");
-	}
+  if (!post) {
+    throw new NotFoundError("Post not found.");
+  }
 
-	return post;
+  return post;
 };
 
 const getPosts = async ({
@@ -109,55 +112,55 @@ const getPosts = async ({
 };
 
 const deletePost = async (id) => {
-	const post = await prisma.post.findUnique({
-		where: { id },
-	});
+  const post = await prisma.post.findUnique({
+    where: { id },
+  });
 
-	if (!post) {
-		throw new NotFoundError("Post not found.");
-	}
+  if (!post) {
+    throw new NotFoundError("Post not found.");
+  }
 
-	await prisma.post.delete({ where: { id } });
+  await prisma.post.delete({ where: { id } });
 };
 
 const updatePost = async (id, payload) => {
-	const post = await prisma.post.findUnique({
-		where: { id },
-	});
+  const post = await prisma.post.findUnique({
+    where: { id },
+  });
 
-	if (!post) {
-		throw new NotFoundError("Post not found");
-	}
+  if (!post) {
+    throw new NotFoundError("Post not found");
+  }
 
-	const { tags, ...rest } = payload;
+  const { tags, ...rest } = payload;
 
-	const updateData = { ...rest };
+  const updateData = { ...rest };
 
-	if (tags) {
-		const normalizedTags = tags.map((t) => t.toLowerCase());
-		updateData.tags = {
-			set: [],
-			connectOrCreate: normalizedTags.map((t) => ({
-				where: { name: t },
-				create: { name: t },
-			})),
-		};
-	}
+  const normalizedTags = tags.map((t) => t.toLowerCase());
 
-	const updatedPost = await prisma.post.update({
-		where: { id },
-		data: updateData,
-	});
+  updateData.tags = {
+    set: [],
 
-	indexPost(updatedPost.id);
+    connectOrCreate: normalizedTags.map((t) => ({
+      where: { name: t },
+      create: { name: t },
+    })),
+  };
 
-	return updatedPost;
+  const updatedPost = await prisma.post.update({
+    where: { id },
+    data: updateData,
+  });
+
+  indexPost(updatedPost.id);
+
+  return updatedPost;
 };
 
 export const postService = {
-	createDefaultPost,
-	getPost,
-	getPosts,
-	deletePost,
-	updatePost,
+  createDefaultPost,
+  getPost,
+  getPosts,
+  deletePost,
+  updatePost,
 };
