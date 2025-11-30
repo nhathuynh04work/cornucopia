@@ -126,10 +126,8 @@ function TestEditForm({ test, testId }) {
 
 export default function TestEdit() {
 	const { testId } = useParams();
-	const { id } = useParams();
-	const realId = id || testId;
 
-	const { data: test, isLoading: isFetching } = useGetTestForEdit(realId);
+	const { data: test, isLoading: isFetching } = useGetTestForEdit(testId);
 
 	if (isFetching) {
 		return (
@@ -139,5 +137,5 @@ export default function TestEdit() {
 		);
 	}
 
-	return test && <TestEditForm key={test.id} test={test} testId={realId} />;
+	return test && <TestEditForm key={test.id} test={test} testId={testId} />;
 }
