@@ -17,12 +17,10 @@ export function useDeletePost() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ id }) => postApi.delete(id),
+		mutationFn: ({ postId }) => postApi.delete(postId),
 		onSuccess: () => {
 			queryClient.invalidateQueries(["posts"]);
-		},
-		onError: (err) => {
-			toast.error(err?.message || "Không thể xóa bài viết.");
+			queryClient.invalidateQueries(["library"]);
 		},
 	});
 }

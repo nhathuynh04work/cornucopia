@@ -5,9 +5,13 @@ const userApi = {
 		const { data } = await api.get("/users", { params });
 		return data;
 	},
-    getLandingData: async () => {
+	getLandingData: async () => {
 		const { data } = await api.get("/users/landing");
 		return data.data;
+	},
+	getLibrary: async () => {
+		const { data } = await api.get("/users/me/library");
+		return data;
 	},
 	updateRole: async ({ userId, role }) => {
 		const { data } = await api.patch(`/users/${userId}/role`, { role });

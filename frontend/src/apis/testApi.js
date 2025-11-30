@@ -3,7 +3,7 @@ import { api } from "./axios";
 const testApi = {
 	getAll: async (params) => {
 		const { data } = await api.get("/tests", { params });
-		return data.tests;
+		return data;
 	},
 	getById: async (id) => {
 		const { data } = await api.get(`/tests/${id}/info`);
@@ -16,6 +16,10 @@ const testApi = {
 	getForAttempt: async (id) => {
 		const { data } = await api.get(`/tests/${id}/attempt`);
 		return data.test;
+	},
+	getAttemptHistory: async (testId) => {
+		const { data } = await api.get(`/tests/${testId}/attempts`);
+		return data.attempts;
 	},
 	create: async () => {
 		const { data } = await api.post("/tests");

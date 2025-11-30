@@ -55,7 +55,7 @@ export default function Tests() {
 		currentPage: 1,
 	};
 
-	const testsList = testsData?.tests?.data || [];
+	const testsList = testsData?.data || [];
 
 	const emptyState = (
 		<EmptyState

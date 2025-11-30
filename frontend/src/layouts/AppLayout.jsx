@@ -11,6 +11,7 @@ import {
 	Users,
 	FileQuestion,
 	FileText,
+	Library,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +29,7 @@ function AppLayout() {
 
 	const navItems = [
 		{ label: "Tổng quan", icon: LayoutDashboard, path: "/dashboard" },
+		{ label: "Thư viện", icon: Library, path: "/library" },
 		{ label: "Khóa học", icon: BookOpen, path: "/courses" },
 		{ label: "Bộ thẻ", icon: Layers, path: "/decks" },
 		{ label: "Bài kiểm tra", icon: FileQuestion, path: "/tests" },
@@ -37,7 +39,7 @@ function AppLayout() {
 	if (role === Role.ADMIN) {
 		const hasUsersLink = navItems.some((item) => item.path === "/users");
 		if (!hasUsersLink) {
-			navItems.splice(1, 0, {
+			navItems.splice(2, 0, {
 				label: "Người dùng",
 				icon: Users,
 				path: "/users",

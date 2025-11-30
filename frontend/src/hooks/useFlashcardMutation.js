@@ -38,6 +38,7 @@ export function useDeleteDeck() {
 		mutationFn: ({ deckId }) => flashcardsApi.deleteDeck(deckId),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["decks"] });
+			queryClient.invalidateQueries({ queryKey: ["library"] });
 		},
 	});
 }
