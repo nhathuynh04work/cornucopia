@@ -9,6 +9,7 @@ import userRouter from "../user/user.routes.js";
 import attemptRouter from "../attempt/attempt.routes.js";
 import courseRouter from "../course/course.routes.js";
 import dashboardRouter from "../dashboard/dashboard.routes.js";
+import commentRouter from "../comment/comment.routes.js";
 import { Router } from "express";
 
 export const v1Router = Router();
@@ -24,3 +25,4 @@ v1Router.use("/users", userRouter);
 v1Router.use("/attempts", attemptRouter);
 v1Router.use("/courses", courseRouter);
 v1Router.use("/dashboard", dashboardRouter);
+v1Router.use("/comments", commentRouter);

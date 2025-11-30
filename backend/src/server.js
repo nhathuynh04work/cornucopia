@@ -22,11 +22,12 @@ app.use(passport.initialize());
 
 // Routes
 app.post("/chatbot", getChatbotAnswer);
+
 app.use(v1Router);
 
 // Error handler
 app.use(errorHandler);
 
 app.listen(env.PORT, () => {
-	console.log(`Server running on port ${env.PORT}`);
+  console.log(`Server running on port ${env.PORT}`);
 });
