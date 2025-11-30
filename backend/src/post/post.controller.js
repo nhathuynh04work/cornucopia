@@ -12,17 +12,19 @@ const getPost = async (req, res) => {
 };
 
 const getPosts = async (req, res) => {
-	const { search, sort, status, authorId, tags } = req.query;
+	const { search, sort, status, authorId, tags, page, limit } = req.query;
 
-	const posts = await postService.getPosts({
+	const result = await postService.getPosts({
 		search,
 		sort,
 		status,
-		authorId: authorId ? Number(authorId) : undefined,
+		authorId,
 		tags,
+		page,
+		limit,
 	});
 
-	res.status(200).json({ posts });
+	res.status(200).json(result);
 };
 
 const deletePost = async (req, res) => {

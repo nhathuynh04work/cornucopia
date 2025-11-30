@@ -27,21 +27,6 @@ export const STATUS_OPTIONS = [
 	},
 ];
 
-export const LEVEL_OPTIONS = [
-	{ value: "ALL_LEVELS", label: "Tất cả trình độ" },
-	{ value: "BEGINNER", label: "Cơ bản" },
-	{ value: "INTERMEDIATE", label: "Trung bình" },
-	{ value: "ADVANCED", label: "Nâng cao" },
-];
-
-export const LANGUAGE_OPTIONS = [
-	{ value: "en", label: "Tiếng Anh" },
-	{ value: "zh", label: "Tiếng Trung" },
-	{ value: "ja", label: "Tiếng Nhật" },
-	{ value: "ko", label: "Tiếng Hàn" },
-	{ value: "fr", label: "Tiếng Pháp" },
-];
-
 export const PRICE_TIERS = [
 	{ value: 0, label: "Miễn phí" },
 	{ value: 99000, label: "99.000 ₫" },

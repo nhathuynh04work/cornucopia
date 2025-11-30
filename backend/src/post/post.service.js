@@ -38,56 +38,77 @@ const getPost = async (id) => {
   return post;
 };
 
-const getPosts = async ({ search, sort, status, authorId, tags }) => {
-  const where = {};
+const getPosts = async ({
+	search,
+	sort,
+	status,
+	authorId,
+	tags,
+	page = 1,
+	limit = 10,
+}) => {
+	const where = {};
 
-  if (status) {
-    where.status = status;
-  }
+	if (status) {
+		where.status = status;
+	} else if (!authorId) {
+		where.status = "PUBLIC";
+	}
 
-  if (authorId) {
-    where.authorId = authorId;
-  }
+	if (authorId) {
+		where.authorId = authorId;
+	}
 
-  if (search) {
-    where.OR = [
-      { title: { contains: search, mode: "insensitive" } },
-      { excerpt: { contains: search, mode: "insensitive" } },
-    ];
-  }
+	if (search) {
+		where.OR = [
+			{ title: { contains: search, mode: "insensitive" } },
+			{ excerpt: { contains: search, mode: "insensitive" } },
+		];
+	}
 
-  if (tags) {
-    const tagList = Array.isArray(tags)
-      ? tags
-      : tags.split(",").map((t) => t.trim());
-    if (tagList.length > 0) {
-      where.tags = {
-        some: {
-          name: { in: tagList },
-        },
-      };
-    }
-  }
+	if (tags && tags.length > 0) {
+		where.tags = {
+			some: {
+				name: { in: tags },
+			},
+		};
+	}
 
-  let orderBy = { createdAt: "desc" };
-  if (sort === "oldest") {
-    orderBy = { createdAt: "asc" };
-  }
+	let orderBy = { createdAt: "desc" };
+	if (sort === "oldest") {
+		orderBy = { createdAt: "asc" };
+	}
 
-  return prisma.post.findMany({
-    where,
-    orderBy,
-    include: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          avatarUrl: true,
-        },
-      },
-      tags: true,
-    },
-  });
+	const skip = (page - 1) * limit;
+
+	const [posts, totalItems] = await Promise.all([
+		prisma.post.findMany({
+			where,
+			orderBy,
+			skip,
+			take: limit,
+			include: {
+				author: {
+					select: {
+						id: true,
+						name: true,
+						avatarUrl: true,
+					},
+				},
+				tags: true,
+			},
+		}),
+		prisma.post.count({ where }),
+	]);
+
+	return {
+		data: posts,
+		pagination: {
+			totalItems,
+			totalPages: Math.ceil(totalItems / limit),
+			currentPage: page,
+		},
+	};
 };
 
 const deletePost = async (id) => {

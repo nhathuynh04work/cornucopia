@@ -1,7 +1,28 @@
 import prisma from "../prisma.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
 
-const getDecks = async ({ search, sort, userId, currentUserId } = {}) => {
+const updateDeckCounts = async (deckId) => {
+	const [cardsCount, studySessionCount] = await Promise.all([
+		prisma.card.count({ where: { deckId } }),
+		prisma.studySession.count({ where: { deckId } }),
+	]);
+
+	await prisma.deck.update({
+		where: { id: deckId },
+		data: { cardsCount, studySessionCount },
+	});
+};
+
+const getDecks = async ({
+	search,
+	sort,
+	userId,
+	currentUserId,
+	page = 1,
+	limit = 10,
+	level,
+	language,
+} = {}) => {
 	const where = {};
 
 	if (search) {
@@ -12,13 +33,21 @@ const getDecks = async ({ search, sort, userId, currentUserId } = {}) => {
 	}
 
 	if (userId) {
-		const targetId = parseInt(userId);
+		const targetId = userId;
 		where.userId = targetId;
 		if (targetId !== currentUserId) {
 			where.isPublic = true;
 		}
 	} else {
 		where.isPublic = true;
+	}
+
+	if (level && level.length > 0 && !level.includes("ALL_LEVELS")) {
+		where.level = { in: level };
+	}
+
+	if (language && language.length > 0) {
+		where.language = { in: language };
 	}
 
 	let orderBy = {};
@@ -29,28 +58,44 @@ const getDecks = async ({ search, sort, userId, currentUserId } = {}) => {
 		case "alphabetical":
 			orderBy = { title: "asc" };
 			break;
+		case "popularity":
+			orderBy = { studySessionCount: "desc" };
+			break;
 		case "newest":
 		default:
 			orderBy = { createdAt: "desc" };
 			break;
 	}
 
-	return prisma.deck.findMany({
-		where,
-		orderBy,
-		include: {
-			_count: {
-				select: { cards: true },
-			},
-			user: {
-				select: {
-					id: true,
-					name: true,
-					avatarUrl: true,
+	const skip = (page - 1) * limit;
+
+	const [decks, totalItems] = await Promise.all([
+		prisma.deck.findMany({
+			where,
+			orderBy,
+			skip,
+			take: limit,
+			include: {
+				user: {
+					select: {
+						id: true,
+						name: true,
+						avatarUrl: true,
+					},
 				},
 			},
+		}),
+		prisma.deck.count({ where }),
+	]);
+
+	return {
+		data: decks,
+		pagination: {
+			totalItems,
+			totalPages: Math.ceil(totalItems / limit),
+			currentPage: page,
 		},
-	});
+	};
 };
 
 const getDeckDetails = async (deckId) => {
@@ -82,6 +127,7 @@ const createDeck = async (userId) => {
 				{ term: "Card 2", definition: "Definition of Card 2" },
 			],
 		},
+		cardsCount: 2,
 	};
 
 	return prisma.deck.create({ data: payload });
@@ -148,6 +194,8 @@ const syncDeck = async ({ deckId, userId, payload }) => {
 		...updatePromises,
 	]);
 
+	await updateDeckCounts(deckId);
+
 	return prisma.deck.findUnique({
 		where: { id: deckId },
 		include: {
@@ -185,9 +233,13 @@ const startSession = async (deckId, userId) => {
 		throw new NotFoundError("Deck not found");
 	}
 
-	return prisma.studySession.create({
+	const session = await prisma.studySession.create({
 		data: { deckId: deckId, userId: userId },
 	});
+
+	await updateDeckCounts(deckId);
+
+	return session;
 };
 
 export const deckService = {

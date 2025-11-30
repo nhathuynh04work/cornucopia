@@ -1,16 +1,47 @@
 import { z } from "zod";
 import {
-	CourseLevel,
+	ContentLanguage,
 	CourseStatus,
 	LessonType,
+	Level,
 } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
+import { toArray } from "../utils/transform.js";
 
 const CourseStatusSchema = z.enum(CourseStatus);
 
-const CourseLevelSchema = z.enum(CourseLevel);
+export const LevelSchema = z.enum(Level);
+export const ContentLanguageSchema = z.enum(ContentLanguage);
 
 const LessonTypeSchema = z.enum(LessonType);
+
+export const getCoursesSchema = z.object({
+	query: z.object({
+		search: z.string().optional(),
+		sort: z
+			.enum([
+				"newest",
+				"oldest",
+				"price_asc",
+				"price_desc",
+				"rating",
+				"popular",
+			])
+			.default("newest"),
+		status: CourseStatusSchema.optional(),
+		userId: z.coerce.number().int().optional(),
+		enrolledUserId: z.coerce.number().int().optional(),
+		page: z.coerce.number().int().min(1).default(1),
+		limit: z.coerce.number().int().min(1).default(10),
+		level: z.preprocess(toArray, z.array(LevelSchema).optional()),
+		language: z.preprocess(
+			toArray,
+			z.array(ContentLanguageSchema).optional()
+		),
+		rating: z.coerce.number().min(0).max(5).optional(),
+		price: z.enum(["all", "free", "paid"]).optional(),
+	}),
+});
 
 const UpdateCourseBody = z
 	.object({
@@ -23,22 +54,22 @@ const UpdateCourseBody = z
 		price: z.coerce.number().min(0),
 		coverUrl: z.string().nullish(),
 		status: CourseStatusSchema,
-		level: CourseLevelSchema.optional(),
-		language: z.string().length(2).optional(),
+		level: LevelSchema.optional(),
+		language: ContentLanguageSchema.optional(),
 	})
 	.partial();
 
 export const getCourseSchema = z.object({
-	params: createIdParamSchema("id"),
+	params: createIdParamSchema("courseId"),
 });
 
 export const updateCourseSchema = z.object({
-	params: createIdParamSchema("id"),
+	params: createIdParamSchema("courseId"),
 	body: UpdateCourseBody,
 });
 
 export const deleteCourseSchema = z.object({
-	params: createIdParamSchema("id"),
+	params: createIdParamSchema("courseId"),
 });
 
 // --- Module Schemas ---
@@ -106,4 +137,29 @@ export const updateLessonProgressSchema = z.object({
 	body: z.object({
 		isCompleted: z.boolean(),
 	}),
+});
+
+// reviews
+export const createReviewSchema = z.object({
+	params: createIdParamSchema("courseId"),
+	body: z.object({
+		rating: z.number().int().min(1).max(5),
+		content: z.string().optional(),
+	}),
+});
+
+export const updateReviewSchema = z.object({
+	params: createIdParamSchema("courseId").extend(
+		createIdParamSchema("reviewId").shape
+	),
+	body: z.object({
+		rating: z.number().int().min(1).max(5).optional(),
+		content: z.string().optional(),
+	}),
+});
+
+export const deleteReviewSchema = z.object({
+	params: createIdParamSchema("courseId").extend(
+		createIdParamSchema("reviewId").shape
+	),
 });

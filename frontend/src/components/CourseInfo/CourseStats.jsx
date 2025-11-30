@@ -1,12 +1,20 @@
-import { BookOpen, Layers, Users } from "lucide-react";
+import { BookOpen, Layers, Users, Star } from "lucide-react";
 
 export default function CourseStats({
 	totalModules,
 	totalLessons,
 	enrollmentCount,
+	rating,
 }) {
 	return (
 		<div className="grid grid-cols-1 gap-4">
+			<InfoCard
+				icon={Star}
+				label="Đánh giá"
+				value={`${rating || 0} sao`}
+				color="text-yellow-600"
+				bg="bg-yellow-50"
+			/>
 			<InfoCard
 				icon={Users}
 				label="Học viên"

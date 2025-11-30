@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
+import { toArray } from "../utils/transform.js";
+import { ContentLanguageSchema, LevelSchema } from "../course/course.schema.js";
 
 export const getTestSchema = z.object({
 	params: createIdParamSchema("id"),
@@ -43,6 +45,23 @@ const baseItemSchema = z.object({
 
 const testItemSchema = baseItemSchema.extend({
 	children: z.lazy(() => z.array(baseItemSchema).optional()),
+});
+
+export const getTestsSchema = z.object({
+	query: z.object({
+		search: z.string().optional(),
+		sort: z.enum(["newest", "oldest", "attempts"]).default("newest"),
+		isPublic: z.enum(["true", "false"]).optional(),
+		userId: z.coerce.number().int().optional(),
+		page: z.coerce.number().int().min(1).default(1),
+		limit: z.coerce.number().int().min(1).default(10),
+
+		level: z.preprocess(toArray, z.array(LevelSchema).optional()),
+		language: z.preprocess(
+			toArray,
+			z.array(ContentLanguageSchema).optional()
+		),
+	}),
 });
 
 export const syncTestSchema = z.object({

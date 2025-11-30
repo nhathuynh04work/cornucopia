@@ -26,7 +26,8 @@ model User {
     enrollments            UserCourseEnrollment[]
     tests                  Test[]
     decks                  Deck[]
-    comments Comment[]
+    comments               Comment[]
+    reviews                Review[]
 
     @@map("users")
 }
@@ -77,11 +78,9 @@ model Media {
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-    // Belongs to a TestItem 
     testItemId Int?      @map("test_item_id")
     testItem   TestItem? @relation("TestItemToMedia", fields: [testItemId], references: [id], onDelete: Cascade)
 
-    // Belongs to a Post
     postId Int?  @map("post_id")
     post   Post? @relation("PostToMedia", fields: [postId], references: [id], onDelete: Cascade)
 
@@ -89,21 +88,30 @@ model Media {
 }
 
 model Test {
-    id          Int         @id @default(autoincrement())
-    userId      Int         @map("user_id")
-    title       String
-    description String?
-    status      TestStatus  @default(DRAFT)
-    timeLimit   Int         @default(1800) @map("time_limit")
-    audioUrl    String?     @map("audio_url")
-    createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt   DateTime    @default(now()) @map("updated_at") @db.Timestamptz(6)
-    user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-    items       TestItem[]
-    attempts    Attempt[]
-    chunks      TestChunk[] @relation("TestToChunks")
-    comments Comment[]
+    id             Int             @id @default(autoincrement())
+    userId         Int             @map("user_id")
+    title          String
+    description    String?
+    status         TestStatus      @default(DRAFT)
+    timeLimit      Int             @default(1800) @map("time_limit")
+    audioUrl       String?         @map("audio_url")
+    level          Level           @default(ALL_LEVELS)
+    language       ContentLanguage @default(ENGLISH)
+    questionsCount Int             @default(0) @map("questions_count")
+    attemptsCount  Int             @default(0) @map("attempts_count")
+    createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt      DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
 
+    user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    items    TestItem[]
+    attempts Attempt[]
+    comments Comment[]
+    chunks   TestChunk[] @relation("TestToChunks")
+
+    @@index([status])
+    @@index([level])
+    @@index([language])
+    @@index([attemptsCount])
     @@map("tests")
 }
 
@@ -201,10 +209,15 @@ model AttemptAnswer {
 }
 
 model Deck {
-    id        Int      @id @default(autoincrement())
-    userId    Int      @map("user_id")
-    title     String
-    isPublic  Boolean  @default(false) @map("is_public")
+    id                Int             @id @default(autoincrement())
+    userId            Int             @map("user_id")
+    title             String
+    isPublic          Boolean         @default(false) @map("is_public")
+    level             Level           @default(ALL_LEVELS)
+    language          ContentLanguage @default(ENGLISH)
+    cardsCount        Int             @default(0) @map("cards_count")
+    studySessionCount Int             @default(0) @map("study_session_count")
+
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -212,6 +225,10 @@ model Deck {
     cards         Card[]
     studySessions StudySession[]
 
+    @@index([isPublic])
+    @@index([level])
+    @@index([language])
+    @@index([studySessionCount])
     @@map("decks")
 }
 
@@ -299,7 +316,6 @@ model PostChunk {
     updatedAt DateTime                 @default(now()) @map("updated_at") @db.Timestamptz(6)
     tsv       Unsupported("tsvector")?
 
-    // Cùng tên quan hệ với phía Post
     post Post @relation("PostToChunks", fields: [postId], references: [id], onDelete: Cascade)
 
     @@index([postId])
@@ -307,25 +323,30 @@ model PostChunk {
 }
 
 model Course {
-    id          Int          @id @default(autoincrement())
-    userId      Int          @map("user_id")
-    title       String
-    description String?      @db.Text
-    excerpt     String?      @db.VarChar(160)
-    level       CourseLevel  @default(ALL_LEVELS)
-    language    String       @default("en")
-    price       Int          @default(0)
-    coverUrl    String?      @map("cover_url")
-    status      CourseStatus @default(DRAFT)
-    createdAt   DateTime     @default(now()) @map("created_at")
-    updatedAt   DateTime     @updatedAt @map("updated_at")
+    id            Int             @id @default(autoincrement())
+    userId        Int             @map("user_id")
+    title         String
+    description   String?         @db.Text
+    excerpt       String?         @db.VarChar(160)
+    level         Level           @default(ALL_LEVELS)
+    language      ContentLanguage @default(ENGLISH)
+    price         Int             @default(0)
+    coverUrl      String?         @map("cover_url")
+    status        CourseStatus    @default(DRAFT)
+    averageRating Float           @default(0) @map("average_rating")
+    ratingCount   Int             @default(0) @map("rating_count")
+    createdAt     DateTime        @default(now()) @map("created_at")
+    updatedAt     DateTime        @updatedAt @map("updated_at")
 
     user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
     modules     Module[]
     enrollments UserCourseEnrollment[]
     chunks      CourseChunk[]
+    reviews     Review[]
 
     @@index([status])
+    @@index([averageRating])
+    @@index([price])
     @@map("courses")
 }
 
@@ -380,6 +401,23 @@ model UserLessonProgress {
     @@map("user_lesson_progress")
 }
 
+model Review {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @map("user_id")
+    courseId  Int      @map("course_id")
+    rating    Int
+    content   String?  @db.Text
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, courseId])
+    @@index([courseId])
+    @@map("reviews")
+}
+
 model UserCourseEnrollment {
     id        Int      @id @default(autoincrement())
     userId    Int      @map("user_id")
@@ -421,7 +459,7 @@ enum CourseStatus {
     ARCHIVED
 }
 
-enum CourseLevel {
+enum Level {
     ALL_LEVELS
     BEGINNER
     INTERMEDIATE
@@ -455,4 +493,13 @@ model Comment {
   @@index([lessonId])
   @@index([testId])
   @@map("comments")
+}
+
+enum ContentLanguage {
+    ENGLISH
+    JAPANESE
+    KOREAN
+    CHINESE
+    FRENCH
+    SPANISH
 }

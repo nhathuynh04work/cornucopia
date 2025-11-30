@@ -13,6 +13,17 @@ export function useCreateTest() {
 	});
 }
 
+export function useDeleteTest() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ testId }) => testApi.deleteTest(testId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["tests"] });
+			queryClient.invalidateQueries({ queryKey: ["library"] });
+		},
+	});
+}
+
 export function useTestMutation() {
 	const queryClient = useQueryClient();
 

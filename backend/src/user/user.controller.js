@@ -10,11 +10,10 @@ const getLandingData = async (req, res) => {
 	res.status(200).json({ data });
 };
 
-const getDashboardData = async (req, res) => {
+const getLibrary = async (req, res) => {
 	const userId = req.user.id;
-	const data = await userService.getDashboardData({ userId });
-
-	res.status(200).json({ data });
+	const data = await userService.getLibraryData(userId);
+	res.status(200).json(data);
 };
 
 const updateRole = async (req, res) => {
@@ -25,21 +24,9 @@ const updateRole = async (req, res) => {
 	res.status(200).json({ user });
 };
 
-const getAdminOverallStats = async (req, res) => {
-	const data = await userService.getAdminOverallStats();
-	res.status(200).json({ data });
-};
-
-const getAdminChartData = async (req, res) => {
-	const data = await userService.getAdminChartData(req.query);
-	res.status(200).json({ data });
-};
-
 export const userController = {
 	getUsers,
 	getLandingData,
-	getDashboardData,
+	getLibrary,
 	updateRole,
-	getAdminOverallStats,
-	getAdminChartData,
 };

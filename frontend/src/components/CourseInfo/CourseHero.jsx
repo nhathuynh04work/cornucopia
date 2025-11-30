@@ -12,8 +12,7 @@ import { Role } from "@/lib/constants";
 import StatusBadge from "@/components/Shared/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateCheckoutSession } from "@/hooks/useCourseMutation";
-import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/course";
-import Avatar from "@/components/Shared/Avatar";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 export default function CourseHero({ course, isEnrolled }) {
 	const navigate = useNavigate();

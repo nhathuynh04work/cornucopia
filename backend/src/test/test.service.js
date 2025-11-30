@@ -8,45 +8,83 @@ import { defaults } from "../utils/constants.js";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 import { indexTest } from "../chatbot/indexer.js";
 
-const getTests = async ({ search, sort, isPublic, userId }) => {
-  const where = {};
+const updateTestQuestionCount = async (testId, tx = prisma) => {
+	const count = await tx.testItem.count({
+		where: { testId, type: { not: TestItemType.GROUP } },
+	});
+	await tx.test.update({
+		where: { id: testId },
+		data: { questionsCount: count },
+	});
+};
 
-  if (isPublic) {
-    where.status = TestStatus.PUBLIC;
-  }
+const getTests = async ({
+	search,
+	sort,
+	isPublic,
+	userId,
+	page = 1,
+	limit = 10,
+	level,
+	language,
+}) => {
+	const where = {};
 
-  if (userId) {
-    where.userId = userId;
-  }
+	if (isPublic) {
+		where.status = TestStatus.PUBLIC;
+	}
 
-  if (search) {
-    where.title = {
-      contains: search,
-      mode: "insensitive",
-    };
-  }
+	if (userId) {
+		where.userId = userId;
+	}
 
-  let orderBy = { createdAt: "desc" };
-  if (sort === "oldest") {
-    orderBy = { createdAt: "asc" };
-  }
+	if (search) {
+		where.title = {
+			contains: search,
+			mode: "insensitive",
+		};
+	}
 
-  return prisma.test.findMany({
-    where,
-    orderBy,
-    include: {
-      _count: {
-        select: {
-          attempts: true,
-          items: { where: { type: { not: TestItemType.GROUP } } },
-        },
-      },
+	if (level && level.length > 0 && !level.includes("ALL_LEVELS")) {
+		where.level = { in: level };
+	}
 
-      user: {
-        select: { id: true, name: true, avatarUrl: true },
-      },
-    },
-  });
+	if (language && language.length > 0) {
+		where.language = { in: language };
+	}
+
+	let orderBy = { createdAt: "desc" };
+	if (sort === "oldest") {
+		orderBy = { createdAt: "asc" };
+	} else if (sort === "attempts") {
+		orderBy = { attemptsCount: "desc" };
+	}
+
+	const skip = (page - 1) * limit;
+
+	const [tests, totalItems] = await Promise.all([
+		prisma.test.findMany({
+			where,
+			orderBy,
+			skip,
+			take: limit,
+			include: {
+				user: {
+					select: { id: true, name: true, avatarUrl: true },
+				},
+			},
+		}),
+		prisma.test.count({ where }),
+	]);
+
+	return {
+		data: tests,
+		pagination: {
+			totalItems,
+			totalPages: Math.ceil(totalItems / limit),
+			currentPage: page,
+		},
+	};
 };
 
 const getAttemptedTests = async (userId, { search, sort } = {}) => {
@@ -88,25 +126,27 @@ const getAttemptedTests = async (userId, { search, sort } = {}) => {
 };
 
 const createTest = async (userId) => {
-  const payload = {
-    ...defaults.TEST,
-    userId,
-    items: {
-      create: [
-        {
-          type: TestItemType.SHORT_ANSWER,
-          text: "Thủ đô của nước Pháp?",
-          answer: "Paris",
-          sortOrder: 0,
-        },
-      ],
-    },
-  };
+	const payload = {
+		...defaults.TEST,
+		userId,
+		items: {
+			create: [
+				{
+					type: TestItemType.SHORT_ANSWER,
+					text: "Thủ đô của nước Pháp?",
+					answer: "Paris",
+					sortOrder: 0,
+				},
+			],
+		},
+		questionsCount: 1,
+		attemptsCount: 0,
+	};
 
-  const test = await prisma.test.create({ data: payload });
-  indexTest(test.id);
+	const test = await prisma.test.create({ data: payload });
+	indexTest(test.id);
 
-  return test;
+	return test;
 };
 
 const getTestForInfoView = async (id) => {
@@ -396,45 +436,45 @@ const syncItems = async (
 };
 
 const syncTest = async ({ testId, data, userId }, client = prisma) => {
-  const test = await client.test.findFirst({
-    where: { id: testId, userId },
-  });
+	const test = await client.test.findFirst({
+		where: { id: testId, userId },
+	});
 
-  if (!test) {
-    throw new ForbiddenError("You have no permission to edit this test");
-  }
+	if (!test) {
+		throw new ForbiddenError("You have no permission to edit this test");
+	}
 
-  const performSync = async (tx) => {
-    const updated = await tx.test.update({
-      where: { id: testId },
-      data: {
-        title: data.title,
-        description: data.description,
-        status: data.status,
-        timeLimit: data.timeLimit,
-        audioUrl: data.audioUrl,
-      },
-      include: {
-        _count: { select: { items: true } },
-      },
-    });
+	const performSync = async (tx) => {
+		const updated = await tx.test.update({
+			where: { id: testId },
+			data: {
+				title: data.title,
+				description: data.description,
+				status: data.status,
+				timeLimit: data.timeLimit,
+				audioUrl: data.audioUrl,
+				level: data.level,
+				language: data.language,
+			},
+		});
 
-    if (data.items) {
-      await syncItems(testId, data.items, null, tx);
-    }
+		if (data.items) {
+			await syncItems(testId, data.items, null, tx);
+			await updateTestQuestionCount(testId, tx);
+		}
 
-    indexTest(updated.id);
-    return updated;
-  };
+		indexTest(updated.id);
+		return updated;
+	};
 
-  if (typeof client.$transaction === "function") {
-    return client.$transaction(performSync, {
-      maxWait: 5000,
-      timeout: 20000,
-    });
-  } else {
-    return performSync(client);
-  }
+	if (typeof client.$transaction === "function") {
+		return client.$transaction(performSync, {
+			maxWait: 5000,
+			timeout: 20000,
+		});
+	} else {
+		return performSync(client);
+	}
 };
 
 export const testService = {

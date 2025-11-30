@@ -9,13 +9,13 @@ export default function ExcerptInput({ register, watch }) {
 		<div className="space-y-3">
 			<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
 				<LayoutTemplate className="w-4 h-4 text-gray-500" />
-				Excerpt
+				Tóm tắt
 			</label>
 
 			<div className="relative">
 				<textarea
 					{...register("excerpt", { maxLength: 300 })}
-					placeholder="Write a short summary..."
+					placeholder="Viết một bản tóm tắt ngắn..."
 					rows={4}
 					className={`w-full px-3 py-2.5 rounded-lg bg-gray-50 border focus:bg-white focus:ring-2 transition-all outline-none text-sm resize-none
                         ${

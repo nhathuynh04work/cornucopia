@@ -1,6 +1,5 @@
 import courseApi from "@/apis/courseApi";
 import { useAuth } from "@/contexts/AuthContext";
-import { Role } from "@/lib/constants";
 import { queryDefaults } from "@/lib/react-query.config";
 import { useQuery } from "@tanstack/react-query";
 
@@ -67,24 +66,11 @@ export function useGetCourseForLearning(courseId) {
 	});
 }
 
-export function useEnrolledCourses() {
-	const { user } = useAuth();
-
+export function useGetCourseReviews(courseId, params = {}) {
 	return useQuery({
-		queryKey: ["courses", "enrolled", user?.id],
-		queryFn: courseApi.getEnrolledCourses,
-		enabled: !!user,
-		...queryDefaults,
-	});
-}
-
-export function useMyCourses() {
-	const { user, role } = useAuth();
-
-	return useQuery({
-		queryKey: ["courses", "my-courses", user?.id],
-		queryFn: courseApi.getMyCourses,
-		enabled: !!user && role !== Role.USER,
+		queryKey: ["course", Number(courseId), "reviews", params],
+		queryFn: () => courseApi.getReviews(courseId, params),
+		enabled: !!courseId,
 		...queryDefaults,
 	});
 }

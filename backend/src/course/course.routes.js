@@ -9,14 +9,18 @@ import { Role } from "../generated/prisma/index.js";
 import {
 	addLessonSchema,
 	addModuleSchema,
+	createReviewSchema,
 	deleteCourseSchema,
 	deleteLessonSchema,
 	deleteModuleSchema,
+	deleteReviewSchema,
 	getCourseSchema,
+	getCoursesSchema,
 	updateCourseSchema,
 	updateLessonProgressSchema,
 	updateLessonSchema,
 	updateModuleSchema,
+	updateReviewSchema,
 } from "./course.schema.js";
 
 const router = Router();
@@ -24,30 +28,29 @@ const router = Router();
 router.use(authenticateJwt);
 
 // --- READ OPERATIONS ---
-router.get("/", courseController.getCourses);
-router.get("/enrolled", courseController.getEnrolledCourses);
+router.get("/", validate(getCoursesSchema), courseController.getCourses);
 
 router.get(
-	"/:id/info",
+	"/:courseId/info",
 	validate(getCourseSchema),
 	courseController.getCourseForInfoView
 );
 
 router.get(
-	"/:id/edit",
+	"/:courseId/edit",
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validate(getCourseSchema),
 	courseController.getCourseForEditor
 );
 
 router.get(
-	"/:id/learn",
+	"/:courseId/learn",
 	validate(getCourseSchema),
 	courseController.getCourseForLearning
 );
 
 router.get(
-	"/:id/enrollment",
+	"/:courseId/enrollment",
 	validate(getCourseSchema),
 	courseController.getUserCourseEnrollment
 );
@@ -60,14 +63,14 @@ router.post(
 );
 
 router.patch(
-	"/:id",
+	"/:courseId",
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validate(updateCourseSchema),
 	courseController.updateCourse
 );
 
 router.delete(
-	"/:id",
+	"/:courseId",
 	requireRole(Role.ADMIN, Role.CREATOR),
 	validate(deleteCourseSchema),
 	courseController.deleteCourse
@@ -130,6 +133,31 @@ router.put(
 	"/:courseId/modules/:moduleId/lessons/:lessonId/progress",
 	validate(updateLessonProgressSchema),
 	courseController.updateLessonProgress
+);
+
+// Reviews
+router.get(
+	"/:courseId/reviews",
+	validate(getCourseSchema),
+	courseController.getReviews
+);
+
+router.post(
+	"/:courseId/reviews",
+	validate(createReviewSchema),
+	courseController.addReview
+);
+
+router.patch(
+	"/:courseId/reviews/:reviewId",
+	validate(updateReviewSchema),
+	courseController.updateReview
+);
+
+router.delete(
+	"/:courseId/reviews/:reviewId",
+	validate(deleteReviewSchema),
+	courseController.deleteReview
 );
 
 export default router;
