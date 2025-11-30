@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Calendar, Clock, FileText } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
-import StatusBadge from "@/components/Shared/StatusBadge";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 
@@ -28,7 +27,6 @@ function PostCard({ post }) {
 		  })
 		: "";
 
-	// Calculate tag overflow
 	const MAX_TAGS = 3;
 	const remainingTags = tags ? tags.length - MAX_TAGS : 0;
 
@@ -46,17 +44,6 @@ function PostCard({ post }) {
 					/>
 				) : (
 					<FileText className="w-12 h-12 text-purple-200 group-hover:scale-110 transition-transform duration-500" />
-				)}
-
-				{/* Status Badge */}
-				{status !== "PUBLIC" && (
-					<div className="absolute top-3 left-3 z-10">
-						<StatusBadge
-							status={status}
-							size="xs"
-							className="shadow-sm !bg-white/90 backdrop-blur-md"
-						/>
-					</div>
 				)}
 			</div>
 

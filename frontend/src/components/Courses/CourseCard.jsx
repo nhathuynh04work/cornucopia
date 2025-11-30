@@ -8,7 +8,6 @@ import {
 	PlayCircle,
 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
-import StatusBadge from "@/components/Shared/StatusBadge";
 import StarRating from "@/components/Shared/StarRating";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
@@ -75,17 +74,6 @@ function CourseCard({ course }) {
 					) : (
 						<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
 							<BookOpen className="w-12 h-12" />
-						</div>
-					)}
-
-					{/* Status Badge */}
-					{status !== "PUBLIC" && (
-						<div className="absolute top-3 left-3 z-10">
-							<StatusBadge
-								status={status}
-								size="xs"
-								className="shadow-sm !bg-white/90 backdrop-blur-md"
-							/>
 						</div>
 					)}
 				</div>

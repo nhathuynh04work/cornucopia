@@ -1,10 +1,8 @@
 import { Link } from "react-router-dom";
 import { Users, FileText, Clock, Trophy, Globe, BarChart2 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
-import StatusBadge from "@/components/Shared/StatusBadge";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
-// Helper to format duration (seconds -> string)
 const formatDuration = (seconds) => {
 	if (!seconds) return "--";
 	const minutes = Math.floor(seconds / 60);
@@ -41,17 +39,6 @@ function TestCard({ test }) {
 			{/* --- ICON SECTION (Left Side) --- */}
 			<div className="w-full md:w-48 shrink-0 relative bg-blue-50 flex items-center justify-center min-h-[140px] md:min-h-0">
 				<Trophy className="w-12 h-12 text-blue-300 group-hover:scale-110 transition-transform duration-500" />
-
-				{/* Status Badge */}
-				{status !== "PUBLIC" && (
-					<div className="absolute top-3 left-3 z-10">
-						<StatusBadge
-							status={status}
-							size="xs"
-							className="shadow-sm !bg-white/90 backdrop-blur-md"
-						/>
-					</div>
-				)}
 			</div>
 
 			{/* --- CONTENT SECTION (Right Side) --- */}
