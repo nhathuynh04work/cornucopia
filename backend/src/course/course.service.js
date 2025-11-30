@@ -7,6 +7,7 @@ import {
 import { calculateCourseProgress } from "../utils/calculate.js";
 import { indexCourse } from "../chatbot/indexer.js";
 import { CourseStatus } from "../generated/prisma/index.js";
+import { mapToContentLanguage } from "../utils/transform.js";
 
 const updateCourseRatingStats = async (courseId) => {
 	const aggregate = await prisma.review.aggregate({
@@ -100,7 +101,7 @@ const getAll = async ({
 	}
 
 	if (language && language.length > 0) {
-		where.language = { in: language };
+		where.language = { in: mapToContentLanguage(language) };
 	}
 
 	if (minRating) {

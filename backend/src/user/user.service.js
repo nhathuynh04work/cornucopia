@@ -1,6 +1,10 @@
 import prisma from "../prisma.js";
 import { Role } from "../generated/prisma/index.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
+import { courseService } from "../course/course.service.js";
+import { deckService } from "../deck/deck.service.js";
+import { postService } from "../post/post.service.js";
+import { testService } from "../test/test.service.js";
 
 const getUsers = async ({ role = Role.USER, search, page = 1, limit = 10 }) => {
 	const filters = {
@@ -101,6 +105,121 @@ const getLandingData = async () => {
 	};
 };
 
+const getLibraryData = async (userId) => {
+	const userPromise = prisma.user.findUnique({
+		where: { id: userId },
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			role: true,
+			avatarUrl: true,
+			createdAt: true,
+		},
+	});
+
+	const enrolledCoursesPromise = courseService.getAll({
+		enrolledUserId: userId,
+		limit: 50,
+		sort: "newest",
+	});
+
+	const recentTestsPromise = prisma.attempt.findMany({
+		where: { userId },
+		take: 50,
+		orderBy: { createdAt: "desc" },
+		include: {
+			test: {
+				select: {
+					id: true,
+					title: true,
+					status: true,
+					questionsCount: true,
+				},
+			},
+		},
+	});
+
+	const createdCoursesPromise = courseService.getAll({
+		userId: userId,
+		limit: 50,
+		sort: "newest",
+	});
+
+	const createdDecksPromise = deckService.getDecks({
+		userId: userId,
+		limit: 50,
+		sort: "newest",
+	});
+
+	const createdPostsPromise = postService.getPosts({
+		authorId: userId,
+		limit: 50,
+		sort: "newest",
+	});
+
+	const createdTestsPromise = testService.getTests({
+		userId: userId,
+		limit: 50,
+		sort: "newest",
+	});
+
+	const [
+		user,
+		enrolledCourses,
+		recentAttempts,
+		createdCourses,
+		createdDecks,
+		createdPosts,
+		createdTests,
+	] = await Promise.all([
+		userPromise,
+		enrolledCoursesPromise,
+		recentTestsPromise,
+		createdCoursesPromise,
+		createdDecksPromise,
+		createdPostsPromise,
+		createdTestsPromise,
+	]);
+
+	const formattedRecentTests = recentAttempts.map((attempt) => {
+		const totalPoints = attempt.totalPossiblePoints || 0;
+		const scoredPoints = attempt.scoredPoints || 0;
+
+		const percentage = totalPoints > 0 ? scoredPoints / totalPoints : 0;
+
+		const status = percentage >= 0.5 ? "PASSED" : "FAILED";
+
+		return {
+			id: attempt.test.id,
+			attemptId: attempt.id,
+			title: attempt.test.title,
+			score: scoredPoints,
+			totalScore: totalPoints,
+			date: attempt.createdAt,
+			status: status,
+		};
+	});
+
+	return {
+		user: {
+			...user,
+			bio: "Thành viên tích cực tại Cornucopia",
+			joinedAt: user.createdAt,
+		},
+		learning: {
+			courses: enrolledCourses.data,
+			recentTests: formattedRecentTests,
+		},
+		creations: {
+			courses: createdCourses.data,
+			decks: createdDecks.data,
+			posts: createdPosts.data,
+			tests: createdTests.data,
+		},
+	};
+};
+
 const updateRole = async ({ userId, role }) => {
 	const user = await prisma.user.findUnique({ where: { id: userId } });
 	if (!user) throw new NotFoundError("User not found");
@@ -117,5 +236,6 @@ const updateRole = async ({ userId, role }) => {
 export const userService = {
 	getUsers,
 	getLandingData,
+	getLibraryData,
 	updateRole,
 };
