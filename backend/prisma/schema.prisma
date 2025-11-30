@@ -463,10 +463,10 @@ enum Level {
 }
 
 enum ContentLanguage {
-    ENGLISH  @map("en")
-    JAPANESE @map("ja")
-    KOREAN   @map("ko")
-    CHINESE  @map("zh")
-    FRENCH   @map("fr")
-    SPANISH  @map("es")
+    ENGLISH
+    JAPANESE
+    KOREAN
+    CHINESE
+    FRENCH
+    SPANISH
 }

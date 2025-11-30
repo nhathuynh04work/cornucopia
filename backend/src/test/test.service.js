@@ -7,7 +7,6 @@ import {
 import { defaults } from "../utils/constants.js";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 import { indexTest } from "../chatbot/indexer.js";
-import { mapToContentLanguage } from "../utils/transform.js";
 
 const updateTestQuestionCount = async (testId, tx = prisma) => {
 	const count = await tx.testItem.count({
@@ -51,7 +50,7 @@ const getTests = async ({
 	}
 
 	if (language && language.length > 0) {
-		where.language = { in: mapToContentLanguage(language) };
+		where.language = { in: language };
 	}
 
 	let orderBy = { createdAt: "desc" };

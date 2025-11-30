@@ -1,6 +1,5 @@
 import prisma from "../prisma.js";
 import { ForbiddenError, NotFoundError } from "../utils/AppError.js";
-import { mapToContentLanguage } from "../utils/transform.js";
 
 const updateDeckCounts = async (deckId) => {
 	const [cardsCount, studySessionCount] = await Promise.all([
@@ -48,7 +47,7 @@ const getDecks = async ({
 	}
 
 	if (language && language.length > 0) {
-		where.language = { in: mapToContentLanguage(language) };
+		where.language = { in: language };
 	}
 
 	let orderBy = {};
