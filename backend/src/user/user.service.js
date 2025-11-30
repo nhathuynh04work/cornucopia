@@ -148,6 +148,7 @@ const getLibraryData = async (userId) => {
 
 	const createdDecksPromise = deckService.getDecks({
 		userId: userId,
+		currentUserId: userId,
 		limit: 50,
 		sort: "newest",
 	});

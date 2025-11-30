@@ -48,6 +48,8 @@ export default function CreationsTab({
 		return STATUS_MAP[status] || STATUS_MAP.DRAFT;
 	};
 
+	console.log(data);
+
 	return (
 		<div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
 			{/* --- My Courses --- */}
