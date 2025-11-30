@@ -64,6 +64,13 @@ const localLogin = async ({ email, password }) => {
 	const user = await userRepo.findByEmail(email);
 
 	if (!user) throw new NotFoundError(errorMessage.USER_NOT_FOUND);
+
+	if (user.isBlocked) {
+		throw new ForbiddenError(
+			"Your account has been suspended. Please contact support."
+		);
+	}
+
 	if (!user.isActive) {
 		const token = await getConfirmationToken(user);
 		sendConfirmationEmail(user.email, token);
@@ -73,7 +80,7 @@ const localLogin = async ({ email, password }) => {
 	const auth = await authRepo.findLocalAuth(user.id);
 	if (!auth) throw new NotFoundError(errorMessage.USER_NOT_FOUND);
 
-	const isMatch = await bcrypt.compare(password, auth.passwordHash);
+	const isMatch = bcrypt.compare(password, auth.passwordHash);
 	if (!isMatch) throw new BadRequestError(errorMessage.INVALID_PASSWORD);
 
 	return createJWT({

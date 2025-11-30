@@ -6,7 +6,7 @@ import {
 } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import { Role } from "../generated/prisma/index.js";
-import { updateRoleSchema } from "./user.schema.js";
+import { updateUserSchema } from "./user.schema.js";
 
 const router = Router();
 
@@ -19,10 +19,10 @@ router.get("/landing", userController.getLandingData);
 router.get("/me/library", userController.getLibrary);
 
 router.patch(
-	"/:id/role",
+	"/:id",
 	requireRole(Role.ADMIN),
-	validate(updateRoleSchema),
-	userController.updateRole
+	validate(updateUserSchema),
+	userController.updateUser
 );
 
 export default router;

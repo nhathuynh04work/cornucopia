@@ -16,11 +16,11 @@ const getLibrary = async (req, res) => {
 	res.status(200).json(data);
 };
 
-const updateRole = async (req, res) => {
+const updateUser = async (req, res) => {
 	const userId = req.params.id;
-	const role = req.body.role;
+	const body = req.body;
 
-	const user = await userService.updateRole({ userId, role });
+	const user = await userService.updateUser(userId, body);
 	res.status(200).json({ user });
 };
 
@@ -28,5 +28,5 @@ export const userController = {
 	getUsers,
 	getLandingData,
 	getLibrary,
-	updateRole,
+	updateUser,
 };
