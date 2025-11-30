@@ -4,12 +4,13 @@ import { Role } from "@/lib/constants";
 import userApi from "@/apis/userApi";
 import { queryDefaults } from "@/lib/react-query.config";
 
-export function useGetUsers({ role, search, page, limit = 10 }) {
+export function useGetUsers({ role, search, page, limit = 10, isBlocked }) {
 	const { role: userRole } = useAuth();
 
 	return useQuery({
-		queryKey: ["users", { role, search, page, limit }],
-		queryFn: () => userApi.getUsers({ role, search, page, limit }),
+		queryKey: ["users", { role, search, page, limit, isBlocked }],
+		queryFn: () =>
+			userApi.getUsers({ role, search, page, limit, isBlocked }),
 		keepPreviousData: true,
 		enabled: userRole === Role.ADMIN,
 	});
