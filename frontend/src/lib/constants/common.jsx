@@ -11,12 +11,12 @@ export const LEVEL_OPTIONS = [
 ];
 
 export const LANGUAGE_OPTIONS = [
-	{ value: "en", label: "Tiếng Anh" },
-	{ value: "ja", label: "Tiếng Nhật" },
-	{ value: "ko", label: "Tiếng Hàn" },
-	{ value: "zh", label: "Tiếng Trung" },
-	{ value: "fr", label: "Tiếng Pháp" },
-	{ value: "es", label: "Tiếng Tây Ban Nha" },
+	{ value: "ENGLISH", label: "Tiếng Anh" },
+	{ value: "JAPANESE", label: "Tiếng Nhật" },
+	{ value: "KOREAN", label: "Tiếng Hàn" },
+	{ value: "CHINESE", label: "Tiếng Trung" },
+	{ value: "FRENCH", label: "Tiếng Pháp" },
+	{ value: "SPANISH", label: "Tiếng Tây Ban Nha" },
 ];
 
 export const PERMISSIONS = {
@@ -24,5 +24,6 @@ export const PERMISSIONS = {
 	CREATE_POST: [Role.USER, Role.CREATOR, Role.ADMIN],
 	CREATE_COURSE: [Role.CREATOR, Role.ADMIN],
 	CREATE_TEST: [Role.CREATOR, Role.ADMIN],
+	CREATE_DECK: [Role.USER, Role.CREATOR, Role.ADMIN],
 	MANAGE_USERS: [Role.ADMIN],
 };

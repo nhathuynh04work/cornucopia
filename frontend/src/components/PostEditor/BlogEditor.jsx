@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { debounce } from "lodash";
 import Footer from "@/layouts/Footer";
@@ -7,18 +7,15 @@ import EditorHeader from "./EditorHeader";
 import TitleInput from "./TitleInput";
 import RichTextEditor from "./RichTextEditor";
 import EditorSidebar from "./EditorSidebar";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router";
 
 export default function BlogEditor({ post }) {
 	const postId = post.id;
-	const navigate = useNavigate();
 	const { mutate: updatePost, isPending: isSaving } = useUpdatePost();
+	const [lastSaved, setLastSaved] = useState(null);
 
 	const {
 		register,
 		control,
-		handleSubmit,
 		setValue,
 		watch,
 		reset,
@@ -59,6 +56,7 @@ export default function BlogEditor({ post }) {
 					{
 						onSuccess: () => {
 							reset(formData);
+							setLastSaved(new Date());
 						},
 					}
 				);
@@ -73,32 +71,16 @@ export default function BlogEditor({ post }) {
 		return () => subscription.unsubscribe();
 	}, [watch, debouncedSave]);
 
-	const handlePublish = handleSubmit((data) => {
-		debouncedSave.cancel();
-
-		const updatedData = { ...data, status: "PUBLIC" };
-		const payload = formatPayload(updatedData);
-
-		updatePost(
-			{ postId, payload },
-			{
-				onSuccess: (post) => {
-					toast.success("Bài viết đã chuyển sang chế độ CÔNG KHAI!");
-					navigate(`/posts/${post.id}`);
-				},
-			}
-		);
-	});
-
 	return (
 		<form className="min-h-screen flex flex-col bg-white">
-			<div className="sticky top-0 z-50 bg-white border-b border-gray-100">
-				<EditorHeader
-					isDirty={isDirty}
-					isSaving={isSaving}
-					onPublish={handlePublish}
-				/>
-			</div>
+			<EditorHeader
+				control={control}
+				watch={watch}
+				isDirty={isDirty}
+				isSaving={isSaving}
+				lastSaved={lastSaved}
+				postId={postId}
+			/>
 
 			<div className="flex-1 relative">
 				<main className="max-w-[1600px] w-full mx-auto grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 p-6 lg:p-8">

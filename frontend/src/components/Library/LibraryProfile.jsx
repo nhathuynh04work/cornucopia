@@ -1,6 +1,6 @@
 import { Settings, Calendar, Star } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
-import StatusBadge from "@/components/Shared/StatusBadge";
+import Badge from "@/components/Shared/Badge";
 
 export default function LibraryProfile({ user, isCreator, formatDate }) {
 	return (
@@ -15,11 +15,9 @@ export default function LibraryProfile({ user, isCreator, formatDate }) {
 							{user.name}
 						</h1>
 						{isCreator && (
-							<StatusBadge
-								status="CREATOR"
-								label="Giảng viên"
-								className="bg-blue-50 text-blue-600 border-blue-100 mt-1 md:mt-0"
-							/>
+							<Badge variant="info" className="mt-1 md:mt-0">
+								Giảng viên
+							</Badge>
 						)}
 					</div>
 					<p className="text-gray-500 text-sm mb-4 max-w-2xl">
@@ -30,6 +28,16 @@ export default function LibraryProfile({ user, isCreator, formatDate }) {
 							<Calendar className="w-3.5 h-3.5" />
 							Tham gia {formatDate(user.createdAt)}
 						</div>
+
+						{isCreator && user.averageRating > 0 && (
+							<div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-lg border border-amber-100">
+								<Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+								<span>
+									{Number(user.averageRating).toFixed(1)} đánh
+									giá trung bình
+								</span>
+							</div>
+						)}
 					</div>
 				</div>
 				<div className="shrink-0">

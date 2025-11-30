@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import { Users, Layers, BrainCircuit, Globe, BarChart2 } from "lucide-react";
+import { Layers, BrainCircuit, Globe, BarChart2 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
-import StatusBadge from "@/components/Shared/StatusBadge";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 function DeckCard({ deck }) {
@@ -9,7 +8,6 @@ function DeckCard({ deck }) {
 		id,
 		title,
 		user,
-		isPublic,
 		cardsCount,
 		studySessionCount,
 		level,
@@ -18,7 +16,6 @@ function DeckCard({ deck }) {
 
 	const targetLink = `/decks/${id}`;
 
-	// Helper to get labels (assuming you have these constants, or fallback to value)
 	const levelLabel =
 		LEVEL_OPTIONS?.find((o) => o.value === level)?.label || level;
 	const langLabel =
@@ -31,17 +28,6 @@ function DeckCard({ deck }) {
 			{/* --- ICON SECTION (Left Side) --- */}
 			<div className="w-full md:w-48 shrink-0 relative bg-indigo-50 flex items-center justify-center min-h-[140px] md:min-h-0">
 				<Layers className="w-12 h-12 text-indigo-300 group-hover:scale-110 transition-transform duration-500" />
-
-				{/* Status Badge */}
-				{!isPublic && (
-					<div className="absolute top-3 left-3 z-10">
-						<StatusBadge
-							status="PRIVATE"
-							size="xs"
-							className="shadow-sm !bg-white/90 backdrop-blur-md"
-						/>
-					</div>
-				)}
 			</div>
 
 			{/* --- CONTENT SECTION (Right Side) --- */}

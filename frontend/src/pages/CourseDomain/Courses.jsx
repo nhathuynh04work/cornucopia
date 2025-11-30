@@ -7,9 +7,11 @@ import PermissionGate from "@/components/Shared/PermissionGate";
 import PaginationControl from "@/components/Shared/PaginationControl";
 import ResourcePageLayout from "@/layouts/ResourcePageLayout";
 import EmptyState from "@/components/Shared/EmptyState";
-import { PERMISSIONS } from "@/lib/constants";
+import { PERMISSIONS } from "@/lib/constants/common";
 import { useGetCourses } from "@/hooks/useCourseQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
+import { useCreateCourse } from "@/hooks/useCourseMutation";
+import toast from "react-hot-toast";
 
 const SORT_OPTIONS = [
 	{ value: "popular", label: "Phổ biến nhất" },
@@ -20,8 +22,6 @@ const SORT_OPTIONS = [
 ];
 
 export default function Courses() {
-	const navigate = useNavigate();
-
 	const {
 		searchTerm,
 		setSearchTerm,
@@ -66,12 +66,7 @@ export default function Courses() {
 			description="Nâng cao kỹ năng với hơn 500+ khóa học từ các chuyên gia hàng đầu."
 			action={
 				<PermissionGate allowedRoles={PERMISSIONS.CREATE_COURSE}>
-					<button
-						onClick={() => navigate("/courses/new")}
-						className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow">
-						<Plus className="w-4 h-4" />
-						Tạo khóa học
-					</button>
+					<CreateButton />
 				</PermissionGate>
 			}
 			searchTerm={searchTerm}
@@ -123,5 +118,34 @@ export default function Courses() {
 				)
 			)}
 		</ResourcePageLayout>
+	);
+}
+
+function CreateButton() {
+	const navigate = useNavigate();
+	const { mutate, isPending } = useCreateCourse();
+
+	const handleCreate = () => {
+		mutate(
+			{ title: "Khóa học mới chưa có tiêu đề" },
+			{
+				onSuccess: (course) => {
+					toast.success("Tạo khoá học thành công!");
+					navigate(`/courses/${course.id}/edit`);
+				},
+				onError: () => {
+					toast.error("Tạo khoá học thất bại.");
+				},
+			}
+		);
+	};
+	return (
+		<button
+			onClick={handleCreate}
+			disabled={isPending}
+			className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow">
+			<Plus className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+			{isPending ? "Đang tạo..." : "Tạo khóa học"}
+		</button>
 	);
 }

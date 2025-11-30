@@ -72,12 +72,6 @@ const getTests = async ({
 				user: {
 					select: { id: true, name: true, avatarUrl: true },
 				},
-				_count: {
-					select: {
-						attempts: true,
-						items: { where: { type: { not: TestItemType.GROUP } } },
-					},
-				},
 			},
 		}),
 		prisma.test.count({ where }),

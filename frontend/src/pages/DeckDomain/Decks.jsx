@@ -7,9 +7,11 @@ import PermissionGate from "@/components/Shared/PermissionGate";
 import PaginationControl from "@/components/Shared/PaginationControl";
 import ResourcePageLayout from "@/layouts/ResourcePageLayout";
 import EmptyState from "@/components/Shared/EmptyState";
-import { PERMISSIONS } from "@/lib/constants";
+import { PERMISSIONS } from "@/lib/constants/common";
 import { useGetDecks } from "@/hooks/useFlashcardQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
+import { useCreateDeck } from "@/hooks/useFlashcardMutation";
+import toast from "react-hot-toast";
 
 const SORT_OPTIONS = [
 	{ value: "newest", label: "Mới nhất" },
@@ -19,8 +21,6 @@ const SORT_OPTIONS = [
 ];
 
 export default function Decks() {
-	const navigate = useNavigate();
-
 	const {
 		searchTerm,
 		setSearchTerm,
@@ -62,12 +62,7 @@ export default function Decks() {
 			description="Hàng triệu thẻ ghi nhớ giúp bạn học tập mọi lúc mọi nơi."
 			action={
 				<PermissionGate allowedRoles={PERMISSIONS.CREATE_DECK}>
-					<button
-						onClick={() => navigate("/decks/new")}
-						className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow">
-						<Plus className="w-4 h-4" />
-						Tạo bộ thẻ
-					</button>
+					<CreateButton />
 				</PermissionGate>
 			}
 			searchTerm={searchTerm}
@@ -118,5 +113,34 @@ export default function Decks() {
 				)
 			)}
 		</ResourcePageLayout>
+	);
+}
+
+function CreateButton() {
+	const navigate = useNavigate();
+	const { mutate, isPending } = useCreateDeck();
+
+	const handleCreate = () => {
+		mutate(
+			{},
+			{
+				onSuccess: (deck) => {
+					toast.success("Tạo bộ thẻ thành công!");
+					navigate(`/decks/${deck.id}/edit`);
+				},
+				onError: () => {
+					toast.error("Tạo bộ thẻ thất bại.");
+				},
+			}
+		);
+	};
+	return (
+		<button
+			onClick={handleCreate}
+			disabled={isPending}
+			className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow">
+			<Plus className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+			{isPending ? "Đang tạo..." : "Tạo bộ thẻ"}
+		</button>
 	);
 }

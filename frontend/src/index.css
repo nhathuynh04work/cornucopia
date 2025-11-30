@@ -5,7 +5,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-
 /* -------------------------------------------------------------------------- */
 /*                              Base HTML Styles                              */
 /* -------------------------------------------------------------------------- */
@@ -23,7 +22,6 @@ html {
 * {
 	scrollbar-width: thin;
 	scrollbar-color: #9ca3af transparent; /* gray-400 thumb, transparent track */
-	border-color: rgb(229, 231, 235); /* Tailwind gray-200 */
 }
 
 .font-anton {

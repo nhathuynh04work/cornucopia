@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, FileText } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
-import StatusBadge from "@/components/Shared/StatusBadge";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 
 function PostCard({ post }) {
-	console.log(post);
 	const {
 		id,
 		title,
@@ -29,36 +27,24 @@ function PostCard({ post }) {
 		  })
 		: "";
 
+	const MAX_TAGS = 3;
+	const remainingTags = tags ? tags.length - MAX_TAGS : 0;
+
 	return (
 		<Link
 			to={targetLink}
 			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- IMAGE SECTION (Left Side) --- */}
-			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100">
-				<div className="aspect-video md:h-full md:aspect-auto relative">
-					{coverUrl ? (
-						<img
-							src={coverUrl}
-							alt={title}
-							className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-						/>
-					) : (
-						<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300 font-bold text-xl">
-							BLOG
-						</div>
-					)}
-
-					{/* Status Badge */}
-					{status !== "PUBLIC" && (
-						<div className="absolute top-3 left-3 z-10">
-							<StatusBadge
-								status={status}
-								size="xs"
-								className="shadow-sm !bg-white/90 backdrop-blur-md"
-							/>
-						</div>
-					)}
-				</div>
+			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-purple-50 flex items-center justify-center min-h-[160px] md:min-h-0">
+				{coverUrl ? (
+					<img
+						src={coverUrl}
+						alt={title}
+						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+					/>
+				) : (
+					<FileText className="w-12 h-12 text-purple-200 group-hover:scale-110 transition-transform duration-500" />
+				)}
 			</div>
 
 			{/* --- CONTENT SECTION (Right Side) --- */}
@@ -69,13 +55,18 @@ function PostCard({ post }) {
 						{/* Tags as Metadata Badges */}
 						{tags && tags.length > 0 && (
 							<div className="flex flex-wrap items-center gap-2">
-								{tags.slice(0, 3).map((tag) => (
+								{tags.slice(0, MAX_TAGS).map((tag) => (
 									<span
 										key={tag.name}
 										className="text-[10px] font-bold tracking-wider uppercase text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">
 										{tag.name}
 									</span>
 								))}
+								{remainingTags > 0 && (
+									<span className="text-[10px] font-bold tracking-wider text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">
+										+{remainingTags}
+									</span>
+								)}
 							</div>
 						)}
 

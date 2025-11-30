@@ -16,6 +16,8 @@ router.get("/", requireRole(Role.ADMIN), userController.getUsers);
 
 router.get("/landing", userController.getLandingData);
 
+router.get("/me/library", userController.getLibrary);
+
 router.patch(
 	"/:id/role",
 	requireRole(Role.ADMIN),
