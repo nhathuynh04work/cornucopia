@@ -32,6 +32,17 @@ export function useUpdateCourse() {
 	});
 }
 
+export function useDeleteCourse() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ courseId }) => courseApi.deleteCourse(courseId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["courses"] });
+			queryClient.invalidateQueries({ queryKey: ["library"] });
+		},
+	});
+}
+
 export function useModuleMutations() {
 	const queryClient = useQueryClient();
 
@@ -146,4 +157,58 @@ export function useCreateCheckoutSession(courseId) {
 			toast.error(err.message || "Failed to start checkout.");
 		},
 	});
+}
+
+export function useReviewMutations(courseId) {
+	const queryClient = useQueryClient();
+	const numericId = Number(courseId);
+
+	const invalidateContext = () => {
+		// 1. Refresh the reviews list
+		queryClient.invalidateQueries({
+			queryKey: ["course", numericId, "reviews"],
+		});
+		// 2. Refresh course details (Learn View) to update stats/userReview
+		queryClient.invalidateQueries({
+			queryKey: ["course", numericId, "learn"],
+		});
+		// 3. Refresh public info view (if needed)
+		queryClient.invalidateQueries({
+			queryKey: ["course", numericId, "info-view"],
+		});
+	};
+
+	const addReview = useMutation({
+		mutationFn: (data) => courseApi.addReview(numericId, data),
+		onSuccess: () => {
+			toast.success("Cảm ơn bạn đã đánh giá!");
+			invalidateContext();
+		},
+		onError: (error) => {
+			toast.error(
+				error?.response?.data?.message || "Không thể gửi đánh giá"
+			);
+		},
+	});
+
+	const updateReview = useMutation({
+		mutationFn: ({ reviewId, data }) =>
+			courseApi.updateReview(numericId, reviewId, data),
+		onSuccess: () => {
+			toast.success("Đã cập nhật đánh giá");
+			invalidateContext();
+		},
+		onError: () => toast.error("Lỗi khi cập nhật đánh giá"),
+	});
+
+	const deleteReview = useMutation({
+		mutationFn: (reviewId) => courseApi.deleteReview(numericId, reviewId),
+		onSuccess: () => {
+			toast.success("Đã xóa đánh giá");
+			invalidateContext();
+		},
+		onError: () => toast.error("Lỗi khi xóa đánh giá"),
+	});
+
+	return { addReview, updateReview, deleteReview };
 }

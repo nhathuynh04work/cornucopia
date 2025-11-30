@@ -1,164 +1,144 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { FileText, Plus, Loader2 } from "lucide-react";
-import { useGetPosts } from "@/hooks/usePostQuery";
-import { useCreatePost } from "@/hooks/usePostMutation";
-import { useInfiniteTags } from "@/hooks/useTagQuery"; // Import new hook
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Search } from "lucide-react";
 import PostCard from "@/components/Posts/PostCard";
-import TagFilter from "@/components/Posts/TagFilter";
+import PostFilterSidebar from "@/components/Posts/PostFilterSidebar";
 import PermissionGate from "@/components/Shared/PermissionGate";
-import { PERMISSIONS } from "@/lib/constants";
-import toast from "react-hot-toast";
-import PageHeader from "@/components/Shared/PageHeader";
-import FilterBar from "@/components/Shared/FilterBar";
-import ResourceList from "@/components/Shared/ResourceList";
-import { useAuth } from "@/contexts/AuthContext";
+import PaginationControl from "@/components/Shared/PaginationControl";
+import ResourcePageLayout from "@/layouts/ResourcePageLayout";
+import EmptyState from "@/components/Shared/EmptyState";
+import { PERMISSIONS } from "@/lib/constants/common";
+import { useGetPosts } from "@/hooks/usePostQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
+import { useCreatePost } from "@/hooks/usePostMutation";
+import toast from "react-hot-toast";
+
+const SORT_OPTIONS = [
+	{ value: "newest", label: "Mới nhất" },
+	{ value: "oldest", label: "Cũ nhất" },
+];
 
 export default function Posts() {
-	const { user } = useAuth();
-	const navigate = useNavigate();
-	const [urlSearchParams, setUrlSearchParams] = useSearchParams();
-	const activeTag = urlSearchParams.get("tag");
-
 	const {
 		searchTerm,
 		setSearchTerm,
 		debouncedSearch,
 		sort,
 		setSort,
-		scope,
-		setScope,
-	} = useResourceFilters();
+		page,
+		setPage,
+		limit,
+		filters,
+		toggleFilterArray,
+		clearFilters,
+	} = useResourceFilters({ defaultSort: "newest", defaultLimit: 6 });
 
-	const {
-		data: tagsData,
-		fetchNextPage,
-		hasNextPage,
-		isFetchingNextPage,
-	} = useInfiniteTags();
+	const queryParams = useMemo(
+		() => ({
+			search: debouncedSearch,
+			tags: filters.tags,
+			sort,
+			page,
+			limit,
+			status: "PUBLIC",
+		}),
+		[debouncedSearch, filters, sort, page, limit]
+	);
 
-	const tags = tagsData?.pages?.flatMap((page) => page.tags) || [];
+	const { data: postsData, isLoading } = useGetPosts(queryParams);
 
-	const { mutate: createPost, isPending: isCreating } = useCreatePost();
-
-	const queryParams = {
-		search: debouncedSearch,
-		sort,
-		status: scope === "MINE" ? undefined : "PUBLIC",
-		tags: activeTag || undefined,
+	const posts = postsData?.data || [];
+	const pagination = postsData?.pagination || {
+		totalItems: 0,
+		totalPages: 1,
+		currentPage: 1,
 	};
 
-	if (scope === "MINE" && user) {
-		queryParams.authorId = user.id;
-	}
+	return (
+		<ResourcePageLayout
+			title="Bài viết & Chia sẻ"
+			description="Cập nhật kiến thức, kinh nghiệm và mẹo học tập hữu ích từ cộng đồng."
+			action={
+				<PermissionGate allowedRoles={PERMISSIONS.CREATE_POST}>
+					<CreateButton />
+				</PermissionGate>
+			}
+			searchTerm={searchTerm}
+			onSearchChange={(e) => setSearchTerm(e.target.value)}
+			searchPlaceholder="Tìm kiếm bài viết..."
+			sort={sort}
+			onSortChange={setSort}
+			sortOptions={SORT_OPTIONS}
+			totalItems={pagination.totalItems}
+			itemLabel="bài viết"
+			filterContent={
+				<PostFilterSidebar
+					filters={filters}
+					toggleFilterArray={toggleFilterArray}
+					clearFilters={clearFilters}
+				/>
+			}
+			isLoading={isLoading}
+			pagination={
+				posts.length > 0 && (
+					<PaginationControl
+						currentPage={pagination.currentPage}
+						totalPages={pagination.totalPages}
+						onPageChange={setPage}
+					/>
+				)
+			}>
+			{posts.length > 0 ? (
+				<div className="grid grid-cols-1 gap-4">
+					{posts.map((post) => (
+						<div key={post.id}>
+							<PostCard post={post} />
+						</div>
+					))}
+				</div>
+			) : (
+				!isLoading && (
+					<EmptyState
+						icon={Search}
+						title="Không tìm thấy kết quả"
+						description="Không có bài viết nào phù hợp với bộ lọc hiện tại.">
+						<button
+							onClick={clearFilters}
+							className="text-purple-600 font-bold hover:underline">
+							Xóa tất cả bộ lọc
+						</button>
+					</EmptyState>
+				)
+			)}
+		</ResourcePageLayout>
+	);
+}
 
-	const { data: posts, isPending, isError } = useGetPosts(queryParams);
+function CreateButton() {
+	const navigate = useNavigate();
+	const { mutate, isPending } = useCreatePost();
 
-	const handleCreatePost = () => {
-		createPost(
+	const handleCreate = () => {
+		mutate(
 			{},
 			{
 				onSuccess: (post) => {
-					toast.success("Đã tạo bản nháp! Đang chuyển hướng...");
+					toast.success("Tạo bài viết thành công!");
 					navigate(`/posts/${post.id}/edit`);
+				},
+				onError: () => {
+					toast.error("Tạo bài viết thất bại.");
 				},
 			}
 		);
 	};
-
-	const handleTagSelect = (tagName) => {
-		if (tagName === null || activeTag === tagName) {
-			const newParams = new URLSearchParams(urlSearchParams);
-			newParams.delete("tag");
-			setUrlSearchParams(newParams);
-			return;
-		}
-
-		const newParams = new URLSearchParams(urlSearchParams);
-		newParams.set("tag", tagName);
-		setUrlSearchParams(newParams);
-	};
-
-	const tabs = [{ label: "Tất cả", value: "ALL" }];
-	if (user) {
-		tabs.push({ label: "Bài viết của tôi", value: "MINE" });
-	}
-
 	return (
-		<div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-			{/* Page Header */}
-			<div className="px-6 pt-6">
-				<PageHeader
-					title="Blog Cộng đồng"
-					description="Đọc các bài viết, chia sẻ và kinh nghiệm từ cộng đồng Cornucopia."
-					className={`!mb-4`}
-					action={
-						<PermissionGate allowedRoles={PERMISSIONS.CREATE_POST}>
-							<button
-								onClick={handleCreatePost}
-								disabled={isCreating}
-								className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow disabled:opacity-70">
-								{isCreating ? (
-									<Loader2 className="w-4 h-4 animate-spin" />
-								) : (
-									<Plus className="w-4 h-4" />
-								)}
-								Viết bài
-							</button>
-						</PermissionGate>
-					}
-				/>
-			</div>
-
-			{/* Sticky Filter Section */}
-			<div className="sticky top-0 z-20 bg-gray-50/95 backdrop-blur-md px-6 pt-4 pb-2 transition-all duration-200">
-				<TagFilter
-					tags={tags}
-					activeTag={activeTag}
-					onSelect={handleTagSelect}
-					hasNextPage={hasNextPage}
-					fetchNextPage={fetchNextPage}
-					isFetchingNextPage={isFetchingNextPage}
-				/>
-
-				<FilterBar
-					searchTerm={searchTerm}
-					onSearchChange={setSearchTerm}
-					searchPlaceholder="Tìm kiếm bài viết..."
-					tabs={tabs}
-					activeTab={scope}
-					onTabChange={setScope}
-					sortOptions={[
-						{ label: "Mới nhất", value: "newest" },
-						{ label: "Cũ nhất", value: "oldest" },
-					]}
-					activeSort={sort}
-					onSortChange={setSort}
-				/>
-			</div>
-
-			{/* Scrollable Content */}
-			<div className="px-6 pb-6 pt-4">
-				<ResourceList
-					isLoading={isPending}
-					isError={isError}
-					data={posts}
-					resourceName="bài viết"
-					gridCols="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-					renderItem={(post) => (
-						<PostCard key={post.id} post={post} />
-					)}
-					emptyState={{
-						icon: FileText,
-						title: "Chưa có bài viết nào",
-						description:
-							"Hãy là người đầu tiên chia sẻ kiến thức với cộng đồng.",
-						actionLabel: "Viết bài ngay",
-						onAction: handleCreatePost,
-						allowedRoles: PERMISSIONS.CREATE_POST,
-					}}
-				/>
-			</div>
-		</div>
+		<button
+			onClick={handleCreate}
+			disabled={isPending}
+			className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow">
+			<Plus className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+			{isPending ? "Đang tạo..." : "Tạo bài viết"}
+		</button>
 	);
 }

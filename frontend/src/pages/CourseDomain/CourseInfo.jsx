@@ -82,6 +82,8 @@ export default function CourseInfo() {
 						totalModules={totalModules}
 						totalLessons={totalLessons}
 						enrollmentCount={enrollmentCount}
+						rating={course.stats?.rating}
+						ratingCount={course.stats?.ratingCount}
 					/>
 					<CourseAuthor
 						user={course.user}

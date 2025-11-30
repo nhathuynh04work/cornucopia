@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { PostStatus } from "../generated/prisma/index.js";
 import { createIdParamSchema } from "../utils/validate.js";
+import { toArray } from "../utils/transform.js";
 
-const PostStatusSchema = z.enum([PostStatus.DRAFT, PostStatus.PUBLIC]); 
+const PostStatusSchema = z.enum([PostStatus.DRAFT, PostStatus.PUBLIC]);
 
 const UpdatePostBody = z.object({
 	title: z.string().min(1),
@@ -13,8 +14,13 @@ const UpdatePostBody = z.object({
 });
 
 const ListPostsQuery = z.object({
+	search: z.string().optional(),
+	sort: z.enum(["newest", "oldest"]).default("newest"),
+	status: PostStatusSchema.optional(),
+	authorId: z.coerce.number().int().optional(),
 	page: z.coerce.number().int().positive().default(1),
-	pageSize: z.coerce.number().int().positive().max(100).default(30),
+	limit: z.coerce.number().int().positive().max(100).default(10),
+	tags: z.preprocess(toArray, z.array(z.string()).optional()),
 });
 
 export const getPostSchema = z.object({

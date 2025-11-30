@@ -1,131 +1,149 @@
-import { useNavigate } from "react-router";
-import { Plus, FileQuestion, Loader2 } from "lucide-react";
-import { useGetTests } from "@/hooks/useTestQuery";
-import { useCreateTest } from "@/hooks/useTestMutation";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Search } from "lucide-react";
+import TestCard from "@/components/Tests/TestCard";
+import TestFilterSidebar from "@/components/Tests/TestFilterSidebar";
 import PermissionGate from "@/components/Shared/PermissionGate";
-import { PERMISSIONS, Role } from "@/lib/constants";
-import PageHeader from "@/components/Shared/PageHeader";
-import FilterBar from "@/components/Shared/FilterBar";
-import ResourceList from "@/components/Shared/ResourceList";
-import { useAuth } from "@/contexts/AuthContext";
+import PaginationControl from "@/components/Shared/PaginationControl";
+import ResourcePageLayout from "@/layouts/ResourcePageLayout";
+import EmptyState from "@/components/Shared/EmptyState";
+import { PERMISSIONS } from "@/lib/constants/common";
+import { useGetTests } from "@/hooks/useTestQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
 import toast from "react-hot-toast";
-import TestCard from "@/components/Tests/TestCard";
+import { useCreateTest } from "@/hooks/useTestMutation";
+
+const SORT_OPTIONS = [
+	{ value: "newest", label: "Mới nhất" },
+	{ value: "attempts", label: "Lượt thi nhiều nhất" },
+	{ value: "oldest", label: "Cũ nhất" },
+];
 
 export default function Tests() {
-	const { user } = useAuth();
-	const navigate = useNavigate();
-
 	const {
 		searchTerm,
 		setSearchTerm,
 		debouncedSearch,
 		sort,
 		setSort,
-		scope,
-		setScope,
-	} = useResourceFilters();
+		page,
+		setPage,
+		limit,
+		filters,
+		toggleFilterArray,
+		clearFilters,
+	} = useResourceFilters({ defaultSort: "newest", defaultLimit: 6 });
 
-	const queryParams = {
-		search: debouncedSearch,
-		sort,
-		scope: scope,
-		isPublic: scope === "MINE" ? undefined : true,
+	const queryParams = useMemo(
+		() => ({
+			search: debouncedSearch,
+			level: filters.level,
+			language: filters.language,
+			sort,
+			page,
+			limit,
+			isPublic: "true",
+		}),
+		[debouncedSearch, filters, sort, page, limit]
+	);
+
+	const { data: testsData, isLoading } = useGetTests(queryParams);
+
+	const pagination = testsData?.tests?.pagination || {
+		totalItems: 0,
+		totalPages: 1,
+		currentPage: 1,
 	};
 
-	if (scope === "MINE" && user) {
-		queryParams.userId = user.id;
-	}
+	const testsList = testsData?.data || [];
 
-	const { data: tests, isPending, isError } = useGetTests(queryParams);
-	const { mutate: createTest, isPending: isCreating } = useCreateTest();
+	const emptyState = (
+		<EmptyState
+			icon={Search}
+			title="Không tìm thấy kết quả"
+			description="Không có đề thi nào phù hợp với bộ lọc hiện tại.">
+			<button
+				onClick={clearFilters}
+				className="text-purple-600 font-bold hover:underline">
+				Xóa tất cả bộ lọc
+			</button>
+		</EmptyState>
+	);
 
-	function handleCreateTest() {
-		createTest(
-			{ title: "Bài kiểm tra mới", description: "" },
+	return (
+		<ResourcePageLayout
+			title="Thư viện đề thi"
+			description="Hàng ngàn đề thi trắc nghiệm giúp bạn ôn luyện kiến thức hiệu quả."
+			action={
+				<PermissionGate allowedRoles={PERMISSIONS.CREATE_TEST}>
+					<CreateButton />
+				</PermissionGate>
+			}
+			searchTerm={searchTerm}
+			onSearchChange={(e) => setSearchTerm(e.target.value)}
+			searchPlaceholder="Tìm kiếm đề thi..."
+			sort={sort}
+			onSortChange={setSort}
+			sortOptions={SORT_OPTIONS}
+			totalItems={pagination.totalItems}
+			itemLabel="đề thi"
+			filterContent={
+				<TestFilterSidebar
+					filters={filters}
+					toggleFilterArray={toggleFilterArray}
+					clearFilters={clearFilters}
+				/>
+			}
+			isLoading={isLoading}
+			pagination={
+				testsList.length > 0 && (
+					<PaginationControl
+						currentPage={pagination.currentPage}
+						totalPages={pagination.totalPages}
+						onPageChange={setPage}
+					/>
+				)
+			}>
+			{testsList.length > 0 ? (
+				<div className="grid grid-cols-1 gap-4">
+					{testsList.map((test) => (
+						<div key={test.id}>
+							<TestCard test={test} />
+						</div>
+					))}
+				</div>
+			) : (
+				!isLoading && emptyState
+			)}
+		</ResourcePageLayout>
+	);
+}
+
+function CreateButton() {
+	const navigate = useNavigate();
+	const { mutate, isPending } = useCreateTest();
+
+	const handleCreate = () => {
+		mutate(
+			{},
 			{
 				onSuccess: (test) => {
+					toast.success("Tạo bài thi thành công!");
 					navigate(`/tests/${test.id}/edit`);
 				},
 				onError: () => {
-					toast.error("Không thể tạo bài thi mới");
+					toast.error("Tạo bài thi thất bại.");
 				},
 			}
 		);
-	}
-
-	const tabs = [{ label: "Tất cả", value: "ALL" }];
-	if (user) {
-		if (user.role === Role.ADMIN || user.role === Role.CREATOR) {
-			tabs.push({ label: "Của tôi", value: "MINE" });
-		}
-		tabs.push({ label: "Đã làm", value: "ATTEMPTED" });
-	}
-
+	};
 	return (
-		<div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-			<div className="px-6 pt-6">
-				<PageHeader
-					title="Bài kiểm tra & Trắc nghiệm"
-					description="Thử thách bản thân và ôn tập kiến thức hiệu quả."
-					action={
-						<PermissionGate allowedRoles={PERMISSIONS.CREATE_TEST}>
-							<button
-								onClick={handleCreateTest}
-								disabled={isCreating}
-								className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow disabled:opacity-70">
-								{isCreating ? (
-									<Loader2 className="w-4 h-4 animate-spin" />
-								) : (
-									<Plus className="w-4 h-4" />
-								)}
-								Tạo bài thi
-							</button>
-						</PermissionGate>
-					}
-				/>
-			</div>
-
-			<div className="sticky top-0 z-20 bg-gray-50/95 backdrop-blur-md px-6 py-4 transition-all duration-200">
-				<FilterBar
-					searchTerm={searchTerm}
-					onSearchChange={setSearchTerm}
-					searchPlaceholder="Tìm kiếm bài thi..."
-					tabs={tabs}
-					activeTab={scope}
-					onTabChange={setScope}
-					sortOptions={[
-						{ label: "Mới nhất", value: "newest" },
-						{ label: "Cũ nhất", value: "oldest" },
-					]}
-					activeSort={sort}
-					onSortChange={setSort}
-				/>
-			</div>
-
-			<div className="px-6 pb-6">
-				<ResourceList
-					isLoading={isPending}
-					isError={isError}
-					data={tests}
-					resourceName="bài kiểm tra"
-					gridCols="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-					renderItem={(test) => (
-						<TestCard key={test.id} test={test} />
-					)}
-					emptyState={{
-						icon: FileQuestion,
-						title: "Không tìm thấy bài kiểm tra",
-						description:
-							scope === "ATTEMPTED"
-								? "Bạn chưa làm bài kiểm tra nào. Hãy thử sức với một bài thi ngay!"
-								: "Không có bài kiểm tra nào phù hợp với tiêu chí tìm kiếm của bạn.",
-						actionLabel: "Tạo bài thi mới",
-						onAction: handleCreateTest,
-						allowedRoles: PERMISSIONS.CREATE_TEST,
-					}}
-				/>
-			</div>
-		</div>
+		<button
+			onClick={handleCreate}
+			disabled={isPending}
+			className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow">
+			<Plus className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+			{isPending ? "Đang tạo..." : "Tạo bài thi"}
+		</button>
 	);
 }

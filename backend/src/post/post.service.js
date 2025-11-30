@@ -35,11 +35,21 @@ const getPost = async (id) => {
 	return post;
 };
 
-const getPosts = async ({ search, sort, status, authorId, tags }) => {
+const getPosts = async ({
+	search,
+	sort,
+	status,
+	authorId,
+	tags,
+	page = 1,
+	limit = 10,
+}) => {
 	const where = {};
 
 	if (status) {
 		where.status = status;
+	} else if (!authorId) {
+		where.status = "PUBLIC";
 	}
 
 	if (authorId) {
@@ -53,17 +63,12 @@ const getPosts = async ({ search, sort, status, authorId, tags }) => {
 		];
 	}
 
-	if (tags) {
-		const tagList = Array.isArray(tags)
-			? tags
-			: tags.split(",").map((t) => t.trim());
-		if (tagList.length > 0) {
-			where.tags = {
-				some: {
-					name: { in: tagList },
-				},
-			};
-		}
+	if (tags && tags.length > 0) {
+		where.tags = {
+			some: {
+				name: { in: tags },
+			},
+		};
 	}
 
 	let orderBy = { createdAt: "desc" };
@@ -71,20 +76,36 @@ const getPosts = async ({ search, sort, status, authorId, tags }) => {
 		orderBy = { createdAt: "asc" };
 	}
 
-	return prisma.post.findMany({
-		where,
-		orderBy,
-		include: {
-			author: {
-				select: {
-					id: true,
-					name: true,
-					avatarUrl: true,
+	const skip = (page - 1) * limit;
+
+	const [posts, totalItems] = await Promise.all([
+		prisma.post.findMany({
+			where,
+			orderBy,
+			skip,
+			take: limit,
+			include: {
+				author: {
+					select: {
+						id: true,
+						name: true,
+						avatarUrl: true,
+					},
 				},
+				tags: true,
 			},
-			tags: true,
+		}),
+		prisma.post.count({ where }),
+	]);
+
+	return {
+		data: posts,
+		pagination: {
+			totalItems,
+			totalPages: Math.ceil(totalItems / limit),
+			currentPage: page,
 		},
-	});
+	};
 };
 
 const deletePost = async (id) => {
@@ -112,16 +133,16 @@ const updatePost = async (id, payload) => {
 
 	const updateData = { ...rest };
 
-	const normalizedTags = tags.map((t) => t.toLowerCase());
-
-	updateData.tags = {
-		set: [],
-
-		connectOrCreate: normalizedTags.map((t) => ({
-			where: { name: t },
-			create: { name: t },
-		})),
-	};
+	if (tags) {
+		const normalizedTags = tags.map((t) => t.toLowerCase());
+		updateData.tags = {
+			set: [],
+			connectOrCreate: normalizedTags.map((t) => ({
+				where: { name: t },
+				create: { name: t },
+			})),
+		};
+	}
 
 	const updatedPost = await prisma.post.update({
 		where: { id },

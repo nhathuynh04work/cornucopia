@@ -3,7 +3,7 @@ import { api } from "./axios";
 const flashcardsApi = {
 	getAll: async (params) => {
 		const { data } = await api.get("/decks", { params });
-		return data.decks;
+		return data;
 	},
 	getDeckDetails: async (deckId) => {
 		const { data } = await api.get(`/decks/${deckId}`);

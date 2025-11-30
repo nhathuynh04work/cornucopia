@@ -1,19 +1,11 @@
 import { api } from "./axios";
 
 const testApi = {
-	sync: async ({ id, data }) => {
-		const response = await api.patch(`/tests/${id}/sync`, data);
-		return response.data.test;
-	},
 	getAll: async (params) => {
 		const { data } = await api.get("/tests", { params });
-		return data.tests;
+		return data;
 	},
-	getAttempted: async (params) => {
-		const { data } = await api.get("/tests/attempted", { params });
-		return data.tests;
-	},
-	getForInfoView: async (id) => {
+	getById: async (id) => {
 		const { data } = await api.get(`/tests/${id}/info`);
 		return data.test;
 	},
@@ -29,15 +21,15 @@ const testApi = {
 		const { data } = await api.get(`/tests/${testId}/attempts`);
 		return data.attempts;
 	},
-	getMyTests: async () => {
-		const { data } = await api.get("/tests/admin");
-		return data.tests;
-	},
 	create: async () => {
 		const { data } = await api.post("/tests");
 		return data.test;
 	},
-	remove: async (id) => {
+	sync: async (id, payload) => {
+		const { data } = await api.patch(`/tests/${id}/sync`, payload);
+		return data.test;
+	},
+	delete: async (id) => {
 		await api.delete(`/tests/${id}`);
 	},
 };

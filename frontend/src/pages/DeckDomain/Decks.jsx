@@ -1,126 +1,146 @@
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Layers, Loader2 } from "lucide-react";
-import { useCreateDeck } from "@/hooks/useFlashcardMutation";
-import PermissionGate from "@/components/Shared/PermissionGate";
-import { PERMISSIONS } from "@/lib/constants";
-import toast from "react-hot-toast";
+import { Plus, Search } from "lucide-react";
 import DeckCard from "@/components/Decks/DeckCard";
-import PageHeader from "@/components/Shared/PageHeader";
-import FilterBar from "@/components/Shared/FilterBar";
-import ResourceList from "@/components/Shared/ResourceList";
-import { useAuth } from "@/contexts/AuthContext";
-import { useResourceFilters } from "@/hooks/useResourceFilters";
+import DeckFilterSidebar from "@/components/Decks/DeckFilterSidebar";
+import PermissionGate from "@/components/Shared/PermissionGate";
+import PaginationControl from "@/components/Shared/PaginationControl";
+import ResourcePageLayout from "@/layouts/ResourcePageLayout";
+import EmptyState from "@/components/Shared/EmptyState";
+import { PERMISSIONS } from "@/lib/constants/common";
 import { useGetDecks } from "@/hooks/useFlashcardQuery";
+import { useResourceFilters } from "@/hooks/useResourceFilters";
+import { useCreateDeck } from "@/hooks/useFlashcardMutation";
+import toast from "react-hot-toast";
+
+const SORT_OPTIONS = [
+	{ value: "newest", label: "Mới nhất" },
+	{ value: "popularity", label: "Phổ biến nhất" },
+	{ value: "alphabetical", label: "A-Z" },
+	{ value: "oldest", label: "Cũ nhất" },
+];
 
 export default function Decks() {
-	const { user } = useAuth();
-	const navigate = useNavigate();
-
 	const {
 		searchTerm,
 		setSearchTerm,
 		debouncedSearch,
 		sort,
 		setSort,
-		scope,
-		setScope,
-	} = useResourceFilters();
+		page,
+		setPage,
+		limit,
+		filters,
+		toggleFilterArray,
+		clearFilters,
+	} = useResourceFilters({ defaultSort: "newest", defaultLimit: 6 });
 
-	const { mutate: createDeck, isPending: isCreating } = useCreateDeck();
+	const queryParams = useMemo(
+		() => ({
+			search: debouncedSearch,
+			level: filters.level,
+			language: filters.language,
+			sort,
+			page,
+			limit,
+		}),
+		[debouncedSearch, filters, sort, page, limit]
+	);
 
-	const queryParams = {
-		search: debouncedSearch,
-		sort,
+	const { data: deckResponse, isLoading } = useGetDecks(queryParams);
+
+	const decks = deckResponse?.data || [];
+	const pagination = deckResponse?.pagination || {
+		totalItems: 0,
+		totalPages: 1,
+		currentPage: 1,
 	};
 
-	if (scope === "MINE" && user) {
-		queryParams.userId = user.id;
-	}
+	return (
+		<ResourcePageLayout
+			title="Thư viện Flashcard"
+			description="Hàng triệu thẻ ghi nhớ giúp bạn học tập mọi lúc mọi nơi."
+			action={
+				<PermissionGate allowedRoles={PERMISSIONS.CREATE_DECK}>
+					<CreateButton />
+				</PermissionGate>
+			}
+			searchTerm={searchTerm}
+			onSearchChange={(e) => setSearchTerm(e.target.value)}
+			searchPlaceholder="Tìm kiếm bộ thẻ..."
+			sort={sort}
+			onSortChange={setSort}
+			sortOptions={SORT_OPTIONS}
+			totalItems={pagination.totalItems}
+			itemLabel="bộ thẻ"
+			filterContent={
+				<DeckFilterSidebar
+					filters={filters}
+					toggleFilterArray={toggleFilterArray}
+					clearFilters={clearFilters}
+				/>
+			}
+			isLoading={isLoading}
+			pagination={
+				decks.length > 0 && (
+					<PaginationControl
+						currentPage={pagination.currentPage}
+						totalPages={pagination.totalPages}
+						onPageChange={setPage}
+					/>
+				)
+			}>
+			{decks.length > 0 ? (
+				<div className="grid grid-cols-1 gap-4">
+					{decks.map((deck) => (
+						<div key={deck.id}>
+							<DeckCard deck={deck} />
+						</div>
+					))}
+				</div>
+			) : (
+				!isLoading && (
+					<EmptyState
+						icon={Search}
+						title="Không tìm thấy kết quả"
+						description="Không có bộ thẻ nào phù hợp với bộ lọc hiện tại.">
+						<button
+							onClick={clearFilters}
+							className="text-purple-600 font-bold hover:underline">
+							Xóa tất cả bộ lọc
+						</button>
+					</EmptyState>
+				)
+			)}
+		</ResourcePageLayout>
+	);
+}
 
-	const { data: decks, isPending, isError } = useGetDecks(queryParams);
+function CreateButton() {
+	const navigate = useNavigate();
+	const { mutate, isPending } = useCreateDeck();
 
-	const handleCreateDeck = () => {
-		createDeck(
+	const handleCreate = () => {
+		mutate(
 			{},
 			{
-				onSuccess: (newDeck) => {
-					navigate(`/decks/${newDeck.id}/edit`);
+				onSuccess: (deck) => {
 					toast.success("Tạo bộ thẻ thành công!");
+					navigate(`/decks/${deck.id}/edit`);
 				},
-				onError: () => toast.error("Không thể tạo bộ thẻ."),
+				onError: () => {
+					toast.error("Tạo bộ thẻ thất bại.");
+				},
 			}
 		);
 	};
-
-	const tabs = [{ label: "Tất cả", value: "ALL" }];
-	if (user) {
-		tabs.push({ label: "Của tôi", value: "MINE" });
-	}
-
 	return (
-		<div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-			<div className="px-6 pt-6">
-				<PageHeader
-					title="Thư viện Flashcards"
-					description="Cải thiện trí nhớ với phương pháp lặp lại ngắt quãng."
-					action={
-						<PermissionGate
-							allowedRoles={PERMISSIONS.CREATE_FLASHCARD}>
-							<button
-								onClick={handleCreateDeck}
-								disabled={isCreating}
-								className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow disabled:opacity-70">
-								{isCreating ? (
-									<Loader2 className="w-4 h-4 animate-spin" />
-								) : (
-									<Plus className="w-4 h-4" />
-								)}
-								Tạo bộ thẻ
-							</button>
-						</PermissionGate>
-					}
-				/>
-			</div>
-
-			<div className="sticky top-0 z-20 bg-gray-50/95 backdrop-blur-md px-6 py-4 transition-all duration-200">
-				<FilterBar
-					searchTerm={searchTerm}
-					onSearchChange={setSearchTerm}
-					searchPlaceholder="Tìm kiếm bộ thẻ..."
-					tabs={tabs}
-					activeTab={scope}
-					onTabChange={setScope}
-					sortOptions={[
-						{ label: "Mới nhất", value: "newest" },
-						{ label: "Cũ nhất", value: "oldest" },
-						{ label: "A-Z", value: "alphabetical" },
-					]}
-					activeSort={sort}
-					onSortChange={setSort}
-				/>
-			</div>
-
-			<div className="px-6 pb-6">
-				<ResourceList
-					isLoading={isPending}
-					isError={isError}
-					data={decks}
-					resourceName="bộ thẻ"
-					gridCols="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-					renderItem={(deck) => (
-						<DeckCard key={deck.id} deck={deck} />
-					)}
-					emptyState={{
-						icon: Layers,
-						title: "Không tìm thấy bộ thẻ",
-						description:
-							"Hãy tạo bộ thẻ flashcard riêng của bạn để bắt đầu học tập hiệu quả.",
-						actionLabel: "Tạo bộ thẻ",
-						onAction: handleCreateDeck,
-						allowedRoles: PERMISSIONS.CREATE_FLASHCARD,
-					}}
-				/>
-			</div>
-		</div>
+		<button
+			onClick={handleCreate}
+			disabled={isPending}
+			className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-colors shadow-sm hover:shadow">
+			<Plus className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+			{isPending ? "Đang tạo..." : "Tạo bộ thẻ"}
+		</button>
 	);
 }

@@ -8,7 +8,26 @@ import { defaults } from "../utils/constants.js";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 import { indexTest } from "../chatbot/indexer.js";
 
-const getTests = async ({ search, sort, isPublic, userId }) => {
+const updateTestQuestionCount = async (testId, tx = prisma) => {
+	const count = await tx.testItem.count({
+		where: { testId, type: { not: TestItemType.GROUP } },
+	});
+	await tx.test.update({
+		where: { id: testId },
+		data: { questionsCount: count },
+	});
+};
+
+const getTests = async ({
+	search,
+	sort,
+	isPublic,
+	userId,
+	page = 1,
+	limit = 10,
+	level,
+	language,
+}) => {
 	const where = {};
 
 	if (isPublic) {
@@ -26,27 +45,46 @@ const getTests = async ({ search, sort, isPublic, userId }) => {
 		};
 	}
 
+	if (level && level.length > 0 && !level.includes("ALL_LEVELS")) {
+		where.level = { in: level };
+	}
+
+	if (language && language.length > 0) {
+		where.language = { in: language };
+	}
+
 	let orderBy = { createdAt: "desc" };
 	if (sort === "oldest") {
 		orderBy = { createdAt: "asc" };
+	} else if (sort === "attempts") {
+		orderBy = { attemptsCount: "desc" };
 	}
 
-	return prisma.test.findMany({
-		where,
-		orderBy,
-		include: {
-			_count: {
-				select: {
-					attempts: true,
-					items: { where: { type: { not: TestItemType.GROUP } } },
+	const skip = (page - 1) * limit;
+
+	const [tests, totalItems] = await Promise.all([
+		prisma.test.findMany({
+			where,
+			orderBy,
+			skip,
+			take: limit,
+			include: {
+				user: {
+					select: { id: true, name: true, avatarUrl: true },
 				},
 			},
+		}),
+		prisma.test.count({ where }),
+	]);
 
-			user: {
-				select: { id: true, name: true, avatarUrl: true },
-			},
+	return {
+		data: tests,
+		pagination: {
+			totalItems,
+			totalPages: Math.ceil(totalItems / limit),
+			currentPage: page,
 		},
-	});
+	};
 };
 
 const getAttemptedTests = async (userId, { search, sort } = {}) => {
@@ -101,6 +139,8 @@ const createTest = async (userId) => {
 				},
 			],
 		},
+		questionsCount: 1,
+		attemptsCount: 0,
 	};
 
 	const test = await prisma.test.create({ data: payload });
@@ -413,14 +453,15 @@ const syncTest = async ({ testId, data, userId }, client = prisma) => {
 				status: data.status,
 				timeLimit: data.timeLimit,
 				audioUrl: data.audioUrl,
-			},
-			include: {
-				_count: { select: { items: true } },
+				level: data.level,
+				language: data.language,
 			},
 		});
 
 		if (data.items) {
 			await syncItems(testId, data.items, null, tx);
+			// Recalculate count after items sync
+			await updateTestQuestionCount(testId, tx);
 		}
 
 		indexTest(updated.id);
