@@ -12,29 +12,29 @@ export const api = axios.create({
 
 // Request interceptor: Attaches the JWT to every outgoing request
 api.interceptors.request.use(
-	(config) => {
-		const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-		if (token) {
-			config.headers.Authorization = `Bearer ${token}`;
-		}
-		return config;
-	},
-	(error) => {
-		return Promise.reject(error);
-	}
+  (config) => {
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 // Response interceptor
 api.interceptors.response.use(
-	(response) => response,
-	(error) => {
-		if (error.response?.data?.error) {
-			console.log(error.response.data.error);
-		}
+  (response) => response,
+  (error) => {
+    if (error.response?.data?.error) {
+      console.log(error.response.data.error);
+    }
 
-		if (error.name === "CanceledError" || error.code === "ERR_CANCELED") {
-			throw new Error("Aborted");
-		}
+    if (error.name === "CanceledError" || error.code === "ERR_CANCELED") {
+      throw new Error("Aborted");
+    }
 
 		const normalizedError = new Error(
 			error.response?.data?.error || error.message || "Unknown error"
