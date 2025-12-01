@@ -1,9 +1,109 @@
-import { BookOpen, History } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, History, Loader2 } from "lucide-react";
+import { useGetCourses } from "@/hooks/useCourseQuery";
+import { useGetAttemptedTests } from "@/hooks/useTestQuery";
 import EnrolledCourseCard from "@/components/Profile/EnrolledCourseCard";
 import AttemptItem from "@/components/Profile/AttemptItem";
-import PaginatedList from "./PaginatedList";
+import PaginationControl from "@/components/Shared/PaginationControl";
+import EmptyState from "@/components/Shared/EmptyState";
 
-export default function ProfileLearningTab({ learning }) {
+function EnrolledCoursesList({ userId, searchTerm }) {
+	const [page, setPage] = useState(1);
+	const limit = 3;
+
+	const { data, isLoading } = useGetCourses({
+		enrolledUserId: userId,
+		search: searchTerm,
+		page,
+		limit,
+	});
+
+	if (isLoading)
+		return <Loader2 className="w-6 h-6 animate-spin text-purple-600" />;
+
+	const items = data?.data || data || [];
+	const pagination = data?.pagination || { totalPages: 1 };
+	const totalPages = pagination.totalPages || 1;
+
+	if (items.length === 0)
+		return (
+			<EmptyState
+				icon={BookOpen}
+				message="Bạn chưa tham gia khóa học nào."
+			/>
+		);
+
+	return (
+		<div className="space-y-4">
+			<div className="flex flex-col gap-4">
+				{items.map((item) => (
+					<div
+						key={item.id}
+						className="w-full relative group animate-in fade-in slide-in-from-bottom-2 duration-300">
+						<EnrolledCourseCard course={item} />
+					</div>
+				))}
+			</div>
+			{totalPages > 1 && (
+				<PaginationControl
+					currentPage={page}
+					totalPages={totalPages}
+					onPageChange={setPage}
+				/>
+			)}
+		</div>
+	);
+}
+
+function AttemptHistoryList({ userId, searchTerm }) {
+	const [page, setPage] = useState(1);
+	const limit = 5;
+
+	const { data, isLoading } = useGetAttemptedTests({
+		userId,
+		search: searchTerm,
+		page,
+		limit,
+	});
+
+	if (isLoading)
+		return <Loader2 className="w-6 h-6 animate-spin text-blue-600" />;
+
+	const items = data?.tests || data || [];
+	const pagination = data?.pagination || { totalPages: 1 };
+	const totalPages = pagination.totalPages || 1;
+
+	if (items.length === 0)
+		return (
+			<EmptyState
+				icon={History}
+				message="Bạn chưa thực hiện bài thi nào."
+			/>
+		);
+
+	return (
+		<div className="space-y-4">
+			<div className="flex flex-col gap-4">
+				{items.map((item) => (
+					<div
+						key={item.id}
+						className="w-full relative group animate-in fade-in slide-in-from-bottom-2 duration-300">
+						<AttemptItem attempt={item} />
+					</div>
+				))}
+			</div>
+			{totalPages > 1 && (
+				<PaginationControl
+					currentPage={page}
+					totalPages={totalPages}
+					onPageChange={setPage}
+				/>
+			)}
+		</div>
+	);
+}
+
+export default function ProfileLearningTab({ userId, searchTerm }) {
 	return (
 		<div className="space-y-12">
 			{/* Learning Courses */}
@@ -14,12 +114,7 @@ export default function ProfileLearningTab({ learning }) {
 						Khóa học đang tham gia
 					</h3>
 				</div>
-				<PaginatedList
-					items={learning.courses || []}
-					renderItem={(item) => <EnrolledCourseCard course={item} />}
-					itemsPerPage={3}
-					emptyMessage="Bạn chưa tham gia khóa học nào."
-				/>
+				<EnrolledCoursesList userId={userId} searchTerm={searchTerm} />
 			</section>
 
 			{/* Recent Attempts */}
@@ -28,12 +123,7 @@ export default function ProfileLearningTab({ learning }) {
 					<History className="w-5 h-5 text-blue-600" />
 					Lịch sử làm bài thi
 				</h3>
-				<PaginatedList
-					items={learning.attempts || []}
-					renderItem={(item) => <AttemptItem attempt={item} />}
-					itemsPerPage={5}
-					emptyMessage="Bạn chưa thực hiện bài thi nào."
-				/>
+				<AttemptHistoryList userId={userId} searchTerm={searchTerm} />
 			</section>
 		</div>
 	);

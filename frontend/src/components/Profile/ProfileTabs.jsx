@@ -1,6 +1,6 @@
 export default function ProfileTabs({ tabs, activeTab, onTabChange }) {
 	return (
-		<div className="flex border-b border-gray-200 mb-6 md:mb-8 overflow-x-auto hide-scrollbar">
+		<div className="flex border-b border-gray-200 overflow-x-auto hide-scrollbar">
 			{tabs.map((tab) => (
 				<button
 					key={tab.id}

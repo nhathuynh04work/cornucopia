@@ -1,4 +1,4 @@
-import { Search, Filter, Plus } from "lucide-react";
+import { Search, Filter, Plus, Loader2 } from "lucide-react";
 import RadixSelect from "@/components/Shared/RadixSelect";
 
 const SORT_OPTIONS = [
@@ -13,9 +13,11 @@ export default function ProfileToolbar({
 	onSortChange,
 	activeTabLabel,
 	isOwnProfile,
+	onCreate,
+	isCreating,
 }) {
 	return (
-		<div className="flex flex-col sm:flex-row gap-4 mb-6">
+		<div className="flex flex-col sm:flex-row gap-4 py-4">
 			<div className="relative flex-1 group w-full">
 				<input
 					type="text"
@@ -37,8 +39,15 @@ export default function ProfileToolbar({
 				/>
 
 				{isOwnProfile && (
-					<button className="flex justify-center items-center gap-1.5 px-3 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700 shadow-md shadow-purple-100 transition-all shrink-0 w-full sm:w-auto">
-						<Plus className="w-4 h-4" />
+					<button
+						onClick={onCreate}
+						disabled={isCreating}
+						className="flex justify-center items-center gap-1.5 px-3 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-purple-100 transition-all shrink-0 w-full sm:w-auto">
+						{isCreating ? (
+							<Loader2 className="w-4 h-4 animate-spin" />
+						) : (
+							<Plus className="w-4 h-4" />
+						)}
 						<span>Tạo mới</span>
 					</button>
 				)}

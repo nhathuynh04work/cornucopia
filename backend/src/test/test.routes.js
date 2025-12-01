@@ -20,7 +20,11 @@ router.use(authenticateJwt);
 
 router.get("/", validate(getTestsSchema), testController.getTests);
 
-router.get("/attempted", testController.getAttemptedTests);
+router.get(
+	"/attempted",
+	validate(getTestsSchema),
+	testController.getAttemptedTests
+);
 
 router.get(
 	"/:id/info",

@@ -13,10 +13,11 @@ export default function EnrolledCourseCard({ course }) {
 	const progress = course.progress || 0;
 
 	return (
-		<Link
-			to={`/courses/${course.id}/learn`}
-			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
-			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100">
+		<div className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
+			{/* Image Section - Clickable */}
+			<Link
+				to={`/courses/${course.id}/learn`}
+				className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100 block">
 				<div className="aspect-video md:h-full md:aspect-auto relative">
 					{course.coverUrl ? (
 						<img
@@ -30,7 +31,7 @@ export default function EnrolledCourseCard({ course }) {
 						</div>
 					)}
 				</div>
-			</div>
+			</Link>
 
 			<div className="flex-1 p-5 flex flex-col min-w-0">
 				<div className="flex justify-between items-start gap-4 mb-2">
@@ -47,9 +48,14 @@ export default function EnrolledCourseCard({ course }) {
 							</div>
 						</div>
 
-						<h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
-							{course.title}
-						</h3>
+						{/* Title - Clickable */}
+						<Link
+							to={`/courses/${course.id}/learn`}
+							className="block">
+							<h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
+								{course.title}
+							</h3>
+						</Link>
 					</div>
 				</div>
 
@@ -72,24 +78,31 @@ export default function EnrolledCourseCard({ course }) {
 
 					<div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-50">
 						<div className="flex items-center gap-2">
-							<Link to={`/profile/${course.user.id}`}>
+							{/* User Profile - Clickable */}
+							<Link
+								to={`/profile/${course.user.id}`}
+								className="flex items-center gap-2 hover:opacity-80 transition-opacity">
 								<Avatar
 									url={course.user?.avatarUrl}
 									name={course.user?.name}
 									size="xs"
 								/>
+								<span className="text-xs font-bold text-gray-700 truncate max-w-[150px]">
+									{course.user?.name}
+								</span>
 							</Link>
-							<span className="text-xs font-bold text-gray-700 truncate max-w-[150px]">
-								{course.user?.name}
-							</span>
 						</div>
-						<span className="text-xs font-bold text-purple-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+
+						{/* Action Button - Clickable */}
+						<Link
+							to={`/courses/${course.id}/learn`}
+							className="text-xs font-bold text-purple-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
 							Tiếp tục học
 							<ChevronRight className="w-3.5 h-3.5" />
-						</span>
+						</Link>
 					</div>
 				</div>
 			</div>
-		</Link>
+		</div>
 	);
 }

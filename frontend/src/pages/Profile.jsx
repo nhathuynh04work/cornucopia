@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
 	BookOpen,
 	Layers,
@@ -8,25 +8,30 @@ import {
 	Loader2,
 	AlertCircle,
 } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useGetUserProfile } from "@/hooks/useUserQuery";
 import { useUpdateSelf } from "@/hooks/useUserMutation";
-
-import CourseCard from "@/components/Courses/CourseCard";
-import DeckCard from "@/components/Decks/DeckCard";
-import PostCard from "@/components/Posts/PostCard";
-import TestCard from "@/components/Tests/TestCard";
+import { useCreateCourse } from "@/hooks/useCourseMutation";
+import { useCreateDeck } from "@/hooks/useFlashcardMutation";
+import { useCreateTest } from "@/hooks/useTestMutation";
+import { useCreatePost } from "@/hooks/usePostMutation";
 
 import ProfileHeader from "@/components/Profile/ProfileHeader";
 import ProfileSettingsModal from "@/components/Profile/ProfileSettingsModal";
 import ProfileTabs from "@/components/Profile/ProfileTabs";
 import ProfileToolbar from "@/components/Profile/ProfileToolbar";
-import PaginatedList from "@/components/Profile/PaginatedList";
+
+import ProfileCoursesTab from "@/components/Profile/ProfileCoursesTab";
+import ProfileDecksTab from "@/components/Profile/ProfileDecksTab";
+import ProfileTestsTab from "@/components/Profile/ProfileTestsTab";
+import ProfilePostsTab from "@/components/Profile/ProfilePostsTab";
 import ProfileLearningTab from "@/components/Profile/ProfileLearningTab";
 
 export default function Profile() {
 	const { userId } = useParams();
+	const navigate = useNavigate();
 	const { user: currentUser } = useAuth();
 
 	const targetId = !userId || userId === "me" ? currentUser?.id : userId;
@@ -41,6 +46,15 @@ export default function Profile() {
 
 	const { data, isLoading, isError } = useGetUserProfile(targetId);
 	const { mutate: updateProfile, isPending: isUpdating } = useUpdateSelf();
+
+	const { mutate: createCourse, isPending: isCreatingCourse } =
+		useCreateCourse();
+	const { mutate: createDeck, isPending: isCreatingDeck } = useCreateDeck();
+	const { mutate: createTest, isPending: isCreatingTest } = useCreateTest();
+	const { mutate: createPost, isPending: isCreatingPost } = useCreatePost();
+
+	const isCreating =
+		isCreatingCourse || isCreatingDeck || isCreatingTest || isCreatingPost;
 
 	if (isLoading) {
 		return (
@@ -61,7 +75,7 @@ export default function Profile() {
 		);
 	}
 
-	const { user: profileUser, learning, creations } = data;
+	const { user: profileUser } = data;
 	const isCreator =
 		profileUser.role === "CREATOR" || profileUser.role === "ADMIN";
 
@@ -71,7 +85,55 @@ export default function Profile() {
 		});
 	};
 
-	// --- Tabs Definition ---
+	const handleCreate = () => {
+		switch (activeTab) {
+			case "courses":
+				createCourse(
+					{ title: "Khóa học mới" },
+					{
+						onSuccess: (data) => {
+							navigate(`/courses/${data.id}/edit`);
+							toast.success("Đã tạo khóa học mới");
+						},
+						onError: () => toast.error("Không thể tạo khóa học"),
+					}
+				);
+				break;
+			case "decks":
+				createDeck(
+					{ title: "Bộ thẻ mới" },
+					{
+						onSuccess: (data) => {
+							navigate(`/decks/${data.id}`);
+							toast.success("Đã tạo bộ thẻ mới");
+						},
+						onError: () => toast.error("Không thể tạo bộ thẻ"),
+					}
+				);
+				break;
+			case "tests":
+				createTest(undefined, {
+					onSuccess: (data) => {
+						navigate(`/tests/${data.id}/edit`);
+						toast.success("Đã tạo bài kiểm tra mới");
+					},
+					onError: () => toast.error("Không thể tạo bài kiểm tra"),
+				});
+				break;
+			case "posts":
+				createPost(undefined, {
+					onSuccess: (data) => {
+						navigate(`/posts/${data.id}/edit`);
+						toast.success("Đã tạo bài viết mới");
+					},
+					onError: () => toast.error("Không thể tạo bài viết"),
+				});
+				break;
+			default:
+				break;
+		}
+	};
+
 	const tabs = [];
 	if (isOwnProfile) {
 		tabs.push({ id: "learning", label: "Đang học", icon: BookOpen });
@@ -83,25 +145,21 @@ export default function Profile() {
 				id: "courses",
 				label: "Khóa học",
 				icon: BookOpen,
-				count: creations.courses?.length,
 			},
 			{
 				id: "decks",
 				label: "Bộ thẻ",
 				icon: Layers,
-				count: creations.decks?.length,
 			},
 			{
 				id: "tests",
 				label: "Đề thi",
 				icon: FileQuestion,
-				count: creations.tests?.length,
 			},
 			{
 				id: "posts",
 				label: "Bài viết",
 				icon: FileText,
-				count: creations.posts?.length,
 			}
 		);
 	} else {
@@ -110,71 +168,62 @@ export default function Profile() {
 				id: "decks",
 				label: "Bộ thẻ",
 				icon: Layers,
-				count: creations.decks?.length,
 			},
 			{
 				id: "posts",
 				label: "Bài viết",
 				icon: FileText,
-				count: creations.posts?.length,
 			}
 		);
 	}
 
-	// --- Content Logic ---
-	const getTabContent = () => {
-		if (activeTab === "learning") {
-			return { type: "composite" };
-		}
-
-		let items = [];
-		let renderFn = null;
-		let emptyMsg = "";
-
-		switch (activeTab) {
-			case "courses":
-				items = creations.courses || [];
-				renderFn = (item) => <CourseCard course={item} />;
-				emptyMsg = "Chưa có khóa học nào.";
-				break;
-			case "decks":
-				items = creations.decks || [];
-				renderFn = (item) => <DeckCard deck={item} />;
-				emptyMsg = "Chưa có bộ thẻ nào.";
-				break;
-			case "tests":
-				items = creations.tests || [];
-				renderFn = (item) => <TestCard test={item} />;
-				emptyMsg = "Chưa có đề thi nào.";
-				break;
-			case "posts":
-				items = creations.posts || [];
-				renderFn = (item) => <PostCard post={item} />;
-				emptyMsg = "Chưa có bài viết nào.";
-				break;
-			default:
-				return { type: "empty" };
-		}
-
-		let processedItems = [...items];
-		if (searchTerm) {
-			const lower = searchTerm.toLowerCase();
-			processedItems = processedItems.filter((i) =>
-				i.title?.toLowerCase().includes(lower)
-			);
-		}
-
-		processedItems.sort((a, b) => {
-			const dateA = new Date(a.createdAt);
-			const dateB = new Date(b.createdAt);
-			return sortBy === "newest" ? dateB - dateA : dateA - dateB;
-		});
-
-		return { type: "list", items: processedItems, renderFn, emptyMsg };
-	};
-
-	const currentContent = getTabContent();
 	const activeTabLabel = tabs.find((t) => t.id === activeTab)?.label || "";
+
+	const renderTabContent = () => {
+		switch (activeTab) {
+			case "learning":
+				return (
+					<ProfileLearningTab
+						userId={targetId}
+						searchTerm={searchTerm}
+					/>
+				);
+			case "courses":
+				return (
+					<ProfileCoursesTab
+						userId={targetId}
+						searchTerm={searchTerm}
+						sortBy={sortBy}
+					/>
+				);
+			case "decks":
+				return (
+					<ProfileDecksTab
+						userId={targetId}
+						searchTerm={searchTerm}
+						sortBy={sortBy}
+					/>
+				);
+			case "tests":
+				return (
+					<ProfileTestsTab
+						userId={targetId}
+						searchTerm={searchTerm}
+						sortBy={sortBy}
+					/>
+				);
+			case "posts":
+				return (
+					<ProfilePostsTab
+						userId={targetId}
+						searchTerm={searchTerm}
+						sortBy={sortBy}
+					/>
+				);
+			default:
+				return null;
+		}
+	};
 
 	return (
 		<div className="min-h-screen bg-gray-50/50 pb-12">
@@ -185,38 +234,33 @@ export default function Profile() {
 					onEdit={() => setIsSettingsOpen(true)}
 				/>
 
-				<ProfileTabs
-					tabs={tabs}
-					activeTab={activeTab}
-					onTabChange={(id) => {
-						setActiveTab(id);
-						setSearchTerm("");
-					}}
-				/>
-
-				{currentContent.type === "list" && (
-					<ProfileToolbar
-						searchTerm={searchTerm}
-						onSearchChange={setSearchTerm}
-						sortBy={sortBy}
-						onSortChange={setSortBy}
-						activeTabLabel={activeTabLabel}
-						isOwnProfile={isOwnProfile}
+				{/* Sticky Header Group */}
+				<div className="sticky top-0 z-30 bg-gray-50/95 backdrop-blur-sm transition-all duration-200 -mx-4 px-4 md:-mx-6 md:px-6 pt-2 mb-6">
+					<ProfileTabs
+						tabs={tabs}
+						activeTab={activeTab}
+						onTabChange={(id) => {
+							setActiveTab(id);
+							setSearchTerm("");
+							setSortBy("newest");
+						}}
 					/>
-				)}
 
-				<div className="min-h-[400px]">
-					{currentContent.type === "composite" ? (
-						<ProfileLearningTab learning={learning} />
-					) : (
-						<PaginatedList
-							items={currentContent.items}
-							renderItem={currentContent.renderFn}
-							emptyMessage={currentContent.emptyMsg}
-							itemsPerPage={5}
+					{activeTab !== "learning" && (
+						<ProfileToolbar
+							searchTerm={searchTerm}
+							onSearchChange={setSearchTerm}
+							sortBy={sortBy}
+							onSortChange={setSortBy}
+							activeTabLabel={activeTabLabel}
+							isOwnProfile={isOwnProfile}
+							onCreate={handleCreate}
+							isCreating={isCreating}
 						/>
 					)}
 				</div>
+
+				<div className="min-h-[400px]">{renderTabContent()}</div>
 			</div>
 
 			<ProfileSettingsModal

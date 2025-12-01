@@ -10,6 +10,14 @@ export function useGetTests(params = {}) {
 	});
 }
 
+export function useGetAttemptedTests(params = {}) {
+	return useQuery({
+		queryKey: ["tests", "attempted", params],
+		queryFn: () => testApi.getAttemptedTests(params),
+		...queryDefaults,
+	});
+}
+
 export function useGetTestForInfo(id) {
 	return useQuery({
 		queryKey: ["test", Number(id), "info"],

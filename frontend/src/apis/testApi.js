@@ -5,6 +5,10 @@ const testApi = {
 		const { data } = await api.get("/tests", { params });
 		return data;
 	},
+	getAttemptedTests: async (params) => {
+		const { data } = await api.get("/tests/attempted", { params });
+		return data;
+	},
 	getById: async (id) => {
 		const { data } = await api.get(`/tests/${id}/info`);
 		return data.test;

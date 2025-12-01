@@ -87,6 +87,65 @@ const getTests = async ({
 	};
 };
 
+const getAttemptedTests = async (
+	userId,
+	{ search, sort, page = 1, limit = 10 }
+) => {
+	const where = { userId };
+
+	if (search) {
+		where.test = {
+			title: {
+				contains: search,
+				mode: "insensitive",
+			},
+		};
+	}
+
+	let orderBy = { createdAt: "desc" };
+	if (sort === "oldest") {
+		orderBy = { createdAt: "asc" };
+	}
+
+	const skip = (page - 1) * limit;
+
+	const [attempts, totalItems] = await Promise.all([
+		prisma.attempt.findMany({
+			where,
+			include: {
+				test: {
+					select: {
+						id: true,
+						title: true,
+						questionsCount: true,
+						timeLimit: true,
+						status: true,
+					},
+				},
+			},
+			orderBy,
+			skip,
+			take: limit,
+		}),
+		prisma.attempt.count({ where }),
+	]);
+
+	// Map to match frontend AttemptItem expectation (date field)
+	const mappedAttempts = attempts.map((attempt) => ({
+		...attempt,
+		date: attempt.createdAt,
+	}));
+
+	return {
+		tests: mappedAttempts,
+		pagination: {
+			totalItems,
+			totalPages: Math.ceil(totalItems / limit),
+			currentPage: Number(page),
+		},
+	};
+};
+
 const createTest = async (userId) => {
 	const payload = {
 		...defaults.TEST,
@@ -441,6 +500,7 @@ const syncTest = async ({ testId, data, userId }, client = prisma) => {
 
 export const testService = {
 	getTests,
+	getAttemptedTests,
 	createTest,
 	getTestForInfoView,
 	getTestForEdit,
