@@ -5,12 +5,12 @@ import { Role } from "@/lib/constants";
 import dashboardApi from "@/apis/dashboardApi";
 
 export function useGetDashboardOverallStats() {
-	const { user, isInitialLoading, role } = useAuth();
+	const { user, role } = useAuth();
 
 	return useQuery({
 		queryKey: ["dashboard", "overall", user?.id, role],
 		queryFn: () => dashboardApi.getOverallStats(role),
-		enabled: !!user && !isInitialLoading,
+		enabled: !!user,
 		...queryDefaults,
 	});
 }

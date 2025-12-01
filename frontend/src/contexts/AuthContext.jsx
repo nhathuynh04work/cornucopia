@@ -1,36 +1,37 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
+import { Loader2 } from "lucide-react";
 import { ACCESS_TOKEN_KEY } from "../lib/constants";
 import authApi from "../apis/authApi";
-import { useNavigate } from "react-router";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-	const [user, setUser] = useState(null);
-	const [isInitialLoading, setIsInitialLoading] = useState(true);
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 
-	useEffect(() => {
-		async function fetchUser() {
+	const { data: user, isLoading } = useQuery({
+		queryKey: ["auth", "user"],
+		queryFn: async () => {
 			try {
-				setIsInitialLoading(true);
+				if (!localStorage.getItem(ACCESS_TOKEN_KEY)) {
+					return null;
+				}
 				const user = await authApi.getMe();
-				setUser(user);
+				return user;
 			} catch {
 				localStorage.removeItem(ACCESS_TOKEN_KEY);
-				setUser(null);
-			} finally {
-				setIsInitialLoading(false);
+				return null;
 			}
-		}
-
-		fetchUser();
-	}, []);
+		},
+		retry: false,
+		refetchOnWindowFocus: false,
+	});
 
 	async function setAuthenticatedSession(token) {
 		localStorage.setItem(ACCESS_TOKEN_KEY, token);
-		const user = await authApi.getMe();
-		setUser(user);
+		await queryClient.invalidateQueries({ queryKey: ["auth", "user"] });
 		navigate("/dashboard");
 	}
 
@@ -41,14 +42,21 @@ export function AuthProvider({ children }) {
 
 	function logout() {
 		localStorage.removeItem(ACCESS_TOKEN_KEY);
-		setUser(null);
-		navigate("/"); // UPDATED: Navigate to root (Landing page)
+		queryClient.setQueryData(["auth", "user"], null);
+		navigate("/");
+	}
+
+	if (isLoading) {
+		return (
+			<div className="h-screen w-screen flex items-center justify-center bg-gray-50">
+				<Loader2 className="w-10 h-10 text-purple-600 animate-spin" />
+			</div>
+		);
 	}
 
 	const value = {
 		role: user?.role,
 		user,
-		isInitialLoading,
 		login,
 		logout,
 		setAuthenticatedSession,
