@@ -1,13 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import courseApi from "@/apis/courseApi";
 import { toast } from "react-hot-toast";
+import { QUERY_KEYS } from "@/lib/query-keys";
 
 export function useCreateCourse() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (courseData) => courseApi.createCourse(courseData),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["courses"] });
+			// Original: ["courses"]
+			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.courses.all });
 		},
 		onError: () => toast.error("Không thể tạo khóa học."),
 	});
@@ -18,9 +20,9 @@ export function useUpdateCourse() {
 	return useMutation({
 		mutationFn: ({ id, data }) => courseApi.updateCourse(id, data),
 		onSuccess: (data) => {
-			// Invalidate the specific course edit query
+			// Original: ["course", data.id, "edit"]
 			queryClient.invalidateQueries({
-				queryKey: ["course", data.id, "edit"],
+				queryKey: QUERY_KEYS.courses.edit(data.id),
 			});
 		},
 		onError: (error) => {
@@ -37,7 +39,8 @@ export function useDeleteCourse() {
 	return useMutation({
 		mutationFn: ({ courseId }) => courseApi.deleteCourse(courseId),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["courses"] });
+			// Original: ["courses"] and ["library"]
+			queryClient.invalidateQueries({ queryKey: QUERY_KEYS.courses.all });
 			queryClient.invalidateQueries({ queryKey: ["library"] });
 		},
 	});
@@ -50,8 +53,9 @@ export function useModuleMutations() {
 		mutationFn: ({ courseId, title }) =>
 			courseApi.addModule(courseId, { title }),
 		onSuccess: (_, { courseId }) => {
+			// Original: ["course", Number(courseId), "edit"]
 			queryClient.invalidateQueries({
-				queryKey: ["course", Number(courseId), "edit"],
+				queryKey: QUERY_KEYS.courses.edit(courseId),
 			});
 		},
 		onError: () => toast.error("Lỗi khi thêm chương"),
@@ -61,9 +65,8 @@ export function useModuleMutations() {
 		mutationFn: ({ moduleId, courseId, data }) =>
 			courseApi.updateModule(moduleId, courseId, data),
 		onSuccess: (_, { courseId }) => {
-			// Silent success for auto-save feel, or minimal toast if needed
 			queryClient.invalidateQueries({
-				queryKey: ["course", Number(courseId), "edit"],
+				queryKey: QUERY_KEYS.courses.edit(courseId),
 			});
 		},
 	});
@@ -73,7 +76,7 @@ export function useModuleMutations() {
 			courseApi.deleteModule(moduleId, courseId),
 		onSuccess: (_, { courseId }) => {
 			queryClient.invalidateQueries({
-				queryKey: ["course", Number(courseId), "edit"],
+				queryKey: QUERY_KEYS.courses.edit(courseId),
 			});
 		},
 	});
@@ -89,7 +92,7 @@ export function useLessonMutations() {
 			courseApi.addLesson(moduleId, courseId, { title, type }),
 		onSuccess: (_, { courseId }) => {
 			queryClient.invalidateQueries({
-				queryKey: ["course", Number(courseId), "edit"],
+				queryKey: QUERY_KEYS.courses.edit(courseId),
 			});
 		},
 	});
@@ -99,7 +102,7 @@ export function useLessonMutations() {
 			courseApi.updateLesson(lessonId, moduleId, courseId, data),
 		onSuccess: (_, { courseId }) => {
 			queryClient.invalidateQueries({
-				queryKey: ["course", Number(courseId), "edit"],
+				queryKey: QUERY_KEYS.courses.edit(courseId),
 			});
 		},
 		onError: (error) => {
@@ -114,7 +117,7 @@ export function useLessonMutations() {
 			courseApi.deleteLesson(lessonId, moduleId, courseId),
 		onSuccess: (_, { courseId }) => {
 			queryClient.invalidateQueries({
-				queryKey: ["course", Number(courseId), "edit"],
+				queryKey: QUERY_KEYS.courses.edit(courseId),
 			});
 		},
 	});
@@ -134,11 +137,14 @@ export function useUpdateLessonProgress() {
 				isCompleted
 			),
 		onSuccess: (_, { courseId }) => {
+			// Original: ["course", Number(courseId), "learn"]
 			queryClient.invalidateQueries({
-				queryKey: ["course", Number(courseId), "learn"],
+				queryKey: QUERY_KEYS.courses.learn(courseId),
 			});
+			// Original: ["courses", "enrolled"]
+			// We map this to a sub-key of courses.all to correspond with standardization
 			queryClient.invalidateQueries({
-				queryKey: ["courses", "enrolled"],
+				queryKey: [...QUERY_KEYS.courses.all, "enrolled"],
 			});
 		},
 		onError: () => {
@@ -165,16 +171,19 @@ export function useReviewMutations(courseId) {
 
 	const invalidateContext = () => {
 		// 1. Refresh the reviews list
+		// Original: ["course", numericId, "reviews"]
 		queryClient.invalidateQueries({
-			queryKey: ["course", numericId, "reviews"],
+			queryKey: QUERY_KEYS.courses.reviews(numericId),
 		});
 		// 2. Refresh course details (Learn View) to update stats/userReview
+		// Original: ["course", numericId, "learn"]
 		queryClient.invalidateQueries({
-			queryKey: ["course", numericId, "learn"],
+			queryKey: QUERY_KEYS.courses.learn(numericId),
 		});
 		// 3. Refresh public info view (if needed)
+		// Original: ["course", numericId, "info-view"]
 		queryClient.invalidateQueries({
-			queryKey: ["course", numericId, "info-view"],
+			queryKey: QUERY_KEYS.courses.infoView(numericId),
 		});
 	};
 

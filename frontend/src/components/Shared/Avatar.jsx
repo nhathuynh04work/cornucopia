@@ -1,10 +1,6 @@
-import { useAuth } from "@/contexts/AuthContext";
-
 export default function Avatar({ url, name, size = "sm", className = "" }) {
-	const { user } = useAuth();
-
-	const imageSrc = url || user?.avatarUrl;
-	const displayName = name || user?.name || "User";
+	const imageSrc = url;
+	const displayName = name || "User";
 	const initial = displayName[0]?.toUpperCase() || "U";
 
 	const sizeClasses = {

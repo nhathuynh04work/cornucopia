@@ -1,91 +1,76 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MoreHorizontal, Edit3, Trash2 } from "lucide-react";
+import * as Popover from "@radix-ui/react-popover";
+import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useDeleteDeck } from "@/hooks/useFlashcardMutation";
 import ConfirmationModal from "@/components/Shared/ConfirmationModal";
 import toast from "react-hot-toast";
 
 function EditMenu({ deck }) {
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-	const menuRef = useRef(null);
 	const navigate = useNavigate();
+	const [isOpen, setIsOpen] = useState(false);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const { mutate: deleteDeck, isPending: isDeleting } = useDeleteDeck();
 
-	const { mutate: deleteDeck, isPending } = useDeleteDeck();
-
-	useEffect(() => {
-		const handleClickOutside = (event) => {
-			if (menuRef.current && !menuRef.current.contains(event.target)) {
-				setIsMenuOpen(false);
-			}
-		};
-		document.addEventListener("mousedown", handleClickOutside);
-		return () =>
-			document.removeEventListener("mousedown", handleClickOutside);
-	}, []);
-
-	const handleDeleteClick = () => {
-		setIsMenuOpen(false);
-		setIsDeleteModalOpen(true);
-	};
-
-	const handleConfirmDelete = () => {
-		deleteDeck(
-			{ deckId: deck.id },
-			{
-				onSuccess: () => {
-					setIsDeleteModalOpen(false);
-					navigate("/decks");
-					toast.success("Xoá bộ thẻ thành công!");
-				},
-				onError: () => {
-					setIsDeleteModalOpen(false);
-					toast.error("Đã xảy ra lỗi khi xoá bộ thẻ.");
-				},
-			}
-		);
+	const handleDelete = () => {
+		deleteDeck(deck.id, {
+			onSuccess: () => {
+				toast.success("Đã xóa bộ thẻ");
+				navigate("/decks");
+			},
+			onError: () => {
+				toast.error("Không thể xóa bộ thẻ");
+			},
+		});
 	};
 
 	return (
 		<>
-			<div className="relative" ref={menuRef}>
-				<button
-					onClick={() => setIsMenuOpen(!isMenuOpen)}
-					className="p-2.5 text-gray-500 hover:text-gray-900 hover:bg-white bg-gray-100/50 rounded-xl transition-all border border-transparent hover:border-gray-200">
-					<MoreHorizontal className="w-5 h-5" />
-				</button>
+			<Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+				<Popover.Trigger asChild>
+					<button className="p-2.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 bg-white rounded-xl transition-all border-2 border-gray-200 hover:border-gray-300 outline-none data-[state=open]:border-purple-300 data-[state=open]:ring-4 data-[state=open]:ring-purple-100">
+						<MoreVertical className="w-5 h-5" />
+					</button>
+				</Popover.Trigger>
 
-				{isMenuOpen && (
-					<div className="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-100 shadow-lg">
+				<Popover.Portal>
+					<Popover.Content
+						className="min-w-[160px] bg-white rounded-xl shadow-xl border border-gray-100 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-200"
+						sideOffset={5}
+						align="end">
 						<Link
 							to={`/decks/${deck.id}/edit`}
-							className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-purple-600 transition-colors w-full text-left">
-							<Edit3 className="w-4 h-4" />
+							onClick={() => setIsOpen(false)}
+							className="flex items-center gap-2 w-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-purple-600 rounded-lg transition-colors">
+							<Pencil className="w-4 h-4" />
 							Chỉnh sửa
 						</Link>
 						<button
-							onClick={handleDeleteClick}
-							className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left">
+							onClick={() => {
+								setIsOpen(false);
+								setShowDeleteModal(true);
+							}}
+							className="flex items-center gap-2 w-full px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
 							<Trash2 className="w-4 h-4" />
 							Xóa bộ thẻ
 						</button>
-					</div>
-				)}
-			</div>
+					</Popover.Content>
+				</Popover.Portal>
+			</Popover.Root>
 
-			{isDeleteModalOpen && (
+			{showDeleteModal && (
 				<ConfirmationModal
 					title="Xóa bộ thẻ"
 					confirmText="Xóa vĩnh viễn"
 					variant="danger"
-					isLoading={isPending}
-					onConfirm={handleConfirmDelete}
-					onCancel={() => setIsDeleteModalOpen(false)}>
-					Bạn có chắc chắn muốn xóa bộ thẻ{" "}
-					<strong>{deck.title}</strong> không?
-					<br />
-					Hành động này không thể hoàn tác và tất cả thẻ ghi nhớ bên
-					trong sẽ bị mất.
+					isLoading={isDeleting}
+					onConfirm={handleDelete}
+					onCancel={() => setShowDeleteModal(false)}>
+					Bạn có chắc chắn muốn xóa bộ thẻ "
+					<span className="font-bold text-gray-900">
+						{deck.title}
+					</span>
+					"? Hành động này không thể hoàn tác.
 				</ConfirmationModal>
 			)}
 		</>

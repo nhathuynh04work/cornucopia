@@ -35,14 +35,7 @@ import TestEdit from "./pages/TestDomain/TestEdit";
 import Profile from "./pages/Profile";
 
 const ProtectedRoute = ({ children }) => {
-	const { user, isInitialLoading } = useAuth();
-
-	if (isInitialLoading)
-		return (
-			<div className="min-h-screen flex items-center justify-center">
-				Loading...
-			</div>
-		);
+	const { user } = useAuth();
 
 	if (!user) return <Navigate to="/login" replace />;
 

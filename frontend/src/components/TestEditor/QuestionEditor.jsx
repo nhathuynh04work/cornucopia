@@ -1,13 +1,5 @@
 import { useFormContext, Controller } from "react-hook-form";
-import {
-	ListChecks,
-	FileText,
-	Image as ImageIcon,
-	X,
-	AlertCircle,
-	CheckCircle2,
-} from "lucide-react";
-import MediaUploader from "@/components/Shared/MediaUploader";
+import { ListChecks, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import AnswerOptionsEditor from "./AnswerOptionsEditor";
 import MediaSection from "./MediaSection";
 import SimpleRichTextEditor from "@/components/Shared/SimpleRichTextEditor";
@@ -74,7 +66,7 @@ export default function QuestionEditor({ nestIndex, item }) {
 					/>
 				</div>
 
-				{/* Media Section (Extracted) */}
+				{/* Media Section */}
 				<MediaSection nestIndex={nestIndex} />
 
 				<hr className="border-gray-100" />

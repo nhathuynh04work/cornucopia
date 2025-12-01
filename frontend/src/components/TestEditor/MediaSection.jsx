@@ -3,29 +3,37 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { Image as ImageIcon, X, Loader2 } from "lucide-react";
 import MediaUploader from "@/components/Shared/MediaUploader";
 
-export default function MediaSection({ nestIndex }) {
+export default function MediaSection({ nestIndex, basePath }) {
 	const { control, setValue } = useFormContext();
+
+	const fieldName = basePath
+		? `${basePath}.mediaUrls`
+		: `items.${nestIndex}.mediaUrls`;
+
 	const mediaList = useWatch({
 		control,
-		name: `items.${nestIndex}.media`,
+		name: fieldName,
 		defaultValue: [],
 	});
 
 	const [isUploading, setIsUploading] = useState(false);
 
 	const handleAddMedia = (data) => {
-		const newMedia = [
-			...mediaList,
-			{ url: data.url, id: data.mediaId, fileType: data.fileType },
-		];
-		setValue(`items.${nestIndex}.media`, newMedia, { shouldDirty: true });
+		const newMedia = [...(mediaList || []), data.url];
+		setValue(fieldName, newMedia, { shouldDirty: true });
 		setIsUploading(false);
 	};
 
 	const handleRemoveMedia = (index) => {
-		const newList = [...mediaList];
+		const newList = [...(mediaList || [])];
 		newList.splice(index, 1);
-		setValue(`items.${nestIndex}.media`, newList, { shouldDirty: true });
+		setValue(fieldName, newList, { shouldDirty: true });
+	};
+
+	const isVideo = (url) => {
+		if (!url) return false;
+		const extension = url.split(".").pop().toLowerCase();
+		return ["mp4", "webm", "ogg", "mov"].includes(extension);
 	};
 
 	return (
@@ -38,28 +46,30 @@ export default function MediaSection({ nestIndex }) {
 					onUploadStart={() => setIsUploading(true)}
 					onUploadSuccess={handleAddMedia}
 					onUploadError={() => setIsUploading(false)}>
-					<button className="text-xs font-medium text-purple-600 hover:bg-purple-50 px-2 py-1 rounded transition-colors flex items-center gap-1">
+					<button
+						type="button"
+						className="text-xs font-medium text-purple-600 hover:bg-purple-50 px-2 py-1 rounded transition-colors flex items-center gap-1">
 						<ImageIcon className="w-3.5 h-3.5" /> Thêm ảnh/video
 					</button>
 				</MediaUploader>
 			</div>
 
-			{(mediaList.length > 0 || isUploading) && (
+			{((mediaList && mediaList.length > 0) || isUploading) && (
 				<div className="grid grid-cols-2 gap-4">
-					{mediaList.map((m, i) => (
+					{mediaList?.map((url, i) => (
 						<div
 							key={i}
 							className="relative group rounded-lg overflow-hidden border border-gray-200 bg-gray-50 aspect-video">
-							{m.fileType?.startsWith("video") ? (
+							{isVideo(url) ? (
 								<video
-									src={m.url}
+									src={url}
 									className="w-full h-full object-cover"
 									controls
 								/>
 							) : (
 								<img
-									src={m.url}
-									alt="Media"
+									src={url}
+									alt={`Media ${i + 1}`}
 									className="w-full h-full object-cover"
 								/>
 							)}

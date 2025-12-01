@@ -37,7 +37,7 @@ export default function QuestionCard({
 			)}>
 			{/* Header */}
 			<div className="flex items-start justify-between gap-4 mb-4">
-				<div>
+				<div className="w-full">
 					<span
 						className={cn(
 							"inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3 transition-colors",
@@ -48,7 +48,7 @@ export default function QuestionCard({
 						{question.points} điểm
 					</span>
 					<h3
-						className="prose prose-md focus:outline-none px-4 py-3 text-gray-700 max-w-none
+						className="prose prose-md focus:outline-none px-4 py-3 text-gray-700 max-w-none w-full
 					prose-headings:mb-2 prose-headings:mt-2 prose-p:my-1 prose-p:leading-normal
 					prose-blockquote:border-l-4 prose-blockquote:!border-purple-200 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-500"
 						dangerouslySetInnerHTML={{ __html: question.text }}
@@ -69,7 +69,7 @@ export default function QuestionCard({
 				</button>
 			</div>
 
-			<MediaAttachment mediaList={question.media} />
+			<MediaAttachment mediaList={question.mediaUrls} />
 
 			{/* Answer Inputs */}
 			<div className="mt-2 flex-1">

@@ -38,7 +38,6 @@ export const BasicInfoSection = ({ course, onChange }) => {
 					/>
 				</div>
 
-				{/* UPDATED: Subtitle Field (Character Count Only) */}
 				<div>
 					<label className="block text-sm font-bold text-gray-700 mb-1.5">
 						Mô tả ngắn (Subtitle)

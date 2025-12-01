@@ -4,9 +4,28 @@ import {
 	NotFoundError,
 	BadRequestError,
 } from "../utils/AppError.js";
-import { calculateCourseProgress } from "../utils/calculate.js";
 import { indexCourse } from "../chatbot/indexer.js";
 import { CourseStatus } from "../generated/prisma/index.js";
+import { promoteFile, deleteFile } from "../utils/fileManager.js";
+
+const processHtmlContent = async (html) => {
+	if (!html) return html;
+
+	const tempImgRegex = /src="([^"]*?\/tmp\/[^"]*?)"/g;
+	const matches = [...html.matchAll(tempImgRegex)];
+
+	let processedHtml = html;
+
+	for (const match of matches) {
+		const tempUrl = match[1];
+
+		const permUrl = await promoteFile(tempUrl, "courses/content");
+
+		processedHtml = processedHtml.replace(tempUrl, permUrl);
+	}
+
+	return processedHtml;
+};
 
 const updateCourseRatingStats = async (courseId) => {
 	const aggregate = await prisma.review.aggregate({
@@ -395,6 +414,16 @@ const updateCourse = async (courseId, data) => {
 		}
 	}
 
+	if (data.coverUrl && data.coverUrl.includes("/tmp/")) {
+		data.coverUrl = await promoteFile(data.coverUrl, "courses/covers");
+
+		if (course.coverUrl && course.coverUrl !== data.coverUrl) {
+			deleteFile(course.coverUrl);
+		}
+	} else if (data.coverUrl === null && course.coverUrl) {
+		deleteFile(course.coverUrl);
+	}
+
 	const updated = await prisma.course.update({
 		where: { id: courseId },
 		data,
@@ -407,7 +436,15 @@ const updateCourse = async (courseId, data) => {
 const removeCourse = async (courseId, userId) => {
 	const course = await prisma.course.findFirst({
 		where: { id: courseId, userId: userId },
-		include: { _count: { select: { enrollments: true } } },
+		include: {
+			_count: { select: { enrollments: true } },
+
+			modules: {
+				include: {
+					lessons: { select: { videoUrl: true } },
+				},
+			},
+		},
 	});
 
 	if (!course)
@@ -419,6 +456,22 @@ const removeCourse = async (courseId, userId) => {
 		throw new ForbiddenError(
 			"Cannot delete a course with enrolled students. Please archive it instead."
 		);
+
+	if (course.coverUrl) {
+		deleteFile(course.coverUrl);
+	}
+
+	if (course.modules) {
+		for (const module of course.modules) {
+			if (module.lessons) {
+				for (const lesson of module.lessons) {
+					if (lesson.videoUrl) {
+						deleteFile(lesson.videoUrl);
+					}
+				}
+			}
+		}
+	}
 
 	await prisma.course.delete({ where: { id: courseId } });
 	indexCourse(courseId);
@@ -460,7 +513,9 @@ const updateModule = async (moduleId, data) => {
 const removeModule = async (moduleId) => {
 	const module = await prisma.module.findUnique({
 		where: { id: moduleId },
-		include: { _count: { select: { lessons: true } } },
+		include: {
+			_count: { select: { lessons: true } },
+		},
 	});
 
 	if (!module) throw new NotFoundError("Module not found");
@@ -486,6 +541,16 @@ const addLesson = async (moduleId, payload) => {
 		(max, l) => (l.sortOrder > max ? l.sortOrder : max),
 		-1
 	);
+
+	if (payload.videoUrl) {
+		payload.videoUrl = await promoteFile(
+			payload.videoUrl,
+			"courses/videos"
+		);
+	}
+	if (payload.htmlContent) {
+		payload.htmlContent = await processHtmlContent(payload.htmlContent);
+	}
 
 	return prisma.lesson.create({
 		data: {
@@ -522,6 +587,20 @@ const updateLesson = async (lessonId, data) => {
 		}
 	}
 
+	if (data.videoUrl && data.videoUrl.includes("/tmp/")) {
+		data.videoUrl = await promoteFile(data.videoUrl, "courses/videos");
+
+		if (lesson.videoUrl && lesson.videoUrl !== data.videoUrl) {
+			deleteFile(lesson.videoUrl);
+		}
+	} else if (data.videoUrl === null && lesson.videoUrl) {
+		deleteFile(lesson.videoUrl);
+	}
+
+	if (data.htmlContent) {
+		data.htmlContent = await processHtmlContent(data.htmlContent);
+	}
+
 	return prisma.lesson.update({
 		where: { id: lessonId },
 		data,
@@ -529,6 +608,15 @@ const updateLesson = async (lessonId, data) => {
 };
 
 const removeLesson = async (lessonId) => {
+	const lesson = await prisma.lesson.findUnique({
+		where: { id: lessonId },
+		select: { videoUrl: true },
+	});
+
+	if (lesson && lesson.videoUrl) {
+		deleteFile(lesson.videoUrl);
+	}
+
 	return prisma.lesson.delete({ where: { id: lessonId } });
 };
 

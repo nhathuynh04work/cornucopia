@@ -22,7 +22,7 @@ export default function CommentSection({ postId, lessonId, testId }) {
 	const { mutate: deleteComment, isPending: isDeleting } = useDeleteComment();
 
 	const comments = data?.comments || [];
-	const totalComments = data?.metadata?.total || 0;
+	const totalComments = data?.pagination?.total || 0;
 
 	const handleCreateComment = (content, callback) => {
 		createComment({ content, ...entityParams }, { onSuccess: callback });

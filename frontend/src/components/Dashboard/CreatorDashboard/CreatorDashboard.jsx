@@ -54,14 +54,14 @@ function CreatorDashboard({ initialStats }) {
 				</Link>
 			}
 			stats={statsData}>
-			<div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 h-full">
+			<div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 h-auto lg:h-full">
 				{/* LEFT COLUMN: Charts */}
-				<div className="lg:col-span-1 h-full min-h-0">
+				<div className="lg:col-span-1 h-auto lg:h-full min-h-0">
 					<CreatorChartSection />
 				</div>
 
 				{/* RIGHT COLUMN: Recent Content */}
-				<div className="lg:col-span-1 h-full min-h-0">
+				<div className="lg:col-span-1 h-[500px] lg:h-full min-h-0">
 					<RecentContentSidebar recentContent={recentContent} />
 				</div>
 			</div>

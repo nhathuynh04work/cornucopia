@@ -73,22 +73,6 @@ model EmailVerificationToken {
     @@map("email_verification_tokens")
 }
 
-model Media {
-    id        Int      @id @default(autoincrement())
-    url       String   @unique
-    fileType  String   @map("file_type")
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-    testItemId Int?      @map("test_item_id")
-    testItem   TestItem? @relation("TestItemToMedia", fields: [testItemId], references: [id], onDelete: Cascade)
-
-    postId Int?  @map("post_id")
-    post   Post? @relation("PostToMedia", fields: [postId], references: [id], onDelete: Cascade)
-
-    @@map("media")
-}
-
 model Test {
     id             Int             @id @default(autoincrement())
     userId         Int             @map("user_id")
@@ -145,6 +129,7 @@ model TestItem {
     text         String?
     answer       String?
     points       Int?         @default(1)
+    mediaUrls    String[]     @default([]) @map("media_urls")
     sortOrder    Int          @map("sort_order")
     createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt    DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
@@ -153,7 +138,6 @@ model TestItem {
     parent        TestItem?       @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
     children      TestItem[]      @relation("ItemToChildren")
     answerOptions AnswerOption[]
-    media         Media[]         @relation("TestItemToMedia")
     AttemptAnswer AttemptAnswer[]
 
     @@map("test_items")
@@ -299,7 +283,6 @@ model Post {
     author   User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
     tags     Tag[]
     chunks   PostChunk[] @relation("PostToChunks")
-    medias   Media[]     @relation("PostToMedia")
     comments Comment[]
 
     @@map("posts")

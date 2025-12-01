@@ -1,8 +1,8 @@
-import { Play, Edit3 } from "lucide-react";
+import { Play, Edit3, Globe, BarChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Role } from "@/lib/constants";
-import StatusBadge from "@/components/Shared/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 export default function TestHero({ test }) {
 	const navigate = useNavigate();
@@ -11,6 +11,13 @@ export default function TestHero({ test }) {
 	const isOwner = user?.id === test.userId;
 	const canEdit = user?.role === Role.ADMIN || isOwner;
 
+	// Helper to get labels
+	const getLabel = (options, value) =>
+		options.find((o) => o.value === value)?.label || value;
+
+	const levelLabel = getLabel(LEVEL_OPTIONS, test.level);
+	const langLabel = getLabel(LANGUAGE_OPTIONS, test.language);
+
 	return (
 		<div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group">
 			{/* Decorative Background Blob */}
@@ -18,7 +25,19 @@ export default function TestHero({ test }) {
 
 			<div className="relative z-10">
 				<div className="flex items-start justify-between gap-4 mb-4">
-					<StatusBadge status={test.status} />
+					{/* Standardized Badges */}
+					<div className="flex flex-wrap items-center gap-2">
+						<div className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded-full text-blue-700 text-xs font-bold border border-blue-100">
+							<BarChart className="w-3 h-3" />
+							{levelLabel}
+						</div>
+
+						<div className="flex items-center gap-1.5 bg-indigo-50 px-2.5 py-1 rounded-full text-indigo-700 text-xs font-bold border border-indigo-100">
+							<Globe className="w-3 h-3" />
+							{langLabel}
+						</div>
+					</div>
+
 					{canEdit && (
 						<button
 							onClick={() => navigate(`/tests/${test.id}/edit`)}
@@ -41,8 +60,8 @@ export default function TestHero({ test }) {
 				<div className="flex flex-wrap gap-4">
 					<button
 						onClick={() => navigate(`/tests/${test.id}/take`)}
-						className="flex-1 sm:flex-none inline-flex items-center justify-center gap-3 px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl shadow-lg shadow-purple-200 transition-all hover:-translate-y-1">
-						<Play className="w-5 h-5 fill-current" />
+						className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200 transition-all hover:-translate-y-0.5 text-sm">
+						<Play className="w-4 h-4 fill-current" />
 						Làm bài ngay
 					</button>
 				</div>

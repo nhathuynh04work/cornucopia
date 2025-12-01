@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Avatar from "@/components/Shared/Avatar";
 import CommentForm from "./CommentForm";
 import { Link } from "react-router";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export default function CommentItem({
 	comment,
@@ -16,6 +17,7 @@ export default function CommentItem({
 }) {
 	const { user } = useAuth();
 	const [showReplyForm, setShowReplyForm] = useState(false);
+	const [showReplies, setShowReplies] = useState(false);
 
 	const isOwner = user?.id === comment.userId;
 	const isRoot = comment.parentId === null;
@@ -24,11 +26,13 @@ export default function CommentItem({
 		rootCommentId || (isRoot ? comment.id : comment.parentId);
 
 	const replyPrefix = `@${comment.user?.name}\u200b `;
+	const hasReplies = comment.replies && comment.replies.length > 0;
 
 	const handleReplySubmit = (content, clearInput) => {
 		onReply({ content, parentId: currentRootId }, () => {
 			clearInput();
 			setShowReplyForm(false);
+			setShowReplies(true);
 		});
 	};
 
@@ -68,12 +72,12 @@ export default function CommentItem({
 				</Link>
 
 				<div className="flex-1 min-w-0">
-					<div className="bg-gray-50 hover:bg-gray-100/80 transition-colors px-4 py-3 rounded-2xl rounded-tl-none inline-block max-w-full">
+					<div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-tl-none inline-block max-w-full">
 						<div className="flex items-center gap-2 mb-1">
 							<span className="text-sm font-bold text-gray-900">
 								{comment.user?.name}
 							</span>
-							<span className="text-xs text-gray-400 font-medium">
+							<span className="text-xs text-gray-500 font-medium">
 								{formatDistanceToNow(
 									new Date(comment.createdAt),
 									{
@@ -105,6 +109,7 @@ export default function CommentItem({
 						)}
 					</div>
 
+					{/* Reply Form */}
 					{showReplyForm && (
 						<div className="mt-4 animate-in fade-in duration-200">
 							<CommentForm
@@ -117,12 +122,30 @@ export default function CommentItem({
 							/>
 						</div>
 					)}
+
+					{/* Toggle Replies Button */}
+					{hasReplies && (
+						<button
+							onClick={() => setShowReplies(!showReplies)}
+							className="flex items-center gap-2 mt-3 text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors group/toggle">
+							{showReplies ? (
+								<ChevronUp className="w-4 h-4" />
+							) : (
+								<ChevronDown className="w-4 h-4" />
+							)}
+							<span>
+								{showReplies
+									? "Ẩn câu trả lời"
+									: `Xem ${comment.replies.length} câu trả lời`}
+							</span>
+						</button>
+					)}
 				</div>
 			</div>
 
 			{/* Recursive Render for Replies */}
-			{comment.replies && comment.replies.length > 0 && (
-				<div className="mt-4 ml-10 space-y-6">
+			{hasReplies && showReplies && (
+				<div className="mt-4 ml-6 md:ml-12 pl-4 border-l-2 border-gray-100 space-y-6 animate-in slide-in-from-top-2 duration-300">
 					{comment.replies.map((reply) => (
 						<CommentItem
 							key={reply.id}

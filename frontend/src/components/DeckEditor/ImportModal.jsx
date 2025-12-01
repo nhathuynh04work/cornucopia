@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { extractCards } from "@/lib/extractors";
+import { RadioItem } from "@/components/Shared/FilterSidebar";
 
 function ImportModal({ isOpen, onClose, onImport }) {
 	const [text, setText] = useState("");
@@ -40,18 +41,6 @@ function ImportModal({ isOpen, onClose, onImport }) {
 		onClose();
 	};
 
-	const radioStyle = `
-        appearance-none w-5 h-5 
-        border-2 border-gray-300 rounded-md
-        bg-white
-        checked:bg-purple-600 checked:border-purple-600 
-        focus:outline-none focus:ring-2 focus:ring-purple-100
-        transition-all cursor-pointer
-        relative
-        flex items-center justify-center
-        after:content-[''] after:w-2 after:h-2 after:bg-white after:rounded-[1px] after:scale-0 checked:after:scale-100 after:transition-transform
-    `;
-
 	return (
 		<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 animate-in fade-in">
 			<div className="bg-white rounded-2xl w-full max-w-2xl m-4 shadow-xl flex flex-col max-h-[90vh]">
@@ -74,36 +63,24 @@ function ImportModal({ isOpen, onClose, onImport }) {
 						là một thẻ mới.
 					</p>
 
-					<div className="mb-6 flex flex-col sm:flex-row gap-4 text-sm">
-						<label className="flex items-center gap-3 cursor-pointer group">
-							<div className="relative flex items-center">
-								<input
-									type="radio"
-									name="separator"
-									checked={separator === "tab"}
-									onChange={() => setSeparator("tab")}
-									className={radioStyle}
-								/>
-							</div>
-							<span className="text-gray-700 font-medium group-hover:text-purple-700 transition-colors">
-								Ngăn cách bằng Tab (Excel, Sheets)
-							</span>
-						</label>
-
-						<label className="flex items-center gap-3 cursor-pointer group">
-							<div className="relative flex items-center">
-								<input
-									type="radio"
-									name="separator"
-									checked={separator === "dash"}
-									onChange={() => setSeparator("dash")}
-									className={radioStyle}
-								/>
-							</div>
-							<span className="text-gray-700 font-medium group-hover:text-purple-700 transition-colors">
-								Ngăn cách bằng gạch nối ( - )
-							</span>
-						</label>
+					<div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4 text-sm bg-gray-50 p-4 rounded-xl border border-gray-100">
+						<span className="font-medium text-gray-700 mr-2">
+							Ngăn cách bởi:
+						</span>
+						<div className="flex gap-6">
+							<RadioItem
+								label="Tab (Excel)"
+								name="separator"
+								checked={separator === "tab"}
+								onChange={() => setSeparator("tab")}
+							/>
+							<RadioItem
+								label="Gạch nối ( - )"
+								name="separator"
+								checked={separator === "dash"}
+								onChange={() => setSeparator("dash")}
+							/>
+						</div>
 					</div>
 
 					<textarea

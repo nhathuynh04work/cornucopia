@@ -20,10 +20,16 @@ const getTests = async (req, res) => {
 
 const getAttemptedTests = async (req, res) => {
 	const userId = req.user.id;
-	const { search, sort } = req.query;
+	const { search, sort, page, limit } = req.query;
 
-	const tests = await testService.getAttemptedTests(userId, { search, sort });
-	res.status(200).json({ tests });
+	const result = await testService.getAttemptedTests(userId, {
+		search,
+		sort,
+		page,
+		limit,
+	});
+
+	res.status(200).json(result);
 };
 
 const createTest = async (req, res) => {

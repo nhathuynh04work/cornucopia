@@ -10,14 +10,13 @@ export default function ImageUploadButton({ editor }) {
 	};
 
 	const handleUploadSuccess = (data) => {
-		const { url, mediaId } = data;
+		const { url } = data;
 
 		editor
 			.chain()
 			.focus()
 			.setImage({
 				src: url,
-				id: mediaId,
 			})
 			.run();
 

@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Mail, Lock, ArrowRight, Loader2, Globe } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-hot-toast";
@@ -7,6 +7,18 @@ import { env } from "@/env";
 
 export default function Login() {
 	const { login } = useAuth();
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	if (searchParams.get("error") === "blocked") {
+		toast.error(
+			"Tài khoản của bạn đã bị chặn. Hãy liên hệ chúng tôi để xử lý!",
+			{ id: "blocked_error" }
+		);
+
+		const newSearchParams = new URLSearchParams(searchParams);
+		newSearchParams.delete("error");
+		setSearchParams(newSearchParams, { replace: true });
+	}
 
 	const {
 		register,

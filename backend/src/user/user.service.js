@@ -5,6 +5,7 @@ import { courseService } from "../course/course.service.js";
 import { deckService } from "../deck/deck.service.js";
 import { postService } from "../post/post.service.js";
 import { testService } from "../test/test.service.js";
+import { promoteFile, deleteFile } from "../utils/fileManager.js";
 
 const getUsers = async ({ role, search, page = 1, limit = 10, isBlocked }) => {
 	const filters = {};
@@ -333,9 +334,38 @@ const updateUser = async (userId, data) => {
 };
 
 const updateSelf = async (userId, payload) => {
+	const { avatarUrl, ...rest } = payload;
+	const updateData = { ...rest };
+
+	if (avatarUrl) {
+		// 1. Check if it is a new upload (indicated by 'tmp/' in the path)
+		if (avatarUrl.includes("/tmp/")) {
+			// A. Promote the file to permanent storage
+			const permanentUrl = await promoteFile(avatarUrl, "avatars");
+			updateData.avatarUrl = permanentUrl;
+
+			// B. Clean up the OLD avatar to keep bucket clean
+			const currentUser = await prisma.user.findUnique({
+				where: { id: userId },
+				select: { avatarUrl: true },
+			});
+
+			// Only delete if it exists and is different from the new one
+			if (
+				currentUser?.avatarUrl &&
+				currentUser.avatarUrl !== permanentUrl
+			) {
+				await deleteFile(currentUser.avatarUrl);
+			}
+		} else {
+			// It's a regular URL (no change, or reverted), just save it as is
+			updateData.avatarUrl = avatarUrl;
+		}
+	}
+
 	return prisma.user.update({
 		where: { id: userId },
-		data: payload,
+		data: updateData,
 	});
 };
 

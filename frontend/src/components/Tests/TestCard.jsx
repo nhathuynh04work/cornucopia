@@ -1,12 +1,26 @@
 import { Link } from "react-router-dom";
 import { Users, FileText, Clock, Trophy, Globe, BarChart2 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
+import Badge from "@/components/Shared/Badge";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 const formatDuration = (seconds) => {
 	if (!seconds) return "--";
 	const minutes = Math.floor(seconds / 60);
 	return `${minutes} phút`;
+};
+
+const getStatusBadge = (status) => {
+	switch (status) {
+		case "DRAFT":
+			return { variant: "warning", label: "Bản nháp" };
+		case "PRIVATE":
+			return { variant: "secondary", label: "Riêng tư" };
+		case "ARCHIVED":
+			return { variant: "default", label: "Lưu trữ" };
+		default:
+			return { variant: "default", label: status };
+	}
 };
 
 function TestCard({ test }) {
@@ -31,12 +45,21 @@ function TestCard({ test }) {
 	const langLabel =
 		LANGUAGE_OPTIONS?.find((o) => o.value === language)?.label || language;
 
+	const statusConfig = getStatusBadge(status);
+
 	return (
 		<Link
 			to={targetLink}
 			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- ICON SECTION (Left Side) --- */}
 			<div className="w-full md:w-48 shrink-0 relative bg-blue-50 flex items-center justify-center min-h-[140px] md:min-h-0">
+				{status !== "PUBLIC" && (
+					<div className="absolute top-2 left-2 z-10">
+						<Badge variant={statusConfig.variant}>
+							{statusConfig.label}
+						</Badge>
+					</div>
+				)}
 				<Trophy className="w-12 h-12 text-blue-300 group-hover:scale-110 transition-transform duration-500" />
 			</div>
 

@@ -14,7 +14,7 @@ function CardInputItem({ index, onDelete, canDelete }) {
 		"w-full p-4 text-base rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 outline-none ring-0 focus:bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all resize-none leading-relaxed";
 
 	return (
-		<div className="group bg-gray-50 rounded-2xl border border-gray-200 hover:border-purple-400 transition-all duration-200 overflow-hidden">
+		<div className="group bg-gray-50 rounded-2xl border border-gray-200 transition-all duration-200 overflow-hidden">
 			<div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
 				<span className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-700 text-sm font-bold border border-purple-200">
 					{index + 1}

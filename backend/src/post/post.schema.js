@@ -9,6 +9,7 @@ const UpdatePostBody = z.object({
 	title: z.string().min(1),
 	content: z.string().min(1),
 	excerpt: z.string().optional(),
+	coverUrl: z.url().optional(),
 	status: PostStatusSchema,
 	tags: z.array(z.string()).optional(),
 });

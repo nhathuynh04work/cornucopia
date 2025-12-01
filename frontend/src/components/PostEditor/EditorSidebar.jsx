@@ -2,7 +2,7 @@ import CoverImage from "./CoverImage";
 import ExcerptInput from "./ExcerptInput";
 import TagsInput from "./TagsInput";
 
-export default function EditorSidebar({ register, setValue, watch, postId }) {
+export default function EditorSidebar({ register, setValue, watch }) {
 	const coverUrl = watch("coverUrl");
 
 	return (
@@ -10,7 +10,6 @@ export default function EditorSidebar({ register, setValue, watch, postId }) {
 			<div className="sticky top-[80px] space-y-8">
 				<CoverImage
 					url={coverUrl}
-					postId={postId}
 					onChange={(url) =>
 						setValue("coverUrl", url, { shouldDirty: true })
 					}

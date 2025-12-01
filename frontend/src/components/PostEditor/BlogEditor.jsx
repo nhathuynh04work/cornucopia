@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { debounce } from "lodash";
 import Footer from "@/layouts/Footer";
 import { useUpdatePost } from "@/hooks/usePostMutation";
+import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import EditorHeader from "./EditorHeader";
 import TitleInput from "./TitleInput";
 import RichTextEditor from "./RichTextEditor";
@@ -18,6 +18,7 @@ export default function BlogEditor({ post }) {
 		control,
 		setValue,
 		watch,
+		getValues,
 		reset,
 		formState: { isDirty, errors },
 	} = useForm({
@@ -30,6 +31,10 @@ export default function BlogEditor({ post }) {
 			status: post?.status || "DRAFT",
 		},
 	});
+
+	useEffect(() => {
+		register("coverUrl");
+	}, [register]);
 
 	const formatPayload = (formData) => ({
 		title: formData.title,
@@ -45,31 +50,36 @@ export default function BlogEditor({ post }) {
 			: [],
 	});
 
-	const debouncedSave = useMemo(
-		() =>
-			debounce((formData) => {
-				updatePost(
-					{
-						postId,
-						payload: formatPayload(formData),
-					},
-					{
-						onSuccess: () => {
-							reset(formData);
-							setLastSaved(new Date());
-						},
-					}
-				);
-			}, 1000),
-		[postId, updatePost, reset]
-	);
+	useEditorAutoSave(
+		() => {
+			const currentData = getValues();
 
-	useEffect(() => {
-		const subscription = watch((formData) => {
-			debouncedSave(formData);
-		});
-		return () => subscription.unsubscribe();
-	}, [watch, debouncedSave]);
+			updatePost(
+				{
+					postId,
+					payload: formatPayload(currentData),
+				},
+				{
+					onSuccess: (updatedPost) => {
+						const currentCover = getValues("coverUrl");
+						if (
+							updatedPost.coverUrl &&
+							currentCover !== updatedPost.coverUrl &&
+							currentCover.includes("/tmp/")
+						) {
+							setValue("coverUrl", updatedPost.coverUrl);
+						}
+
+						reset(getValues());
+						setLastSaved(new Date());
+					},
+				}
+			);
+		},
+		watch(),
+		1000,
+		isDirty
+	);
 
 	return (
 		<form className="min-h-screen flex flex-col bg-white">
@@ -97,7 +107,6 @@ export default function BlogEditor({ post }) {
 						register={register}
 						setValue={setValue}
 						watch={watch}
-						postId={postId}
 					/>
 				</main>
 				<Footer />

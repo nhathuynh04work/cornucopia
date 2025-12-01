@@ -2,6 +2,7 @@ import { Star, MessageSquare, Loader2 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
+import { Link } from "react-router";
 
 export default function ReviewList({ reviews, isLoading }) {
 	if (isLoading) {

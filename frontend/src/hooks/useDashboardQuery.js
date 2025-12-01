@@ -3,14 +3,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { queryDefaults } from "@/lib/react-query.config";
 import { Role } from "@/lib/constants";
 import dashboardApi from "@/apis/dashboardApi";
+import { QUERY_KEYS } from "@/lib/query-keys";
 
 export function useGetDashboardOverallStats() {
-	const { user, isInitialLoading, role } = useAuth();
+	const { user, role } = useAuth();
 
 	return useQuery({
-		queryKey: ["dashboard", "overall", user?.id, role],
+		queryKey: QUERY_KEYS.dashboard.overall(user?.id, role),
 		queryFn: () => dashboardApi.getOverallStats(role),
-		enabled: !!user && !isInitialLoading,
+		enabled: !!user,
 		...queryDefaults,
 	});
 }
@@ -22,7 +23,7 @@ export function useGetDashboardChartData({ chartType, timePeriod }) {
 		!!user && !!chartType && (role === Role.ADMIN || role === Role.CREATOR);
 
 	return useQuery({
-		queryKey: ["dashboard", "charts", role, chartType, timePeriod],
+		queryKey: QUERY_KEYS.dashboard.charts(role, chartType, timePeriod),
 		queryFn: () =>
 			dashboardApi.getChartData(role, { chartType, timePeriod }),
 		enabled: isEnabled,
