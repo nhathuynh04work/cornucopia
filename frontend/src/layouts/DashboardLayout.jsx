@@ -15,7 +15,7 @@ export default function DashboardLayout({
 	return (
 		<div
 			className={cn(
-				"h-[calc(100vh-64px)] flex flex-col p-6 space-y-6 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500",
+				"h-[calc(100vh-64px)] flex flex-col p-4 lg:p-6 space-y-6 overflow-y-auto lg:overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500",
 				className
 			)}>
 			<div className="flex-shrink-0">

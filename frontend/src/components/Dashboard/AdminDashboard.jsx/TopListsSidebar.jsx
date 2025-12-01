@@ -21,7 +21,7 @@ export default function TopListsSidebar() {
 	];
 
 	return (
-		<div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-full flex flex-col min-h-0">
+		<div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-full flex flex-col min-h-[400px]">
 			{/* Header & Dropdown on same line */}
 			<div className="flex items-center justify-between gap-2 mb-6 flex-shrink-0 z-20">
 				<div className="flex items-center gap-2">

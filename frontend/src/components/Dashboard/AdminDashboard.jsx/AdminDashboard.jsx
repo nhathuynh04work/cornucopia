@@ -56,16 +56,16 @@ function AdminDashboard({ initialStats }) {
 			title="Admin Dashboard"
 			description="Tổng quan hệ thống và hiệu suất kinh doanh."
 			stats={statsData}>
-			<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+			<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-full">
 				{/* Charts Area (2/3) */}
 				{/* Added min-h-0 to prevent grid blowout */}
-				<div className="lg:col-span-8 h-full min-h-0">
+				<div className="lg:col-span-8 h-auto lg:h-full min-h-0">
 					<AdminChartSection />
 				</div>
 
 				{/* Top Lists Sidebar (1/3) */}
 				{/* Added min-h-0 to prevent grid blowout */}
-				<div className="lg:col-span-4 h-full min-h-0">
+				<div className="lg:col-span-4 h-auto lg:h-full min-h-0">
 					<TopListsSidebar />
 				</div>
 			</div>
