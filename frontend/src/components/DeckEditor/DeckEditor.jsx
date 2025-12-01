@@ -4,6 +4,7 @@ import { useForm, FormProvider, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSyncDeck, useDeleteDeck } from "@/hooks/useFlashcardMutation";
+import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import DeckEditorHeader from "./DeckEditorHeader";
 import DeckSettings from "./DeckSettings";
 import CardInputList from "./CardInputList";
@@ -13,6 +14,8 @@ import toast from "react-hot-toast";
 const deckSchema = z.object({
 	title: z.string().min(1, "Vui lòng nhập tiêu đề"),
 	isPublic: z.boolean(),
+	level: z.string().optional(),
+	language: z.string().optional(),
 	cards: z.array(
 		z.object({
 			id: z.union([z.string(), z.number()]).optional(),
@@ -26,22 +29,28 @@ function DeckEditor({ deck }) {
 	const navigate = useNavigate();
 	const { mutate: syncDeck, isPending: isSaving } = useSyncDeck();
 	const { mutate: deleteDeck, isPending: isDeleting } = useDeleteDeck();
+	const [lastSaved, setLastSaved] = useState(
+		deck.updatedAt ? new Date(deck.updatedAt) : null
+	);
 
 	const methods = useForm({
 		resolver: zodResolver(deckSchema),
 		defaultValues: {
 			title: deck.title || "",
 			isPublic: deck.isPublic || false,
+			level: deck.level || "ALL_LEVELS",
+			language: deck.language || "ENGLISH",
 			cards: deck.cards || [],
 		},
 	});
 
 	const {
 		control,
-		handleSubmit,
 		formState: { isDirty },
 		getValues,
 		setValue,
+		watch,
+		reset,
 	} = methods;
 
 	const { fields, append, remove } = useFieldArray({
@@ -51,11 +60,46 @@ function DeckEditor({ deck }) {
 	});
 
 	const [modals, setModals] = useState({
-		privacy: false,
+		settings: false,
 		delete: false,
 		import: false,
 		leave: false,
 	});
+
+	const formValues = watch();
+
+	const handleAutoSave = (data) => {
+		if (!data.title?.trim()) return;
+
+		const validCards = data.cards.filter((c) => c.term.trim());
+
+		const payload = {
+			title: data.title,
+			isPublic: data.isPublic,
+			level: data.level,
+			language: data.language,
+			cards: validCards.map((c) => ({
+				id: typeof c.id === "string" ? undefined : c.id,
+				term: c.term,
+				definition: c.definition,
+			})),
+		};
+
+		syncDeck(
+			{ deckId: deck.id, payload },
+			{
+				onSuccess: () => {
+					setLastSaved(new Date());
+					reset(data);
+				},
+				onError: () => {
+					toast.error("Lưu tự động thất bại.");
+				},
+			}
+		);
+	};
+
+	useEditorAutoSave(handleAutoSave, formValues, 2000, isDirty);
 
 	const toggleModal = (name, isOpen) => {
 		setModals((prev) => ({ ...prev, [name]: isOpen }));
@@ -91,8 +135,9 @@ function DeckEditor({ deck }) {
 		toggleModal("import", false);
 	};
 
-	const handlePrivacyConfirm = (isPublic) => {
-		setValue("isPublic", isPublic, { shouldDirty: true });
+	const handleSettingsConfirm = (level, language) => {
+		setValue("level", level, { shouldDirty: true });
+		setValue("language", language, { shouldDirty: true });
 	};
 
 	const handleConfirmDeleteDeck = () => {
@@ -102,47 +147,24 @@ function DeckEditor({ deck }) {
 		});
 	};
 
-	const onSubmit = (data) => {
-		const validCards = data.cards.filter((c) => c.term.trim());
-
-		const payload = {
-			title: data.title,
-			isPublic: data.isPublic,
-			cards: validCards.map((c) => ({
-				id: typeof c.id === "string" ? undefined : c.id,
-				term: c.term,
-				definition: c.definition,
-			})),
-		};
-
-		syncDeck(
-			{ deckId: deck.id, payload },
-			{
-				onSuccess: () => {
-					navigate(`/decks/${deck.id}`);
-				},
-				onError: () => {
-					toast.error("Lưu thất bại. Vui lòng thử lại.");
-				},
-			}
-		);
-	};
-
 	return (
 		<div className="text-gray-900 pb-20 bg-white min-h-screen">
 			<FormProvider {...methods}>
 				<DeckEditorHeader
+					title={watch("title")}
 					isSaving={isSaving}
-					onSave={handleSubmit(onSubmit)}
+					isDirty={isDirty}
+					lastSaved={lastSaved}
 					onBack={handleBack}
+					deckId={deck.id}
+					control={control}
 				/>
 
 				<div className="w-5/6 mx-auto pt-8">
 					<DeckSettings
 						onImportClick={() => toggleModal("import", true)}
-						onPrivacyClick={() => toggleModal("privacy", true)}
+						onSettingsClick={() => toggleModal("settings", true)}
 						onDeleteClick={() => toggleModal("delete", true)}
-						currentPrivacy={getValues("isPublic")}
 					/>
 
 					<CardInputList
@@ -155,10 +177,11 @@ function DeckEditor({ deck }) {
 				<DeckEditorModals
 					modals={modals}
 					toggleModal={toggleModal}
-					isPublic={getValues("isPublic")}
+					level={getValues("level")}
+					language={getValues("language")}
 					isDeleting={isDeleting}
 					onImport={handleImportCards}
-					onPrivacyConfirm={handlePrivacyConfirm}
+					onSettingsConfirm={handleSettingsConfirm}
 					onDeleteConfirm={handleConfirmDeleteDeck}
 					onLeaveConfirm={handleConfirmLeave}
 				/>

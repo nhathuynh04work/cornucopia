@@ -1,14 +1,15 @@
 import ConfirmationModal from "@/components/Shared/ConfirmationModal";
 import ImportModal from "./ImportModal";
-import PrivacyModal from "./PrivacyModal";
+import SettingsModal from "./SettingsModal";
 
 function DeckEditorModals({
 	modals,
 	toggleModal,
-	isPublic,
+	level,
+	language,
 	isDeleting,
 	onImport,
-	onPrivacyConfirm,
+	onSettingsConfirm,
 	onDeleteConfirm,
 	onLeaveConfirm,
 }) {
@@ -21,12 +22,13 @@ function DeckEditorModals({
 				key={modals.import ? "import-open" : "import-closed"}
 			/>
 
-			<PrivacyModal
-				isOpen={modals.privacy}
-				onClose={() => toggleModal("privacy", false)}
-				initialIsPublic={isPublic}
-				onConfirm={onPrivacyConfirm}
-				key={modals.privacy ? "privacy-open" : "privacy-closed"}
+			<SettingsModal
+				isOpen={modals.settings}
+				onClose={() => toggleModal("settings", false)}
+				initialLevel={level}
+				initialLanguage={language}
+				onConfirm={onSettingsConfirm}
+				key={modals.settings ? "settings-open" : "settings-closed"}
 			/>
 
 			{modals.delete && (

@@ -1,12 +1,7 @@
 import { Plus, Trash2, Settings } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
-function DeckSettings({
-	onImportClick,
-	onPrivacyClick,
-	onDeleteClick,
-	currentPrivacy,
-}) {
+function DeckSettings({ onImportClick, onSettingsClick, onDeleteClick }) {
 	const {
 		register,
 		formState: { errors },
@@ -43,11 +38,9 @@ function DeckSettings({
 
 				<div className="flex items-center gap-2">
 					<button
-						onClick={onPrivacyClick}
+						onClick={onSettingsClick}
 						className="p-2 bg-white text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg border border-gray-200 hover:border-purple-200 transition-all"
-						title={`Quyền riêng tư: ${
-							currentPrivacy ? "Công khai" : "Riêng tư"
-						}`}>
+						title="Cài đặt bộ thẻ">
 						<Settings className="w-5 h-5" />
 					</button>
 
