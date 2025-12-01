@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Role } from "@/lib/constants";
-import StatusBadge from "@/components/Shared/StatusBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateCheckoutSession } from "@/hooks/useCourseMutation";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
@@ -53,8 +52,20 @@ export default function CourseHero({ course, isEnrolled }) {
 			<div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-purple-50 rounded-full blur-3xl opacity-50 group-hover:bg-purple-100 transition-colors duration-700 pointer-events-none"></div>
 
 			<div className="relative z-10">
+				{/* Top Header: Tags & Edit Button */}
 				<div className="flex items-start justify-between gap-4 mb-4">
-					<StatusBadge status={course.status} />
+					<div className="flex flex-wrap items-center gap-2">
+						<div className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded-full text-blue-700 text-xs font-bold border border-blue-100">
+							<BarChart className="w-3 h-3" />
+							{levelLabel}
+						</div>
+
+						<div className="flex items-center gap-1.5 bg-indigo-50 px-2.5 py-1 rounded-full text-indigo-700 text-xs font-bold border border-indigo-100">
+							<Globe className="w-3 h-3" />
+							{langLabel}
+						</div>
+					</div>
+
 					{canEdit && (
 						<button
 							onClick={() =>
@@ -79,7 +90,6 @@ export default function CourseHero({ course, isEnrolled }) {
 					)}
 
 					<div className="flex-1 min-w-0 space-y-4">
-						{/* UPDATED: Reduced Title Size */}
 						<h1 className="text-xl md:text-2xl font-bold text-gray-900 leading-snug">
 							{course.title}
 						</h1>
@@ -90,17 +100,7 @@ export default function CourseHero({ course, isEnrolled }) {
 							</p>
 						)}
 
-						<div className="flex flex-wrap items-center gap-2 py-1">
-							<div className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded-full text-blue-700 text-xs font-bold border !border-blue-100">
-								<BarChart className="w-3 h-3" />
-								{levelLabel}
-							</div>
-
-							<div className="flex items-center gap-1.5 bg-indigo-50 px-2.5 py-1 rounded-full text-indigo-700 text-xs font-bold border !border-indigo-100">
-								<Globe className="w-3 h-3" />
-								{langLabel}
-							</div>
-						</div>
+						{/* Tags removed from here and moved to top */}
 
 						<div className="flex flex-wrap gap-3 items-center pt-2 mt-auto">
 							{canLearn ? (

@@ -1,21 +1,15 @@
 import { Loader2, History, ChevronRight, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useGetAttemptHistory } from "@/hooks/useTestQuery";
 import { formatTime, formatVNDateTime } from "@/lib/formatters";
 
-export default function TestHistory({ attempts, isLoading, testId }) {
+export default function TestHistory({ testId }) {
 	const navigate = useNavigate();
+	const { data: attempts, isPending: isLoading } =
+		useGetAttemptHistory(testId);
 
 	return (
-		<div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-			<div className="flex items-center gap-3 mb-6">
-				<div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
-					<History className="w-5 h-5" />
-				</div>
-				<h2 className="text-xl font-bold text-gray-900">
-					Lịch sử làm bài
-				</h2>
-			</div>
-
+		<div className="p-6 animate-in fade-in duration-500">
 			{isLoading ? (
 				<div className="flex justify-center py-8">
 					<Loader2 className="w-6 h-6 animate-spin text-gray-300" />

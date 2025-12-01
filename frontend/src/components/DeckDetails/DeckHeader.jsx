@@ -1,9 +1,9 @@
-import { Play, Share2, Globe, Lock, BarChart, BookOpen } from "lucide-react";
+import { Play, Share2, Globe, BarChart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStartSession } from "@/hooks/useFlashcardMutation";
 import { useNavigate } from "react-router";
-import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 import EditMenu from "./EditMenu";
+import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 function DeckHeader({ deck }) {
 	const { user } = useAuth();
@@ -23,10 +23,11 @@ function DeckHeader({ deck }) {
 	};
 
 	// Helper to get labels
-	const getLevelLabel = (val) =>
-		LEVEL_OPTIONS.find((opt) => opt.value === val)?.label || val;
-	const getLanguageLabel = (val) =>
-		LANGUAGE_OPTIONS.find((opt) => opt.value === val)?.label || val;
+	const getLabel = (options, value) =>
+		options.find((o) => o.value === value)?.label || value;
+
+	const levelLabel = getLabel(LEVEL_OPTIONS, deck.level);
+	const langLabel = getLabel(LANGUAGE_OPTIONS, deck.language);
 
 	return (
 		<div className="mb-8">
@@ -34,34 +35,23 @@ function DeckHeader({ deck }) {
 				{deck.title}
 			</h1>
 
-			<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				{/* Statistics / Status */}
-				<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-gray-500">
+				<div className="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-500">
 					<span className="px-3 py-1 bg-gray-100 rounded-lg text-gray-700">
 						{deck.cards.length} thuật ngữ
 					</span>
 
-					<span className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-lg text-gray-700">
-						<Globe className="w-3.5 h-3.5" />
-						{getLanguageLabel(deck.language)}
-					</span>
+					{/* Standardized Badges */}
+					<div className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded-full text-blue-700 text-xs font-bold border border-blue-100">
+						<BarChart className="w-3 h-3" />
+						{levelLabel}
+					</div>
 
-					<span className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-lg text-gray-700">
-						<BarChart className="w-3.5 h-3.5" />
-						{getLevelLabel(deck.level)}
-					</span>
-
-					{deck.isPublic ? (
-						<span className="flex items-center gap-1.5 text-green-600 pl-1">
-							<span className="w-2 h-2 rounded-full bg-green-500"></span>
-							Công khai
-						</span>
-					) : (
-						<span className="flex items-center gap-1.5 text-gray-500 pl-1">
-							<span className="w-2 h-2 rounded-full bg-gray-400"></span>
-							Riêng tư
-						</span>
-					)}
+					<div className="flex items-center gap-1.5 bg-indigo-50 px-2.5 py-1 rounded-full text-indigo-700 text-xs font-bold border border-indigo-100">
+						<Globe className="w-3 h-3" />
+						{langLabel}
+					</div>
 				</div>
 
 				{/* Actions */}
@@ -69,12 +59,12 @@ function DeckHeader({ deck }) {
 					<button
 						onClick={handleStartSession}
 						disabled={isPending}
-						className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all disabled:opacity-70 shadow-sm shadow-purple-200">
+						className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all disabled:opacity-70">
 						<Play className="w-5 h-5 fill-current" />
 						<span>Học ngay</span>
 					</button>
 
-					<button className="p-2.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 bg-white rounded-xl transition-all border-2 border-gray-200 hover:border-gray-300">
+					<button className="p-2.5 text-gray-500 hover:text-gray-900 hover:bg-white bg-gray-100/50 rounded-xl transition-all border border-transparent hover:border-gray-200">
 						<Share2 className="w-5 h-5" />
 					</button>
 

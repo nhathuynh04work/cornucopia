@@ -1,23 +1,17 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useGetTestForInfo, useGetAttemptHistory } from "@/hooks/useTestQuery";
-import { useAuth } from "@/contexts/AuthContext";
+import { useParams, useNavigate } from "react-router-dom";
+import { useGetTestForInfo } from "@/hooks/useTestQuery";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
-
 import TestHero from "@/components/TestInfo/TestHero";
-import TestHistory from "@/components/TestInfo/TestHistory";
 import TestStats from "@/components/TestInfo/TestStats";
 import TestBestResult from "@/components/TestInfo/TestBestResult";
 import TestAuthor from "@/components/TestInfo/TestAuthor";
+import TestTabs from "@/components/TestInfo/TestTabs";
 
 export default function TestInfo() {
 	const { testId } = useParams();
 	const navigate = useNavigate();
-	const { user } = useAuth();
 
 	const { data: test, isPending, isError } = useGetTestForInfo(testId);
-
-	const { data: attempts, isPending: isHistoryPending } =
-		useGetAttemptHistory(testId);
 
 	if (isPending) {
 		return (
@@ -47,12 +41,6 @@ export default function TestInfo() {
 	const questionCount = test._count?.items || 0;
 	const attemptsCount = test._count?.attempts || 0;
 
-	const bestAttempt = attempts?.reduce((prev, current) => {
-		const prevScore = prev?.scoredPoints || 0;
-		const currScore = current?.scoredPoints || 0;
-		return currScore > prevScore ? current : prev;
-	}, null);
-
 	return (
 		<div className="p-6 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 			{/* --- Back Button --- */}
@@ -67,15 +55,7 @@ export default function TestInfo() {
 				{/* --- LEFT COLUMN (Content) --- */}
 				<div className="lg:col-span-2 space-y-8">
 					<TestHero test={test} />
-
-					{/* Only show history if user is logged in */}
-					{user && (
-						<TestHistory
-							attempts={attempts}
-							isLoading={isHistoryPending}
-							testId={testId}
-						/>
-					)}
+					<TestTabs testId={testId} />
 				</div>
 
 				{/* --- RIGHT COLUMN (Stats & Info) --- */}
@@ -86,7 +66,7 @@ export default function TestInfo() {
 						attemptsCount={attemptsCount}
 					/>
 
-					<TestBestResult bestAttempt={bestAttempt} />
+					<TestBestResult testId={testId} />
 
 					<TestAuthor user={test.user} createdAt={test.createdAt} />
 				</div>

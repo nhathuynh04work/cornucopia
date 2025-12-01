@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { FileText, List, Star } from "lucide-react";
-import clsx from "clsx";
 import CourseDescription from "./CourseDescription";
 import CourseCurriculumList from "./CourseCurriculumList";
 import CourseReviews from "./CourseReviews";
@@ -16,24 +15,24 @@ export default function CourseTabs({ course, isEnrolled }) {
 
 	return (
 		<div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden min-h-[400px]">
-			{/* Sticky Tab Header */}
-			<div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-6 pt-6">
-				<div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
-					{tabs.map((tab) => (
-						<button
-							key={tab.id}
-							onClick={() => setActiveTab(tab.id)}
-							className={clsx(
-								"flex items-center gap-2 pb-3 border-b-2 text-sm font-bold transition-all whitespace-nowrap",
-								activeTab === tab.id
-									? "!border-purple-600 text-purple-700"
-									: "!border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-							)}>
-							<tab.icon className="w-4 h-4" />
-							{tab.label}
-						</button>
-					))}
-				</div>
+			{/* Tab Header */}
+			<div className="flex border-b border-gray-100">
+				{tabs.map((tab) => (
+					<button
+						key={tab.id}
+						onClick={() => setActiveTab(tab.id)}
+						className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-all relative ${
+							activeTab === tab.id
+								? "text-purple-600 bg-purple-50/50"
+								: "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+						}`}>
+						<tab.icon className="w-4 h-4" />
+						{tab.label}
+						{activeTab === tab.id && (
+							<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600" />
+						)}
+					</button>
+				))}
 			</div>
 
 			{/* Content Area */}
