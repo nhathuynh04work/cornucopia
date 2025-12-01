@@ -7,7 +7,7 @@ import { BadRequestError } from "../utils/AppError.js";
 function getS3FileName(originalFileName) {
 	const uniqueSuffix = crypto.randomUUID();
 	const cleanFileName = originalFileName.replace(/\s+/g, "-");
-	return `uploads/${uniqueSuffix}-${cleanFileName}`;
+	return `tmp/${uniqueSuffix}-${cleanFileName}`;
 }
 
 function isValidFileType(type) {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Camera, Save, Loader2 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
+import MediaUploader from "@/components/Shared/MediaUploader";
 
 export default function ProfileSettingsModal({
 	isOpen,
@@ -15,6 +16,8 @@ export default function ProfileSettingsModal({
 		avatarUrl: "",
 	});
 
+	const [isUploading, setIsUploading] = useState(false);
+
 	useEffect(() => {
 		if (isOpen && user) {
 			setFormData({
@@ -24,7 +27,6 @@ export default function ProfileSettingsModal({
 			});
 		}
 
-		// Scroll lock
 		if (isOpen) {
 			document.body.style.overflow = "hidden";
 			document.documentElement.style.overflow = "hidden";
@@ -45,17 +47,19 @@ export default function ProfileSettingsModal({
 		onSave(formData);
 	};
 
+	const handleUploadSuccess = ({ url }) => {
+		setFormData((prev) => ({ ...prev, avatarUrl: url }));
+		setIsUploading(false);
+	};
+
 	return (
 		<div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-			{/* Backdrop */}
 			<div
 				className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
 				onClick={onClose}
 			/>
 
-			{/* Modal */}
 			<div className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-				{/* Header */}
 				<div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
 					<h2 className="text-lg font-bold text-gray-900">
 						Chỉnh sửa hồ sơ
@@ -67,22 +71,43 @@ export default function ProfileSettingsModal({
 					</button>
 				</div>
 
-				{/* Body */}
 				<div className="overflow-y-auto p-6">
 					<form onSubmit={handleSubmit} className="space-y-6">
-						{/* Avatar Preview */}
+						{/* Avatar Upload Section */}
 						<div className="flex flex-col items-center gap-4">
-							<div className="relative group">
-								<Avatar
-									url={formData.avatarUrl}
-									name={formData.name}
-									size="xl"
-									className="ring-4 ring-gray-50 w-24 h-24 text-2xl"
-								/>
-								<div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-									<Camera className="w-8 h-8 text-white" />
+							<MediaUploader
+								accept="image/*"
+								onUploadStart={() => setIsUploading(true)}
+								onUploadSuccess={handleUploadSuccess}
+								onUploadError={() => setIsUploading(false)}
+								disabled={isSaving || isUploading}>
+								<div className="relative group cursor-pointer">
+									<Avatar
+										url={formData.avatarUrl}
+										name={formData.name}
+										size="xl"
+										className="ring-4 ring-gray-50 w-24 h-24 text-2xl"
+									/>
+
+									{/* Hover Overlay / Loading State */}
+									<div
+										className={`
+										absolute inset-0 flex items-center justify-center rounded-full transition-all duration-200
+										${
+											isUploading
+												? "bg-black/60 opacity-100"
+												: "bg-black/40 opacity-0 group-hover:opacity-100"
+										}
+									`}>
+										{isUploading ? (
+											<Loader2 className="w-8 h-8 text-white animate-spin" />
+										) : (
+											<Camera className="w-8 h-8 text-white" />
+										)}
+									</div>
 								</div>
-							</div>
+							</MediaUploader>
+
 							<p className="text-xs text-gray-400 font-medium">
 								Ảnh đại diện
 							</p>
@@ -137,7 +162,7 @@ export default function ProfileSettingsModal({
 							</button>
 							<button
 								type="submit"
-								disabled={isSaving}
+								disabled={isSaving || isUploading}
 								className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors shadow-lg shadow-purple-200 flex items-center gap-2">
 								{isSaving ? (
 									<Loader2 className="w-4 h-4 animate-spin" />

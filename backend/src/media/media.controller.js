@@ -6,6 +6,8 @@ const uploadFile = async (req, res) => {
 		throw new BadRequestError("No file uploaded");
 	}
 
+	console.log("hello");
+
 	const { location, mimetype, key } = req.file;
 	const media = await mediaService.createOrphanMedia({
 		url: location,
