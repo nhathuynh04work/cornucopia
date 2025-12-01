@@ -12,6 +12,7 @@ model User {
     email                  String                  @unique @db.VarChar(255)
     role                   Role                    @default(USER)
     name                   String?                 @db.VarChar(255)
+    bio                    String?
     avatarUrl              String?                 @map("avatar_url") @db.VarChar(255)
     isActive               Boolean?                @default(false) @map("is_active")
     isBlocked              Boolean                 @default(false) @map("is_blocked")
