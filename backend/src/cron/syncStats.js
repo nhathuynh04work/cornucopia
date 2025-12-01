@@ -3,11 +3,7 @@ import prisma from "../prisma.js";
 
 const SCHEDULE = "0 3 * * *";
 
-export const initCronJobs = () => {
-	console.log(
-		`Cron jobs scheduled: Running nightly reconciliation at 3:00 AM`
-	);
-
+export const syncStatsJob = () => {
 	cron.schedule(SCHEDULE, async () => {
 		console.log("Starting nightly data reconciliation...");
 		const start = Date.now();
