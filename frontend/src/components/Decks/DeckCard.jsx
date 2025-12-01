@@ -4,15 +4,8 @@ import Avatar from "@/components/Shared/Avatar";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 function DeckCard({ deck }) {
-	const {
-		id,
-		title,
-		user,
-		cardsCount,
-		studySessionCount,
-		level,
-		language,
-	} = deck;
+	const { id, title, user, cardsCount, studySessionCount, level, language } =
+		deck;
 
 	const targetLink = `/decks/${id}`;
 

@@ -2,6 +2,7 @@ import { Settings, Calendar, Star, Shield } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import Badge from "@/components/Shared/Badge";
 import { formatVNDate } from "@/lib/formatters";
+import { Link } from "react-router";
 
 export default function ProfileHeader({ user, isOwnProfile, onEdit }) {
 	const isCreator = user.role === "CREATOR" || user.role === "ADMIN";
@@ -13,12 +14,13 @@ export default function ProfileHeader({ user, isOwnProfile, onEdit }) {
 
 			<div className="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
 				<div className="relative shrink-0">
-					<Avatar
-						url={user.avatarUrl}
-						name={user.name}
-						size="xl"
-						className="ring-4 ring-white shadow-md"
-					/>
+					<Link to={`/profile/${user.id}`}>
+						<Avatar
+							url={user?.avatarUrl}
+							name={user?.name}
+							size="xl"
+						/>
+					</Link>
 					{isCreator && (
 						<div
 							className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-1 rounded-full ring-2 ring-white"

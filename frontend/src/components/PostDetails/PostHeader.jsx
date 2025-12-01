@@ -2,6 +2,7 @@ import StatusBadge from "@/components/Shared/StatusBadge";
 import Avatar from "@/components/Shared/Avatar";
 import { formatVNDate } from "@/lib/formatters";
 import { Calendar, Clock } from "lucide-react";
+import { Link } from "react-router";
 
 export default function PostHeader({ post, readTime }) {
 	return (
@@ -30,11 +31,13 @@ export default function PostHeader({ post, readTime }) {
 			{/* Author & Meta Row */}
 			<div className="flex items-center justify-between pt-2">
 				<div className="flex items-center gap-3">
-					<Avatar
-						url={post.author?.avatarUrl}
-						name={post.author?.name}
-						size="md"
-					/>
+					<Link to={`/profile/${post.author.id}`}>
+						<Avatar
+							url={post.author?.avatarUrl}
+							name={post.author?.name}
+							size="md"
+						/>
+					</Link>
 					<div>
 						<p className="text-sm font-bold text-gray-900">
 							{post.author?.name || "Ẩn danh"}

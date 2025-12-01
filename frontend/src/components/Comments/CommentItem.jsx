@@ -4,6 +4,7 @@ import { vi } from "date-fns/locale";
 import { useAuth } from "@/contexts/AuthContext";
 import Avatar from "@/components/Shared/Avatar";
 import CommentForm from "./CommentForm";
+import { Link } from "react-router";
 
 export default function CommentItem({
 	comment,
@@ -58,13 +59,13 @@ export default function CommentItem({
 	return (
 		<div className="group animate-in fade-in slide-in-from-bottom-2 duration-300">
 			<div className="flex gap-4">
-				<div className="shrink-0">
+				<Link to={`/profile/${comment.user.id}`} className="shrink-0">
 					<Avatar
 						url={comment.user?.avatarUrl}
 						name={comment.user?.name}
-                        size="sm"
+						size="sm"
 					/>
-				</div>
+				</Link>
 
 				<div className="flex-1 min-w-0">
 					<div className="bg-gray-50 hover:bg-gray-100/80 transition-colors px-4 py-3 rounded-2xl rounded-tl-none inline-block max-w-full">

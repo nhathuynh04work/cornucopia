@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { Users as UsersIcon, Loader2, AlertCircle, Search } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 import { useGetUsers } from "@/hooks/useUserQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
 
 import PageHeader from "@/components/Shared/PageHeader";
 import PaginationControl from "@/components/Shared/PaginationControl";
-import EmptyState from "@/components/Shared/EmptyState";
 import UsersFilterBar from "@/components/Users/UsersFilterBar";
 import UsersTable from "@/components/Users/UsersTable";
 
@@ -73,22 +72,6 @@ export default function Users() {
 						className="px-4 py-2 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm">
 						Thử lại
 					</button>
-				</div>
-			);
-		}
-
-		if (users.length === 0) {
-			return (
-				<div className="bg-white border border-gray-200 rounded-2xl shadow-sm min-h-[400px] flex items-center justify-center">
-					<EmptyState
-						icon={UsersIcon}
-						title="Không tìm thấy người dùng"
-						description={
-							searchTerm
-								? `Không tìm thấy kết quả cho "${searchTerm}"`
-								: "Chưa có người dùng nào khớp với bộ lọc hiện tại."
-						}
-					/>
 				</div>
 			);
 		}

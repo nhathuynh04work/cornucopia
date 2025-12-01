@@ -66,11 +66,13 @@ export default function EnrolledCourseCard({ course }) {
 
 					<div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-50">
 						<div className="flex items-center gap-2">
-							<Avatar
-								url={course.user?.avatarUrl}
-								name={course.user?.name}
-								size="xs"
-							/>
+							<Link to={`/profile/${course.user.id}`}>
+								<Avatar
+									url={course.user?.avatarUrl}
+									name={course.user?.name}
+									size="xs"
+								/>
+							</Link>
 							<span className="text-xs font-bold text-gray-700 truncate max-w-[150px]">
 								{course.user?.name}
 							</span>
