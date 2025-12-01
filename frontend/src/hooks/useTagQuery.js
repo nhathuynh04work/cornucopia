@@ -1,10 +1,11 @@
 import tagApi from "@/apis/tagApi";
 import { queryDefaults } from "@/lib/react-query.config";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/query-keys";
 
 export function useInfiniteTags(search = "") {
 	return useInfiniteQuery({
-		queryKey: ["tags", "infinite", { search }],
+		queryKey: QUERY_KEYS.tags.infinite(search),
 		queryFn: ({ pageParam = 1 }) =>
 			tagApi.getAll({
 				page: pageParam,

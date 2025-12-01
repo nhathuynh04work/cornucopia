@@ -1,10 +1,11 @@
 import testApi from "@/apis/testApi";
 import { queryDefaults } from "@/lib/react-query.config";
 import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/query-keys";
 
 export function useGetTests(params = {}) {
 	return useQuery({
-		queryKey: ["tests", params],
+		queryKey: QUERY_KEYS.tests.list(params),
 		queryFn: () => testApi.getAll(params),
 		...queryDefaults,
 	});
@@ -12,7 +13,7 @@ export function useGetTests(params = {}) {
 
 export function useGetAttemptedTests(params = {}) {
 	return useQuery({
-		queryKey: ["tests", "attempted", params],
+		queryKey: QUERY_KEYS.tests.attempted(params),
 		queryFn: () => testApi.getAttemptedTests(params),
 		...queryDefaults,
 	});
@@ -20,7 +21,7 @@ export function useGetAttemptedTests(params = {}) {
 
 export function useGetTestForInfo(id) {
 	return useQuery({
-		queryKey: ["test", Number(id), "info"],
+		queryKey: QUERY_KEYS.tests.info(Number(id)),
 		queryFn: () => testApi.getById(id),
 		enabled: !!id,
 		...queryDefaults,
@@ -29,7 +30,7 @@ export function useGetTestForInfo(id) {
 
 export function useGetTestForEdit(id) {
 	return useQuery({
-		queryKey: ["test", Number(id), "edit"],
+		queryKey: QUERY_KEYS.tests.edit(Number(id)),
 		queryFn: () => testApi.getForEdit(id),
 		enabled: !!id,
 		...queryDefaults,
@@ -38,7 +39,7 @@ export function useGetTestForEdit(id) {
 
 export function useGetTestForAttempt(id) {
 	return useQuery({
-		queryKey: ["test", Number(id), "attempt"],
+		queryKey: QUERY_KEYS.tests.attempt(Number(id)),
 		queryFn: () => testApi.getForAttempt(id),
 		enabled: !!id,
 		...queryDefaults,
@@ -47,7 +48,7 @@ export function useGetTestForAttempt(id) {
 
 export function useGetAttemptHistory(testId) {
 	return useQuery({
-		queryKey: ["attempts-history", Number(testId)],
+		queryKey: QUERY_KEYS.tests.history(Number(testId)),
 		queryFn: () => testApi.getAttemptHistory(testId),
 		...queryDefaults,
 	});
