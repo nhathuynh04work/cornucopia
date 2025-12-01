@@ -42,8 +42,18 @@ function DeckDetails() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50/30 pb-20">
+		<div className="min-h-screen bg-gray-50/30 pb-20 animate-in fade-in duration-500">
 			<main className="max-w-5xl mx-auto px-6 py-8">
+				{/* Back Navigation */}
+				<div className="mb-6">
+					<Link
+						to="/decks"
+						className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors group">
+						<ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+						Quay lại thư viện
+					</Link>
+				</div>
+
 				{/* 1. Header Info */}
 				<DeckHeader deck={deck} />
 
