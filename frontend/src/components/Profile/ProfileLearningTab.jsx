@@ -3,9 +3,9 @@ import { BookOpen, History, Loader2 } from "lucide-react";
 import { useGetCourses } from "@/hooks/useCourseQuery";
 import { useGetAttemptedTests } from "@/hooks/useTestQuery";
 import EnrolledCourseCard from "@/components/Profile/EnrolledCourseCard";
-import AttemptItem from "@/components/Profile/AttemptItem";
 import PaginationControl from "@/components/Shared/PaginationControl";
 import EmptyState from "@/components/Shared/EmptyState";
+import AttemptItem from "../TestInfo/AttemptItem";
 
 function EnrolledCoursesList({ userId, searchTerm }) {
 	const [page, setPage] = useState(1);
