@@ -32,7 +32,7 @@ import BlogEdit from "./pages/PostDomain/PostEdit";
 import PaymentCallback from "./pages/CourseDomain/PaymentCallback";
 import Confirm from "./pages/AuthDomain/Confirm";
 import TestEdit from "./pages/TestDomain/TestEdit";
-import Library from "./pages/Library";
+import Profile from "./pages/Profile";
 
 const ProtectedRoute = ({ children }) => {
 	const { user, isInitialLoading } = useAuth();
@@ -87,7 +87,7 @@ function App() {
 						</ProtectedRoute>
 					}>
 					<Route path="/dashboard" element={<Dashboard />} />
-					<Route path="/library" element={<Library />} />
+					<Route path="/profile/:userId" element={<Profile />} />
 
 					<Route path="/courses" element={<Courses />} />
 					<Route path="/courses/:courseId" element={<CourseInfo />} />

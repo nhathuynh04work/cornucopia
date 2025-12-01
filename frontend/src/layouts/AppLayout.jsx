@@ -11,7 +11,6 @@ import {
 	Users,
 	FileQuestion,
 	FileText,
-	Library,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,7 +28,6 @@ function AppLayout() {
 
 	const navItems = [
 		{ label: "Tổng quan", icon: LayoutDashboard, path: "/dashboard" },
-		{ label: "Thư viện", icon: Library, path: "/library" },
 		{ label: "Khóa học", icon: BookOpen, path: "/courses" },
 		{ label: "Bộ thẻ", icon: Layers, path: "/decks" },
 		{ label: "Bài kiểm tra", icon: FileQuestion, path: "/tests" },
@@ -39,7 +37,7 @@ function AppLayout() {
 	if (role === Role.ADMIN) {
 		const hasUsersLink = navItems.some((item) => item.path === "/users");
 		if (!hasUsersLink) {
-			navItems.splice(2, 0, {
+			navItems.splice(1, 0, {
 				label: "Người dùng",
 				icon: Users,
 				path: "/users",
@@ -129,16 +127,18 @@ function AppLayout() {
 
 				{/* User Footer (Sidebar) */}
 				<div className="p-3 border-t border-gray-50">
-					<div
-						className={`flex items-center gap-3 py-2 mb-2 rounded-xl transition-colors ${
+					{/* Changed div to Link and added hover effect */}
+					<Link
+						to="/profile/me"
+						className={`flex items-center gap-3 py-2 mb-2 rounded-xl transition-colors hover:bg-purple-50 group cursor-pointer ${
 							isCollapsed
 								? "justify-center"
 								: "px-3 bg-gray-50/50"
 						}`}>
-						<Avatar />
+						<Avatar url={user?.avatarUrl} name={user?.name} />
 						{!isCollapsed && (
 							<div className="flex-1 min-w-0 animate-in fade-in duration-200">
-								<p className="text-sm font-medium text-gray-900 truncate">
+								<p className="text-sm font-medium text-gray-900 truncate group-hover:text-purple-700 transition-colors">
 									{user?.name}
 								</p>
 								<p className="text-xs text-gray-500 truncate">
@@ -146,7 +146,7 @@ function AppLayout() {
 								</p>
 							</div>
 						)}
-					</div>
+					</Link>
 					<button
 						onClick={handleLogout}
 						title={isCollapsed ? "Đăng xuất" : ""}
@@ -179,6 +179,19 @@ function AppLayout() {
 			{isMobileMenuOpen && (
 				<div className="lg:hidden fixed inset-0 z-30 bg-white pt-16">
 					<nav className="p-4 space-y-2">
+						{/* Add Profile Link to Mobile Menu as well for consistency */}
+						<Link
+							to="/profile/me"
+							onClick={() => setIsMobileMenuOpen(false)}
+							className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-900 bg-gray-50 hover:bg-gray-100 mb-4">
+							<Avatar
+								url={user?.avatarUrl}
+								name={user?.name}
+								size="xs"
+							/>
+							<span>{user?.name}</span>
+						</Link>
+
 						{navItems.map((item) => (
 							<Link
 								key={item.path}
@@ -207,7 +220,6 @@ function AppLayout() {
 				<div className="max-w-6xl mx-auto w-full flex-1">
 					<Outlet />
 				</div>
-				{/* Footer Removed */}
 			</main>
 
 			<ChatWidget />
