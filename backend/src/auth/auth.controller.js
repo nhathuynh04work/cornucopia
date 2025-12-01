@@ -19,8 +19,14 @@ const getCurrentUser = async (req, res) => {
 };
 
 const localLogin = async (req, res) => {
-	const token = await authService.localLogin(req.body);
-	res.status(201).json({ token });
+	try {
+		const token = await authService.localLogin(req.body);
+		res.status(201).json({ token });
+	} catch (error) {
+		if (error.statusCode === 403) {
+			return res.redirect(`${env.FRONTEND_URL}/login?error=blocked`);
+		}
+	}
 };
 
 const googleCallback = async (req, res) => {
