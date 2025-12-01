@@ -3,13 +3,9 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import ImageNodeView from "./ImageNodeView";
 
 export default Image.extend({
-	// Add 'id' to the allowed attributes
 	addAttributes() {
 		return {
 			...this.parent?.(),
-			id: {
-				default: null,
-			},
 			src: {
 				default: null,
 			},
@@ -19,7 +15,6 @@ export default Image.extend({
 		};
 	},
 
-	// Tell Tiptap to render our React component
 	addNodeView() {
 		return ReactNodeViewRenderer(ImageNodeView);
 	},

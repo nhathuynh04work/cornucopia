@@ -2,40 +2,60 @@ import prisma from "../prisma.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { defaults } from "../utils/constants.js";
 import { indexPost } from "../chatbot/indexer.js";
+import { promoteFile, deleteFile } from "../utils/fileManager.js";
+
+const processHtmlContent = async (html) => {
+	if (!html) return html;
+
+	const tempImgRegex = /src="([^"]*?\/tmp\/[^"]*?)"/g;
+	const matches = [...html.matchAll(tempImgRegex)];
+
+	let processedHtml = html;
+
+	for (const match of matches) {
+		const tempUrl = match[1];
+
+		const permUrl = await promoteFile(tempUrl, "posts/content");
+
+		processedHtml = processedHtml.replace(tempUrl, permUrl);
+	}
+
+	return processedHtml;
+};
 
 const createDefaultPost = async (authorId) => {
-  const tagName = "chung".toLowerCase();
-  const payload = {
-    ...defaults.POST,
-    authorId,
-    tags: {
-      connectOrCreate: {
-        where: { name: tagName },
-        create: { name: tagName },
-      },
-    },
-  };
+	const tagName = "chung".toLowerCase();
+	const payload = {
+		...defaults.POST,
+		authorId,
+		tags: {
+			connectOrCreate: {
+				where: { name: tagName },
+				create: { name: tagName },
+			},
+		},
+	};
 
-  const post = await prisma.post.create({ data: payload });
-  indexPost(post.id);
+	const post = await prisma.post.create({ data: payload });
+	indexPost(post.id);
 
-  return post;
+	return post;
 };
 
 const getPost = async (id) => {
-  const post = await prisma.post.findUnique({
-    where: { id },
-    include: {
-      author: true,
-      tags: true,
-    },
-  });
+	const post = await prisma.post.findUnique({
+		where: { id },
+		include: {
+			author: true,
+			tags: true,
+		},
+	});
 
-  if (!post) {
-    throw new NotFoundError("Post not found.");
-  }
+	if (!post) {
+		throw new NotFoundError("Post not found.");
+	}
 
-  return post;
+	return post;
 };
 
 const getPosts = async ({
@@ -112,55 +132,77 @@ const getPosts = async ({
 };
 
 const deletePost = async (id) => {
-  const post = await prisma.post.findUnique({
-    where: { id },
-  });
+	const post = await prisma.post.findUnique({
+		where: { id },
+		select: { coverUrl: true },
+	});
 
-  if (!post) {
-    throw new NotFoundError("Post not found.");
-  }
+	if (!post) {
+		throw new NotFoundError("Post not found.");
+	}
 
-  await prisma.post.delete({ where: { id } });
+	if (post.coverUrl) {
+		deleteFile(post.coverUrl);
+	}
+
+	await prisma.post.delete({ where: { id } });
 };
 
 const updatePost = async (id, payload) => {
-  const post = await prisma.post.findUnique({
-    where: { id },
-  });
+	const post = await prisma.post.findUnique({
+		where: { id },
+		select: { coverUrl: true },
+	});
 
-  if (!post) {
-    throw new NotFoundError("Post not found");
-  }
+	if (!post) {
+		throw new NotFoundError("Post not found");
+	}
 
-  const { tags, ...rest } = payload;
+	const { tags, ...rest } = payload;
+	const updateData = { ...rest };
 
-  const updateData = { ...rest };
+	if (tags) {
+		const normalizedTags = tags.map((t) => t.toLowerCase());
+		updateData.tags = {
+			set: [],
+			connectOrCreate: normalizedTags.map((t) => ({
+				where: { name: t },
+				create: { name: t },
+			})),
+		};
+	}
 
-  const normalizedTags = tags.map((t) => t.toLowerCase());
+	if (updateData.coverUrl && updateData.coverUrl.includes("/tmp/")) {
+		updateData.coverUrl = await promoteFile(
+			updateData.coverUrl,
+			"posts/covers"
+		);
 
-  updateData.tags = {
-    set: [],
+		if (post.coverUrl && post.coverUrl !== updateData.coverUrl) {
+			deleteFile(post.coverUrl);
+		}
+	} else if (updateData.coverUrl === null && post.coverUrl) {
+		deleteFile(post.coverUrl);
+	}
 
-    connectOrCreate: normalizedTags.map((t) => ({
-      where: { name: t },
-      create: { name: t },
-    })),
-  };
+	if (updateData.content) {
+		updateData.content = await processHtmlContent(updateData.content);
+	}
 
-  const updatedPost = await prisma.post.update({
-    where: { id },
-    data: updateData,
-  });
+	const updatedPost = await prisma.post.update({
+		where: { id },
+		data: updateData,
+	});
 
-  indexPost(updatedPost.id);
+	indexPost(updatedPost.id);
 
-  return updatedPost;
+	return updatedPost;
 };
 
 export const postService = {
-  createDefaultPost,
-  getPost,
-  getPosts,
-  deletePost,
-  updatePost,
+	createDefaultPost,
+	getPost,
+	getPosts,
+	deletePost,
+	updatePost,
 };
