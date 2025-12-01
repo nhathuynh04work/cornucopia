@@ -44,11 +44,6 @@ export default function TestEditHeader({ testId, isSaving, lastSaved }) {
 		STATUS_OPTIONS[0];
 
 	const handleFinish = () => {
-		// Navigate back to test details
-		// Since auto-save handles the persistence, we can just go back.
-		// Ideally, we might want to force one last save here if dirty,
-		// but typically auto-save + a small delay or "unsaved changes" warning is used.
-		// Given the requirement "disable when auto save is running", we assume safe to nav if !isSaving.
 		if (!isDirty) {
 			navigate(`/tests/${testId}`);
 		}
@@ -127,7 +122,7 @@ export default function TestEditHeader({ testId, isSaving, lastSaved }) {
 					onClick={handleFinish}
 					disabled={isDirty}
 					className="px-5 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg shadow-sm transition-all flex items-center gap-2">
-					<Check className="w-4 h-4" /> Hoàn tất
+					Hoàn tất
 				</button>
 			</div>
 		</header>

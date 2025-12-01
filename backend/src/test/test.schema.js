@@ -26,11 +26,6 @@ const answerOptionSchema = z.object({
 	sortOrder: z.number().int().optional(),
 });
 
-const mediaSchema = z.object({
-	id: idSchema,
-	url: z.url(),
-});
-
 const baseItemSchema = z.object({
 	id: optionalIdSchema,
 	type: z.enum(TestItemType),
@@ -38,9 +33,8 @@ const baseItemSchema = z.object({
 	points: z.number().int().min(0).default(1),
 	sortOrder: z.number().int().optional(),
 	answer: z.string().optional().nullable(),
-
+	mediaUrls: z.array(z.string()).optional().default([]),
 	answerOptions: z.array(answerOptionSchema).optional(),
-	media: z.array(mediaSchema).optional(),
 });
 
 const testItemSchema = baseItemSchema.extend({

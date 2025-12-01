@@ -13,7 +13,7 @@ export default function ReferencePanel({ parentGroup }) {
 				</span>
 			</div>
 			<div className="p-6 flex-1 text-gray-700 leading-relaxed overflow-y-auto hide-scrollbar prose prose-purple max-w-none">
-				<MediaAttachment mediaList={parentGroup.media} />
+				<MediaAttachment mediaList={parentGroup.mediaUrls} />
 				<div dangerouslySetInnerHTML={{ __html: parentGroup.text }} />
 			</div>
 		</div>

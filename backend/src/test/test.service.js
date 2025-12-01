@@ -7,6 +7,7 @@ import {
 import { defaults } from "../utils/constants.js";
 import { TestItemType, TestStatus } from "../generated/prisma/index.js";
 import { indexTest } from "../chatbot/indexer.js";
+import { promoteFile, deleteFile } from "../utils/fileManager.js";
 
 const updateTestQuestionCount = async (testId, tx = prisma) => {
 	const count = await tx.testItem.count({
@@ -130,7 +131,6 @@ const getAttemptedTests = async (
 		prisma.attempt.count({ where }),
 	]);
 
-	// Map to match frontend AttemptItem expectation (date field)
 	const mappedAttempts = attempts.map((attempt) => ({
 		...attempt,
 		date: attempt.createdAt,
@@ -157,6 +157,8 @@ const createTest = async (userId) => {
 					text: "Thủ đô của nước Pháp?",
 					answer: "Paris",
 					sortOrder: 0,
+					// Default empty mediaUrls
+					mediaUrls: [],
 				},
 			],
 		},
@@ -222,10 +224,8 @@ const getTestForEdit = async (testId, userId) => {
 							answerOptions: {
 								orderBy: { sortOrder: "asc" },
 							},
-							media: true,
 						},
 					},
-					media: true,
 				},
 			},
 
@@ -263,6 +263,21 @@ const deleteTest = async (testId, userId) => {
 			"Cannot delete test other users have taken. Try archiving it instead"
 		);
 	}
+
+	if (test.audioUrl) {
+		deleteFile(test.audioUrl);
+	}
+
+	const allItems = await prisma.testItem.findMany({
+		where: { testId },
+		select: { mediaUrls: true },
+	});
+
+	allItems.forEach((item) => {
+		if (item.mediaUrls && item.mediaUrls.length > 0) {
+			item.mediaUrls.forEach((url) => deleteFile(url));
+		}
+	});
 
 	await prisma.test.delete({ where: { id: testId } });
 };
@@ -326,11 +341,9 @@ const getTestWithoutAnswer = async (testId) => {
 								orderBy: { sortOrder: "asc" },
 								omit: { isCorrect: true },
 							},
-							media: true,
 						},
 						omit: { answer: true },
 					},
-					media: true,
 				},
 			},
 		},
@@ -399,6 +412,22 @@ const syncItems = async (
 
 	const toDelete = existingIds.filter((id) => !incomingIds.includes(id));
 	if (toDelete.length > 0) {
+		const itemsToDelete = await client.testItem.findMany({
+			where: {
+				OR: [
+					{ id: { in: toDelete } },
+					{ parentItemId: { in: toDelete } },
+				],
+			},
+			select: { mediaUrls: true },
+		});
+
+		itemsToDelete.forEach((item) => {
+			if (item.mediaUrls) {
+				item.mediaUrls.forEach((url) => deleteFile(url));
+			}
+		});
+
 		await client.testItem.deleteMany({
 			where: { id: { in: toDelete } },
 		});
@@ -407,6 +436,31 @@ const syncItems = async (
 	for (let i = 0; i < items.length; i++) {
 		const item = items[i];
 
+		// 1. Handle Media Files (Promote & Cleanup)
+		let finalMediaUrls = [];
+		if (item.mediaUrls && Array.isArray(item.mediaUrls)) {
+			// A. Promote: Move any 'tmp/' files to 'test-items/'
+			finalMediaUrls = await Promise.all(
+				item.mediaUrls.map((url) => promoteFile(url, "test-items"))
+			);
+
+			// B. Cleanup: If updating, check for removed files
+			if (item.id) {
+				const currentItem = await client.testItem.findUnique({
+					where: { id: item.id },
+					select: { mediaUrls: true },
+				});
+
+				if (currentItem?.mediaUrls) {
+					// Any URL in DB that is NOT in the new list -> Delete it
+					const removedUrls = currentItem.mediaUrls.filter(
+						(oldUrl) => !finalMediaUrls.includes(oldUrl)
+					);
+					removedUrls.forEach((url) => deleteFile(url));
+				}
+			}
+		}
+
 		// Common data for both create and update
 		const baseItemData = {
 			type: item.type,
@@ -414,33 +468,22 @@ const syncItems = async (
 			points: item.points,
 			answer: item.answer,
 			sortOrder: i,
+			mediaUrls: finalMediaUrls,
 		};
-
-		const mediaConnect = item.media?.map((m) => ({ id: m.id })) || [];
 
 		let currentItemId = item.id;
 
 		if (currentItemId) {
-			// UPDATE: Use 'set' to replace relations
 			await client.testItem.update({
 				where: { id: currentItemId },
-				data: {
-					...baseItemData,
-					media: {
-						set: mediaConnect,
-					},
-				},
+				data: baseItemData,
 			});
 		} else {
-			// CREATE: Use 'connect' to link existing media
 			const newItem = await client.testItem.create({
 				data: {
 					...baseItemData,
 					testId,
 					parentItemId,
-					media: {
-						connect: mediaConnect,
-					},
 				},
 			});
 			currentItemId = newItem.id;
@@ -466,6 +509,17 @@ const syncTest = async ({ testId, data, userId }, client = prisma) => {
 	}
 
 	const performSync = async (tx) => {
+		let finalAudioUrl = data.audioUrl;
+		if (data.audioUrl && data.audioUrl.includes("/tmp/")) {
+			finalAudioUrl = await promoteFile(data.audioUrl, "tests/audio");
+
+			if (test.audioUrl && test.audioUrl !== finalAudioUrl) {
+				deleteFile(test.audioUrl);
+			}
+		} else if (data.audioUrl === null && test.audioUrl) {
+			deleteFile(test.audioUrl);
+		}
+
 		const updated = await tx.test.update({
 			where: { id: testId },
 			data: {
@@ -473,7 +527,7 @@ const syncTest = async ({ testId, data, userId }, client = prisma) => {
 				description: data.description,
 				status: data.status,
 				timeLimit: data.timeLimit,
-				audioUrl: data.audioUrl,
+				audioUrl: finalAudioUrl,
 				level: data.level,
 				language: data.language,
 			},

@@ -44,6 +44,7 @@ export default function ChildQuestionItem({
 			{/* Actions (Absolute top-right) */}
 			<div className="absolute top-6 right-0 opacity-0 group-hover/child:opacity-100 transition-opacity z-10">
 				<button
+					type="button"
 					onClick={() => remove(index)}
 					className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors">
 					<Trash2 className="w-4 h-4" />
@@ -52,7 +53,6 @@ export default function ChildQuestionItem({
 
 			{/* Header: Type & Points */}
 			<div className="flex items-center gap-3 mb-3">
-				{/* Fixed: Use passed global questionNumber */}
 				<div className="flex items-center justify-center w-6 h-6 bg-gray-100 rounded-full text-xs font-bold text-gray-500">
 					{questionNumber}
 				</div>

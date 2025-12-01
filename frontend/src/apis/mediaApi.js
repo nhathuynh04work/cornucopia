@@ -17,9 +17,6 @@ const mediaApi = {
 		});
 		return data;
 	},
-	remove: async (id) => {
-		await api.delete(`/media/${id}`);
-	},
 };
 
 export default mediaApi;
