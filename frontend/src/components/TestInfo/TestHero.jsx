@@ -60,8 +60,8 @@ export default function TestHero({ test }) {
 				<div className="flex flex-wrap gap-4">
 					<button
 						onClick={() => navigate(`/tests/${test.id}/take`)}
-						className="flex-1 sm:flex-none inline-flex items-center justify-center gap-3 px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl shadow-lg shadow-purple-200 transition-all hover:-translate-y-1">
-						<Play className="w-5 h-5 fill-current" />
+						className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200 transition-all hover:-translate-y-0.5 text-sm">
+						<Play className="w-4 h-4 fill-current" />
 						Làm bài ngay
 					</button>
 				</div>

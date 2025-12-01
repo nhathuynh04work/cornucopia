@@ -43,7 +43,7 @@ function DeckDetails() {
 
 	return (
 		<div className="min-h-screen bg-gray-50/30 pb-20 animate-in fade-in duration-500">
-			<main className="max-w-5xl mx-auto px-6 py-8">
+			<main className="mx-auto p-6">
 				{/* Back Navigation */}
 				<div className="mb-6">
 					<Link

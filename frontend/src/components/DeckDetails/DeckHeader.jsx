@@ -59,8 +59,8 @@ function DeckHeader({ deck }) {
 					<button
 						onClick={handleStartSession}
 						disabled={isPending}
-						className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all disabled:opacity-70">
-						<Play className="w-5 h-5 fill-current" />
+						className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200 transition-all hover:-translate-y-0.5 text-sm">
+						<Play className="w-4 h-4 fill-current" />
 						<span>Học ngay</span>
 					</button>
 

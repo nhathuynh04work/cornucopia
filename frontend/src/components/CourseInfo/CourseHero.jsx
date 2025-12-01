@@ -100,8 +100,6 @@ export default function CourseHero({ course, isEnrolled }) {
 							</p>
 						)}
 
-						{/* Tags removed from here and moved to top */}
-
 						<div className="flex flex-wrap gap-3 items-center pt-2 mt-auto">
 							{canLearn ? (
 								<button
