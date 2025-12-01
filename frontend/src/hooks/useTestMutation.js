@@ -45,7 +45,7 @@ export function useTestMutation() {
 	});
 
 	const syncTestMutation = useMutation({
-		mutationFn: testApi.sync,
+		mutationFn: ({ id, data }) => testApi.sync(id, data),
 		onSuccess: (data) => {
 			// Silent success for auto-save
 			// We update the cache with the returned data (updated timestamps, etc.)

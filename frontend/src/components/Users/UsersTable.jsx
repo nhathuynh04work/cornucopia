@@ -1,111 +1,92 @@
-import { Mail, UserCheck, MoreVertical, Shield } from "lucide-react";
+import { Mail, Ban } from "lucide-react";
+import { formatVNDate } from "@/lib/formatters";
 import Avatar from "@/components/Shared/Avatar";
-import ChangeRoleDropdown from "./ChangeRoleDropdown";
+import StatusBadge from "@/components/Shared/StatusBadge";
+import UserActionsMenu from "./UserActionsMenu";
 
-function UsersTable({ users }) {
-	if (!users || users.length === 0) {
-		return (
-			<div className="p-12 text-center text-gray-500">
-				Không tìm thấy người dùng nào.
-			</div>
-		);
-	}
-
+export default function UsersTable({ users }) {
 	return (
-		<div className="overflow-x-auto">
-			<table className="w-full text-left text-sm">
-				<thead className="bg-gray-50 border-b border-gray-100">
-					<tr>
-						<th className="px-6 py-4 font-semibold text-gray-900">
-							Người dùng
-						</th>
-						<th className="px-6 py-4 font-semibold text-gray-900">
-							Vai trò
-						</th>
-						<th className="px-6 py-4 font-semibold text-gray-900">
-							Trạng thái
-						</th>
-						<th className="px-6 py-4 font-semibold text-gray-900">
-							Ngày tham gia
-						</th>
-						<th className="px-6 py-4 font-semibold text-gray-900 text-right">
-							Hành động
-						</th>
-					</tr>
-				</thead>
-				<tbody className="divide-y divide-gray-100 bg-white">
-					{users.map((user) => (
-						<tr
-							key={user.id}
-							className="hover:bg-gray-50/50 transition-colors group">
-							<td className="px-6 py-4">
-								<div className="flex items-center gap-3">
-									<Avatar
-										url={user.avatarUrl}
-										name={user.name}
-										size="sm"
-									/>
-									<div>
-										<div className="font-bold text-gray-900">
-											{user.name}
-										</div>
-										<div className="text-xs text-gray-500 flex items-center gap-1">
-											<Mail className="w-3 h-3" />{" "}
-											{user.email}
+		<div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden min-h-[400px] flex flex-col">
+			<div className="overflow-x-auto">
+				<table className="w-full text-left border-collapse">
+					<thead className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase text-gray-500 font-semibold tracking-wider">
+						<tr>
+							<th className="px-6 py-4">Người dùng</th>
+							<th className="px-6 py-4">Vai trò</th>
+							<th className="px-6 py-4">Trạng thái</th>
+							<th className="px-6 py-4">Ngày tham gia</th>
+							<th className="px-6 py-4 text-right">Hành động</th>
+						</tr>
+					</thead>
+					<tbody className="divide-y divide-gray-50">
+						{users.map((user) => (
+							<tr
+								key={user.id}
+								className={`group transition-colors ${
+									!user.isBlocked
+										? "hover:bg-gray-50"
+										: "bg-red-50/30"
+								}`}>
+								{/* User Info */}
+								<td className="px-6 py-4">
+									<div
+										className={`flex items-center gap-3 ${
+											user.isBlocked && "opacity-60"
+										}`}>
+										<Avatar
+											url={user.avatarUrl}
+											name={user.name}
+										/>
+										<div>
+											<div className="font-bold text-gray-900 text-sm">
+												{user.name}
+											</div>
+											<div className="text-xs text-gray-500 font-medium flex items-center gap-1">
+												<Mail className="w-3 h-3" />{" "}
+												{user.email}
+											</div>
 										</div>
 									</div>
-								</div>
-							</td>
+								</td>
 
-							<td className="px-6 py-4">
-								<span
-									className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border ${
-										user.role === "ADMIN"
-											? "bg-red-50 text-red-700 border-red-100"
-											: user.role === "CREATOR"
-											? "bg-purple-50 text-purple-700 border-purple-100"
-											: "bg-gray-50 text-gray-700 border-gray-100"
-									}`}>
-									{user.role === "ADMIN" && (
-										<Shield className="w-3 h-3" />
+								{/* Role */}
+								<td className="px-6 py-4">
+									<StatusBadge status={user.role} size="sm" />
+								</td>
+
+								{/* Status */}
+								<td className="px-6 py-4">
+									{user.isBlocked ? (
+										<span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
+											<Ban className="w-3 h-3" />
+											Đã chặn
+										</span>
+									) : user.isActive ? (
+										<span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+											<span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+											Hoạt động
+										</span>
+									) : (
+										<span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+											Chưa xác thực
+										</span>
 									)}
-									{user.role}
-								</span>
-							</td>
+								</td>
 
-							<td className="px-6 py-4">
-								<span
-									className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-										user.isActive
-											? "bg-green-50 text-green-600"
-											: "bg-orange-50 text-orange-600"
-									}`}>
-									<span
-										className={`w-1.5 h-1.5 rounded-full ${
-											user.isActive
-												? "bg-green-500"
-												: "bg-orange-500"
-										}`}></span>
-									{user.isActive ? "Hoạt động" : "Vô hiệu"}
-								</span>
-							</td>
+								{/* Date */}
+								<td className="px-6 py-4 text-sm text-gray-500 font-medium">
+									{formatVNDate(user.createdAt)}
+								</td>
 
-							<td className="px-6 py-4 text-gray-500 font-medium">
-								{new Date(user.createdAt).toLocaleDateString(
-									"vi-VN"
-								)}
-							</td>
-
-							<td className="px-6 py-4 text-right">
-								{/* Using existing component for role change logic */}
-								<ChangeRoleDropdown user={user} />
-							</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
+								{/* Actions */}
+								<td className="px-6 py-4 text-right">
+									<UserActionsMenu user={user} />
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	);
 }
-
-export default UsersTable;

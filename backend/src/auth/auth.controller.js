@@ -25,6 +25,11 @@ const localLogin = async (req, res) => {
 
 const googleCallback = async (req, res) => {
 	const user = req.user;
+
+	if (user.isBlocked) {
+		return res.redirect(`${env.FRONTEND_URL}/login?error=blocked`);
+	}
+
 	const token = createJWT({
 		sub: user.id,
 		email: user.email,

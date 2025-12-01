@@ -14,6 +14,7 @@ model User {
     name                   String?                 @db.VarChar(255)
     avatarUrl              String?                 @map("avatar_url") @db.VarChar(255)
     isActive               Boolean?                @default(false) @map("is_active")
+    isBlocked              Boolean                 @default(false) @map("is_blocked")
     createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt              DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
     authentication         Authentication[]
@@ -294,10 +295,10 @@ model Post {
     updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
     coverUrl  String?    @map("cover_url")
 
-    author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    tags   Tag[]
-    chunks PostChunk[] @relation("PostToChunks")
-    medias Media[]     @relation("PostToMedia")
+    author   User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    tags     Tag[]
+    chunks   PostChunk[] @relation("PostToChunks")
+    medias   Media[]     @relation("PostToMedia")
     comments Comment[]
 
     @@map("posts")
@@ -467,32 +468,32 @@ enum Level {
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  content   String   @db.Text
-  userId    Int      @map("user_id")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+    id        Int      @id @default(autoincrement())
+    content   String   @db.Text
+    userId    Int      @map("user_id")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Polymorphic Relations
-  postId   Int? @map("post_id")
-  lessonId Int? @map("lesson_id")
-  testId   Int? @map("test_id")
+    // Polymorphic Relations
+    postId   Int? @map("post_id")
+    lessonId Int? @map("lesson_id")
+    testId   Int? @map("test_id")
 
-  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  test   Test?   @relation(fields: [testId], references: [id], onDelete: Cascade)
+    post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+    test   Test?   @relation(fields: [testId], references: [id], onDelete: Cascade)
 
-  // Hỗ trợ trả lời bình luận (Nested Comments - Optional)
-  parentId Int?      @map("parent_id")
-  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies  Comment[] @relation("CommentReplies")
+    // Hỗ trợ trả lời bình luận (Nested Comments - Optional)
+    parentId Int?      @map("parent_id")
+    parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+    replies  Comment[] @relation("CommentReplies")
 
-  @@index([postId])
-  @@index([lessonId])
-  @@index([testId])
-  @@map("comments")
+    @@index([postId])
+    @@index([lessonId])
+    @@index([testId])
+    @@map("comments")
 }
 
 enum ContentLanguage {

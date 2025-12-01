@@ -13,8 +13,8 @@ const userApi = {
 		const { data } = await api.get("/users/me/library");
 		return data;
 	},
-	updateRole: async ({ userId, role }) => {
-		const { data } = await api.patch(`/users/${userId}/role`, { role });
+	updateUser: async ({ userId, data: updates }) => {
+		const { data } = await api.patch(`/users/${userId}`, updates);
 		return data.user;
 	},
 };

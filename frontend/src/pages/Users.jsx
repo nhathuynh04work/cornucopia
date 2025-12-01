@@ -1,36 +1,39 @@
 import { useState, useEffect } from "react";
-import { useGetUsers } from "@/hooks/useUserQuery";
 import { Users as UsersIcon } from "lucide-react";
-import UsersTable from "@/components/Users/UsersTable";
-import PaginationNav from "@/components/Users/PaginationNav";
-import PageHeader from "@/components/Shared/PageHeader";
-import FilterBar from "@/components/Shared/FilterBar";
-import ResourceList from "@/components/Shared/ResourceList";
+
+import { useGetUsers } from "@/hooks/useUserQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
 
+import PageHeader from "@/components/Shared/PageHeader";
+import ResourceList from "@/components/Shared/ResourceList";
+import PaginationControl from "@/components/Shared/PaginationControl";
+import UsersFilterBar from "@/components/Users/UsersFilterBar";
+import UsersTable from "@/components/Users/UsersTable";
+
 export default function Users() {
-	const {
-		searchTerm,
-		setSearchTerm,
-		debouncedSearch,
-		scope: roleFilter,
-		setScope: setRoleFilter,
-	} = useResourceFilters({ defaultScope: "ALL" });
+	const { searchTerm, setSearchTerm, debouncedSearch } = useResourceFilters();
 
 	const [page, setPage] = useState(1);
+	const [roleFilter, setRoleFilter] = useState("ALL");
+	const [statusFilter, setStatusFilter] = useState("ALL");
 
-	// Reset page when search changes
 	useEffect(() => {
 		setPage(1);
-	}, [debouncedSearch, roleFilter]);
+	}, [debouncedSearch, roleFilter, statusFilter]);
 
-	const effectiveRole = roleFilter === "ALL" ? undefined : roleFilter;
+	const isBlockedParam =
+		statusFilter === "BLOCKED"
+			? true
+			: statusFilter === "ACTIVE"
+			? false
+			: undefined;
 
 	const { data, isPending, isError } = useGetUsers({
-		search: debouncedSearch,
-		role: effectiveRole,
 		page,
 		limit: 10,
+		search: debouncedSearch,
+		role: roleFilter === "ALL" ? undefined : roleFilter,
+		isBlocked: isBlockedParam,
 	});
 
 	const users = data?.users || [];
@@ -41,21 +44,19 @@ export default function Users() {
 		<div className="p-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 			<PageHeader
 				title="Quản lý Người dùng"
-				description="Quản lý tài khoản, vai trò và quyền hạn của người dùng."
+				description="Quản lý tài khoản, phân quyền và trạng thái hoạt động."
 			/>
 
-			<FilterBar
+			<UsersFilterBar
 				searchTerm={searchTerm}
-				onSearchChange={setSearchTerm}
-				searchPlaceholder="Tìm kiếm theo tên hoặc email..."
-				tabs={[
-					{ label: "Tất cả", value: "ALL" },
-					{ label: "Quản trị viên", value: "ADMIN" },
-					{ label: "Người sáng tạo", value: "CREATOR" },
-					{ label: "Học viên", value: "USER" },
-				]}
-				activeTab={roleFilter}
-				onTabChange={setRoleFilter}
+				setSearchTerm={setSearchTerm}
+				roleFilter={roleFilter}
+				setRoleFilter={setRoleFilter}
+				statusFilter={statusFilter}
+				setStatusFilter={setStatusFilter}
+				totalUsers={totalUsers}
+				isPending={isPending}
+				setPage={setPage}
 			/>
 
 			<ResourceList
@@ -69,21 +70,15 @@ export default function Users() {
 					description:
 						"Không có người dùng nào khớp với tiêu chí tìm kiếm.",
 				}}>
-				{/* Custom Table Children */}
-				<div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+				<div className="space-y-4">
 					<UsersTable users={users} />
+
 					{totalPages > 1 && (
-						<div className="p-4 border-t border-gray-100">
-							<PaginationNav
-								page={page}
+						<div className="border-t border-gray-100 p-4 bg-white rounded-b-2xl">
+							<PaginationControl
+								currentPage={page}
 								totalPages={totalPages}
-								total={totalUsers}
-								onPrev={() =>
-									setPage((p) => Math.max(1, p - 1))
-								}
-								onNext={() =>
-									setPage((p) => Math.min(totalPages, p + 1))
-								}
+								onPageChange={setPage}
 							/>
 						</div>
 					)}

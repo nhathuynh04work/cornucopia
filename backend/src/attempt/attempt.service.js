@@ -41,17 +41,31 @@ const createAttempt = async (data) => {
 		wrongCount++; // wrong
 	}
 
-	return attemptRepo.create(
-		{
-			...attemptData,
-			correctCount,
-			wrongCount,
-			unansweredCount,
-			scoredPoints,
-			totalPossiblePoints,
-		},
-		answers
-	);
+	return prisma.$transaction(async (tx) => {
+		const attempt = await attemptRepo.create(
+			{
+				...attemptData,
+				correctCount,
+				wrongCount,
+				unansweredCount,
+				scoredPoints,
+				totalPossiblePoints,
+			},
+			answers,
+			tx
+		);
+
+		await tx.test.update({
+			where: { id: attemptData.testId },
+			data: {
+				attemptsCount: {
+					increment: 1,
+				},
+			},
+		});
+
+		return attempt;
+	});
 };
 
 const getResult = async (id) => {

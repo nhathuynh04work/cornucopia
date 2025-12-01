@@ -6,18 +6,23 @@ import { deckService } from "../deck/deck.service.js";
 import { postService } from "../post/post.service.js";
 import { testService } from "../test/test.service.js";
 
-const getUsers = async ({ role = Role.USER, search, page = 1, limit = 10 }) => {
-	const filters = {
-		role,
-		...(search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" } },
-						{ email: { contains: search, mode: "insensitive" } },
-					],
-			  }
-			: {}),
-	};
+const getUsers = async ({ role, search, page = 1, limit = 10, isBlocked }) => {
+	const filters = {};
+
+	if (role && role !== "ALL") {
+		filters.role = role;
+	}
+
+	if (isBlocked !== undefined) {
+		filters.isBlocked = String(isBlocked) === "true";
+	}
+
+	if (search) {
+		filters.OR = [
+			{ name: { contains: search, mode: "insensitive" } },
+			{ email: { contains: search, mode: "insensitive" } },
+		];
+	}
 
 	const skip = (Number(page) - 1) * Number(limit);
 
@@ -221,16 +226,19 @@ const getLibraryData = async (userId) => {
 	};
 };
 
-const updateRole = async ({ userId, role }) => {
-	const user = await prisma.user.findUnique({ where: { id: userId } });
+const updateUser = async (userId, data) => {
+	const user = await prisma.user.findUnique({
+		where: { id: Number(userId) },
+	});
 	if (!user) throw new NotFoundError("User not found");
 
-	if (user.role === Role.ADMIN)
-		throw new ForbiddenError("Cannot change role of an admin");
+	if (user.role === Role.ADMIN && (data.role || data.isBlocked)) {
+		throw new ForbiddenError("Cannot modify an administrator account");
+	}
 
 	return prisma.user.update({
-		where: { id: userId },
-		data: { role },
+		where: { id: Number(userId) },
+		data,
 	});
 };
 
@@ -238,5 +246,5 @@ export const userService = {
 	getUsers,
 	getLandingData,
 	getLibraryData,
-	updateRole,
+	updateUser,
 };

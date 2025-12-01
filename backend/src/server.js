@@ -7,8 +7,11 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import getChatbotAnswer from "./chatbot/index.js";
 import checkoutRouter from "./checkout/checkout.routes.js";
 import { corsConfig } from "./config/cors.js";
+import { initCronJobs } from "./cron/index.js";
 
 export const app = express();
+
+initCronJobs();
 
 // Middlewares
 app.use(cors(corsConfig));
@@ -29,5 +32,5 @@ app.use(v1Router);
 app.use(errorHandler);
 
 app.listen(env.PORT, () => {
-  console.log(`Server running on port ${env.PORT}`);
+	console.log(`Server running on port ${env.PORT}`);
 });
