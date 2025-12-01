@@ -1,8 +1,22 @@
 import { Link } from "react-router-dom";
 import { Calendar, Clock, FileText } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
+import Badge from "@/components/Shared/Badge";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
+
+const getStatusBadge = (status) => {
+	switch (status) {
+		case "DRAFT":
+			return { variant: "warning", label: "Bản nháp" };
+		case "PRIVATE":
+			return { variant: "secondary", label: "Riêng tư" };
+		case "ARCHIVED":
+			return { variant: "default", label: "Lưu trữ" };
+		default:
+			return { variant: "default", label: status };
+	}
+};
 
 function PostCard({ post }) {
 	const {
@@ -30,12 +44,21 @@ function PostCard({ post }) {
 	const MAX_TAGS = 3;
 	const remainingTags = tags ? tags.length - MAX_TAGS : 0;
 
+	const statusConfig = getStatusBadge(status);
+
 	return (
 		<Link
 			to={targetLink}
 			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- IMAGE SECTION (Left Side) --- */}
 			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-purple-50 flex items-center justify-center min-h-[160px] md:min-h-0">
+				{status !== "PUBLIC" && (
+					<div className="absolute top-2 left-2 z-10">
+						<Badge variant={statusConfig.variant}>
+							{statusConfig.label}
+						</Badge>
+					</div>
+				)}
 				{coverUrl ? (
 					<img
 						src={coverUrl}

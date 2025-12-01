@@ -9,9 +9,9 @@ import {
 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import StarRating from "@/components/Shared/StarRating";
+import Badge from "@/components/Shared/Badge";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
-// Helper to format duration (seconds -> readable string)
 const formatDuration = (seconds) => {
 	if (!seconds) return "0h";
 	const hours = Math.floor(seconds / 3600);
@@ -20,6 +20,19 @@ const formatDuration = (seconds) => {
 		return `${hours}h ${minutes > 0 ? `${minutes}p` : ""}`;
 	}
 	return `${minutes}p`;
+};
+
+const getStatusBadge = (status) => {
+	switch (status) {
+		case "DRAFT":
+			return { variant: "warning", label: "Bản nháp" };
+		case "PRIVATE":
+			return { variant: "secondary", label: "Riêng tư" };
+		case "ARCHIVED":
+			return { variant: "default", label: "Lưu trữ" };
+		default:
+			return { variant: "default", label: status };
+	}
 };
 
 function CourseCard({ course }) {
@@ -49,7 +62,6 @@ function CourseCard({ course }) {
 	const isDraft = status === "DRAFT";
 	const targetLink = isDraft ? `/courses/${id}/edit` : `/courses/${id}`;
 
-	// Helper to get labels
 	const levelLabel =
 		LEVEL_OPTIONS.find((o) => o.value === level)?.label || level;
 	const langLabel =
@@ -58,6 +70,8 @@ function CourseCard({ course }) {
 	const rating = stats?.rating || 0;
 	const ratingCount = stats?.ratingCount || 0;
 
+	const statusConfig = getStatusBadge(status);
+
 	return (
 		<Link
 			to={targetLink}
@@ -65,6 +79,13 @@ function CourseCard({ course }) {
 			{/* --- IMAGE SECTION (Left Side) --- */}
 			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100">
 				<div className="aspect-video md:h-full md:aspect-auto relative">
+					{status !== "PUBLIC" && (
+						<div className="absolute top-2 left-2 z-10">
+							<Badge variant={statusConfig.variant}>
+								{statusConfig.label}
+							</Badge>
+						</div>
+					)}
 					{coverUrl ? (
 						<img
 							src={coverUrl}

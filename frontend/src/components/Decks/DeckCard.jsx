@@ -1,11 +1,20 @@
 import { Link } from "react-router-dom";
 import { Layers, BrainCircuit, Globe, BarChart2 } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
+import Badge from "@/components/Shared/Badge";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
 
 function DeckCard({ deck }) {
-	const { id, title, user, cardsCount, studySessionCount, level, language } =
-		deck;
+	const {
+		id,
+		title,
+		user,
+		cardsCount,
+		studySessionCount,
+		level,
+		language,
+		isPublic,
+	} = deck;
 
 	const targetLink = `/decks/${id}`;
 
@@ -20,6 +29,11 @@ function DeckCard({ deck }) {
 			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- ICON SECTION (Left Side) --- */}
 			<div className="w-full md:w-48 shrink-0 relative bg-indigo-50 flex items-center justify-center min-h-[140px] md:min-h-0">
+				{isPublic === false && (
+					<div className="absolute top-2 left-2 z-10">
+						<Badge variant="warning">Bản nháp</Badge>
+					</div>
+				)}
 				<Layers className="w-12 h-12 text-indigo-300 group-hover:scale-110 transition-transform duration-500" />
 			</div>
 

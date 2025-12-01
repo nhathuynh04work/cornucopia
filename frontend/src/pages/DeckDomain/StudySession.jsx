@@ -12,6 +12,7 @@ import { useSubmitAttempt } from "@/hooks/useFlashcardMutation";
 function StudySessionContent({ session }) {
 	const sessionId = session.id;
 	const deckId = session.deckId;
+    
 	const { mutateAsync: submitAnswer } = useSubmitAttempt();
 
 	const [currentIndex, setCurrentIndex] = useState(0);
