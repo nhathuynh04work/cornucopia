@@ -30,11 +30,13 @@ export default function ReviewList({ reviews, isLoading }) {
 				<div
 					key={review.id}
 					className="flex gap-4 p-6 rounded-2xl bg-white border border-gray-100 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300 hover:shadow-md transition-shadow">
-					<Avatar
-						src={review.user?.avatarUrl}
-						name={review.user?.name}
-						className="w-10 h-10"
-					/>
+					<Link to={`/profile/${review.user?.id}`}>
+						<Avatar
+							url={review.user?.avatarUrl}
+							name={review.user?.name}
+							className="w-10 h-10"
+						/>
+					</Link>
 					<div className="flex-1 space-y-2">
 						<div className="flex items-center justify-between">
 							<div>

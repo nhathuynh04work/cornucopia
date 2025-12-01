@@ -12,3 +12,14 @@ export function useUpdateUser() {
 		},
 	});
 }
+
+export function useUpdateSelf() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: userApi.updateSelf,
+		onSuccess: () => {
+			queryClient.invalidateQueries(["profile"]);
+		},
+	});
+}

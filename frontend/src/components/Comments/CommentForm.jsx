@@ -55,11 +55,9 @@ export default function CommentForm({
 	return (
 		<form onSubmit={handleSubmit} className="flex gap-4 items-start">
 			<div className="mt-1 shrink-0">
-				<Avatar
-					url={user.avatarUrl}
-					name={user.name}
-					className="w-8 h-8"
-				/>
+				<Link to={`/profile/${user.id}`}>
+					<Avatar url={user?.avatarUrl} name={user?.name} size="sm" />
+				</Link>
 			</div>
 			<div className="flex-1 space-y-2">
 				<textarea

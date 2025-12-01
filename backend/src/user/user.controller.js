@@ -10,10 +10,24 @@ const getLandingData = async (req, res) => {
 	res.status(200).json({ data });
 };
 
-const getLibrary = async (req, res) => {
-	const userId = req.user.id;
-	const data = await userService.getLibraryData(userId);
+const getUserProfile = async (req, res) => {
+	const { id } = req.params;
+	const currentUserId = req.user?.id;
+
+	if (id === currentUserId) {
+		const data = await userService.getLibraryData(currentUserId);
+		return res.status(200).json(data);
+	}
+
+	const data = await userService.getPublicProfile(id);
 	res.status(200).json(data);
+};
+
+const updateMyProfile = async (req, res) => {
+	const userId = req.user.id;
+	const body = req.body;
+	const user = await userService.updateSelf(userId, body);
+	res.status(200).json({ user });
 };
 
 const updateUser = async (req, res) => {
@@ -27,6 +41,7 @@ const updateUser = async (req, res) => {
 export const userController = {
 	getUsers,
 	getLandingData,
-	getLibrary,
+	getUserProfile,
 	updateUser,
+	updateMyProfile,
 };

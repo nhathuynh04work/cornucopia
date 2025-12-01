@@ -35,13 +35,11 @@ export function useGetDashboardData() {
 	});
 }
 
-export function useGetLibrary() {
-	const { user } = useAuth();
-
+export function useGetUserProfile(userId) {
 	return useQuery({
-		queryKey: ["library"],
-		queryFn: userApi.getLibrary,
-		enabled: !!user,
-		staleTime: 1000 * 60 * 2,
+		queryKey: ["profile", userId],
+		queryFn: () => userApi.getUserProfile(userId),
+		enabled: !!userId,
+		...queryDefaults,
 	});
 }

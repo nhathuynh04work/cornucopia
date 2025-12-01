@@ -1,5 +1,6 @@
 import { User, Calendar } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
+import { Link } from "react-router";
 
 export default function TestAuthor({ user, createdAt }) {
 	return (
@@ -8,7 +9,9 @@ export default function TestAuthor({ user, createdAt }) {
 				<User className="w-4 h-4 text-gray-400" /> Tác giả
 			</h3>
 			<div className="flex items-center gap-4">
-				<Avatar url={user?.avatarUrl} name={user?.name} size="md" />
+				<Link to={`/profile/${user.id}`}>
+					<Avatar url={user?.avatarUrl} name={user?.name} size="md" />
+				</Link>
 				<div>
 					<p className="font-bold text-gray-900 text-sm">
 						{user?.name || "Ẩn danh"}

@@ -9,12 +9,16 @@ const userApi = {
 		const { data } = await api.get("/users/landing");
 		return data.data;
 	},
-	getLibrary: async () => {
-		const { data } = await api.get("/users/me/library");
+	getUserProfile: async (userId) => {
+		const { data } = await api.get(`/users/${userId}/profile`);
 		return data;
 	},
 	updateUser: async ({ userId, data: updates }) => {
 		const { data } = await api.patch(`/users/${userId}`, updates);
+		return data.user;
+	},
+	updateSelf: async (updates) => {
+		const { data } = await api.patch("/users/me", updates);
 		return data.user;
 	},
 };
