@@ -248,7 +248,7 @@ const getPublicProfile = async (targetUserId) => {
 		},
 	});
 
-	const ratingPromise = calculateUserRating(id);
+	const ratingPromise = calculateUserRating(targetUserId);
 
 	const createdCoursesPromise = courseService.getAll({
 		userId: targetUserId,
