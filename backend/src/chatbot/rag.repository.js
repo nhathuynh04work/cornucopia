@@ -104,7 +104,7 @@ export async function findCourseIdsByNames(names = []) {
   if (!names?.length) return [];
   const pats = names.map((n) => `%${n}%`);
   const rows = await prisma.$queryRawUnsafe(
-    `SELECT id FROM courses WHERE unaccent(name) ILIKE ANY($1) LIMIT 20;`,
+    `SELECT id FROM courses WHERE unaccent(title) ILIKE ANY($1) LIMIT 20;`,
     pats
   );
   return (rows || []).map((r) => r.id);
@@ -115,7 +115,7 @@ function courseSelectCols() {
     cc.id, cc.course_id, cc.module_id, cc.lesson_id, cc.content,
     (
       ts_rank(cc.tsv, websearch_to_tsquery('simple', unaccent($1)))
-      + CASE WHEN unaccent(c.name)    ILIKE '%'||unaccent($1)||'%' THEN 0.08 ELSE 0 END
+      + CASE WHEN unaccent(c.title)    ILIKE '%'||unaccent($1)||'%' THEN 0.08 ELSE 0 END
       + CASE WHEN unaccent(cc.content) ILIKE '%'||unaccent($1)||'%' THEN 0.12 ELSE 0 END
     ) AS score,
     ts_headline(
@@ -124,7 +124,7 @@ function courseSelectCols() {
       websearch_to_tsquery('simple', unaccent($1)),
       'StartSel="", StopSel="", MaxFragments=2, MinWords=6, MaxWords=18'
     ) AS fragment,
-    c.name AS course_name,
+    c.title AS course_name,
     m.title AS module_title,
     l.title AS lesson_title
   `;
@@ -201,16 +201,16 @@ export async function searchCourseChunksILIKE(
         cc.id, cc.course_id, cc.module_id, cc.lesson_id, cc.content,
         (
           (SELECT COUNT(*) FROM unnest($1::text[]) tok WHERE unaccent(cc.content) ILIKE tok)*0.02
-        + (SELECT COUNT(*) FROM unnest($1::text[]) tok WHERE unaccent(c.name)   ILIKE tok)*0.03
+        + (SELECT COUNT(*) FROM unnest($1::text[]) tok WHERE unaccent(c.title)   ILIKE tok)*0.03
         ) AS score,
         NULL::text AS fragment,
-        c.name AS course_name, m.title AS module_title, l.title AS lesson_title
+        c.title AS course_name, m.title AS module_title, l.title AS lesson_title
       FROM course_chunks cc
       JOIN courses c ON c.id = cc.course_id
       LEFT JOIN modules m ON m.id = cc.module_id
       LEFT JOIN lessons l ON l.id = cc.lesson_id
       WHERE EXISTS (SELECT 1 FROM unnest($1::text[]) tok WHERE unaccent(cc.content) ILIKE tok)
-         OR EXISTS (SELECT 1 FROM unnest($1::text[]) tok WHERE unaccent(c.name)   ILIKE tok)
+         OR EXISTS (SELECT 1 FROM unnest($1::text[]) tok WHERE unaccent(c.title)   ILIKE tok)
       ${courseFilterSQL(courseIds)}
     ),
     agg AS (SELECT course_id FROM hit GROUP BY course_id HAVING COUNT(*) >= 2)
