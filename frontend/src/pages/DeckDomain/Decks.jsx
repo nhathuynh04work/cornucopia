@@ -12,6 +12,7 @@ import { useGetDecks } from "@/hooks/useFlashcardQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
 import { useCreateDeck } from "@/hooks/useFlashcardMutation";
 import toast from "react-hot-toast";
+import SEO from "@/components/Shared/SEO";
 
 const SORT_OPTIONS = [
 	{ value: "newest", label: "Mới nhất" },
@@ -57,62 +58,69 @@ export default function Decks() {
 	};
 
 	return (
-		<ResourcePageLayout
-			title="Thư viện Flashcard"
-			description="Hàng triệu thẻ ghi nhớ giúp bạn học tập mọi lúc mọi nơi."
-			action={
-				<PermissionGate allowedRoles={PERMISSIONS.CREATE_DECK}>
-					<CreateButton />
-				</PermissionGate>
-			}
-			searchTerm={searchTerm}
-			onSearchChange={(e) => setSearchTerm(e.target.value)}
-			searchPlaceholder="Tìm kiếm bộ thẻ..."
-			sort={sort}
-			onSortChange={setSort}
-			sortOptions={SORT_OPTIONS}
-			totalItems={pagination.totalItems}
-			itemLabel="bộ thẻ"
-			filterContent={
-				<DeckFilterSidebar
-					filters={filters}
-					toggleFilterArray={toggleFilterArray}
-					clearFilters={clearFilters}
-				/>
-			}
-			isLoading={isLoading}
-			pagination={
-				decks.length > 0 && (
-					<PaginationControl
-						currentPage={pagination.currentPage}
-						totalPages={pagination.totalPages}
-						onPageChange={setPage}
+		<>
+			<ResourcePageLayout
+				title="Thư viện Flashcard"
+				description="Hàng triệu thẻ ghi nhớ giúp bạn học tập mọi lúc mọi nơi."
+				action={
+					<PermissionGate allowedRoles={PERMISSIONS.CREATE_DECK}>
+						<CreateButton />
+					</PermissionGate>
+				}
+				searchTerm={searchTerm}
+				onSearchChange={(e) => setSearchTerm(e.target.value)}
+				searchPlaceholder="Tìm kiếm bộ thẻ..."
+				sort={sort}
+				onSortChange={setSort}
+				sortOptions={SORT_OPTIONS}
+				totalItems={pagination.totalItems}
+				itemLabel="bộ thẻ"
+				filterContent={
+					<DeckFilterSidebar
+						filters={filters}
+						toggleFilterArray={toggleFilterArray}
+						clearFilters={clearFilters}
 					/>
-				)
-			}>
-			{decks.length > 0 ? (
-				<div className="grid grid-cols-1 gap-4">
-					{decks.map((deck) => (
-						<div key={deck.id}>
-							<DeckCard deck={deck} />
-						</div>
-					))}
-				</div>
-			) : (
-				!isLoading && (
-					<EmptyState
-						icon={Search}
-						title="Không tìm thấy kết quả"
-						description="Không có bộ thẻ nào phù hợp với bộ lọc hiện tại.">
-						<button
-							onClick={clearFilters}
-							className="text-purple-600 font-bold hover:underline">
-							Xóa tất cả bộ lọc
-						</button>
-					</EmptyState>
-				)
-			)}
-		</ResourcePageLayout>
+				}
+				isLoading={isLoading}
+				pagination={
+					decks.length > 0 && (
+						<PaginationControl
+							currentPage={pagination.currentPage}
+							totalPages={pagination.totalPages}
+							onPageChange={setPage}
+						/>
+					)
+				}>
+				{decks.length > 0 ? (
+					<div className="grid grid-cols-1 gap-4">
+						{decks.map((deck) => (
+							<div key={deck.id}>
+								<DeckCard deck={deck} />
+							</div>
+						))}
+					</div>
+				) : (
+					!isLoading && (
+						<EmptyState
+							icon={Search}
+							title="Không tìm thấy kết quả"
+							description="Không có bộ thẻ nào phù hợp với bộ lọc hiện tại.">
+							<button
+								onClick={clearFilters}
+								className="text-purple-600 font-bold hover:underline">
+								Xóa tất cả bộ lọc
+							</button>
+						</EmptyState>
+					)
+				)}
+			</ResourcePageLayout>
+
+			<SEO
+				title={"Bộ thẻ | Cornucopia"}
+				description="Danh sách các bộ thẻ"
+			/>
+		</>
 	);
 }
 

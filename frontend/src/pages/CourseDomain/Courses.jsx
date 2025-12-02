@@ -12,6 +12,7 @@ import { useGetCourses } from "@/hooks/useCourseQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
 import { useCreateCourse } from "@/hooks/useCourseMutation";
 import toast from "react-hot-toast";
+import SEO from "@/components/Shared/SEO";
 
 const SORT_OPTIONS = [
 	{ value: "popular", label: "Phổ biến nhất" },
@@ -61,63 +62,70 @@ export default function Courses() {
 	};
 
 	return (
-		<ResourcePageLayout
-			title="Thư viện khóa học"
-			description="Nâng cao kỹ năng với hơn 500+ khóa học từ các chuyên gia hàng đầu."
-			action={
-				<PermissionGate allowedRoles={PERMISSIONS.CREATE_COURSE}>
-					<CreateButton />
-				</PermissionGate>
-			}
-			searchTerm={searchTerm}
-			onSearchChange={(e) => setSearchTerm(e.target.value)}
-			searchPlaceholder="Tìm kiếm khóa học..."
-			sort={sort}
-			onSortChange={setSort}
-			sortOptions={SORT_OPTIONS}
-			totalItems={pagination.totalItems}
-			itemLabel="khóa học"
-			filterContent={
-				<CourseFilterSidebar
-					filters={filters}
-					setFilter={setFilter}
-					toggleFilterArray={toggleFilterArray}
-					clearFilters={clearFilters}
-				/>
-			}
-			isLoading={isLoading}
-			pagination={
-				courses.length > 0 && (
-					<PaginationControl
-						currentPage={pagination.currentPage}
-						totalPages={pagination.totalPages}
-						onPageChange={setPage}
+		<>
+			<ResourcePageLayout
+				title="Thư viện khóa học"
+				description="Nâng cao kỹ năng với hơn 500+ khóa học từ các chuyên gia hàng đầu."
+				action={
+					<PermissionGate allowedRoles={PERMISSIONS.CREATE_COURSE}>
+						<CreateButton />
+					</PermissionGate>
+				}
+				searchTerm={searchTerm}
+				onSearchChange={(e) => setSearchTerm(e.target.value)}
+				searchPlaceholder="Tìm kiếm khóa học..."
+				sort={sort}
+				onSortChange={setSort}
+				sortOptions={SORT_OPTIONS}
+				totalItems={pagination.totalItems}
+				itemLabel="khóa học"
+				filterContent={
+					<CourseFilterSidebar
+						filters={filters}
+						setFilter={setFilter}
+						toggleFilterArray={toggleFilterArray}
+						clearFilters={clearFilters}
 					/>
-				)
-			}>
-			{courses.length > 0 ? (
-				<div className="grid grid-cols-1 gap-4">
-					{courses.map((course) => (
-						<div key={course.id}>
-							<CourseCard course={course} />
-						</div>
-					))}
-				</div>
-			) : (
-				!isLoading && (
-					<EmptyState
-						icon={Search}
-						title="Không tìm thấy kết quả"
-						description="Không có khóa học nào phù hợp với bộ lọc hiện tại.">
-						<button
-							onClick={clearFilters}
-							className="text-purple-600 font-bold hover:underline">
-							Xóa tất cả bộ lọc
-						</button>
-					</EmptyState>
-				)
-			)}
-		</ResourcePageLayout>
+				}
+				isLoading={isLoading}
+				pagination={
+					courses.length > 0 && (
+						<PaginationControl
+							currentPage={pagination.currentPage}
+							totalPages={pagination.totalPages}
+							onPageChange={setPage}
+						/>
+					)
+				}>
+				{courses.length > 0 ? (
+					<div className="grid grid-cols-1 gap-4">
+						{courses.map((course) => (
+							<div key={course.id}>
+								<CourseCard course={course} />
+							</div>
+						))}
+					</div>
+				) : (
+					!isLoading && (
+						<EmptyState
+							icon={Search}
+							title="Không tìm thấy kết quả"
+							description="Không có khóa học nào phù hợp với bộ lọc hiện tại.">
+							<button
+								onClick={clearFilters}
+								className="text-purple-600 font-bold hover:underline">
+								Xóa tất cả bộ lọc
+							</button>
+						</EmptyState>
+					)
+				)}
+			</ResourcePageLayout>
+
+			<SEO
+				title={"Khoá học | Cornucopia"}
+				description="Danh sách các khoá học"
+			/>
+		</>
 	);
 }
 

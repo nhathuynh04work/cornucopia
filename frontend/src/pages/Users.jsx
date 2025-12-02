@@ -8,6 +8,7 @@ import PageHeader from "@/components/Shared/PageHeader";
 import PaginationControl from "@/components/Shared/PaginationControl";
 import UsersFilterBar from "@/components/Users/UsersFilterBar";
 import UsersTable from "@/components/Users/UsersTable";
+import SEO from "@/components/Shared/SEO";
 
 export default function Users() {
 	const { searchTerm, setSearchTerm, debouncedSearch } = useResourceFilters();
@@ -94,34 +95,41 @@ export default function Users() {
 	};
 
 	return (
-		<div className="p-6 max-w-[1600px] mx-auto min-h-screen">
-			{/* Header Section */}
-			<div className="mb-8">
-				<PageHeader
-					title="Quản lý Người dùng"
-					description="Quản lý tài khoản, phân quyền và trạng thái hoạt động của thành viên."
-				/>
+		<>
+			<div className="p-6 max-w-[1600px] mx-auto min-h-screen">
+				{/* Header Section */}
+				<div className="mb-8">
+					<PageHeader
+						title="Quản lý Người dùng"
+						description="Quản lý tài khoản, phân quyền và trạng thái hoạt động của thành viên."
+					/>
+				</div>
+
+				{/* Filter Section */}
+				<div className="mb-6">
+					<UsersFilterBar
+						searchTerm={searchTerm}
+						setSearchTerm={setSearchTerm}
+						roleFilter={roleFilter}
+						setRoleFilter={setRoleFilter}
+						statusFilter={statusFilter}
+						setStatusFilter={setStatusFilter}
+						totalUsers={totalUsers}
+						isPending={isPending}
+						setPage={setPage}
+					/>
+				</div>
+
+				{/* Content Section */}
+				<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+					{renderContent()}
+				</div>
 			</div>
 
-			{/* Filter Section */}
-			<div className="mb-6">
-				<UsersFilterBar
-					searchTerm={searchTerm}
-					setSearchTerm={setSearchTerm}
-					roleFilter={roleFilter}
-					setRoleFilter={setRoleFilter}
-					statusFilter={statusFilter}
-					setStatusFilter={setStatusFilter}
-					totalUsers={totalUsers}
-					isPending={isPending}
-					setPage={setPage}
-				/>
-			</div>
-
-			{/* Content Section */}
-			<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-				{renderContent()}
-			</div>
-		</div>
+			<SEO
+				title={"Quản lý người dùng | Cornucopia"}
+				description="Quản lý vai trò và trạng thái của người dùng"
+			/>
+		</>
 	);
 }

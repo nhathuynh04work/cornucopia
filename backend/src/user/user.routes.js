@@ -21,7 +21,7 @@ router.get(
 	userController.getUsers
 );
 
-router.get("/landing", authenticateJwt, userController.getLandingData);
+router.get("/landing", userController.getLandingData);
 
 router.patch(
 	"/me",

@@ -5,6 +5,7 @@ import DeckHeader from "@/components/DeckDetails/DeckHeader";
 import DeckCarousel from "@/components/DeckDetails/DeckCarousel";
 import CardList from "@/components/DeckDetails/CardList";
 import DeckOwnerInfo from "@/components/DeckDetails/DeckOwnerInfo";
+import SEO from "@/components/Shared/SEO";
 
 function DeckDetails() {
 	const { deckId } = useParams();
@@ -42,31 +43,38 @@ function DeckDetails() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50/30 pb-20 animate-in fade-in duration-500">
-			<main className="mx-auto p-6">
-				{/* Back Navigation */}
-				<div className="mb-6">
-					<Link
-						to="/decks"
-						className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors group">
-						<ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-						Quay lại thư viện
-					</Link>
-				</div>
+		<>
+			<div className="min-h-screen bg-gray-50/30 pb-20 animate-in fade-in duration-500">
+				<main className="mx-auto p-6">
+					{/* Back Navigation */}
+					<div className="mb-6">
+						<Link
+							to="/decks"
+							className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors group">
+							<ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+							Quay lại thư viện
+						</Link>
+					</div>
 
-				{/* 1. Header Info */}
-				<DeckHeader deck={deck} />
+					{/* 1. Header Info */}
+					<DeckHeader deck={deck} />
 
-				{/* 2. Main Study Carousel */}
-				<DeckCarousel key={deck.id} cards={deck.cards} />
+					{/* 2. Main Study Carousel */}
+					<DeckCarousel key={deck.id} cards={deck.cards} />
 
-				{/* 3. User Info Bar */}
-				<DeckOwnerInfo owner={deck.user} />
+					{/* 3. User Info Bar */}
+					<DeckOwnerInfo owner={deck.user} />
 
-				{/* 4. List of Terms */}
-				<CardList cards={deck.cards} />
-			</main>
-		</div>
+					{/* 4. List of Terms */}
+					<CardList cards={deck.cards} />
+				</main>
+			</div>
+
+			<SEO
+				title={`Thông tin bộ thẻ | ${deck.title}`}
+				description={`Thông tin bộ thẻ | ${deck.title}`}
+			/>
+		</>
 	);
 }
 

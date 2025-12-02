@@ -14,6 +14,7 @@ import Sidebar from "@/components/TestEditor/Sidebar";
 import TestEditHeader from "@/components/TestEditor/TestEditHeader";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { getQuestionNumberMap } from "@/lib/testHelpers";
+import SEO from "@/components/Shared/SEO";
 
 function TestEditForm({ test, testId }) {
 	const { syncTestMutation } = useTestMutation();
@@ -137,5 +138,16 @@ export default function TestEdit() {
 		);
 	}
 
-	return test && <TestEditForm key={test.id} test={test} testId={testId} />;
+	return (
+		test && (
+			<>
+				<TestEditForm key={test.id} test={test} testId={testId} />
+
+				<SEO
+					title={`Chỉnh sửa bài thi | ${test.title}`}
+					description={`Chỉnh sửa bài thi | ${test.title}`}
+				/>
+			</>
+		)
+	);
 }

@@ -1,8 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { env } from "../config/env.js";
-import * as authRepo from "../repositories/auth.repository.js";
-import * as userRepo from "../repositories/user.repository.js";
 import prisma from "../prisma.js";
 import { Provider } from "../generated/prisma/index.js";
 
@@ -18,27 +16,39 @@ passport.use(
 			const email = profile.emails?.[0]?.value;
 			const name = profile.displayName;
 
-			const auth = await authRepo.getOAuthInfo(
-				Provider.GOOGLE,
-				googleId
-			);
+			const auth = await prisma.authentication.findUnique({
+				where: {
+					provider_providerId: {
+						provider: Provider.GOOGLE,
+						providerId: googleId,
+					},
+				},
+				include: { user: true },
+			});
 			let user = auth?.user;
 
 			if (!user) {
-				user = await userRepo.findByEmail(email);
+				user = await prisma.user.findUnique({
+					where: { email },
+				});
 
 				await prisma.$transaction(async (tx) => {
 					if (!user) {
-						user = await userRepo.create({
-							name,
-							email,
-							isActive: true,
+						user = await prisma.user.create({
+							data: {
+								name,
+								email,
+								isActive: true,
+							},
 						});
 					}
 
-					await authRepo.linkOAuth(user.id, {
-						provider: Provider.GOOGLE,
-						providerId: googleId,
+					await prisma.authentication.create({
+						data: {
+							userId: user.id,
+							provider: Provider.GOOGLE,
+							providerId: googleId,
+						},
 					});
 				});
 			}
@@ -54,7 +64,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-	const user = await userRepo.findById(id);
+	const user = await prisma.user.findUnique({ where: { id: id } });
 	done(null, user);
 });
 

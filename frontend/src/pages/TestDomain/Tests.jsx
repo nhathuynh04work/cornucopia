@@ -12,6 +12,7 @@ import { useGetTests } from "@/hooks/useTestQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
 import toast from "react-hot-toast";
 import { useCreateTest } from "@/hooks/useTestMutation";
+import SEO from "@/components/Shared/SEO";
 
 const SORT_OPTIONS = [
 	{ value: "newest", label: "Mới nhất" },
@@ -71,51 +72,55 @@ export default function Tests() {
 	);
 
 	return (
-		<ResourcePageLayout
-			title="Thư viện đề thi"
-			description="Hàng ngàn đề thi trắc nghiệm giúp bạn ôn luyện kiến thức hiệu quả."
-			action={
-				<PermissionGate allowedRoles={PERMISSIONS.CREATE_TEST}>
-					<CreateButton />
-				</PermissionGate>
-			}
-			searchTerm={searchTerm}
-			onSearchChange={(e) => setSearchTerm(e.target.value)}
-			searchPlaceholder="Tìm kiếm đề thi..."
-			sort={sort}
-			onSortChange={setSort}
-			sortOptions={SORT_OPTIONS}
-			totalItems={pagination.totalItems}
-			itemLabel="đề thi"
-			filterContent={
-				<TestFilterSidebar
-					filters={filters}
-					toggleFilterArray={toggleFilterArray}
-					clearFilters={clearFilters}
-				/>
-			}
-			isLoading={isLoading}
-			pagination={
-				testsList.length > 0 && (
-					<PaginationControl
-						currentPage={pagination.currentPage}
-						totalPages={pagination.totalPages}
-						onPageChange={setPage}
+		<>
+			<ResourcePageLayout
+				title="Thư viện đề thi"
+				description="Hàng ngàn đề thi trắc nghiệm giúp bạn ôn luyện kiến thức hiệu quả."
+				action={
+					<PermissionGate allowedRoles={PERMISSIONS.CREATE_TEST}>
+						<CreateButton />
+					</PermissionGate>
+				}
+				searchTerm={searchTerm}
+				onSearchChange={(e) => setSearchTerm(e.target.value)}
+				searchPlaceholder="Tìm kiếm đề thi..."
+				sort={sort}
+				onSortChange={setSort}
+				sortOptions={SORT_OPTIONS}
+				totalItems={pagination.totalItems}
+				itemLabel="đề thi"
+				filterContent={
+					<TestFilterSidebar
+						filters={filters}
+						toggleFilterArray={toggleFilterArray}
+						clearFilters={clearFilters}
 					/>
-				)
-			}>
-			{testsList.length > 0 ? (
-				<div className="grid grid-cols-1 gap-4">
-					{testsList.map((test) => (
-						<div key={test.id}>
-							<TestCard test={test} />
-						</div>
-					))}
-				</div>
-			) : (
-				!isLoading && emptyState
-			)}
-		</ResourcePageLayout>
+				}
+				isLoading={isLoading}
+				pagination={
+					testsList.length > 0 && (
+						<PaginationControl
+							currentPage={pagination.currentPage}
+							totalPages={pagination.totalPages}
+							onPageChange={setPage}
+						/>
+					)
+				}>
+				{testsList.length > 0 ? (
+					<div className="grid grid-cols-1 gap-4">
+						{testsList.map((test) => (
+							<div key={test.id}>
+								<TestCard test={test} />
+							</div>
+						))}
+					</div>
+				) : (
+					!isLoading && emptyState
+				)}
+			</ResourcePageLayout>
+
+			<SEO title={"Bài thi | Cornucopia"}/>
+		</>
 	);
 }
 

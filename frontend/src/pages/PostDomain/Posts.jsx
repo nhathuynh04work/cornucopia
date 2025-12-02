@@ -12,6 +12,7 @@ import { useGetPosts } from "@/hooks/usePostQuery";
 import { useResourceFilters } from "@/hooks/useResourceFilters";
 import { useCreatePost } from "@/hooks/usePostMutation";
 import toast from "react-hot-toast";
+import SEO from "@/components/Shared/SEO";
 
 const SORT_OPTIONS = [
 	{ value: "newest", label: "Mới nhất" },
@@ -55,62 +56,69 @@ export default function Posts() {
 	};
 
 	return (
-		<ResourcePageLayout
-			title="Bài viết & Chia sẻ"
-			description="Cập nhật kiến thức, kinh nghiệm và mẹo học tập hữu ích từ cộng đồng."
-			action={
-				<PermissionGate allowedRoles={PERMISSIONS.CREATE_POST}>
-					<CreateButton />
-				</PermissionGate>
-			}
-			searchTerm={searchTerm}
-			onSearchChange={(e) => setSearchTerm(e.target.value)}
-			searchPlaceholder="Tìm kiếm bài viết..."
-			sort={sort}
-			onSortChange={setSort}
-			sortOptions={SORT_OPTIONS}
-			totalItems={pagination.totalItems}
-			itemLabel="bài viết"
-			filterContent={
-				<PostFilterSidebar
-					filters={filters}
-					toggleFilterArray={toggleFilterArray}
-					clearFilters={clearFilters}
-				/>
-			}
-			isLoading={isLoading}
-			pagination={
-				posts.length > 0 && (
-					<PaginationControl
-						currentPage={pagination.currentPage}
-						totalPages={pagination.totalPages}
-						onPageChange={setPage}
+		<>
+			<ResourcePageLayout
+				title="Bài viết & Chia sẻ"
+				description="Cập nhật kiến thức, kinh nghiệm và mẹo học tập hữu ích từ cộng đồng."
+				action={
+					<PermissionGate allowedRoles={PERMISSIONS.CREATE_POST}>
+						<CreateButton />
+					</PermissionGate>
+				}
+				searchTerm={searchTerm}
+				onSearchChange={(e) => setSearchTerm(e.target.value)}
+				searchPlaceholder="Tìm kiếm bài viết..."
+				sort={sort}
+				onSortChange={setSort}
+				sortOptions={SORT_OPTIONS}
+				totalItems={pagination.totalItems}
+				itemLabel="bài viết"
+				filterContent={
+					<PostFilterSidebar
+						filters={filters}
+						toggleFilterArray={toggleFilterArray}
+						clearFilters={clearFilters}
 					/>
-				)
-			}>
-			{posts.length > 0 ? (
-				<div className="grid grid-cols-1 gap-4">
-					{posts.map((post) => (
-						<div key={post.id}>
-							<PostCard post={post} />
-						</div>
-					))}
-				</div>
-			) : (
-				!isLoading && (
-					<EmptyState
-						icon={Search}
-						title="Không tìm thấy kết quả"
-						description="Không có bài viết nào phù hợp với bộ lọc hiện tại.">
-						<button
-							onClick={clearFilters}
-							className="text-purple-600 font-bold hover:underline">
-							Xóa tất cả bộ lọc
-						</button>
-					</EmptyState>
-				)
-			)}
-		</ResourcePageLayout>
+				}
+				isLoading={isLoading}
+				pagination={
+					posts.length > 0 && (
+						<PaginationControl
+							currentPage={pagination.currentPage}
+							totalPages={pagination.totalPages}
+							onPageChange={setPage}
+						/>
+					)
+				}>
+				{posts.length > 0 ? (
+					<div className="grid grid-cols-1 gap-4">
+						{posts.map((post) => (
+							<div key={post.id}>
+								<PostCard post={post} />
+							</div>
+						))}
+					</div>
+				) : (
+					!isLoading && (
+						<EmptyState
+							icon={Search}
+							title="Không tìm thấy kết quả"
+							description="Không có bài viết nào phù hợp với bộ lọc hiện tại.">
+							<button
+								onClick={clearFilters}
+								className="text-purple-600 font-bold hover:underline">
+								Xóa tất cả bộ lọc
+							</button>
+						</EmptyState>
+					)
+				)}
+			</ResourcePageLayout>
+
+			<SEO
+				title={"Bài viết | Cornucopia"}
+				description="Danh sách bài viết"
+			/>
+		</>
 	);
 }
 

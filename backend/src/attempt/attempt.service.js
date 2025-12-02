@@ -1,4 +1,3 @@
-import * as attemptRepo from "../repositories/attempt.repository.js";
 import { testService } from "../test/test.service.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { errorMessage } from "../utils/constants.js";
@@ -42,18 +41,19 @@ const createAttempt = async (data) => {
 	}
 
 	return prisma.$transaction(async (tx) => {
-		const attempt = await attemptRepo.create(
-			{
+		const attempt = await tx.attempt.create({
+			data: {
 				...attemptData,
 				correctCount,
 				wrongCount,
 				unansweredCount,
 				scoredPoints,
 				totalPossiblePoints,
+				answers: {
+					create: answers,
+				},
 			},
-			answers,
-			tx
-		);
+		});
 
 		await tx.test.update({
 			where: { id: attemptData.testId },
@@ -69,7 +69,7 @@ const createAttempt = async (data) => {
 };
 
 const getResult = async (id) => {
-	const attempt = await attemptRepo.findById(id);
+	const attempt = await prisma.attempt.findUnique({ where: { id } });
 	if (!attempt) throw new NotFoundError(errorMessage.ATTEMPT_NOT_FOUND);
 
 	const test = await testService.getTestWithoutAnswer(attempt.testId);
