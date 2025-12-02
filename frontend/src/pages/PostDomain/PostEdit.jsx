@@ -1,4 +1,5 @@
 import BlogEditor from "@/components/PostEditor/BlogEditor";
+import SEO from "@/components/Shared/SEO";
 import { useGetPostDetails } from "@/hooks/usePostQuery";
 import { Loader2 } from "lucide-react";
 import { useParams } from "react-router";
@@ -28,5 +29,14 @@ export default function BlogEdit() {
 		);
 	}
 
-	return <BlogEditor key={post.id} post={post} />;
+	return (
+		<>
+			<BlogEditor key={post.id} post={post} />
+
+			<SEO
+				title={`Chỉnh sửa bài viết | ${post.title}`}
+				description={`Chỉnh sửa bài viết | ${post.title}`}
+			/>
+		</>
+	);
 }

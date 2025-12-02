@@ -6,6 +6,7 @@ import TestStats from "@/components/TestInfo/TestStats";
 import TestBestResult from "@/components/TestInfo/TestBestResult";
 import TestAuthor from "@/components/TestInfo/TestAuthor";
 import TestTabs from "@/components/TestInfo/TestTabs";
+import SEO from "@/components/Shared/SEO";
 
 export default function TestInfo() {
 	const { testId } = useParams();
@@ -42,35 +43,45 @@ export default function TestInfo() {
 	const attemptsCount = test._count?.attempts || 0;
 
 	return (
-		<div className="p-6 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-			{/* --- Back Button --- */}
-			<button
-				onClick={() => navigate("/tests")}
-				className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6 group">
-				<ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-				Quay lại thư viện
-			</button>
+		<>
+			<div className="p-6 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+				{/* --- Back Button --- */}
+				<button
+					onClick={() => navigate("/tests")}
+					className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6 group">
+					<ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+					Quay lại thư viện
+				</button>
 
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-				{/* --- LEFT COLUMN (Content) --- */}
-				<div className="lg:col-span-2 space-y-8">
-					<TestHero test={test} />
-					<TestTabs testId={testId} />
-				</div>
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+					{/* --- LEFT COLUMN (Content) --- */}
+					<div className="lg:col-span-2 space-y-8">
+						<TestHero test={test} />
+						<TestTabs testId={testId} />
+					</div>
 
-				{/* --- RIGHT COLUMN (Stats & Info) --- */}
-				<div className="space-y-6">
-					<TestStats
-						test={test}
-						questionCount={questionCount}
-						attemptsCount={attemptsCount}
-					/>
+					{/* --- RIGHT COLUMN (Stats & Info) --- */}
+					<div className="space-y-6">
+						<TestStats
+							test={test}
+							questionCount={questionCount}
+							attemptsCount={attemptsCount}
+						/>
 
-					<TestBestResult testId={testId} />
+						<TestBestResult testId={testId} />
 
-					<TestAuthor user={test.user} createdAt={test.createdAt} />
+						<TestAuthor
+							user={test.user}
+							createdAt={test.createdAt}
+						/>
+					</div>
 				</div>
 			</div>
-		</div>
+
+			<SEO
+				title={`Thông tin bài thi | ${test.title}`}
+				description={`Thông tin bài thi | ${test.title}`}
+			/>
+		</>
 	);
 }

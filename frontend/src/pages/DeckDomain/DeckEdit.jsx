@@ -3,6 +3,7 @@ import { ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
 import { useGetDeckDetails } from "@/hooks/useFlashcardQuery";
 import DeckEditor from "@/components/DeckEditor/DeckEditor";
 import Footer from "@/layouts/Footer";
+import SEO from "@/components/Shared/SEO";
 
 function DeckEdit() {
 	const { deckId } = useParams();
@@ -40,13 +41,19 @@ function DeckEdit() {
 		);
 	}
 
-	// --- Main Editor Layout ---
 	return (
-		<div className="fixed inset-0 z-50 bg-white overflow-y-auto">
-			<DeckEditor deck={deck} />
+		<>
+			<div className="fixed inset-0 z-50 bg-white overflow-y-auto">
+				<DeckEditor deck={deck} />
 
-			<Footer />
-		</div>
+				<Footer />
+			</div>
+
+			<SEO
+				title={`Chỉnh sửa bộ thẻ | ${deck.title}`}
+				description={`Chỉnh sửa bộ thẻ | ${deck.title}`}
+			/>
+		</>
 	);
 }
 

@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 
 import { useGetCourseForEdit } from "@/hooks/useCourseQuery";
 import CourseEditor from "@/components/CourseEditor/CourseEditor";
+import SEO from "@/components/Shared/SEO";
 
 export default function CourseEdit() {
 	const { courseId } = useParams();
@@ -25,5 +26,14 @@ export default function CourseEdit() {
 		);
 	}
 
-	return <CourseEditor key={course.id} initialData={course} />;
+	return (
+		<>
+			<CourseEditor key={course.id} initialData={course} />
+
+			<SEO
+				title={`Chỉnh sửa khoá học | ${course.title}`}
+				description={`Chỉnh sửa khoá học ${course.title}`}
+			/>
+		</>
+	);
 }

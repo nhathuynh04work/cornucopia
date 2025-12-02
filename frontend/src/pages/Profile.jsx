@@ -29,6 +29,7 @@ import ProfileDecksTab from "@/components/Profile/ProfileDecksTab";
 import ProfileTestsTab from "@/components/Profile/ProfileTestsTab";
 import ProfilePostsTab from "@/components/Profile/ProfilePostsTab";
 import ProfileLearningTab from "@/components/Profile/ProfileLearningTab";
+import SEO from "@/components/Shared/SEO";
 
 export default function Profile() {
 	const { userId } = useParams();
@@ -227,58 +228,65 @@ export default function Profile() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50/50 pb-12">
-			<div className="max-w-6xl mx-auto px-4 md:px-6 pt-6">
-				{/* Back Button */}
-				<button
-					onClick={() => navigate(-1)}
-					className="mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-medium">
-					<ArrowLeft className="w-5 h-5" />
-					Quay lại
-				</button>
+		<>
+			<div className="min-h-screen bg-gray-50/50 pb-12">
+				<div className="max-w-6xl mx-auto px-4 md:px-6 pt-6">
+					{/* Back Button */}
+					<button
+						onClick={() => navigate(-1)}
+						className="mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-medium">
+						<ArrowLeft className="w-5 h-5" />
+						Quay lại
+					</button>
 
-				<ProfileHeader
-					user={profileUser}
-					isOwnProfile={isOwnProfile}
-					onEdit={() => setIsSettingsOpen(true)}
-				/>
-
-				{/* Sticky Header Group */}
-				<div className="sticky top-0 z-30 bg-gray-50/95 backdrop-blur-sm transition-all duration-200 -mx-4 px-4 md:-mx-6 md:px-6 pt-2 mb-6">
-					<ProfileTabs
-						tabs={tabs}
-						activeTab={activeTab}
-						onTabChange={(id) => {
-							setActiveTab(id);
-							setSearchTerm("");
-							setSortBy("newest");
-						}}
+					<ProfileHeader
+						user={profileUser}
+						isOwnProfile={isOwnProfile}
+						onEdit={() => setIsSettingsOpen(true)}
 					/>
 
-					{activeTab !== "learning" && (
-						<ProfileToolbar
-							searchTerm={searchTerm}
-							onSearchChange={setSearchTerm}
-							sortBy={sortBy}
-							onSortChange={setSortBy}
-							activeTabLabel={activeTabLabel}
-							isOwnProfile={isOwnProfile}
-							onCreate={handleCreate}
-							isCreating={isCreating}
+					{/* Sticky Header Group */}
+					<div className="sticky top-0 z-30 bg-gray-50/95 backdrop-blur-sm transition-all duration-200 -mx-4 px-4 md:-mx-6 md:px-6 pt-2 mb-6">
+						<ProfileTabs
+							tabs={tabs}
+							activeTab={activeTab}
+							onTabChange={(id) => {
+								setActiveTab(id);
+								setSearchTerm("");
+								setSortBy("newest");
+							}}
 						/>
-					)}
+
+						{activeTab !== "learning" && (
+							<ProfileToolbar
+								searchTerm={searchTerm}
+								onSearchChange={setSearchTerm}
+								sortBy={sortBy}
+								onSortChange={setSortBy}
+								activeTabLabel={activeTabLabel}
+								isOwnProfile={isOwnProfile}
+								onCreate={handleCreate}
+								isCreating={isCreating}
+							/>
+						)}
+					</div>
+
+					<div className="min-h-[400px]">{renderTabContent()}</div>
 				</div>
 
-				<div className="min-h-[400px]">{renderTabContent()}</div>
+				<ProfileSettingsModal
+					isOpen={isSettingsOpen}
+					onClose={() => setIsSettingsOpen(false)}
+					user={profileUser}
+					onSave={handleSaveProfile}
+					isSaving={isUpdating}
+				/>
 			</div>
 
-			<ProfileSettingsModal
-				isOpen={isSettingsOpen}
-				onClose={() => setIsSettingsOpen(false)}
-				user={profileUser}
-				onSave={handleSaveProfile}
-				isSaving={isUpdating}
+			<SEO
+				title={`Trang cá nhân | ${profileUser.name}`}
+				description={`Trang cá nhân của ${profileUser.name}`}
 			/>
-		</div>
+		</>
 	);
 }

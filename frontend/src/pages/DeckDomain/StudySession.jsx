@@ -8,11 +8,12 @@ import StudyControls from "@/components/StudySession/StudyControls";
 import StudySummary from "@/components/StudySession/StudySummary";
 import { useGetSessionDetails } from "@/hooks/useFlashcardQuery";
 import { useSubmitAttempt } from "@/hooks/useFlashcardMutation";
+import SEO from "@/components/Shared/SEO";
 
 function StudySessionContent({ session }) {
 	const sessionId = session.id;
 	const deckId = session.deckId;
-    
+
 	const { mutateAsync: submitAnswer } = useSubmitAttempt();
 
 	const [currentIndex, setCurrentIndex] = useState(0);
@@ -102,5 +103,14 @@ export default function StudySessionPage() {
 		);
 	}
 
-	return <StudySessionContent key={sessionId} session={session} />;
+	return (
+		<>
+			<StudySessionContent key={sessionId} session={session} />
+
+			<SEO
+				title={`Học bộ thẻ | ${session.deck.title}`}
+				description={`Học bộ thẻ | ${session.deck.title}`}
+			/>
+		</>
+	);
 }
