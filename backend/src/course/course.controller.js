@@ -1,0 +1,204 @@
+import { courseService } from "./course.service.js";
+
+const getCourses = async (req, res) => {
+	const {
+		search,
+		sort,
+		status,
+		userId,
+		enrolledUserId,
+		page,
+		limit,
+		level,
+		language,
+		rating,
+		price,
+	} = req.query;
+
+	const coursesData = await courseService.getAll({
+		search,
+		sort,
+		status,
+		userId,
+		enrolledUserId,
+		page,
+		limit,
+		level,
+		language,
+		minRating: rating,
+		priceType: price,
+	});
+
+	res.status(200).json(coursesData);
+};
+
+const getCourseForInfoView = async (req, res) => {
+	const courseId = req.params.courseId;
+	const userId = req.user.id;
+	const course = await courseService.getCourseForInfoView(courseId, userId);
+	res.status(200).json({ course });
+};
+
+const getCourseForEditor = async (req, res) => {
+	const courseId = req.params.courseId;
+	const userId = req.user.id;
+	const course = await courseService.getCourseForEditor(courseId, userId);
+	res.status(200).json({ course });
+};
+
+const getCourseForLearning = async (req, res) => {
+	const courseId = req.params.courseId;
+	const userId = req.user.id;
+	const course = await courseService.getCourseForLearning(courseId, userId);
+	res.status(200).json({ course });
+};
+
+const getUserCourseEnrollment = async (req, res) => {
+	const courseId = req.params.courseId;
+	const userId = req.user.id;
+	const enrollment = await courseService.getUserCourseEnrollment(
+		courseId,
+		userId
+	);
+	res.status(200).json({ enrollment });
+};
+
+const createCourse = async (req, res) => {
+	const userId = req.user.id;
+	const course = await courseService.createCourse({ userId });
+	res.status(201).json({ course });
+};
+
+const updateCourse = async (req, res) => {
+	const id = req.params.courseId;
+	const course = await courseService.updateCourse(id, req.body);
+	res.status(200).json({ course });
+};
+
+const deleteCourse = async (req, res) => {
+	const courseId = req.params.courseId;
+	const userId = req.user.id;
+	await courseService.removeCourse(courseId, userId);
+	res.status(204).end();
+};
+
+// --- MODULES ---
+const addModule = async (req, res) => {
+	const { courseId } = req.params;
+	const module = await courseService.addModule(courseId, req.body);
+	res.status(201).json({ module });
+};
+
+const updateModule = async (req, res) => {
+	const { moduleId } = req.params;
+	const module = await courseService.updateModule(moduleId, req.body);
+	res.status(200).json({ module });
+};
+
+const deleteModule = async (req, res) => {
+	const { moduleId } = req.params;
+	await courseService.removeModule(moduleId);
+	res.status(204).end();
+};
+
+// --- LESSONS ---
+const addLesson = async (req, res) => {
+	const { moduleId } = req.params;
+	const lesson = await courseService.addLesson(moduleId, req.body);
+	res.status(201).json({ lesson });
+};
+
+const updateLesson = async (req, res) => {
+	const { lessonId } = req.params;
+	const lesson = await courseService.updateLesson(lessonId, req.body);
+	res.status(200).json({ lesson });
+};
+
+const deleteLesson = async (req, res) => {
+	const { lessonId } = req.params;
+	await courseService.removeLesson(lessonId);
+	res.status(204).end();
+};
+
+// Lesson progress
+const updateLessonProgress = async (req, res) => {
+	const { courseId, lessonId } = req.params;
+	const { isCompleted } = req.body;
+	const userId = req.user.id;
+
+	const progress = await courseService.updateLessonProgress(
+		courseId,
+		lessonId,
+		userId,
+		isCompleted
+	);
+
+	res.status(200).json({ progress });
+};
+
+// Reviews
+const getReviews = async (req, res) => {
+	const { courseId } = req.params;
+	const { page, limit, sort, rating } = req.query;
+
+	const result = await courseService.getReviews(courseId, {
+		page: page ? page : 1,
+		limit: limit ? limit : 10,
+		sort,
+		rating: rating ? Number(rating) : undefined,
+	});
+
+	res.status(200).json(result);
+};
+
+const addReview = async (req, res) => {
+	const { courseId } = req.params;
+	const userId = req.user.id;
+
+	const review = await courseService.addReview(courseId, userId, req.body);
+
+	res.status(201).json({ review });
+};
+
+const updateReview = async (req, res) => {
+	const { reviewId } = req.params;
+	const userId = req.user.id;
+
+	const review = await courseService.updateReview(reviewId, userId, req.body);
+
+	res.status(200).json({ review });
+};
+
+const deleteReview = async (req, res) => {
+	const { reviewId } = req.params;
+	const userId = req.user.id;
+
+	await courseService.deleteReview(reviewId, userId);
+
+	res.status(204).end();
+};
+
+export const courseController = {
+	getCourses,
+	getCourseForInfoView,
+	getCourseForEditor,
+	getCourseForLearning,
+	getUserCourseEnrollment,
+
+	createCourse,
+	updateCourse,
+	deleteCourse,
+	addModule,
+	updateModule,
+	deleteModule,
+	addLesson,
+	updateLesson,
+	deleteLesson,
+
+	updateLessonProgress,
+
+	getReviews,
+	addReview,
+	updateReview,
+	deleteReview,
+};

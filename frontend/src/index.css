@@ -1,68 +1,182 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* -------------------------------------------------------------------------- */
+/*                               Tailwind Import                              */
+/* -------------------------------------------------------------------------- */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* -------------------------------------------------------------------------- */
+/*                              Base HTML Styles                              */
+/* -------------------------------------------------------------------------- */
+
+html {
+	scroll-behavior: smooth;
+	overflow-x: hidden;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* -------------------------------------------------------------------------- */
+/*                           Universal Element Styles                         */
+/* -------------------------------------------------------------------------- */
+
+/* Firefox scrollbar behavior and border defaults */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #9ca3af transparent; /* gray-400 thumb, transparent track */
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+/* -------------------------------------------------------------------------- */
+/*                               Button Defaults                              */
+/* -------------------------------------------------------------------------- */
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+	cursor: pointer;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button:disabled {
+	cursor: not-allowed;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                             Scrollbar - Global                             */
+/* -------------------------------------------------------------------------- */
+
+/* Chrome, Edge, Safari scrollbar defaults */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #9ca3af; /* gray-400 */
+	border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       Scrollbar - Floating Overlay Style                   */
+/* -------------------------------------------------------------------------- */
+
+/* Scroll container that shows scrollbar above content, not beside it */
+.scroll-container {
+	overflow-y: auto;
+	overflow-x: auto;
+	scrollbar-gutter: stable overlay !important; /* overlay scrollbar that doesn't shift layout */
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+	transition: scrollbar-color 0.2s ease;
+}
+
+/* Firefox hover scrollbar visibility */
+.scroll-container:hover {
+	scrollbar-color: rgba(156, 163, 175, 0.6) transparent; /* gray-400 w/ opacity */
+}
+
+/* Chrome, Edge, Safari scrollbar overlay styling */
+.scroll-container::-webkit-scrollbar {
+	width: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+	background-color: transparent;
+	border-radius: 9999px;
+	transition: background-color 0.2s ease;
+}
+
+/* Thumb becomes visible on hover */
+.scroll-container:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(156, 163, 175, 0.6);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Scrollbar - Fully Hidden                         */
+/* -------------------------------------------------------------------------- */
+
+/* Utility class to hide scrollbar entirely */
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+/* Hide scrollbar in Firefox and legacy Edge */
+.hide-scrollbar {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+/* Rich Text Editor*/
+.tiptap h2 {
+	font-size: 1.5em; /* Kích thước H2 */
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+}
+
+.tiptap h3 {
+	font-size: 1.25em; /* Kích thước H3 */
+	font-weight: bold;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+}
+
+/* Định dạng cơ bản cho Lists */
+.tiptap ul {
+	list-style: disc; /* Dấu chấm tròn */
+	padding-left: 2em;
+	margin: 1em 0;
+}
+
+.tiptap ol {
+	list-style: decimal; /* Đánh số */
+	padding-left: 2em;
+	margin: 1em 0;
+}
+
+.tiptap li {
+	margin-bottom: 0.5em;
+}
+
+.tiptap:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.tiptap .ProseMirror:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.tiptap img.ProseMirror-selectednode {
+	box-shadow: none !important;
+	outline: 2px solid #3b82f6; /* Màu xanh Blue-500 của Tailwind */
+	outline-offset: 2px; /* Khoảng cách giữa ảnh và viền */
+	border-radius: 4px; /* Bo góc nhẹ cho viền */
+}
+
+.react-calendar-heatmap rect {
+	rx: 3px;
+	ry: 3px;
+}
+
+/* Hiển thị bảng đẹp mắt trong TipTap */
+.tiptap table {
+	border-collapse: collapse;
+	width: 100%;
+	margin: 12px 0;
+}
+
+.tiptap table td,
+.tiptap table th {
+	border: 1px solid #d1d5db; /* gray-300 */
+	padding: 6px;
+}
+
+.tiptap table th {
+	background: #f3f4f6; /* gray-100 */
+	font-weight: 600;
 }

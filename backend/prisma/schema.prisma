@@ -1,0 +1,490 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model User {
+    id                     Int                     @id @default(autoincrement())
+    email                  String                  @unique @db.VarChar(255)
+    role                   Role                    @default(USER)
+    name                   String?                 @db.VarChar(255)
+    bio                    String?
+    avatarUrl              String?                 @map("avatar_url") @db.VarChar(255)
+    isActive               Boolean?                @default(false) @map("is_active")
+    isBlocked              Boolean                 @default(false) @map("is_blocked")
+    createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt              DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
+    authentication         Authentication[]
+    emailVerificationToken EmailVerificationToken?
+    posts                  Post[]
+    studySessions          StudySession[]
+    attempts               Attempt[]
+    courses                Course[]
+    lessonProgress         UserLessonProgress[]
+    enrollments            UserCourseEnrollment[]
+    tests                  Test[]
+    decks                  Deck[]
+    comments               Comment[]
+    reviews                Review[]
+
+    @@map("users")
+}
+
+enum Role {
+    USER
+    CREATOR
+    ADMIN
+}
+
+model Authentication {
+    id           Int      @id @default(autoincrement())
+    userId       Int      @map("user_id")
+    provider     Provider
+    providerId   String?  @map("provider_id") @db.VarChar(255)
+    passwordHash String?  @map("password_hash") @db.VarChar(255)
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerId], map: "authentication_provider_provider_id")
+    @@unique([provider, userId], map: "authentication_provider_user_id")
+    @@map("authentication")
+}
+
+enum Provider {
+    LOCAL
+    GOOGLE
+}
+
+model EmailVerificationToken {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @unique @map("user_id")
+    token     String   @unique @db.VarChar(255)
+    expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+    used      Boolean? @default(false)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("email_verification_tokens")
+}
+
+model Test {
+    id             Int             @id @default(autoincrement())
+    userId         Int             @map("user_id")
+    title          String
+    description    String?
+    status         TestStatus      @default(DRAFT)
+    timeLimit      Int             @default(1800) @map("time_limit")
+    audioUrl       String?         @map("audio_url")
+    level          Level           @default(ALL_LEVELS)
+    language       ContentLanguage @default(ENGLISH)
+    questionsCount Int             @default(0) @map("questions_count")
+    attemptsCount  Int             @default(0) @map("attempts_count")
+    createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt      DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+    user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    items    TestItem[]
+    attempts Attempt[]
+    comments Comment[]
+    chunks   TestChunk[] @relation("TestToChunks")
+
+    @@index([status])
+    @@index([level])
+    @@index([language])
+    @@index([attemptsCount])
+    @@map("tests")
+}
+
+model TestChunk {
+    id        Int      @id @default(autoincrement())
+    testId    Int      @map("test_id")
+    content   String
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    tsv Unsupported("tsvector")?
+
+    test Test @relation("TestToChunks", fields: [testId], references: [id], onDelete: Cascade)
+
+    @@index([testId])
+    @@map("test_chunks")
+}
+
+enum TestStatus {
+    DRAFT
+    PUBLIC
+    ARCHIVED
+}
+
+model TestItem {
+    id           Int          @id @default(autoincrement())
+    testId       Int          @map("test_id")
+    parentItemId Int?         @map("parent_item_id")
+    type         TestItemType
+    text         String?
+    answer       String?
+    points       Int?         @default(1)
+    mediaUrls    String[]     @default([]) @map("media_urls")
+    sortOrder    Int          @map("sort_order")
+    createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+    test          Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+    parent        TestItem?       @relation("ItemToChildren", fields: [parentItemId], references: [id], onDelete: Cascade)
+    children      TestItem[]      @relation("ItemToChildren")
+    answerOptions AnswerOption[]
+    AttemptAnswer AttemptAnswer[]
+
+    @@map("test_items")
+}
+
+model AnswerOption {
+    id        Int      @id @default(autoincrement())
+    itemId    Int      @map("item_id")
+    text      String?
+    isCorrect Boolean  @default(false) @map("is_correct")
+    sortOrder Int      @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    item      TestItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+    @@map("answer_options")
+}
+
+enum TestItemType {
+    GROUP
+    MULTIPLE_CHOICE
+    SHORT_ANSWER
+
+    @@map("enum_test_items_type")
+}
+
+model Attempt {
+    id                  Int             @id @default(autoincrement())
+    userId              Int             @map("user_id")
+    testId              Int             @map("test_id")
+    scoredPoints        Int?            @map("scored_points")
+    totalPossiblePoints Int?            @map("total_possible_points")
+    correctCount        Int?            @map("correct_count")
+    wrongCount          Int?            @map("wrong_count")
+    unansweredCount     Int?            @map("unanswered_count")
+    time                Int
+    createdAt           DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+    user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    test                Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+    answers             AttemptAnswer[]
+
+    @@map("attempts")
+}
+
+model AttemptAnswer {
+    id         Int      @id @default(autoincrement())
+    attemptId  Int      @map("attempt_id")
+    questionId Int
+    text       String?
+    optionIds  Int[]    @map("option_ids")
+    attempt    Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+    question   TestItem @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+    @@map("attempt_answers")
+}
+
+model Deck {
+    id                Int             @id @default(autoincrement())
+    userId            Int             @map("user_id")
+    title             String
+    isPublic          Boolean         @default(false) @map("is_public")
+    level             Level           @default(ALL_LEVELS)
+    language          ContentLanguage @default(ENGLISH)
+    cardsCount        Int             @default(0) @map("cards_count")
+    studySessionCount Int             @default(0) @map("study_session_count")
+
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+    user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    cards         Card[]
+    studySessions StudySession[]
+
+    @@index([isPublic])
+    @@index([level])
+    @@index([language])
+    @@index([studySessionCount])
+    @@map("decks")
+}
+
+model Card {
+    id         Int      @id @default(autoincrement())
+    deckId     Int      @map("deck_id")
+    term       String
+    definition String
+    createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+    deck         Deck          @relation(fields: [deckId], references: [id], onDelete: Cascade)
+    cardAttempts CardAttempt[]
+
+    @@map("cards")
+}
+
+model StudySession {
+    id        Int       @id @default(autoincrement())
+    userId    Int       @map("user_id")
+    deckId    Int       @map("deck_id")
+    startTime DateTime  @default(now()) @map("start_time") @db.Timestamptz(6)
+    endTime   DateTime? @map("end_time") @db.Timestamptz(6)
+
+    user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    deck         Deck          @relation(fields: [deckId], references: [id], onDelete: Cascade)
+    cardAttempts CardAttempt[]
+
+    @@map("study_sessions")
+}
+
+model CardAttempt {
+    id        Int      @id @default(autoincrement())
+    sessionId Int      @map("session_id")
+    cardId    Int      @map("card_id")
+    isCorrect Boolean  @map("is_correct")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    session StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+    card    Card         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+    @@map("card_attempts")
+}
+
+model Tag {
+    id        Int      @id @default(autoincrement())
+    name      String   @unique
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    posts Post[]
+
+    @@map("tags")
+}
+
+model Post {
+    id        Int        @id @default(autoincrement())
+    authorId  Int        @map("author_id")
+    title     String
+    excerpt   String?    @db.Text
+    content   String
+    status    PostStatus @default(DRAFT)
+    createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+    coverUrl  String?    @map("cover_url")
+
+    author   User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    tags     Tag[]
+    chunks   PostChunk[] @relation("PostToChunks")
+    comments Comment[]
+
+    @@map("posts")
+}
+
+enum PostStatus {
+    DRAFT
+    PUBLIC
+}
+
+model PostChunk {
+    id        Int                      @id @default(autoincrement())
+    postId    Int                      @map("post_id")
+    content   String
+    createdAt DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime                 @default(now()) @map("updated_at") @db.Timestamptz(6)
+    tsv       Unsupported("tsvector")?
+
+    post Post @relation("PostToChunks", fields: [postId], references: [id], onDelete: Cascade)
+
+    @@index([postId])
+    @@map("post_chunks")
+}
+
+model Course {
+    id            Int             @id @default(autoincrement())
+    userId        Int             @map("user_id")
+    title         String
+    description   String?         @db.Text
+    excerpt       String?         @db.VarChar(160)
+    level         Level           @default(ALL_LEVELS)
+    language      ContentLanguage @default(ENGLISH)
+    price         Int             @default(0)
+    coverUrl      String?         @map("cover_url")
+    status        CourseStatus    @default(DRAFT)
+    averageRating Float           @default(0) @map("average_rating")
+    ratingCount   Int             @default(0) @map("rating_count")
+    createdAt     DateTime        @default(now()) @map("created_at")
+    updatedAt     DateTime        @updatedAt @map("updated_at")
+
+    user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    modules     Module[]
+    enrollments UserCourseEnrollment[]
+    chunks      CourseChunk[]
+    reviews     Review[]
+
+    @@index([status])
+    @@index([averageRating])
+    @@index([price])
+    @@map("courses")
+}
+
+model Module {
+    id        Int      @id @default(autoincrement())
+    courseId  Int      @map("course_id")
+    title     String
+    sortOrder Int      @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    lessons Lesson[]
+
+    @@map("modules")
+}
+
+model Lesson {
+    id          Int        @id @default(autoincrement())
+    moduleId    Int        @map("module_id")
+    type        LessonType @default(VIDEO)
+    title       String
+    duration    Int        @default(0)
+    videoUrl    String?    @map("video_url")
+    htmlContent String?    @map("html_content") @db.Text
+    sortOrder   Int        @map("sort_order")
+    isPublished Boolean    @default(false) @map("is_published")
+    createdAt   DateTime   @default(now()) @map("created_at")
+    updatedAt   DateTime   @updatedAt @map("updated_at")
+
+    module   Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+    progress UserLessonProgress[]
+    chunks   CourseChunk[]
+    comments Comment[]
+
+    @@index([moduleId])
+    @@map("lessons")
+}
+
+model UserLessonProgress {
+    id          Int      @id @default(autoincrement())
+    userId      Int      @map("user_id")
+    lessonId    Int      @map("lesson_id")
+    isCompleted Boolean  @default(false) @map("is_completed")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, lessonId])
+    @@map("user_lesson_progress")
+}
+
+model Review {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @map("user_id")
+    courseId  Int      @map("course_id")
+    rating    Int
+    content   String?  @db.Text
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, courseId])
+    @@index([courseId])
+    @@map("reviews")
+}
+
+model UserCourseEnrollment {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @map("user_id")
+    courseId  Int      @map("course_id")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, courseId])
+    @@map("user_course_enrollments")
+}
+
+model CourseChunk {
+    id        Int      @id @default(autoincrement())
+    courseId  Int      @map("course_id")
+    course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    moduleId  Int?     @map("module_id")
+    lessonId  Int?     @map("lesson_id")
+    lesson    Lesson?  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+    content   String   @db.Text
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    tsv Unsupported("tsvector")?
+
+    @@index([courseId])
+    @@index([lessonId])
+    @@map("course_chunks")
+}
+
+enum LessonType {
+    TEXT
+    VIDEO
+}
+
+enum CourseStatus {
+    DRAFT
+    PUBLIC
+    ARCHIVED
+}
+
+enum Level {
+    ALL_LEVELS
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
+}
+
+model Comment {
+    id        Int      @id @default(autoincrement())
+    content   String   @db.Text
+    userId    Int      @map("user_id")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // Polymorphic Relations
+    postId   Int? @map("post_id")
+    lessonId Int? @map("lesson_id")
+    testId   Int? @map("test_id")
+
+    post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+    test   Test?   @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+    // Hỗ trợ trả lời bình luận (Nested Comments - Optional)
+    parentId Int?      @map("parent_id")
+    parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+    replies  Comment[] @relation("CommentReplies")
+
+    @@index([postId])
+    @@index([lessonId])
+    @@index([testId])
+    @@map("comments")
+}
+
+enum ContentLanguage {
+    ENGLISH
+    JAPANESE
+    KOREAN
+    CHINESE
+    FRENCH
+    SPANISH
+}
