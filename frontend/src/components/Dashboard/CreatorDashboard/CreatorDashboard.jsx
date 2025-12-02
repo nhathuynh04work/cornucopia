@@ -46,13 +46,6 @@ function CreatorDashboard({ initialStats }) {
 		<DashboardLayout
 			title="Dashboard Nhà Sáng Tạo"
 			description="Quản lý nội dung và theo dõi hiệu suất của bạn."
-			action={
-				<Link
-					to="/courses/create"
-					className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-colors shadow-sm">
-					<Plus className="w-4 h-4" /> Tạo mới
-				</Link>
-			}
 			stats={statsData}>
 			<div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 h-auto lg:h-full">
 				{/* LEFT COLUMN: Charts */}

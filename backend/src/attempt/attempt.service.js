@@ -69,7 +69,10 @@ const createAttempt = async (data) => {
 };
 
 const getResult = async (id) => {
-	const attempt = await prisma.attempt.findUnique({ where: { id } });
+	const attempt = await prisma.attempt.findUnique({
+		where: { id },
+		include: { answers: true },
+	});
 	if (!attempt) throw new NotFoundError(errorMessage.ATTEMPT_NOT_FOUND);
 
 	const test = await testService.getTestWithoutAnswer(attempt.testId);
