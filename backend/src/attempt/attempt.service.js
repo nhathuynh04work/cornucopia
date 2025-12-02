@@ -6,66 +6,63 @@ import { TestItemType } from "../generated/prisma/index.js";
 import prisma from "../prisma.js";
 
 const createAttempt = async (data) => {
-	const { answers, ...attemptData } = data;
-	const answerKey = await testService.getAnswersKey(attemptData.testId);
+  const { answers, ...attemptData } = data;
+  const answerKey = await testService.getAnswersKey(attemptData.testId);
 
-	let correctCount = 0,
-		wrongCount = 0,
-		unansweredCount = 0,
-		scoredPoints = 0,
-		totalPossiblePoints = 0;
+  let correctCount = 0,
+    wrongCount = 0,
+    unansweredCount = 0,
+    scoredPoints = 0,
+    totalPossiblePoints = 0;
 
-	for (const submittedAnswer of answers) {
-		const correctAnswer = answerKey[submittedAnswer.questionId];
-		totalPossiblePoints += correctAnswer.points;
+  for (const submittedAnswer of answers) {
+    const correctAnswer = answerKey[submittedAnswer.questionId];
+    totalPossiblePoints += correctAnswer.points;
 
-		// unanswered
-		if (
-			submittedAnswer.text === "" &&
-			submittedAnswer.optionIds.length === 0
-		) {
-			unansweredCount++;
-			continue;
-		}
+    // unanswered
+    if (submittedAnswer.text === "" && submittedAnswer.optionIds.length === 0) {
+      unansweredCount++;
+      continue;
+    }
 
-		const isCorrect = gradeAnswer(submittedAnswer, correctAnswer);
+    const isCorrect = gradeAnswer(submittedAnswer, correctAnswer);
 
-		// correct
-		if (isCorrect) {
-			correctCount++;
-			scoredPoints += correctAnswer.points;
-			continue;
-		}
+    // correct
+    if (isCorrect) {
+      correctCount++;
+      scoredPoints += correctAnswer.points;
+      continue;
+    }
 
-		wrongCount++; // wrong
-	}
+    wrongCount++; // wrong
+  }
 
-	return prisma.$transaction(async (tx) => {
-		const attempt = await tx.attempt.create({
-			data: {
-				...attemptData,
-				correctCount,
-				wrongCount,
-				unansweredCount,
-				scoredPoints,
-				totalPossiblePoints,
-				answers: {
-					create: answers,
-				},
-			},
-		});
+  return prisma.$transaction(async (tx) => {
+    const attempt = await tx.attempt.create({
+      data: {
+        ...attemptData,
+        correctCount,
+        wrongCount,
+        unansweredCount,
+        scoredPoints,
+        totalPossiblePoints,
+        answers: {
+          create: answers,
+        },
+      },
+    });
 
-		await tx.test.update({
-			where: { id: attemptData.testId },
-			data: {
-				attemptsCount: {
-					increment: 1,
-				},
-			},
-		});
+    await tx.test.update({
+      where: { id: attemptData.testId },
+      data: {
+        attemptsCount: {
+          increment: 1,
+        },
+      },
+    });
 
-		return attempt;
-	});
+    return attempt;
+  });
 };
 
 const getResult = async (id) => {
@@ -132,33 +129,33 @@ const getResult = async (id) => {
 };
 
 const getUserAttemptsOnTest = async (testId, userId) => {
-	return prisma.attempt.findMany({
-		where: { testId, userId },
-		include: { test: { select: { title: true } } },
-		orderBy: { createdAt: "desc" },
-	});
+  return prisma.attempt.findMany({
+    where: { testId, userId },
+    include: { test: { select: { title: true } } },
+    orderBy: { createdAt: "desc" },
+  });
 };
 
 function gradeAnswer(submittedAnswer, correctAnswer) {
-	const { type } = correctAnswer;
+  const { type } = correctAnswer;
 
-	if (type === TestItemType.SHORT_ANSWER) {
-		const submitted = submittedAnswer.text?.trim().toLowerCase();
-		const correct = correctAnswer.answer?.trim().toLowerCase();
-		return submitted === correct;
-	}
+  if (type === TestItemType.SHORT_ANSWER) {
+    const submitted = submittedAnswer.text?.trim().toLowerCase();
+    const correct = correctAnswer.answer?.trim().toLowerCase();
+    return submitted === correct;
+  }
 
-	if (type === TestItemType.MULTIPLE_CHOICE) {
-		const submittedSet = new Set(submittedAnswer.optionIds);
-		const correctSet = new Set(correctAnswer.optionIds);
-		return areSetsEqual(submittedSet, correctSet);
-	}
+  if (type === TestItemType.MULTIPLE_CHOICE) {
+    const submittedSet = new Set(submittedAnswer.optionIds);
+    const correctSet = new Set(correctAnswer.optionIds);
+    return areSetsEqual(submittedSet, correctSet);
+  }
 
-	return false;
+  return false;
 }
 
 export const attemptService = {
-	createAttempt,
-	getResult,
-	getUserAttemptsOnTest,
+  createAttempt,
+  getResult,
+  getUserAttemptsOnTest,
 };
