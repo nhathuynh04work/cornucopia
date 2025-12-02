@@ -12,7 +12,7 @@ const getUserOverallStats = async ({ userId }) => {
 	] = await Promise.all([
 		prisma.studySession.findMany({
 			where: { userId },
-			take: 5,
+			take: 15,
 			orderBy: { startTime: "desc" },
 			include: { deck: { select: { title: true, id: true } } },
 		}),
@@ -44,13 +44,13 @@ const getUserOverallStats = async ({ userId }) => {
 		}),
 		prisma.attempt.findMany({
 			where: { userId },
-			take: 5,
+			take: 15,
 			orderBy: { createdAt: "desc" },
 			include: { test: { select: { title: true } } },
 		}),
 		prisma.userLessonProgress.findMany({
 			where: { userId, isCompleted: true },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			include: {
 				lesson: {
@@ -119,7 +119,7 @@ const getUserOverallStats = async ({ userId }) => {
 	];
 
 	activities.sort((a, b) => new Date(b.date) - new Date(a.date));
-	const topActivities = activities.slice(0, 5);
+	const topActivities = activities.slice(0, 15);
 
 	return {
 		role: Role.USER,
