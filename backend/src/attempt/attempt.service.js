@@ -66,66 +66,66 @@ const createAttempt = async (data) => {
 };
 
 const getResult = async (id) => {
-  const attempt = await prisma.attempt.findUnique({
-    where: { id },
-    include: { answers: true },
-  });
-  if (!attempt) throw new NotFoundError(errorMessage.ATTEMPT_NOT_FOUND);
+	const attempt = await prisma.attempt.findUnique({
+		where: { id },
+		include: { answers: true },
+	});
+	if (!attempt) throw new NotFoundError(errorMessage.ATTEMPT_NOT_FOUND);
 
-  const test = await testService.getTestWithoutAnswer(attempt.testId);
-  if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
+	const test = await testService.getTestWithoutAnswer(attempt.testId);
+	if (!test) throw new NotFoundError(errorMessage.TEST_NOT_FOUND);
 
-  const answerKey = await testService.getAnswersKey(attempt.testId);
+	const answerKey = await testService.getAnswersKey(attempt.testId);
 
-  const resultsMap = {};
-  for (const submittedAnswer of attempt.answers) {
-    const correctAnswer = answerKey[submittedAnswer.questionId];
-    const isCorrect = gradeAnswer(submittedAnswer, correctAnswer);
+	const resultsMap = {};
+	for (const submittedAnswer of attempt.answers) {
+		const correctAnswer = answerKey[submittedAnswer.questionId];
+		const isCorrect = gradeAnswer(submittedAnswer, correctAnswer);
 
-    resultsMap[submittedAnswer.questionId] = {
-      isCorrect: isCorrect,
-      questionPoints: correctAnswer.points,
-      scoredPoints: isCorrect ? correctAnswer.points : 0,
-      submitted: {
-        text: submittedAnswer.text,
-        optionIds: submittedAnswer.optionIds,
-      },
-      correct: {
-        text: correctAnswer.answer,
-        optionIds: correctAnswer.optionIds,
-      },
-    };
-  }
+		resultsMap[submittedAnswer.questionId] = {
+			isCorrect: isCorrect,
+			questionPoints: correctAnswer.points,
+			scoredPoints: isCorrect ? correctAnswer.points : 0,
+			submitted: {
+				text: submittedAnswer.text,
+				optionIds: submittedAnswer.optionIds,
+			},
+			correct: {
+				text: correctAnswer.answer,
+				optionIds: correctAnswer.optionIds,
+			},
+		};
+	}
 
-  function injectResults(items) {
-    if (!items || items.length === 0) return;
+	function injectResults(items) {
+		if (!items || items.length === 0) return;
 
-    items.forEach((item) => {
-      const result = resultsMap[item.id];
-      if (result) {
-        // Attach the result directly to the item
-        item.result = result;
-      }
-      // Recurse into children
-      if (item.children) {
-        injectResults(item.children);
-      }
-    });
-  }
+		items.forEach((item) => {
+			const result = resultsMap[item.id];
+			if (result) {
+				// Attach the result directly to the item
+				item.result = result;
+			}
+			// Recurse into children
+			if (item.children) {
+				injectResults(item.children);
+			}
+		});
+	}
 
-  injectResults(test.items);
+	injectResults(test.items);
 
-  return {
-    test: test,
-    attemptId: attempt.id,
-    timeTaken: attempt.time,
-    createdAt: attempt.createdAt,
-    scoredPoints: attempt.scoredPoints,
-    totalPossiblePoints: attempt.totalPossiblePoints,
-    correctCount: attempt.correctCount,
-    wrongCount: attempt.wrongCount,
-    unansweredCount: attempt.unansweredCount,
-  };
+	return {
+		test: test,
+		attemptId: attempt.id,
+		timeTaken: attempt.time,
+		createdAt: attempt.createdAt,
+		scoredPoints: attempt.scoredPoints,
+		totalPossiblePoints: attempt.totalPossiblePoints,
+		correctCount: attempt.correctCount,
+		wrongCount: attempt.wrongCount,
+		unansweredCount: attempt.unansweredCount,
+	};
 };
 
 const getUserAttemptsOnTest = async (testId, userId) => {
