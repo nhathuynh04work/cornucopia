@@ -359,10 +359,10 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 		]);
 
 		const data = [
-			{ name: "Courses", value: courses, color: "#0d9488" },
-			{ name: "Decks", value: decks, color: "#f97316" },
-			{ name: "Tests", value: tests, color: "#9333ea" },
-			{ name: "Posts", value: posts, color: "#e11d48" },
+			{ name: "Khoá học", value: courses, color: "#0d9488" },
+			{ name: "Bộ thẻ", value: decks, color: "#f97316" },
+			{ name: "Bài thi", value: tests, color: "#9333ea" },
+			{ name: "Bài viết", value: posts, color: "#e11d48" },
 		].filter((d) => d.value > 0);
 
 		return { chartData: data };
@@ -373,11 +373,16 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 			where: { status: "PUBLIC" },
 			take: 10,
 			orderBy: { enrollments: { _count: "desc" } },
-			select: { title: true, _count: { select: { enrollments: true } } },
+			select: {
+				id: true,
+				title: true,
+				_count: { select: { enrollments: true } },
+			},
 		});
 		return {
 			chartData: data.map((c) => ({
 				name: c.title,
+				url: `/courses/${c.id}`,
 				value: c._count.enrollments,
 				label: "học viên",
 			})),
@@ -389,11 +394,16 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 			where: { status: "PUBLIC" },
 			take: 10,
 			orderBy: { attempts: { _count: "desc" } },
-			select: { title: true, _count: { select: { attempts: true } } },
+			select: {
+				id: true,
+				title: true,
+				_count: { select: { attempts: true } },
+			},
 		});
 		return {
 			chartData: data.map((t) => ({
 				name: t.title,
+				url: `/tests/${t.id}`,
 				value: t._count.attempts,
 				label: "lượt thi",
 			})),
@@ -402,7 +412,7 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 
 	if (chartType === "TOP_REVENUE_COURSES") {
 		const rawData = await prisma.$queryRaw`
-            SELECT c.title, (COUNT(uce.id) * c.price) as revenue
+            SELECT c.id, c.title, (COUNT(uce.id) * c.price) as revenue
             FROM courses c
             JOIN user_course_enrollments uce ON c.id = uce.course_id
             WHERE c.price > 0
@@ -413,6 +423,7 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 		return {
 			chartData: rawData.map((c) => ({
 				name: c.title,
+				url: `/courses/${c.id}`,
 				value: Number(c.revenue),
 				label: "VND",
 			})),
@@ -425,6 +436,7 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 			take: 10,
 			orderBy: { studySessions: { _count: "desc" } },
 			select: {
+				id: true,
 				title: true,
 				_count: { select: { studySessions: true } },
 			},
@@ -432,6 +444,7 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 		return {
 			chartData: data.map((d) => ({
 				name: d.title,
+				url: `/decks/${d.id}`,
 				value: d._count.studySessions,
 				label: "phiên học",
 			})),
