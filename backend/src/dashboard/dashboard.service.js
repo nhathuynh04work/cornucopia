@@ -157,25 +157,25 @@ const getCreatorOverallStats = async ({ userId }) => {
 		}),
 		prisma.course.findMany({
 			where: { userId: currentUserId },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			select: { id: true, title: true, status: true, updatedAt: true },
 		}),
 		prisma.deck.findMany({
 			where: { userId: currentUserId },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			select: { id: true, title: true, isPublic: true, updatedAt: true },
 		}),
 		prisma.test.findMany({
 			where: { userId: currentUserId },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			select: { id: true, title: true, status: true, updatedAt: true },
 		}),
 		prisma.post.findMany({
 			where: { authorId: currentUserId },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			select: { id: true, title: true, status: true, updatedAt: true },
 		}),
@@ -189,35 +189,35 @@ const getCreatorOverallStats = async ({ userId }) => {
 	const combinedContent = [
 		...recentCourses.map((c) => ({
 			id: `course-${c.id}`,
-			type: "COURSE",
+			type: "Khoá học",
 			title: c.title,
 			status: c.status,
 			updatedAt: c.updatedAt,
 		})),
 		...recentDecks.map((d) => ({
 			id: `deck-${d.id}`,
-			type: "DECK",
+			type: "Bộ thẻ",
 			title: d.title,
 			status: d.isPublic ? "PUBLIC" : "DRAFT",
 			updatedAt: d.updatedAt,
 		})),
 		...recentTests.map((t) => ({
 			id: `test-${t.id}`,
-			type: "TEST",
+			type: "Đề thi",
 			title: t.title,
 			status: t.status,
 			updatedAt: t.updatedAt,
 		})),
 		...recentPosts.map((p) => ({
 			id: `post-${p.id}`,
-			type: "POST",
+			type: "Bài viết",
 			title: p.title,
 			status: p.status,
 			updatedAt: p.updatedAt,
 		})),
 	]
 		.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-		.slice(0, 5);
+		.slice(0, 15);
 
 	return {
 		role: Role.CREATOR,
@@ -268,19 +268,19 @@ const getCreatorChartData = async ({ userId, chartType, timePeriod }) => {
 
 		const engagementData = [
 			{
-				name: "Enrollments",
+				name: "Mua khoá học",
 				value: totalEnrollments,
 				color: "#8b5cf6",
 				label: "Học viên đăng ký",
 			},
 			{
-				name: "TestAttempts",
+				name: "Làm bài thi",
 				value: testAttemptCount,
 				color: "#3b82f6",
 				label: "Lượt làm bài thi",
 			},
 			{
-				name: "DeckSessions",
+				name: "Học bộ thẻ",
 				value: deckSessionCount,
 				color: "#f97316",
 				label: "Phiên học Flashcard",
