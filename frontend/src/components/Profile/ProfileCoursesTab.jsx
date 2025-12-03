@@ -5,7 +5,12 @@ import PaginationControl from "@/components/Shared/PaginationControl";
 import EmptyState from "@/components/Shared/EmptyState";
 import { BookOpen, Loader2 } from "lucide-react";
 
-export default function ProfileCoursesTab({ userId, searchTerm, sortBy }) {
+export default function ProfileCoursesTab({
+	userId,
+	searchTerm,
+	sortBy,
+	isOwnProfile,
+}) {
 	const [page, setPage] = useState(1);
 	const limit = 10;
 
@@ -15,6 +20,7 @@ export default function ProfileCoursesTab({ userId, searchTerm, sortBy }) {
 		sort: sortBy,
 		page,
 		limit,
+		status: isOwnProfile ? undefined : "PUBLIC",
 	});
 
 	if (isLoading) {
@@ -26,8 +32,9 @@ export default function ProfileCoursesTab({ userId, searchTerm, sortBy }) {
 	}
 
 	const items = data?.data || data || [];
-	const pagination =data?.pagination || { totalPages: 1, currentPage: 1 };
-	const totalPages = pagination.totalPages || Math.ceil(items.length / limit) || 1;
+	const pagination = data?.pagination || { totalPages: 1, currentPage: 1 };
+	const totalPages =
+		pagination.totalPages || Math.ceil(items.length / limit) || 1;
 
 	if (items.length === 0) {
 		return <EmptyState icon={BookOpen} message="Chưa có khóa học nào." />;

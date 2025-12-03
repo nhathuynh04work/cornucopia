@@ -22,7 +22,7 @@ const updateTestQuestionCount = async (testId, tx = prisma) => {
 const getTests = async ({
 	search,
 	sort,
-	isPublic,
+	status,
 	userId,
 	page = 1,
 	limit = 10,
@@ -31,8 +31,8 @@ const getTests = async ({
 }) => {
 	const where = {};
 
-	if (isPublic) {
-		where.status = TestStatus.PUBLIC;
+	if (status) {
+		where.status = status;
 	}
 
 	if (userId) {

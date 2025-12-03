@@ -43,7 +43,7 @@ export default function Tests() {
 			sort,
 			page,
 			limit,
-			isPublic: "true",
+			status: "PUBLIC"
 		}),
 		[debouncedSearch, filters, sort, page, limit]
 	);
