@@ -13,11 +13,11 @@ export default function EnrolledCourseCard({ course }) {
 	const progress = course.progress || 0;
 
 	return (
-		<div className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
-			{/* Image Section - Clickable */}
-			<Link
-				to={`/courses/${course.id}/learn`}
-				className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100 block">
+		<Link
+			to={`/courses/${course.id}/learn`}
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative cursor-pointer">
+			{/* Image Section */}
+			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100 block">
 				<div className="aspect-video md:h-full md:aspect-auto relative">
 					{course.coverUrl ? (
 						<img
@@ -31,7 +31,7 @@ export default function EnrolledCourseCard({ course }) {
 						</div>
 					)}
 				</div>
-			</Link>
+			</div>
 
 			<div className="flex-1 p-5 flex flex-col min-w-0">
 				<div className="flex justify-between items-start gap-4 mb-2">
@@ -48,14 +48,10 @@ export default function EnrolledCourseCard({ course }) {
 							</div>
 						</div>
 
-						{/* Title - Clickable */}
-						<Link
-							to={`/courses/${course.id}/learn`}
-							className="block">
-							<h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
-								{course.title}
-							</h3>
-						</Link>
+						{/* Title  */}
+						<h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-purple-700 transition-colors line-clamp-2">
+							{course.title}
+						</h3>
 					</div>
 				</div>
 
@@ -78,10 +74,8 @@ export default function EnrolledCourseCard({ course }) {
 
 					<div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-50">
 						<div className="flex items-center gap-2">
-							{/* User Profile - Clickable */}
-							<Link
-								to={`/profile/${course.user.id}`}
-								className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+							{/* User Profile */}
+							<div className="flex items-center gap-2 hover:opacity-80 transition-opacity">
 								<Avatar
 									url={course.user?.avatarUrl}
 									name={course.user?.name}
@@ -90,19 +84,17 @@ export default function EnrolledCourseCard({ course }) {
 								<span className="text-xs font-bold text-gray-700 truncate max-w-[150px]">
 									{course.user?.name}
 								</span>
-							</Link>
+							</div>
 						</div>
 
-						{/* Action Button - Clickable */}
-						<Link
-							to={`/courses/${course.id}/learn`}
-							className="text-xs font-bold text-purple-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+						{/* Action Text */}
+						<span className="text-xs font-bold text-purple-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
 							Tiếp tục học
 							<ChevronRight className="w-3.5 h-3.5" />
-						</Link>
+						</span>
 					</div>
 				</div>
 			</div>
-		</div>
+		</Link>
 	);
 }

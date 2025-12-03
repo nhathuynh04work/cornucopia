@@ -12,7 +12,7 @@ const getUserOverallStats = async ({ userId }) => {
 	] = await Promise.all([
 		prisma.studySession.findMany({
 			where: { userId },
-			take: 5,
+			take: 15,
 			orderBy: { startTime: "desc" },
 			include: { deck: { select: { title: true, id: true } } },
 		}),
@@ -44,13 +44,13 @@ const getUserOverallStats = async ({ userId }) => {
 		}),
 		prisma.attempt.findMany({
 			where: { userId },
-			take: 5,
+			take: 15,
 			orderBy: { createdAt: "desc" },
 			include: { test: { select: { title: true } } },
 		}),
 		prisma.userLessonProgress.findMany({
 			where: { userId, isCompleted: true },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			include: {
 				lesson: {
@@ -119,7 +119,7 @@ const getUserOverallStats = async ({ userId }) => {
 	];
 
 	activities.sort((a, b) => new Date(b.date) - new Date(a.date));
-	const topActivities = activities.slice(0, 5);
+	const topActivities = activities.slice(0, 15);
 
 	return {
 		role: Role.USER,
@@ -157,25 +157,25 @@ const getCreatorOverallStats = async ({ userId }) => {
 		}),
 		prisma.course.findMany({
 			where: { userId: currentUserId },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			select: { id: true, title: true, status: true, updatedAt: true },
 		}),
 		prisma.deck.findMany({
 			where: { userId: currentUserId },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			select: { id: true, title: true, isPublic: true, updatedAt: true },
 		}),
 		prisma.test.findMany({
 			where: { userId: currentUserId },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			select: { id: true, title: true, status: true, updatedAt: true },
 		}),
 		prisma.post.findMany({
 			where: { authorId: currentUserId },
-			take: 5,
+			take: 15,
 			orderBy: { updatedAt: "desc" },
 			select: { id: true, title: true, status: true, updatedAt: true },
 		}),
@@ -189,35 +189,35 @@ const getCreatorOverallStats = async ({ userId }) => {
 	const combinedContent = [
 		...recentCourses.map((c) => ({
 			id: `course-${c.id}`,
-			type: "COURSE",
+			type: "Khoá học",
 			title: c.title,
 			status: c.status,
 			updatedAt: c.updatedAt,
 		})),
 		...recentDecks.map((d) => ({
 			id: `deck-${d.id}`,
-			type: "DECK",
+			type: "Bộ thẻ",
 			title: d.title,
 			status: d.isPublic ? "PUBLIC" : "DRAFT",
 			updatedAt: d.updatedAt,
 		})),
 		...recentTests.map((t) => ({
 			id: `test-${t.id}`,
-			type: "TEST",
+			type: "Đề thi",
 			title: t.title,
 			status: t.status,
 			updatedAt: t.updatedAt,
 		})),
 		...recentPosts.map((p) => ({
 			id: `post-${p.id}`,
-			type: "POST",
+			type: "Bài viết",
 			title: p.title,
 			status: p.status,
 			updatedAt: p.updatedAt,
 		})),
 	]
 		.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-		.slice(0, 5);
+		.slice(0, 15);
 
 	return {
 		role: Role.CREATOR,
@@ -268,19 +268,19 @@ const getCreatorChartData = async ({ userId, chartType, timePeriod }) => {
 
 		const engagementData = [
 			{
-				name: "Enrollments",
+				name: "Mua khoá học",
 				value: totalEnrollments,
 				color: "#8b5cf6",
 				label: "Học viên đăng ký",
 			},
 			{
-				name: "TestAttempts",
+				name: "Làm bài thi",
 				value: testAttemptCount,
 				color: "#3b82f6",
 				label: "Lượt làm bài thi",
 			},
 			{
-				name: "DeckSessions",
+				name: "Học bộ thẻ",
 				value: deckSessionCount,
 				color: "#f97316",
 				label: "Phiên học Flashcard",
@@ -359,10 +359,10 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 		]);
 
 		const data = [
-			{ name: "Courses", value: courses, color: "#0d9488" },
-			{ name: "Decks", value: decks, color: "#f97316" },
-			{ name: "Tests", value: tests, color: "#9333ea" },
-			{ name: "Posts", value: posts, color: "#e11d48" },
+			{ name: "Khoá học", value: courses, color: "#0d9488" },
+			{ name: "Bộ thẻ", value: decks, color: "#f97316" },
+			{ name: "Bài thi", value: tests, color: "#9333ea" },
+			{ name: "Bài viết", value: posts, color: "#e11d48" },
 		].filter((d) => d.value > 0);
 
 		return { chartData: data };
@@ -373,11 +373,16 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 			where: { status: "PUBLIC" },
 			take: 10,
 			orderBy: { enrollments: { _count: "desc" } },
-			select: { title: true, _count: { select: { enrollments: true } } },
+			select: {
+				id: true,
+				title: true,
+				_count: { select: { enrollments: true } },
+			},
 		});
 		return {
 			chartData: data.map((c) => ({
 				name: c.title,
+				url: `/courses/${c.id}`,
 				value: c._count.enrollments,
 				label: "học viên",
 			})),
@@ -389,11 +394,16 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 			where: { status: "PUBLIC" },
 			take: 10,
 			orderBy: { attempts: { _count: "desc" } },
-			select: { title: true, _count: { select: { attempts: true } } },
+			select: {
+				id: true,
+				title: true,
+				_count: { select: { attempts: true } },
+			},
 		});
 		return {
 			chartData: data.map((t) => ({
 				name: t.title,
+				url: `/tests/${t.id}`,
 				value: t._count.attempts,
 				label: "lượt thi",
 			})),
@@ -402,7 +412,7 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 
 	if (chartType === "TOP_REVENUE_COURSES") {
 		const rawData = await prisma.$queryRaw`
-            SELECT c.title, (COUNT(uce.id) * c.price) as revenue
+            SELECT c.id, c.title, (COUNT(uce.id) * c.price) as revenue
             FROM courses c
             JOIN user_course_enrollments uce ON c.id = uce.course_id
             WHERE c.price > 0
@@ -413,6 +423,7 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 		return {
 			chartData: rawData.map((c) => ({
 				name: c.title,
+				url: `/courses/${c.id}`,
 				value: Number(c.revenue),
 				label: "VND",
 			})),
@@ -425,6 +436,7 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 			take: 10,
 			orderBy: { studySessions: { _count: "desc" } },
 			select: {
+				id: true,
 				title: true,
 				_count: { select: { studySessions: true } },
 			},
@@ -432,6 +444,7 @@ const getAdminChartData = async ({ chartType, timePeriod = "12months" }) => {
 		return {
 			chartData: data.map((d) => ({
 				name: d.title,
+				url: `/decks/${d.id}`,
 				value: d._count.studySessions,
 				label: "phiên học",
 			})),

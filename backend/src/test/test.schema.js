@@ -45,7 +45,7 @@ export const getTestsSchema = z.object({
 	query: z.object({
 		search: z.string().optional(),
 		sort: z.enum(["newest", "oldest", "attempts"]).default("newest"),
-		isPublic: z.enum(["true", "false"]).optional(),
+		status: z.enum(TestStatus).optional(),
 		userId: z.coerce.number().int().optional(),
 		page: z.coerce.number().int().min(1).default(1),
 		limit: z.coerce.number().int().min(1).default(10),

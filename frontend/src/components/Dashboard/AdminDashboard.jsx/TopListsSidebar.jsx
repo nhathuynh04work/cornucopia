@@ -3,6 +3,7 @@ import { Trophy, Loader2 } from "lucide-react";
 import { useGetDashboardChartData } from "@/hooks/useDashboardQuery";
 import { formatNumberCompact } from "@/lib/formatters";
 import RadixSelect from "../../Shared/RadixSelect";
+import { Link } from "react-router";
 
 export default function TopListsSidebar() {
 	const [rankingType, setRankingType] = useState("TOP_ENROLLED_COURSES");
@@ -12,6 +13,8 @@ export default function TopListsSidebar() {
 	});
 
 	const listData = data?.chartData || [];
+
+	console.log(listData);
 
 	const rankingOptions = [
 		{ value: "TOP_ENROLLED_COURSES", label: "Khóa học đông nhất" },
@@ -50,7 +53,8 @@ export default function TopListsSidebar() {
 					<div className="space-y-3">
 						{listData.length > 0 ? (
 							listData.map((item, idx) => (
-								<div
+								<Link
+									to={item.url}
 									key={idx}
 									className="flex items-center gap-3 p-3 bg-gray-50/50 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100 group">
 									<span
@@ -102,7 +106,7 @@ export default function TopListsSidebar() {
 											{item.label}
 										</span>
 									</div>
-								</div>
+								</Link>
 							))
 						) : (
 							<p className="text-center text-gray-400 text-xs py-8">

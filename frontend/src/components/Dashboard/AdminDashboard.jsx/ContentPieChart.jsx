@@ -4,8 +4,8 @@ export default function ContentPieChart({ data }) {
 	return (
 		<BasePieChart
 			data={data}
-			innerRadius={80}
-			outerRadius={110}
+			innerRadius="50%"
+			outerRadius="70%"
 			centerLabel="Tổng cộng"
 			showLegend={true}
 		/>
