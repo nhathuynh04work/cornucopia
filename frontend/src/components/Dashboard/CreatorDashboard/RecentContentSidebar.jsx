@@ -39,10 +39,7 @@ export default function RecentContentSidebar({ recentContent }) {
 						{recentContent.map((item) => {
 							const Icon = getContentIcon(item.type);
 							const idValue = item.id.split("-")[1];
-							const typePath =
-								item.type.toLowerCase() === "post"
-									? "posts"
-									: `${item.type.toLowerCase()}s`;
+							const typePath = `${item.id.split("-")[0]}s`
 							const link = `/${typePath}/${idValue}`;
 
 							const statusConfig = STATUS_CONFIG[item.status] || {
