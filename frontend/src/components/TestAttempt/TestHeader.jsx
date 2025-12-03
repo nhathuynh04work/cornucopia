@@ -1,4 +1,4 @@
-import { Menu, ArrowLeft } from "lucide-react"; // Updated Icon
+import { Menu, ArrowLeft } from "lucide-react";
 import AudioPlayer from "./AudioPlayer";
 import Timer from "./Timer";
 
@@ -15,37 +15,41 @@ export default function TestHeader({
 }) {
 	return (
 		<header className="flex-none bg-white border-b border-gray-200 shadow-sm z-40">
-			<div className="max-w-[1800px] mx-auto px-4 h-16 flex items-center justify-between gap-4">
+			<div className="max-w-[1800px] mx-auto px-4 h-16 flex items-center justify-between gap-3 md:gap-4">
 				{/* Left Section: Exit & Menu & Title */}
-				<div className="flex items-center gap-2 sm:gap-4 min-w-0">
-					{/* Exit Button (Back Arrow) */}
+				<div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1 sm:flex-none">
+					{/* Exit Button */}
 					<button
 						onClick={onExit}
 						className="p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-xl transition-colors flex-shrink-0"
 						title="Thoát bài thi">
-						<ArrowLeft className="w-6 h-6" />
+						<ArrowLeft className="w-5 h-5 md:w-6 md:h-6" />
 					</button>
 
 					<div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block flex-shrink-0" />
 
+					{/* Mobile Menu Trigger */}
 					<button
 						onClick={onTogglePalette}
 						className="lg:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600 flex-shrink-0">
-						<Menu className="w-6 h-6" />
+						<Menu className="w-5 h-5 md:w-6 md:h-6" />
 					</button>
 
-					{/* Title Section (Handles its own truncation) */}
-					<div className="hidden sm:block min-w-0">
-						<h1 className="text-base font-bold text-gray-900 truncate max-w-[200px] md:max-w-xs block">
+					{/* Title Section */}
+					<div className="min-w-0 flex-1">
+						<h1 className="text-sm md:text-base font-bold text-gray-900 truncate block">
 							{title}
 						</h1>
-						<p className="text-xs text-gray-500">
+						<p className="text-xs text-gray-500 sm:hidden">
+							{currentIdx + 1}/{totalQuestions}
+						</p>
+						<p className="hidden sm:block text-xs text-gray-500">
 							Câu {currentIdx + 1} / {totalQuestions}
 						</p>
 					</div>
 				</div>
 
-				{/* Center Section: Audio */}
+				{/* Center Section: Audio (Desktop) */}
 				{audioUrl && (
 					<div className="hidden md:flex flex-1 justify-center mx-4">
 						<AudioPlayer src={audioUrl} />
@@ -53,7 +57,7 @@ export default function TestHeader({
 				)}
 
 				{/* Right Section: Timer & Submit */}
-				<div className="flex items-center gap-3 md:gap-6 flex-shrink-0">
+				<div className="flex items-center gap-2 md:gap-6 flex-shrink-0">
 					<div className="hidden lg:block text-right">
 						<div className="text-xs font-bold text-gray-500 mb-1">
 							Tiến độ: {progress}%
