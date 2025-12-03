@@ -127,110 +127,18 @@ const getLibraryData = async (userId) => {
 
 	const ratingPromise = calculateUserRating(userId);
 
-	const enrolledCoursesPromise = courseService.getAll({
-		enrolledUserId: userId,
-		limit: 50,
-		sort: "newest",
-	});
-
-	const recentTestsPromise = prisma.attempt.findMany({
-		where: { userId },
-		take: 50,
-		orderBy: { createdAt: "desc" },
-		include: {
-			test: {
-				select: {
-					id: true,
-					title: true,
-					status: true,
-					questionsCount: true,
-				},
-			},
-		},
-	});
-
-	const createdCoursesPromise = courseService.getAll({
-		userId: userId,
-		limit: 50,
-		sort: "newest",
-	});
-
-	const createdDecksPromise = deckService.getDecks({
-		userId: userId,
-		currentUserId: userId,
-		limit: 50,
-		sort: "newest",
-	});
-
-	const createdPostsPromise = postService.getPosts({
-		authorId: userId,
-		limit: 50,
-		sort: "newest",
-	});
-
-	const createdTestsPromise = testService.getTests({
-		userId: userId,
-		limit: 50,
-		sort: "newest",
-	});
-
-	const [
-		user,
-		averageRating,
-		enrolledCourses,
-		recentAttempts,
-		createdCourses,
-		createdDecks,
-		createdPosts,
-		createdTests,
-	] = await Promise.all([
+	const [user, averageRating] = await Promise.all([
 		userPromise,
 		ratingPromise,
-		enrolledCoursesPromise,
-		recentTestsPromise,
-		createdCoursesPromise,
-		createdDecksPromise,
-		createdPostsPromise,
-		createdTestsPromise,
 	]);
 
 	if (!user) throw new NotFoundError("User not found");
-
-	const formattedRecentTests = recentAttempts.map((attempt) => {
-		const totalPoints = attempt.totalPossiblePoints || 0;
-		const scoredPoints = attempt.scoredPoints || 0;
-		const percentage = totalPoints > 0 ? scoredPoints / totalPoints : 0;
-		const status = percentage >= 0.5 ? "PASSED" : "FAILED";
-
-		return {
-			id: attempt.id,
-			test: {
-				id: attempt.test.id,
-				title: attempt.test.title,
-				questionsCount: attempt.test.questionsCount,
-			},
-			score: scoredPoints,
-			totalScore: totalPoints,
-			date: attempt.createdAt,
-			status: status,
-		};
-	});
 
 	return {
 		user: {
 			...user,
 			joinedAt: user.createdAt,
 			averageRating: Number(averageRating.toFixed(1)),
-		},
-		learning: {
-			courses: enrolledCourses.data,
-			attempts: formattedRecentTests,
-		},
-		creations: {
-			courses: createdCourses.data,
-			decks: createdDecks.data,
-			posts: createdPosts.data,
-			tests: createdTests.data,
 		},
 	};
 };
@@ -251,48 +159,9 @@ const getPublicProfile = async (targetUserId) => {
 
 	const ratingPromise = calculateUserRating(targetUserId);
 
-	const createdCoursesPromise = courseService.getAll({
-		userId: targetUserId,
-		status: "PUBLIC",
-		limit: 20,
-		sort: "newest",
-	});
-
-	const createdDecksPromise = deckService.getDecks({
-		userId: targetUserId,
-		currentUserId: null,
-		limit: 20,
-		sort: "newest",
-	});
-
-	const createdPostsPromise = postService.getPosts({
-		authorId: targetUserId,
-		status: "PUBLIC",
-		limit: 20,
-		sort: "newest",
-	});
-
-	const createdTestsPromise = testService.getTests({
-		userId: targetUserId,
-		isPublic: true,
-		limit: 20,
-		sort: "newest",
-	});
-
-	const [
-		user,
-		averageRating,
-		createdCourses,
-		createdDecks,
-		createdPosts,
-		createdTests,
-	] = await Promise.all([
+	const [user, averageRating] = await Promise.all([
 		userPromise,
 		ratingPromise,
-		createdCoursesPromise,
-		createdDecksPromise,
-		createdPostsPromise,
-		createdTestsPromise,
 	]);
 
 	if (!user) throw new NotFoundError("User not found");
@@ -302,17 +171,6 @@ const getPublicProfile = async (targetUserId) => {
 			...user,
 			joinedAt: user.createdAt,
 			averageRating: Number(averageRating.toFixed(1)),
-		},
-
-		learning: {
-			courses: [],
-			attempts: [],
-		},
-		creations: {
-			courses: createdCourses.data,
-			decks: createdDecks.data,
-			posts: createdPosts.data,
-			tests: createdTests.data,
 		},
 	};
 };

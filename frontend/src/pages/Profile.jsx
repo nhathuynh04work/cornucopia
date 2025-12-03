@@ -231,11 +231,11 @@ export default function Profile() {
 		<>
 			<div className="min-h-screen bg-gray-50/50 pb-12">
 				<div className="max-w-6xl mx-auto px-4 md:px-6 pt-6">
-					{/* Back Button */}
+					{/* Back Button - Updated Style */}
 					<button
 						onClick={() => navigate(-1)}
-						className="mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-medium">
-						<ArrowLeft className="w-5 h-5" />
+						className="group mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900">
+						<ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
 						Quay lại
 					</button>
 
