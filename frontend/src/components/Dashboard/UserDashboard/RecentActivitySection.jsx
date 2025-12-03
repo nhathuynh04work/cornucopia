@@ -14,9 +14,10 @@ export default function RecentActivitySection({ recentActivity }) {
 	}, [recentActivity, activityFilter]);
 
 	return (
-		<div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-full flex flex-col min-h-0">
+		<div className="bg-white p-4 sm:p-6 rounded-3xl border border-gray-100 shadow-sm h-full flex flex-col min-h-0">
 			{/* Header & Filters */}
-			<div className="flex items-center justify-between mb-4 flex-shrink-0">
+			{/* Adjusted for mobile: flex-col on small screens */}
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4 sm:gap-0 flex-shrink-0">
 				<div className="flex items-center gap-2">
 					<h2 className="text-lg font-bold text-gray-900">
 						Hoạt động gần đây
@@ -27,11 +28,12 @@ export default function RecentActivitySection({ recentActivity }) {
 				</div>
 
 				{/* Icon-based Filter Group */}
-				<div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+				{/* Added overflow-x-auto for very small screens */}
+				<div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200 overflow-x-auto no-scrollbar max-w-full">
 					<button
 						onClick={() => setActivityFilter("ALL")}
 						title="Tất cả"
-						className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${
+						className={`px-3 py-1 text-xs font-bold rounded-md transition-colors whitespace-nowrap ${
 							activityFilter === "ALL"
 								? "bg-white text-purple-600 shadow-sm"
 								: "text-gray-500 hover:text-gray-900"
@@ -41,7 +43,7 @@ export default function RecentActivitySection({ recentActivity }) {
 					<button
 						onClick={() => setActivityFilter("SESSION")}
 						title="Học bộ thẻ"
-						className={`p-1.5 rounded-md transition-colors ${
+						className={`p-1.5 rounded-md transition-colors flex-shrink-0 ${
 							activityFilter === "SESSION"
 								? "bg-white text-purple-600 shadow-sm"
 								: "text-gray-400 hover:text-gray-900"
@@ -51,7 +53,7 @@ export default function RecentActivitySection({ recentActivity }) {
 					<button
 						onClick={() => setActivityFilter("TEST")}
 						title="Bài kiểm tra"
-						className={`p-1.5 rounded-md transition-colors ${
+						className={`p-1.5 rounded-md transition-colors flex-shrink-0 ${
 							activityFilter === "TEST"
 								? "bg-white text-blue-600 shadow-sm"
 								: "text-gray-400 hover:text-gray-900"
@@ -61,7 +63,7 @@ export default function RecentActivitySection({ recentActivity }) {
 					<button
 						onClick={() => setActivityFilter("LESSON")}
 						title="Bài học"
-						className={`p-1.5 rounded-md transition-colors ${
+						className={`p-1.5 rounded-md transition-colors flex-shrink-0 ${
 							activityFilter === "LESSON"
 								? "bg-white text-green-600 shadow-sm"
 								: "text-gray-400 hover:text-gray-900"

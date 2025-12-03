@@ -196,6 +196,7 @@ export default function Profile() {
 						userId={targetId}
 						searchTerm={searchTerm}
 						sortBy={sortBy}
+						isOwnProfile={isOwnProfile}
 					/>
 				);
 			case "decks":
@@ -204,6 +205,7 @@ export default function Profile() {
 						userId={targetId}
 						searchTerm={searchTerm}
 						sortBy={sortBy}
+						isOwnProfile={isOwnProfile}
 					/>
 				);
 			case "tests":
@@ -212,6 +214,7 @@ export default function Profile() {
 						userId={targetId}
 						searchTerm={searchTerm}
 						sortBy={sortBy}
+						isOwnProfile={isOwnProfile}
 					/>
 				);
 			case "posts":
@@ -220,6 +223,7 @@ export default function Profile() {
 						userId={targetId}
 						searchTerm={searchTerm}
 						sortBy={sortBy}
+						isOwnProfile={isOwnProfile}
 					/>
 				);
 			default:

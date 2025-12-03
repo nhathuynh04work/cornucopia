@@ -6,7 +6,6 @@ import {
 	BookOpen,
 	FileQuestion,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import CreatorChartSection from "./CreatorChartSection";
 import RecentContentSidebar from "./RecentContentSidebar";
@@ -47,14 +46,16 @@ function CreatorDashboard({ initialStats }) {
 			title="Dashboard Nhà Sáng Tạo"
 			description="Quản lý nội dung và theo dõi hiệu suất của bạn."
 			stats={statsData}>
-			<div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 h-auto lg:h-full">
+			<div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 lg:gap-8 h-auto lg:h-full">
 				{/* LEFT COLUMN: Charts */}
-				<div className="lg:col-span-1 h-auto lg:h-full min-h-0">
+				{/* Mobile: Fixed height for chart rendering stability. Desktop: Fill height */}
+				<div className="lg:col-span-1 h-[450px] lg:h-full min-h-0">
 					<CreatorChartSection />
 				</div>
 
 				{/* RIGHT COLUMN: Recent Content */}
-				<div className="lg:col-span-1 h-[500px] lg:h-full min-h-0">
+				{/* Mobile: Fixed height for scrolling. Desktop: Fill height */}
+				<div className="lg:col-span-1 h-[400px] lg:h-full min-h-0">
 					<RecentContentSidebar recentContent={recentContent} />
 				</div>
 			</div>

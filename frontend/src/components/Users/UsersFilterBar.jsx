@@ -26,41 +26,45 @@ export default function UsersFilterBar({
 	setPage,
 }) {
 	return (
-		<div className="flex flex-col-reverse md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+		<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
 			{/* LEFT: Filters */}
-			<div className="flex flex-wrap gap-3 w-full md:w-auto">
-				<RadixSelect
-					value={roleFilter}
-					onChange={(val) => {
-						setRoleFilter(val);
-						setPage(1);
-					}}
-					options={roleOptions}
-					className="w-[180px]"
-				/>
+			<div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+				<div className="w-full sm:w-[180px]">
+					<RadixSelect
+						value={roleFilter}
+						onChange={(val) => {
+							setRoleFilter(val);
+							setPage(1);
+						}}
+						options={roleOptions}
+						className="w-full"
+					/>
+				</div>
 
-				<RadixSelect
-					value={statusFilter}
-					onChange={(val) => {
-						setStatusFilter(val);
-						setPage(1);
-					}}
-					options={statusOptions}
-					className="w-[180px]"
-				/>
+				<div className="w-full sm:w-[180px]">
+					<RadixSelect
+						value={statusFilter}
+						onChange={(val) => {
+							setStatusFilter(val);
+							setPage(1);
+						}}
+						options={statusOptions}
+						className="w-full"
+					/>
+				</div>
 			</div>
 
 			{/* RIGHT: Search + Count */}
-			<div className="flex items-center gap-4 w-full md:w-auto justify-end">
+			<div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto justify-end">
 				{!isPending && (
-					<span className="hidden md:inline-block text-sm text-gray-500 whitespace-nowrap animate-in fade-in">
+					<span className="hidden lg:inline-block text-sm text-gray-500 whitespace-nowrap animate-in fade-in">
 						Tìm thấy{" "}
 						<strong className="text-gray-900">{totalUsers}</strong>{" "}
 						người dùng
 					</span>
 				)}
 
-				<div className="relative flex-1 md:w-64">
+				<div className="relative w-full md:w-64">
 					<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
 					<input
 						type="text"

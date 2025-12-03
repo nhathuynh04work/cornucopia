@@ -17,7 +17,6 @@ export default function Users() {
 	const [roleFilter, setRoleFilter] = useState("ALL");
 	const [statusFilter, setStatusFilter] = useState("ALL");
 
-	// Reset page when filters change
 	useEffect(() => {
 		setPage(1);
 	}, [debouncedSearch, roleFilter, statusFilter]);
@@ -96,9 +95,9 @@ export default function Users() {
 
 	return (
 		<>
-			<div className="p-6 max-w-[1600px] mx-auto min-h-screen">
+			<div className="p-4 md:p-6 max-w-[1600px] mx-auto min-h-screen">
 				{/* Header Section */}
-				<div className="mb-8">
+				<div className="mb-6 md:mb-8">
 					<PageHeader
 						title="Quản lý Người dùng"
 						description="Quản lý tài khoản, phân quyền và trạng thái hoạt động của thành viên."

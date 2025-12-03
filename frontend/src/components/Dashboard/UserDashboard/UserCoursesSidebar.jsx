@@ -9,7 +9,7 @@ export default function UserCoursesSidebar({ courses }) {
 					Khóa học của tôi
 				</h2>
 				<Link
-					to="/courses"
+					to="/profile/me"
 					className="text-sm font-medium text-purple-600 hover:text-purple-700 flex items-center gap-1">
 					Thư viện <ArrowRight className="w-3 h-3" />
 				</Link>
@@ -28,7 +28,7 @@ export default function UserCoursesSidebar({ courses }) {
 										{course.cover ? (
 											<img
 												src={course.cover}
-												alt={course.name}
+												alt={course.title}
 												className="w-full h-full object-cover"
 											/>
 										) : (
@@ -39,7 +39,7 @@ export default function UserCoursesSidebar({ courses }) {
 									</div>
 									<div className="flex-1 py-0.5 min-w-0 flex flex-col justify-center">
 										<h4 className="font-bold text-gray-900 text-xs leading-snug line-clamp-2 group-hover:text-purple-700 transition-colors mb-2">
-											{course.name}
+											{course.title}
 										</h4>
 										<div className="flex items-center gap-2 w-full">
 											<div className="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">

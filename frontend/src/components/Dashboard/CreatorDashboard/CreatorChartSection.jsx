@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BarChart3, TrendingUp, Loader2, Filter } from "lucide-react";
-import RadixSelect from "@/components/Shared/RadixSelect"; // Ensure this path is correct
+import RadixSelect from "@/components/Shared/RadixSelect";
 import EngagementDonutChart from "./EngagementDonutChart";
 import MonthlyEngagementChart from "./MonthlyEngagementChart";
 
@@ -24,41 +24,50 @@ export default function CreatorChartSection() {
 	];
 
 	return (
-		<div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-full flex flex-col min-h-[450px]">
+		<div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-full flex flex-col min-h-[450px] lg:min-h-0">
 			{/* Header & Controls */}
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 flex-shrink-0 z-20">
-				<div className="flex items-center gap-2">
-					<div
-						className={`p-2 rounded-lg shrink-0 ${
-							isDonut
-								? "bg-purple-50 text-purple-600"
-								: "bg-blue-50 text-blue-600"
-						}`}>
-						{isDonut ? (
-							<BarChart3 className="w-5 h-5" />
-						) : (
-							<TrendingUp className="w-5 h-5" />
-						)}
-					</div>
+				<div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+					<div className="flex items-center gap-2 w-full sm:w-auto">
+						<div
+							className={`p-2 rounded-lg shrink-0 ${
+								isDonut
+									? "bg-purple-50 text-purple-600"
+									: "bg-blue-50 text-blue-600"
+							}`}>
+							{isDonut ? (
+								<BarChart3 className="w-5 h-5" />
+							) : (
+								<TrendingUp className="w-5 h-5" />
+							)}
+						</div>
 
-					<RadixSelect
-						value={chartView}
-						onChange={setChartView}
-						options={viewOptions}
-					/>
+						<div className="w-full sm:w-[200px]">
+							<RadixSelect
+								value={chartView}
+								onChange={setChartView}
+								options={viewOptions}
+								className="w-full"
+							/>
+						</div>
+					</div>
 				</div>
 
-				<RadixSelect
-					value={timePeriod}
-					onChange={setTimePeriod}
-					options={timeOptions}
-					disabled={isDonut} 
-					icon={<Filter className="w-4 h-4" />}
-				/>
+				<div className="w-full sm:w-[150px]">
+					<RadixSelect
+						value={timePeriod}
+						onChange={setTimePeriod}
+						options={timeOptions}
+						disabled={isDonut}
+						icon={<Filter className="w-4 h-4" />}
+						className="w-full"
+					/>
+				</div>
 			</div>
 
 			{/* Chart Content Area */}
-			<div className="flex-1 min-h-0 w-full relative z-10">
+			{/* Mobile: Fixed height 300px. Desktop: Flex-1 */}
+			<div className="h-[300px] sm:h-auto sm:flex-1 w-full relative z-10 min-h-0">
 				{isDonut ? (
 					<EngagementDonutChart />
 				) : (
