@@ -23,15 +23,32 @@ function StudySessionContent({ session }) {
 	const currentCard = cards[currentIndex];
 
 	const handleRate = async (isCorrect) => {
-		await submitAnswer({
-			sessionId,
-			payload: { cardId: currentCard.id, isCorrect },
-		});
+		const isLastCard = currentIndex === cards.length - 1;
+		const payload = { cardId: currentCard.id, isCorrect };
 
-		if (currentIndex < cards.length - 1) {
-			setCurrentIndex((prev) => prev + 1);
+		if (isLastCard) {
+			try {
+				await submitAnswer({
+					sessionId,
+					payload,
+				});
+				setIsFinished(true);
+			} catch (error) {
+				console.error("Failed to save final attempt:", error);
+			}
 		} else {
-			setIsFinished(true);
+			submitAnswer({
+				sessionId,
+				payload,
+			}).catch((err) => {
+				console.error(
+					"Background sync failed for card:",
+					payload.cardId,
+					err
+				);
+			});
+
+			setCurrentIndex((prev) => prev + 1);
 		}
 	};
 
