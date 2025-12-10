@@ -75,33 +75,31 @@ function CourseCard({ course }) {
 	return (
 		<Link
 			to={targetLink}
-			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full md:h-60 relative">
 			{/* --- IMAGE SECTION (Left Side) --- */}
-			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100">
-				<div className="aspect-video md:h-full md:aspect-auto relative">
-					{status !== "PUBLIC" && (
-						<div className="absolute top-2 left-2 z-10">
-							<Badge variant={statusConfig.variant}>
-								{statusConfig.label}
-							</Badge>
-						</div>
-					)}
-					{coverUrl ? (
-						<img
-							src={coverUrl}
-							alt={title}
-							className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-						/>
-					) : (
-						<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
-							<BookOpen className="w-12 h-12" />
-						</div>
-					)}
-				</div>
+			<div className="w-full aspect-video md:w-72 shrink-0 relative overflow-hidden bg-gray-100 md:h-full">
+				{status !== "PUBLIC" && (
+					<div className="absolute top-2 left-2 z-10">
+						<Badge variant={statusConfig.variant}>
+							{statusConfig.label}
+						</Badge>
+					</div>
+				)}
+				{coverUrl ? (
+					<img
+						src={coverUrl}
+						alt={title}
+						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+					/>
+				) : (
+					<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
+						<BookOpen className="w-12 h-12" />
+					</div>
+				)}
 			</div>
 
 			{/* --- CONTENT SECTION (Right Side) --- */}
-			<div className="flex-1 p-5 flex flex-col min-w-0">
+			<div className="flex-1 p-5 flex flex-col min-w-0 overflow-hidden">
 				{/* Header: Title & Price */}
 				<div className="flex justify-between items-start gap-4 mb-2">
 					<div className="space-y-1.5">
@@ -128,7 +126,7 @@ function CourseCard({ course }) {
 					</div>
 				</div>
 
-				{/* 1. Rating Row (Precise Stars) */}
+				{/* 1. Rating Row */}
 				<div className="flex items-center gap-2 mb-2">
 					<StarRating rating={rating} size={16} />
 
@@ -142,7 +140,7 @@ function CourseCard({ course }) {
 					</div>
 				</div>
 
-				{/* 2. Stats Row (Muted & Small) */}
+				{/* 2. Stats Row */}
 				<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-gray-400 font-medium mb-auto uppercase tracking-wide">
 					<div className="flex items-center gap-1.5">
 						<Users className="w-3.5 h-3.5" />

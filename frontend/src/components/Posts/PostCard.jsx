@@ -51,7 +51,7 @@ function PostCard({ post }) {
 			to={targetLink}
 			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
 			{/* --- IMAGE SECTION (Left Side) --- */}
-			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-purple-50 flex items-center justify-center min-h-[160px] md:min-h-0">
+			<div className="w-full aspect-video md:w-72 shrink-0 relative overflow-hidden bg-gray-100 md:h-full">
 				{status !== "PUBLIC" && (
 					<div className="absolute top-2 left-2 z-10">
 						<Badge variant={statusConfig.variant}>
