@@ -49,7 +49,7 @@ function PostCard({ post }) {
 	return (
 		<Link
 			to={targetLink}
-			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative">
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full md:h-60 relative">
 			{/* --- IMAGE SECTION (Left Side) --- */}
 			<div className="w-full aspect-video md:w-72 shrink-0 relative overflow-hidden bg-gray-100 md:h-full">
 				{status !== "PUBLIC" && (
@@ -66,7 +66,9 @@ function PostCard({ post }) {
 						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
 					/>
 				) : (
-					<FileText className="w-12 h-12 text-purple-200 group-hover:scale-110 transition-transform duration-500" />
+					<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
+						<FileText className="w-12 h-12" />
+					</div>
 				)}
 			</div>
 

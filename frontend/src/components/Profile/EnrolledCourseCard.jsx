@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Globe, BarChart2, ChevronRight, BookOpen } from "lucide-react";
 import Avatar from "@/components/Shared/Avatar";
 import { LEVEL_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/constants/common";
+import Badge from "../Shared/Badge";
 
 export default function EnrolledCourseCard({ course }) {
 	const levelLabel =
@@ -15,22 +16,20 @@ export default function EnrolledCourseCard({ course }) {
 	return (
 		<Link
 			to={`/courses/${course.id}/learn`}
-			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full relative cursor-pointer">
+			className="group flex flex-col md:flex-row bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-200 transition-all duration-300 h-full md:h-60 relative">
 			{/* Image Section */}
-			<div className="w-full md:w-72 shrink-0 relative overflow-hidden bg-gray-100 block">
-				<div className="aspect-video md:h-full md:aspect-auto relative">
-					{course.coverUrl ? (
-						<img
-							src={course.coverUrl}
-							alt={course.title}
-							className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-						/>
-					) : (
-						<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
-							<BookOpen className="w-12 h-12" />
-						</div>
-					)}
-				</div>
+			<div className="w-full aspect-video md:w-72 shrink-0 relative overflow-hidden bg-gray-100 md:h-full">
+				{course.coverUrl ? (
+					<img
+						src={course.coverUrl}
+						alt={course.title}
+						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+					/>
+				) : (
+					<div className="w-full h-full flex items-center justify-center bg-purple-50 text-purple-300">
+						<BookOpen className="w-12 h-12" />
+					</div>
+				)}
 			</div>
 
 			<div className="flex-1 p-5 flex flex-col min-w-0">
