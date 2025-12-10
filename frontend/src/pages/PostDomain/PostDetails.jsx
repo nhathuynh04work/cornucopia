@@ -35,7 +35,7 @@ export default function PostDetails() {
 
 	function handleDelete() {
 		deletePost(
-			{ id: postId },
+			{ postId: postId },
 			{
 				onSuccess: () => {
 					navigate("/posts");

@@ -13,15 +13,18 @@ function EditMenu({ deck }) {
 	const { mutate: deleteDeck, isPending: isDeleting } = useDeleteDeck();
 
 	const handleDelete = () => {
-		deleteDeck(deck.id, {
-			onSuccess: () => {
-				toast.success("Đã xóa bộ thẻ");
-				navigate("/decks");
-			},
-			onError: () => {
-				toast.error("Không thể xóa bộ thẻ");
-			},
-		});
+		deleteDeck(
+			{ deckId: deck.id },
+			{
+				onSuccess: () => {
+					toast.success("Đã xóa bộ thẻ");
+					navigate("/decks");
+				},
+				onError: () => {
+					toast.error("Không thể xóa bộ thẻ");
+				},
+			}
+		);
 	};
 
 	return (
